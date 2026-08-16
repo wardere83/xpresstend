@@ -1,0 +1,227 @@
+export const en = {
+  // ---- Generic ----
+  'common.continue': 'Continue',
+  'common.cancel': 'Cancel',
+  'common.done': 'Done',
+  'common.confirm': 'Confirm',
+  'common.viewAll': 'View all',
+  'common.seeAll': 'See all',
+  'common.close': 'Close',
+  'common.back': 'Back',
+  'common.yes': 'Yes',
+  'common.no': 'No',
+  'common.edit': 'Edit',
+  'common.online': 'Online',
+  'common.instant': 'Instant',
+  'common.completed': 'Completed',
+  'common.pending': 'Pending',
+  'common.language': 'Language',
+  'common.secure': '100% Secure & Encrypted',
+  'common.search': 'Search',
+
+  // ---- Bottom navigation ----
+  'nav.home': 'Home',
+  'nav.recipients': 'Recipients',
+  'nav.activity': 'Activity',
+  'nav.profile': 'Profile',
+  'nav.speak': 'Speak',
+
+  // ---- Home ----
+  'home.greeting': 'Hello, {name}',
+  'home.subtitle': 'How can we help you today?',
+  'home.voiceTitle': 'Tap the mic to speak',
+  'home.voiceSubtitle': 'Speak in English or Somali',
+  'home.sendMoney': 'Send Money',
+  'home.sendMoneySub': 'Fast, secure and reliable',
+  'home.recentTransaction': 'Recent Transaction',
+  'home.recipients': 'Recipients',
+  'home.quickActions': 'Quick Actions',
+  'home.noTransactions': 'No transfers yet — your first one takes about a minute.',
+
+  // ---- Services ----
+  'service.mobileMoney': 'Mobile Money',
+  'service.bankTransfer': 'Bank Transfer',
+  'service.cashPickup': 'Cash Pickup',
+  'service.airtime': 'Airtime & Bills',
+  'service.mobileMoneySub': 'Straight to a mobile wallet',
+  'service.bankTransferSub': 'Into a bank account',
+  'service.cashPickupSub': 'Collect at an agent',
+  'service.airtimeSub': 'Top up a phone or pay a bill',
+
+  // ---- Quick actions ----
+  'quick.help': 'Help Center',
+  'quick.helpSub': 'Get answers to common questions',
+  'quick.rates': 'Rates',
+  'quick.ratesSub': 'View live rates',
+  'quick.refer': 'Refer & Earn',
+  'quick.referSub': 'Invite friends and earn rewards',
+  'quick.support': 'Live Support',
+  'quick.supportSub': "24/7 support. We're here to help",
+
+  // ---- Voice assistant ----
+  'voice.title': 'Voice Assistant',
+  'voice.listening': 'Listening...',
+  'voice.speakNow': 'Speak now',
+  'voice.trySaying': 'Try saying:',
+  'voice.sample1': 'Send $100 to my mom',
+  'voice.sample2': 'How much did I send last month?',
+  'voice.sample3': 'Add new recipient',
+  'voice.sample4': "What's the exchange rate today?",
+  'voice.poweredBy': 'Powered by {brand} AI',
+  'voice.stop': 'Stop',
+  'voice.secondsLeft': 'You have {seconds} seconds',
+  'voice.tapToStart': 'Tap to start',
+
+  // ---- Assistant chat ----
+  'chat.title': '{assistant}',
+  'chat.placeholder': 'Type your message...',
+  'chat.greeting': 'Hello! How can I help you today?',
+  'chat.userSend500': 'I want to send $500 to my mom.',
+  'chat.botConfirmIntro':
+    'Okay! You are sending {amount} to {name}. Mobile wallet ending in {last4}. Is that correct?',
+  'chat.confirmDetails': 'Please confirm the details',
+  'chat.looksGood': 'Everything looks good. Would you like to continue?',
+  'chat.rateQuestion': "What's the exchange rate today?",
+  'chat.rateAnswer':
+    '1 USD = {rate} Somali Shillings. Exchange rates may change. Check live rates before you send.',
+  'chat.fallback':
+    "I can send money, add a recipient, check a rate or track a transfer. Which one would you like?",
+  'chat.suggest.send': 'Send money',
+  'chat.suggest.rate': 'Check rate',
+  'chat.suggest.track': 'Track transfer',
+
+  // ---- Transfer fields ----
+  'field.recipient': 'Recipient',
+  'field.mobileWallet': 'Mobile Wallet',
+  'field.country': 'Country',
+  'field.youSend': 'You Send',
+  'field.fee': 'Fee',
+  'field.recipientGets': 'Recipient Gets',
+  'field.delivery': 'Delivery',
+  'field.total': 'Total',
+  'field.to': 'To',
+  'field.exchangeRate': 'Exchange Rate',
+  'field.availableBalance': 'Available Balance',
+  'field.estimated': 'Estimated',
+  'field.summary': 'Summary',
+  'field.referenceId': 'Reference ID',
+  'field.dateTime': 'Date & Time',
+  'field.paymentMethod': 'Payment Method',
+
+  // ---- Send money ----
+  'send.title': 'Send Money',
+  'send.from': 'From (You Send)',
+  'send.toGets': 'To (Recipient Gets)',
+  'send.chooseRecipient': 'Choose recipient',
+  'send.changeRecipient': 'Change',
+  'send.amountTooHigh': 'Amount is higher than your available balance.',
+  'send.amountTooLow': 'Enter an amount above the {fee} fee.',
+
+  // ---- Payment methods ----
+  'pay.bank': 'Bank Account',
+  'pay.debit': 'Debit Card',
+  'pay.applePay': 'Apple Pay',
+  'pay.googlePay': 'Google Pay',
+
+  // ---- Review ----
+  'review.title': 'Review & Confirm',
+  'review.important': 'Important',
+  'review.importantBody':
+    'Please make sure all details are correct. Once the transfer is sent, it cannot be canceled.',
+  'review.securityCheck': 'Security Check',
+  'review.securityBody':
+    'For your security, you will need to verify with Face ID or PIN to complete this transfer.',
+  'review.faceId': 'Face ID',
+  'review.pin': 'PIN',
+  'review.send': 'Send {amount}',
+  'review.verifying': 'Verifying...',
+
+  // ---- Success ----
+  'success.title': 'Money Sent!',
+  'success.subtitle': '{amount} has been sent to {name}',
+  'success.youSent': 'You Sent',
+  'success.share': 'Share Receipt',
+  'success.sendAnother': 'Send Another',
+  'success.copied': 'Copied',
+
+  // ---- Recipients ----
+  'recipients.title': 'Recipients',
+  'recipients.add': 'Add new recipient',
+  'recipients.favourites': 'Favourites',
+  'recipients.all': 'All recipients',
+  'recipients.searchPlaceholder': 'Search by name or number',
+  'recipients.empty': 'No recipients match that search.',
+  'recipients.sendTo': 'Send to {name}',
+
+  // ---- Activity ----
+  'activity.title': 'Activity',
+  'activity.thisMonth': 'This month',
+  'activity.sentThisMonth': 'Sent this month',
+  'activity.transfers': '{count} transfers',
+  'activity.empty': 'Nothing here yet.',
+  'activity.filterAll': 'All',
+  'activity.filterSent': 'Sent',
+  'activity.filterPending': 'Pending',
+
+  // ---- Profile ----
+  'profile.title': 'Profile',
+  'profile.verified': 'Verified account',
+  'profile.personal': 'Personal details',
+  'profile.security': 'Security & PIN',
+  'profile.payment': 'Payment methods',
+  'profile.language': 'Language',
+  'profile.notifications': 'Notifications',
+  'profile.help': 'Help Center',
+  'profile.legal': 'Legal & privacy',
+  'profile.signOut': 'Sign out',
+  'profile.member': 'Member since {year}',
+
+  // ---- Rates ----
+  'rates.title': 'Live Rates',
+  'rates.subtitle': 'Updated every 60 seconds',
+  'rates.perUsd': 'per 1 USD',
+  'rates.feeFrom': 'Fee from {fee}',
+
+  // ---- Help ----
+  'help.title': 'Help Center',
+  'help.subtitle': 'Answers in English and Somali, 24/7.',
+  'help.contact': 'Talk to a human',
+  'help.q1': 'How long does a transfer take?',
+  'help.a1':
+    'Mobile wallet transfers usually land within seconds. Bank transfers take up to 1 business day, and cash pickup is ready as soon as you get the reference ID.',
+  'help.q2': 'What are your fees?',
+  'help.a2':
+    'A flat {fee} on transfers up to $1,000, and 0.9% above that. The rate you see before you confirm is the rate you get.',
+  'help.q3': 'Can I cancel a transfer?',
+  'help.a3':
+    'You can cancel while a transfer is still pending. Once the money is collected it can no longer be reversed, so please check the details on the review screen.',
+  'help.q4': 'Which countries can I send to?',
+  'help.a4':
+    'We send from the USA to 130+ countries, including Somalia, Kenya, Ethiopia, Djibouti, Uganda and the UK.',
+  'help.q5': 'Is my money safe?',
+  'help.a5':
+    '{brand} is a licensed money transmitter based in {city}, {state}. Every transfer is encrypted end to end and covered by our refund guarantee.',
+
+  // ---- Refer ----
+  'refer.title': 'Refer & Earn',
+  'refer.subtitle': 'Give $10, get $10 for every friend who sends their first transfer.',
+  'refer.yourCode': 'Your code',
+  'refer.copy': 'Copy code',
+  'refer.invite': 'Invite friends',
+  'refer.earned': 'Earned so far',
+
+  // ---- Support ----
+  'support.title': 'Live Support',
+  'support.subtitle': 'Real people, in English and Somali.',
+  'support.chat': 'Start live chat',
+  'support.call': 'Call us',
+  'support.email': 'Email support',
+
+  // ---- Desktop shell ----
+  'shell.screens': 'Screens',
+  'shell.hint': 'Use the app just like on a phone — every screen is live.',
+  'shell.openFull': 'Open full screen',
+  'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
+} as const
+
+export type TranslationKey = keyof typeof en
