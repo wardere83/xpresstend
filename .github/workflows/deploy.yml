@@ -1,8 +1,14 @@
 name: Build & deploy
 
-# One-time repo setup: Settings → Pages → Build and deployment → Source = "GitHub Actions".
-# The workflow token is not allowed to turn Pages on itself (creating a Pages site needs
-# admin rights), so the deploy job below stays red until that switch is flipped once.
+# Build and checks run on every push and pull request.
+#
+# Deploys are opt-in, so the pipeline stays green until a target is configured.
+# Turn one on with a repository variable (Settings -> Secrets and variables ->
+# Actions -> Variables):
+#
+#   DEPLOY_HOSTGATOR = true   publish over FTPS to HostGator (see secrets below)
+#   DEPLOY_PAGES     = true   publish to GitHub Pages
+#                             (also needs Settings -> Pages -> Source = GitHub Actions)
 
 on:
   push:
@@ -15,9 +21,8 @@ permissions:
   pages: write
   id-token: write
 
-# Never let two deploys race; queue them instead of cancelling a live rollout.
 concurrency:
-  group: pages-${{ github.ref }}
+  group: deploy-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -35,16 +40,57 @@ jobs:
       - run: npm run lint
       - run: npm run build
 
-      # Only the deploy that follows on main consumes this artifact.
-      - name: Upload site
-        if: github.event_name != 'pull_request'
+      - name: Upload site for GitHub Pages
+        if: github.event_name != 'pull_request' && vars.DEPLOY_PAGES == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-  deploy:
+      # Plain artifact so the built site can always be downloaded from the run,
+      # whatever the deploy targets are set to.
+      - name: Upload site as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # HostGator (cPanel shared hosting) over FTPS.
+  #
+  # Required secrets — Settings -> Secrets and variables -> Actions -> Secrets:
+  #   HOSTGATOR_FTP_SERVER    e.g. ftp.xpresshawala.com
+  #   HOSTGATOR_FTP_USERNAME  cPanel or FTP account username
+  #   HOSTGATOR_FTP_PASSWORD  that account's password
+  # Optional variable:
+  #   HOSTGATOR_DIR           target directory, default public_html/
+  # ---------------------------------------------------------------------------
+  hostgator:
     needs: build
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && vars.DEPLOY_HOSTGATOR == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+
+      - name: Publish over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
+          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
+          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/
+          server-dir: ${{ vars.HOSTGATOR_DIR || 'public_html/' }}
+          # Leaves anything already on the host that the build does not own.
+          dangerous-clean-slate: false
+
+  pages:
+    needs: build
+    if: github.event_name != 'pull_request' && vars.DEPLOY_PAGES == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
