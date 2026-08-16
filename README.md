@@ -1,9 +1,11 @@
-# XpressHawala — NabadPay remittance app
+# XpressHawala
 
-A working web build of the NabadPay money-transfer app from the product mockups: a
+A working web build of the XpressHawala money-transfer app from the product mockups: a
 voice-first remittance experience for a Seattle, WA based money transmitter serving
 customers worldwide. **English is the primary language, with a full Somali (Af-Soomaali)
 translation** that can be switched at any time — the whole app, not just the marketing copy.
+
+Deployed from `main` to GitHub Pages on every push.
 
 ## Running it
 

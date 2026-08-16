@@ -20,7 +20,7 @@ export const LANGUAGES: { code: Lang; label: string; nativeLabel: string; flag: 
 
 const dictionaries: Record<Lang, Record<string, string>> = { en, so }
 
-const STORAGE_KEY = 'nabadpay.lang'
+const STORAGE_KEY = 'xpresshawala.lang'
 
 /** Variables every string can rely on without the caller passing them. */
 const globalVars: Record<string, string> = {

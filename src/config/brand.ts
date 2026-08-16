@@ -4,10 +4,10 @@
  * receipt reference prefix and footer everywhere in the app.
  */
 export const brand = {
-  name: 'NabadPay',
-  assistantName: 'Nabad Assistant',
-  /** Prefix used on transfer reference IDs, e.g. NBDP-8457-2391-2024 */
-  referencePrefix: 'NBDP',
+  name: 'XpressHawala',
+  assistantName: 'Xpress Assistant',
+  /** Prefix used on transfer reference IDs, e.g. XPH-8457-2391-2024 */
+  referencePrefix: 'XPH',
   tagline: 'Send money home, in your language',
   hq: {
     city: 'Seattle',
@@ -18,7 +18,7 @@ export const brand = {
   },
   support: {
     phone: '+1 (206) 555-0142',
-    email: 'support@nabadpay.com',
+    email: 'support@xpresshawala.com',
     hours: '24/7',
   },
   legal: {
