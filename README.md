@@ -5,7 +5,12 @@ voice-first remittance experience for a Seattle, WA based money transmitter serv
 customers worldwide. **English is the primary language, with a full Somali (Af-Soomaali)
 translation** that can be switched at any time — the whole app, not just the marketing copy.
 
-Deployed from `main` to GitHub Pages on every push.
+Deployed from `main` to GitHub Pages on every push, by `.github/workflows/deploy.yml`.
+
+> **One-time setup:** in **Settings → Pages → Build and deployment**, set **Source** to
+> **GitHub Actions**. Creating a Pages site needs repo-admin rights that the workflow token
+> does not have, so the deploy job fails until that switch is flipped once. Everything
+> before it — install, lint, type-check, build — runs regardless.
 
 ## Running it
 
