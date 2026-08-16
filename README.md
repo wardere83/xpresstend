@@ -5,13 +5,6 @@ voice-first remittance experience for a Seattle, WA based money transmitter serv
 customers worldwide. **English is the primary language, with a full Somali (Af-Soomaali)
 translation** that can be switched at any time — the whole app, not just the marketing copy.
 
-Deployed from `main` to GitHub Pages on every push, by `.github/workflows/deploy.yml`.
-
-> **One-time setup:** in **Settings → Pages → Build and deployment**, set **Source** to
-> **GitHub Actions**. Creating a Pages site needs repo-admin rights that the workflow token
-> does not have, so the deploy job fails until that switch is flipped once. Everything
-> before it — install, lint, type-check, build — runs regardless.
-
 ## Running it
 
 ```bash
@@ -23,8 +16,39 @@ npm run lint     # oxlint
 ```
 
 The build output in `dist/` is a static site — it can be dropped on any static host
-(GitHub Pages, S3, Netlify, Cloudflare Pages). Routing uses `HashRouter`, so no server
-rewrite rules are needed.
+(HostGator or any cPanel account, GitHub Pages, S3, Netlify, Cloudflare Pages). Routing
+uses `HashRouter` and asset paths are relative, so there are no server rewrite rules to
+configure and the site works just as well from a subfolder as from a domain root.
+
+## Deploying
+
+`.github/workflows/deploy.yml` builds and checks every push and pull request. Deploys are
+opt-in, so nothing goes red before a target is configured. Each run also attaches the built
+site as a `site` artifact, which can be downloaded and uploaded by hand at any time.
+
+### HostGator (cPanel)
+
+**Manual, once:** unzip a build into `public_html/` with cPanel's File Manager.
+
+**Automatic, on every push to `main`:** add these under **Settings → Secrets and variables
+→ Actions**, then push.
+
+| Kind | Name | Value |
+| --- | --- | --- |
+| Variable | `DEPLOY_HOSTGATOR` | `true` |
+| Variable | `HOSTGATOR_DIR` | target directory, defaults to `public_html/` |
+| Secret | `HOSTGATOR_FTP_SERVER` | e.g. `ftp.xpresshawala.com` |
+| Secret | `HOSTGATOR_FTP_USERNAME` | cPanel or FTP account username |
+| Secret | `HOSTGATOR_FTP_PASSWORD` | that account's password |
+
+Credentials belong in GitHub Secrets, never in the repository. The job uses FTPS on port 21
+and only replaces files the build produces, leaving anything else in the directory alone.
+
+### GitHub Pages
+
+Set the variable `DEPLOY_PAGES` to `true`, **and** set **Settings → Pages → Build and
+deployment → Source** to **GitHub Actions**. Creating a Pages site needs repo-admin rights
+that the workflow token does not have, so that switch has to be flipped by hand once.
 
 ## What's in it
 
