@@ -1,5 +1,9 @@
 name: Build & deploy
 
+# One-time repo setup: Settings → Pages → Build and deployment → Source = "GitHub Actions".
+# The workflow token is not allowed to turn Pages on itself (creating a Pages site needs
+# admin rights), so the deploy job below stays red until that switch is flipped once.
+
 on:
   push:
     branches: [main]
@@ -31,13 +35,7 @@ jobs:
       - run: npm run lint
       - run: npm run build
 
-      # Pages steps only matter for the deploy that follows on main.
-      - name: Configure Pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
+      # Only the deploy that follows on main consumes this artifact.
       - name: Upload site
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
