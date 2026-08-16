@@ -1,0 +1,227 @@
+import type { en } from './en'
+
+/** Af-Soomaali. Wording follows the Somali screens in the product mockups. */
+export const so: Record<keyof typeof en, string> = {
+  // ---- Generic ----
+  'common.continue': 'Sii wad',
+  'common.cancel': 'Jooji',
+  'common.done': 'Waan dhammeeyay',
+  'common.confirm': 'Xaqiiji',
+  'common.viewAll': 'Dhammaan',
+  'common.seeAll': 'See all',
+  'common.close': 'Xir',
+  'common.back': 'Dib u noqo',
+  'common.yes': 'Haa',
+  'common.no': 'Maya',
+  'common.edit': 'Beddel',
+  'common.online': 'Online',
+  'common.instant': 'Isla markiiba',
+  'common.completed': 'Waa la dhammeeyay',
+  'common.pending': 'Sugaya',
+  'common.language': 'Luqadda',
+  'common.secure': '100% Ammaan oo la sireeyay',
+  'common.search': 'Raadi',
+
+  // ---- Bottom navigation ----
+  'nav.home': 'Bogga',
+  'nav.recipients': 'Qaataayaal',
+  'nav.activity': 'Dhaqdhaqaaq',
+  'nav.profile': 'Akoonka',
+  'nav.speak': 'Hadal',
+
+  // ---- Home ----
+  'home.greeting': 'Salaan, {name}',
+  'home.subtitle': 'Sidee ayaan kuugu caawin karaa maanta?',
+  'home.voiceTitle': 'Ku hadal Af-Soomaali',
+  'home.voiceSubtitle': 'Taabo si aad ula hadasho kaaliyahaaga AI',
+  'home.sendMoney': 'Dir lacag',
+  'home.sendMoneySub': 'Dooro sida aad u dirayso',
+  'home.recentTransaction': 'Wareejintii u dambaysay',
+  'home.recipients': 'Qaataayaashayda',
+  'home.quickActions': 'Tilmaamaha Kale',
+  'home.noTransactions': 'Weli wax wareejin ah ma jiraan — tii ugu horreysay hal daqiiqo bay qaadataa.',
+
+  // ---- Services ----
+  'service.mobileMoney': 'Mobile Money',
+  'service.bankTransfer': 'Bank Transfer',
+  'service.cashPickup': 'Cash Pickup',
+  'service.airtime': 'Airtime & Biilal',
+  'service.mobileMoneySub': 'Toos ugu dir mobile wallet',
+  'service.bankTransferSub': 'Ku shub akoon bangi',
+  'service.cashPickupSub': 'Ka qaado wakiil',
+  'service.airtimeSub': 'Shub airtime ama bixi biil',
+
+  // ---- Quick actions ----
+  'quick.help': 'La hadal AI',
+  'quick.helpSub': "Su'aal kasta waydii. Kaaliyaha AI ayaa ku caawin doona.",
+  'quick.rates': 'Heerka Sarifka',
+  'quick.ratesSub': 'Heerka maanta',
+  'quick.refer': 'Ammaankaaga',
+  'quick.referSub': 'Macluumaadkaagu waa 100% ammaan.',
+  'quick.support': 'Taageero',
+  'quick.supportSub': '24/7 Af-Soomaali Live Chat iyo Call',
+
+  // ---- Voice assistant ----
+  'voice.title': 'Kaaliyaha AI',
+  'voice.listening': 'Dhageysanayaa...',
+  'voice.speakNow': 'Fadlan ku hadal Af-Soomaali',
+  'voice.trySaying': 'Isku day inaad tiraahdo:',
+  'voice.sample1': 'Hooyo u dir $100',
+  'voice.sample2': 'Bishii hore intee ayaan diray?',
+  'voice.sample3': 'Ku dar qaataha cusub',
+  'voice.sample4': 'Heerka sarifka maanta waa imisa?',
+  'voice.poweredBy': 'Waxaa kuu keenay {brand} AI',
+  'voice.stop': 'Jooji',
+  'voice.secondsLeft': 'Waxaad leedahay {seconds} ilbiriqsi',
+  'voice.tapToStart': 'Taabo si aad u bilowdo',
+
+  // ---- Assistant chat ----
+  'chat.title': 'Kaaliyaha AI',
+  'chat.placeholder': 'Ku qor ama ku hadal...',
+  'chat.greeting': 'Salaan! Maxaan kuu caawin karaa maanta?',
+  'chat.userSend500': 'Waxaan rabaa inaan hooyo u diro $500.',
+  'chat.botConfirmIntro':
+    'Waxaan kuu diyaarinayaa {amount} in aad u dirto {name}. Ma lambarkii hore ee ku dhammaanayay {last4} baa?',
+  'chat.confirmDetails': 'Fadlan hubi macluumaadka',
+  'chat.looksGood': 'Wax walba waa sax. Ma rabtaa inaad sii wadato?',
+  'chat.rateQuestion': 'Heerka maanta waa imisa?',
+  'chat.rateAnswer':
+    '1 USD = {rate} Shilin Soomaali. Heerka sarifku waa isbeddeli karaa. Hubi heerka tooska ah intaadan dirin.',
+  'chat.fallback':
+    'Waxaan kuu diri karaa lacag, ku dari karaa qaataha, hubin karaa heerka sarifka ama raadin karaa wareejin. Middee baad rabtaa?',
+  'chat.suggest.send': 'Dir lacag',
+  'chat.suggest.rate': 'Hubi heerka',
+  'chat.suggest.track': 'Raadi wareejinta',
+
+  // ---- Transfer fields ----
+  'field.recipient': 'Qaataha',
+  'field.mobileWallet': 'Mobile Wallet',
+  'field.country': 'Wadanka',
+  'field.youSend': 'Waxaad diraysaa',
+  'field.fee': 'Biid',
+  'field.recipientGets': 'Qaataha ayaa hela',
+  'field.delivery': 'Soo gaarta',
+  'field.total': 'Wadarta',
+  'field.to': 'Cidda',
+  'field.exchangeRate': 'Heerka sarifka',
+  'field.availableBalance': 'Haraaga la heli karo',
+  'field.estimated': 'Qiyaas',
+  'field.summary': 'Kooban',
+  'field.referenceId': 'Reference ID',
+  'field.dateTime': 'Taariikhda',
+  'field.paymentMethod': 'Habka lacag bixinta',
+
+  // ---- Send money ----
+  'send.title': 'Dooro Habka Lacagta',
+  'send.from': 'Laga bilaabo (USA)',
+  'send.toGets': 'Qaataha ayaa hela',
+  'send.chooseRecipient': 'Dooro qaataha',
+  'send.changeRecipient': 'Beddel',
+  'send.amountTooHigh': 'Lacagta way ka badan tahay haraagaaga.',
+  'send.amountTooLow': 'Geli lacag ka badan biidka {fee}.',
+
+  // ---- Payment methods ----
+  'pay.bank': 'Akoon Bangi',
+  'pay.debit': 'Kaadhka Debit',
+  'pay.applePay': 'Apple Pay',
+  'pay.googlePay': 'Google Pay',
+
+  // ---- Review ----
+  'review.title': 'Xaqiiji oo Dir',
+  'review.important': 'Muhiim',
+  'review.importantBody':
+    'Hubi macluumaadka qaataha. Lacagta la diray lama soo celin karo kadib marka la diro.',
+  'review.securityCheck': 'Hubinta Ammaanka',
+  'review.securityBody': 'Fadlan xaqiiji aqoonsigaaga si aad u dirto lacagta.',
+  'review.faceId': 'Face ID',
+  'review.pin': 'PIN',
+  'review.send': 'Dir Lacagta — {amount}',
+  'review.verifying': 'Waa la xaqiijinayaa...',
+
+  // ---- Success ----
+  'success.title': 'Lacagta waa la diray!',
+  'success.subtitle': '{amount} ayaa la gaarsiiyay {name}',
+  'success.youSent': 'Waxaad dirtay',
+  'success.share': 'La wadaag rasiidka',
+  'success.sendAnother': 'Mid kale dir',
+  'success.copied': 'Waa la koobiyeeyay',
+
+  // ---- Recipients ----
+  'recipients.title': 'Qaataayaashayda',
+  'recipients.add': 'Ku dar qaataha cusub',
+  'recipients.favourites': 'Kuwa aad badan u dirto',
+  'recipients.all': 'Dhammaan qaataayaasha',
+  'recipients.searchPlaceholder': 'Ku raadi magac ama lambar',
+  'recipients.empty': 'Ma jiro qaataha u dhigma raadinta.',
+  'recipients.sendTo': 'U dir {name}',
+
+  // ---- Activity ----
+  'activity.title': 'Dhaqdhaqaaqa',
+  'activity.thisMonth': 'Bishan',
+  'activity.sentThisMonth': 'Waxaad bishan dirtay',
+  'activity.transfers': '{count} wareejin',
+  'activity.empty': 'Weli waxba halkan ma jiraan.',
+  'activity.filterAll': 'Dhammaan',
+  'activity.filterSent': 'La diray',
+  'activity.filterPending': 'Sugaya',
+
+  // ---- Profile ----
+  'profile.title': 'Akoonkayga',
+  'profile.verified': 'Akoon la xaqiijiyay',
+  'profile.personal': 'Macluumaadka shakhsiga',
+  'profile.security': 'Ammaanka & PIN',
+  'profile.payment': 'Habka lacag bixinta',
+  'profile.language': 'Luqadda',
+  'profile.notifications': 'Ogeysiisyada',
+  'profile.help': 'Xarunta Caawinta',
+  'profile.legal': 'Sharciga & asturnaanta',
+  'profile.signOut': 'Ka bax',
+  'profile.member': 'Xubin tan iyo {year}',
+
+  // ---- Rates ----
+  'rates.title': 'Heerka Sarifka',
+  'rates.subtitle': 'Waa la cusboonaysiiyaa 60 ilbiriqsi kasta',
+  'rates.perUsd': 'halkii 1 USD',
+  'rates.feeFrom': 'Biidku wuxuu ka bilaabmaa {fee}',
+
+  // ---- Help ----
+  'help.title': 'Xarunta Caawinta',
+  'help.subtitle': 'Jawaabo Af-Soomaali iyo Ingiriisi, 24/7.',
+  'help.contact': 'La hadal qof',
+  'help.q1': 'Wareejintu intee bay qaadataa?',
+  'help.a1':
+    'Mobile wallet inta badan ilbiriqsiyo gudahood bay gaartaa. Bangiyada waxay qaadanayaan ilaa 1 maalin shaqo, cash pickup-na waa diyaar isla marka aad hesho reference ID-ga.',
+  'help.q2': 'Biidkiinnu waa imisa?',
+  'help.a2':
+    'Biid go’an oo {fee} ah wareejinta ilaa $1,000, ka badanna 0.9%. Heerka aad aragto ka hor xaqiijinta ayaa ah kan aad heli doonto.',
+  'help.q3': 'Ma joojin karaa wareejinta?',
+  'help.a3':
+    'Waad joojin kartaa inta ay wareejintu sugayso. Marka lacagta la qaato lama soo celin karo, sidaas darteed fadlan hubi macluumaadka bogga xaqiijinta.',
+  'help.q4': 'Waddamada kee baan u diri karaa?',
+  'help.a4':
+    'Waxaan ka dirnaa Maraykanka una dirnaa in ka badan 130 waddan, oo ay ku jiraan Soomaaliya, Kenya, Itoobiya, Jabuuti, Uganda iyo UK.',
+  'help.q5': 'Lacagtaydu ma ammaan baa?',
+  'help.a5':
+    '{brand} waa shirkad shatiyeysan oo fadhigeedu yahay {city}, {state}. Wareejin kastaa waa mid la sireeyay, waxaana daboolaya dammaanaddayada lacag-celinta.',
+
+  // ---- Refer ----
+  'refer.title': 'Casuun oo Kasbo',
+  'refer.subtitle': 'Sii $10, hel $10 saaxiib kasta oo sameeya wareejintiisii ugu horreysay.',
+  'refer.yourCode': 'Koodhkaaga',
+  'refer.copy': 'Koobi koodhka',
+  'refer.invite': 'Casuun saaxiibbo',
+  'refer.earned': 'Waxaad kasbatay',
+
+  // ---- Support ----
+  'support.title': 'Taageero Toos ah',
+  'support.subtitle': 'Dad dhab ah, Af-Soomaali iyo Ingiriisi.',
+  'support.chat': 'Bilow live chat',
+  'support.call': 'Naga soo wac',
+  'support.email': 'Email noo dir',
+
+  // ---- Desktop shell ----
+  'shell.screens': 'Boggagga',
+  'shell.hint': 'U isticmaal sida telefoonka — bog kastaa waa mid shaqeynaya.',
+  'shell.openFull': 'Fur si buuxda',
+  'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
+}
