@@ -5,6 +5,7 @@ import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, usd } from '../lib/format'
+import { corridorName } from '../data/mock'
 
 type Verification = 'face' | 'pin'
 
@@ -55,11 +56,11 @@ export function Review() {
           <SummaryRow label={t('field.to')} value={recipient.name} />
           <SummaryRow
             label={t('field.mobileWallet')}
-            value={maskedWallet(recipient.wallet, recipient.last4)}
+            value={<bdi>{maskedWallet(recipient.wallet, recipient.last4)}</bdi>}
           />
           <SummaryRow
             label={t('field.country')}
-            value={`${corridor.flag} ${lang === 'so' ? corridor.countrySo : corridor.country}`}
+            value={`${corridor.flag} ${corridorName(corridor, lang)}`}
           />
           <SummaryRow label={t('field.delivery')} value={t('common.instant')} />
         </section>

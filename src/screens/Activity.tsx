@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowUpRight, Clock } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
-import { useI18n } from '../i18n'
+import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { getCorridor, getRecipient } from '../data/mock'
 import { amount as fmtAmount, formatDate, usd } from '../lib/format'
@@ -10,6 +10,7 @@ type Filter = 'all' | 'completed' | 'pending'
 
 export function Activity() {
   const { t } = useI18n()
+  const mirror = useMirrorClass()
   const { history } = useTransfer()
   const [filter, setFilter] = useState<Filter>('all')
 
@@ -41,7 +42,9 @@ export function Activity() {
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         <section className="rounded-[22px] bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-[var(--shadow-float)]">
           <p className="text-[12px] font-semibold text-white/70">{t('activity.sentThisMonth')}</p>
-          <p className="mt-1 text-[30px] leading-none font-extrabold">{usd(monthTotal)}</p>
+          <p className="mt-1 text-[30px] leading-none font-extrabold">
+            <bdi>{usd(monthTotal)}</bdi>
+          </p>
           <p className="mt-2 text-[12px] text-white/70">
             {t('activity.transfers', { count: history.length })}
           </p>
@@ -79,21 +82,25 @@ export function Activity() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14px] font-bold text-ink-900">{r.name}</p>
                     <p className="truncate text-[12px] text-ink-500">
-                      {formatDate(tx.date)} · {r.wallet}
+                      {formatDate(tx.date)} · <bdi>{r.wallet}</bdi>
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[14px] font-extrabold text-ink-900">{usd(tx.amountUsd)}</p>
+                  <div className="text-end">
+                    <p className="text-[14px] font-extrabold text-ink-900">
+                      <bdi>{usd(tx.amountUsd)}</bdi>
+                    </p>
                     <p
                       className={`flex items-center justify-end gap-1 text-[11.5px] font-semibold ${
                         done ? 'text-emerald-600' : 'text-amber-600'
                       }`}
                     >
-                      {done ? <ArrowUpRight size={12} /> : <Clock size={12} />}
+                      {done ? <ArrowUpRight size={12} className={mirror} /> : <Clock size={12} />}
                       {t(done ? 'common.completed' : 'common.pending')}
                     </p>
                     <p className="text-[10.5px] text-ink-400">
-                      {fmtAmount(tx.amountUsd * corridor.rate)} {corridor.currency}
+                      <bdi>
+                        {fmtAmount(tx.amountUsd * corridor.rate)} {corridor.currency}
+                      </bdi>
                     </p>
                   </div>
                 </li>

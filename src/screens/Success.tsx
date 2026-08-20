@@ -87,7 +87,7 @@ export function Success() {
             {t('success.subtitle', { amount: usd(quote.recipientUsd), name: recipient.name })}
           </p>
           <p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/60">
-            {maskedWallet(recipient.wallet, recipient.last4)}
+            <bdi>{maskedWallet(recipient.wallet, recipient.last4)}</bdi>
           </p>
         </div>
 
@@ -96,11 +96,11 @@ export function Success() {
           <button
             type="button"
             onClick={() => copy(lastTransaction.reference)}
-            className="flex w-full items-center justify-between gap-3 py-2 text-left"
+            className="flex w-full items-center justify-between gap-3 py-2 text-start"
           >
             <span className="text-[13px] text-ink-500">{t('field.referenceId')}</span>
             <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-900">
-              {lastTransaction.reference}
+              <bdi>{lastTransaction.reference}</bdi>
               <Copy size={13} className="text-ink-400" />
             </span>
           </button>

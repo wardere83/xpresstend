@@ -1,0 +1,233 @@
+import type { en } from './en'
+
+/**
+ * Español. Deliberately neutral and formal (usted) so the same copy reads
+ * naturally in Mexico, Central America, US Hispanic markets and Spain —
+ * no regional slang, no country-specific vocabulary.
+ */
+export const es: Record<keyof typeof en, string> = {
+  // ---- Generic ----
+  'common.continue': 'Continuar',
+  'common.cancel': 'Cancelar',
+  'common.done': 'Listo',
+  'common.confirm': 'Confirmar',
+  'common.viewAll': 'Ver todo',
+  'common.seeAll': 'Ver todos',
+  'common.close': 'Cerrar',
+  'common.back': 'Atrás',
+  'common.yes': 'Sí',
+  'common.no': 'No',
+  'common.edit': 'Editar',
+  'common.online': 'En línea',
+  'common.instant': 'Inmediato',
+  'common.completed': 'Completada',
+  'common.pending': 'Pendiente',
+  'common.language': 'Idioma',
+  'common.secure': '100% seguro y cifrado',
+  'common.search': 'Buscar',
+
+  // ---- Bottom navigation ----
+  'nav.home': 'Inicio',
+  'nav.recipients': 'Destinatarios',
+  'nav.activity': 'Actividad',
+  'nav.profile': 'Perfil',
+  'nav.speak': 'Hablar',
+
+  // ---- Home ----
+  'home.greeting': 'Hola, {name}',
+  'home.subtitle': '¿Cómo podemos ayudarle hoy?',
+  'home.voiceTitle': 'Toque el micrófono para hablar',
+  'home.voiceSubtitle': 'Hable en español o en inglés',
+  'home.sendMoney': 'Enviar dinero',
+  'home.sendMoneySub': 'Rápido, seguro y confiable',
+  'home.recentTransaction': 'Transferencia reciente',
+  'home.recipients': 'Destinatarios',
+  'home.quickActions': 'Acciones rápidas',
+  'home.noTransactions': 'Aún no hay transferencias. La primera toma alrededor de un minuto.',
+
+  // ---- Services ----
+  'service.mobileMoney': 'Mobile Money',
+  'service.bankTransfer': 'Transferencia bancaria',
+  'service.cashPickup': 'Retiro en efectivo',
+  'service.airtime': 'Recargas y facturas',
+  'service.mobileMoneySub': 'Directo a una billetera móvil',
+  'service.bankTransferSub': 'A una cuenta bancaria',
+  'service.cashPickupSub': 'Retire con un agente',
+  'service.airtimeSub': 'Recargue un teléfono o pague una factura',
+
+  // ---- Quick actions ----
+  'quick.help': 'Centro de ayuda',
+  'quick.helpSub': 'Respuestas a las preguntas más frecuentes',
+  'quick.rates': 'Tipos de cambio',
+  'quick.ratesSub': 'Ver los tipos de cambio en vivo',
+  'quick.refer': 'Refiera y gane',
+  'quick.referSub': 'Invite a sus amigos y gane recompensas',
+  'quick.support': 'Soporte en vivo',
+  'quick.supportSub': 'Soporte 24/7. Estamos aquí para ayudarle',
+
+  // ---- Voice assistant ----
+  'voice.title': 'Asistente de voz',
+  'voice.listening': 'Escuchando...',
+  'voice.speakNow': 'Hable ahora',
+  'voice.trySaying': 'Intente decir:',
+  'voice.sample1': 'Enviar 100 USD a mi madre',
+  'voice.sample2': '¿Cuánto envié el mes pasado?',
+  'voice.sample3': 'Agregar un nuevo destinatario',
+  'voice.sample4': '¿Cuál es el tipo de cambio de hoy?',
+  'voice.poweredBy': 'Con tecnología de {brand} AI',
+  'voice.stop': 'Detener',
+  'voice.secondsLeft': 'Tiene {seconds} segundos',
+  'voice.tapToStart': 'Toque para comenzar',
+
+  // ---- Assistant chat ----
+  'chat.title': '{assistant}',
+  'chat.placeholder': 'Escriba su mensaje...',
+  'chat.greeting': '¡Hola! ¿Cómo puedo ayudarle hoy?',
+  'chat.userSend500': 'Quiero enviar 500 USD a mi madre.',
+  'chat.botConfirmIntro':
+    'De acuerdo. Está enviando {amount} a {name}. Billetera móvil terminada en {last4}. ¿Es correcto?',
+  'chat.confirmDetails': 'Confirme los datos',
+  'chat.looksGood': 'Todo está en orden. ¿Desea continuar?',
+  'chat.rateQuestion': '¿Cuál es el tipo de cambio de hoy?',
+  'chat.rateAnswer':
+    '1 USD = {rate} chelines somalíes. Los tipos de cambio pueden variar. Consulte los tipos de cambio en vivo antes de enviar.',
+  'chat.fallback':
+    'Puedo enviar dinero, agregar un destinatario, consultar un tipo de cambio o rastrear una transferencia. ¿Cuál prefiere?',
+  'chat.suggest.send': 'Enviar dinero',
+  'chat.suggest.rate': 'Consultar el tipo de cambio',
+  'chat.suggest.track': 'Rastrear transferencia',
+
+  // ---- Transfer fields ----
+  'field.recipient': 'Destinatario',
+  'field.mobileWallet': 'Billetera móvil',
+  'field.country': 'País',
+  'field.youSend': 'Usted envía',
+  'field.fee': 'Comisión',
+  'field.recipientGets': 'El destinatario recibe',
+  'field.delivery': 'Entrega',
+  'field.total': 'Total',
+  'field.to': 'Para',
+  'field.exchangeRate': 'Tipo de cambio',
+  'field.availableBalance': 'Saldo disponible',
+  'field.estimated': 'Estimado',
+  'field.summary': 'Resumen',
+  'field.referenceId': 'Número de referencia',
+  'field.dateTime': 'Fecha y hora',
+  'field.paymentMethod': 'Método de pago',
+
+  // ---- Send money ----
+  'send.title': 'Enviar dinero',
+  'send.from': 'Desde (usted envía)',
+  'send.toGets': 'Para (el destinatario recibe)',
+  'send.chooseRecipient': 'Elegir destinatario',
+  'send.changeRecipient': 'Cambiar',
+  'send.amountTooHigh': 'El monto supera su saldo disponible.',
+  'send.amountTooLow': 'Ingrese un monto superior a la comisión de {fee}.',
+
+  // ---- Payment methods ----
+  'pay.bank': 'Cuenta bancaria',
+  'pay.debit': 'Tarjeta de débito',
+  'pay.applePay': 'Apple Pay',
+  'pay.googlePay': 'Google Pay',
+
+  // ---- Review ----
+  'review.title': 'Revisar y confirmar',
+  'review.important': 'Importante',
+  'review.importantBody':
+    'Verifique que todos los datos sean correctos. Una vez enviada, la transferencia no se puede cancelar.',
+  'review.securityCheck': 'Verificación de seguridad',
+  'review.securityBody':
+    'Por su seguridad, deberá verificar su identidad con Face ID o PIN para completar esta transferencia.',
+  'review.faceId': 'Face ID',
+  'review.pin': 'PIN',
+  'review.send': 'Enviar {amount}',
+  'review.verifying': 'Verificando...',
+
+  // ---- Success ----
+  'success.title': '¡Dinero enviado!',
+  'success.subtitle': 'Se enviaron {amount} a {name}',
+  'success.youSent': 'Usted envió',
+  'success.share': 'Compartir comprobante',
+  'success.sendAnother': 'Enviar otra',
+  'success.copied': 'Copiado',
+
+  // ---- Recipients ----
+  'recipients.title': 'Destinatarios',
+  'recipients.add': 'Agregar un nuevo destinatario',
+  'recipients.favourites': 'Favoritos',
+  'recipients.all': 'Todos los destinatarios',
+  'recipients.searchPlaceholder': 'Buscar por nombre o número',
+  'recipients.empty': 'Ningún destinatario coincide con esa búsqueda.',
+  'recipients.sendTo': 'Enviar a {name}',
+
+  // ---- Activity ----
+  'activity.title': 'Actividad',
+  'activity.thisMonth': 'Este mes',
+  'activity.sentThisMonth': 'Enviado este mes',
+  'activity.transfers': '{count} transferencias',
+  'activity.empty': 'Aún no hay nada aquí.',
+  'activity.filterAll': 'Todas',
+  'activity.filterSent': 'Enviadas',
+  'activity.filterPending': 'Pendientes',
+
+  // ---- Profile ----
+  'profile.title': 'Perfil',
+  'profile.verified': 'Cuenta verificada',
+  'profile.personal': 'Datos personales',
+  'profile.security': 'Seguridad y PIN',
+  'profile.payment': 'Métodos de pago',
+  'profile.language': 'Idioma',
+  'profile.notifications': 'Notificaciones',
+  'profile.help': 'Centro de ayuda',
+  'profile.legal': 'Aviso legal y privacidad',
+  'profile.signOut': 'Cerrar sesión',
+  'profile.member': 'Cliente desde {year}',
+
+  // ---- Rates ----
+  'rates.title': 'Tipos de cambio en vivo',
+  'rates.subtitle': 'Se actualizan cada 60 segundos',
+  'rates.perUsd': 'por 1 USD',
+  'rates.feeFrom': 'Comisión desde {fee}',
+
+  // ---- Help ----
+  'help.title': 'Centro de ayuda',
+  'help.subtitle': 'Respuestas en español e inglés, 24/7.',
+  'help.contact': 'Hablar con una persona',
+  'help.q1': '¿Cuánto tarda una transferencia?',
+  'help.a1':
+    'Las transferencias a billetera móvil suelen llegar en segundos. Las transferencias bancarias tardan hasta 1 día hábil, y el retiro en efectivo queda listo en cuanto usted recibe el número de referencia.',
+  'help.q2': '¿Cuáles son sus comisiones?',
+  'help.a2':
+    'Una comisión fija de {fee} en transferencias de hasta 1000 USD, y 0,9% por encima de ese monto. El tipo de cambio que ve antes de confirmar es el que recibe.',
+  'help.q3': '¿Puedo cancelar una transferencia?',
+  'help.a3':
+    'Puede cancelarla mientras la transferencia siga pendiente. Una vez que el dinero se retira ya no se puede revertir, así que verifique los datos en la pantalla de revisión.',
+  'help.q4': '¿A qué países puedo enviar?',
+  'help.a4':
+    'Enviamos desde Estados Unidos a más de 130 países, incluidos Somalia, Kenia, Etiopía, Yibuti, Uganda y el Reino Unido.',
+  'help.q5': '¿Mi dinero está seguro?',
+  'help.a5':
+    '{brand} es una empresa de transferencia de dinero autorizada con sede en {city}, {state}. Cada transferencia se cifra de extremo a extremo y está cubierta por nuestra garantía de reembolso.',
+
+  // ---- Refer ----
+  'refer.title': 'Refiera y gane',
+  'refer.subtitle':
+    'Regale 10 USD y gane 10 USD por cada amigo que realice su primera transferencia.',
+  'refer.yourCode': 'Su código',
+  'refer.copy': 'Copiar código',
+  'refer.invite': 'Invitar amigos',
+  'refer.earned': 'Ganado hasta ahora',
+
+  // ---- Support ----
+  'support.title': 'Soporte en vivo',
+  'support.subtitle': 'Personas reales, en español e inglés.',
+  'support.chat': 'Iniciar chat en vivo',
+  'support.call': 'Llámenos',
+  'support.email': 'Soporte por correo electrónico',
+
+  // ---- Desktop shell ----
+  'shell.screens': 'Pantallas',
+  'shell.hint': 'Use la aplicación igual que en un teléfono: todas las pantallas funcionan.',
+  'shell.openFull': 'Abrir en pantalla completa',
+  'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
+}

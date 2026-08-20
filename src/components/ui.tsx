@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useMirrorClass, useT } from '../i18n'
 
 /* ------------------------------------------------------------------ */
 /* Status bar                                                          */
@@ -120,6 +121,8 @@ export function ScreenHeader({
   tone?: 'light' | 'dark'
 }) {
   const dark = tone === 'dark'
+  const t = useT()
+  const mirror = useMirrorClass()
   return (
     <header
       className={`flex shrink-0 items-center gap-2 px-4 pt-1 pb-3 ${dark ? 'text-white' : 'text-ink-900'}`}
@@ -129,12 +132,12 @@ export function ScreenHeader({
           <button
             type="button"
             onClick={onBack}
-            aria-label="Back"
+            aria-label={t('common.back')}
             className={`grid h-9 w-9 place-items-center rounded-full transition ${
               dark ? 'hover:bg-white/10' : 'hover:bg-black/5'
             }`}
           >
-            <ChevronLeft size={22} strokeWidth={2.2} />
+            <ChevronLeft size={22} strokeWidth={2.2} className={mirror} />
           </button>
         )}
       </div>
@@ -194,11 +197,11 @@ export function SummaryRow({
     <div className="flex items-center justify-between gap-3 py-2">
       <span className={`text-[13px] ${dark ? 'text-white/60' : 'text-ink-500'}`}>{label}</span>
       <span
-        className={`flex items-center gap-1.5 text-right text-[13px] ${
+        className={`flex items-center gap-1.5 text-end text-[13px] ${
           strong ? 'font-extrabold' : 'font-semibold'
         } ${dark ? 'text-white' : 'text-ink-900'}`}
       >
-        {value}
+        <bdi>{value}</bdi>
         {icon}
       </span>
     </div>
@@ -264,10 +267,11 @@ export function ListRow({
   onClick?: () => void
 }) {
   const Tag = onClick ? 'button' : 'div'
+  const mirror = useMirrorClass()
   return (
     <Tag
       {...(onClick ? { type: 'button' as const, onClick } : {})}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left ${
+      className={`flex w-full items-center gap-3 px-4 py-3 text-start ${
         onClick ? 'transition hover:bg-brand-50/60' : ''
       }`}
     >
@@ -276,7 +280,8 @@ export function ListRow({
         <span className="block truncate text-[14px] font-semibold text-ink-900">{title}</span>
         {subtitle && <span className="block truncate text-[12px] text-ink-500">{subtitle}</span>}
       </span>
-      {right ?? (onClick ? <ChevronRight size={18} className="shrink-0 text-ink-400" /> : null)}
+      {right ??
+        (onClick ? <ChevronRight size={18} className={`shrink-0 text-ink-400 ${mirror}`} /> : null)}
     </Tag>
   )
 }

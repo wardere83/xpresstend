@@ -13,7 +13,7 @@ import {
 import { PrimaryButton, ScreenHeader, SecondaryButton, Toast } from '../components/ui'
 import { brand } from '../config/brand'
 import { useI18n } from '../i18n'
-import { corridors, TRANSFER_FEE, user } from '../data/mock'
+import { corridorName, corridors, TRANSFER_FEE, user } from '../data/mock'
 import { rate as fmtRate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 
@@ -42,18 +42,18 @@ export function Rates() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-bold text-ink-900">
-                  {lang === 'so' ? c.countrySo : c.country}
+                  {corridorName(c, lang)}
                 </span>
                 <span className="block text-[11.5px] text-ink-500">
                   {t('rates.feeFrom', { fee: usd(TRANSFER_FEE) })}
                 </span>
               </span>
-              <span className="text-right">
+              <span className="text-end">
                 <span className="block text-[14px] font-extrabold text-ink-900">
-                  {fmtRate(c.rate)}
+                  <bdi>{fmtRate(c.rate)}</bdi>
                 </span>
                 <span className="block text-[11px] text-ink-400">
-                  {c.currency} {t('rates.perUsd')}
+                  <bdi>{c.currency}</bdi> {t('rates.perUsd')}
                 </span>
               </span>
             </li>
@@ -100,7 +100,7 @@ export function Help() {
                   type="button"
                   onClick={() => setOpen(isOpen ? null : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-start"
                 >
                   <span className="flex-1 text-[13.5px] font-semibold text-ink-900">{t(f.q)}</span>
                   <ChevronDown
@@ -158,13 +158,15 @@ export function Refer() {
           <p className="mt-5 text-[11px] font-bold tracking-[0.18em] text-white/60 uppercase">
             {t('refer.yourCode')}
           </p>
-          <p className="mt-1 text-[24px] font-extrabold tracking-wide">{user.referralCode}</p>
+          <p className="mt-1 text-[24px] font-extrabold tracking-wide">
+            <bdi>{user.referralCode}</bdi>
+          </p>
         </section>
 
         <div className="card mt-4 flex items-center justify-between px-4 py-3.5">
           <span className="text-[13px] text-ink-500">{t('refer.earned')}</span>
           <span className="text-[16px] font-extrabold text-emerald-600">
-            {usd(user.referralEarned)}
+            <bdi>{usd(user.referralEarned)}</bdi>
           </span>
         </div>
 
@@ -204,37 +206,43 @@ export function Support() {
           <button
             type="button"
             onClick={() => navigate('/assistant')}
-            className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-brand-50/70"
+            className="flex w-full items-center gap-3 px-4 py-4 text-start transition hover:bg-brand-50/70"
           >
             <MessageCircleMore size={19} className="text-brand-600" />
             <span className="text-[14px] font-semibold text-ink-900">{t('support.chat')}</span>
           </button>
           <a
             href={`tel:${brand.support.phone.replace(/[^\d+]/g, '')}`}
-            className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-brand-50/70"
+            className="flex w-full items-center gap-3 px-4 py-4 text-start transition hover:bg-brand-50/70"
           >
             <Phone size={19} className="text-brand-600" />
             <span className="min-w-0 flex-1">
               <span className="block text-[14px] font-semibold text-ink-900">{t('support.call')}</span>
-              <span className="block text-[12px] text-ink-500">{brand.support.phone}</span>
+              <span className="block text-[12px] text-ink-500">
+                <bdi>{brand.support.phone}</bdi>
+              </span>
             </span>
           </a>
           <a
             href={`mailto:${brand.support.email}`}
-            className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-brand-50/70"
+            className="flex w-full items-center gap-3 px-4 py-4 text-start transition hover:bg-brand-50/70"
           >
             <Mail size={19} className="text-brand-600" />
             <span className="min-w-0 flex-1">
               <span className="block text-[14px] font-semibold text-ink-900">
                 {t('support.email')}
               </span>
-              <span className="block text-[12px] text-ink-500">{brand.support.email}</span>
+              <span className="block text-[12px] text-ink-500">
+                <bdi>{brand.support.email}</bdi>
+              </span>
             </span>
           </a>
         </div>
 
         <p className="mt-6 text-center text-[11.5px] leading-relaxed text-ink-400">
-          {brand.name} · {brand.hq.line1}
+          <bdi>
+            {brand.name} · {brand.hq.line1}
+          </bdi>
           <br />
           {brand.hq.city}, {brand.hq.state} {brand.hq.zip}, {brand.hq.country}
           <br />

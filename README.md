@@ -2,8 +2,9 @@
 
 A working web build of the XpressHawala money-transfer app from the product mockups: a
 voice-first remittance experience for a Seattle, WA based money transmitter serving
-customers worldwide. **English is the primary language, with a full Somali (Af-Soomaali)
-translation** that can be switched at any time — the whole app, not just the marketing copy.
+customers worldwide. **English is the primary language, with full translations into Somali
+(Af-Soomaali), Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
+the whole app, not just the marketing copy. Arabic renders right-to-left.
 
 ## Running it
 
@@ -97,10 +98,25 @@ there and the logo, page copy, chat header and footers all follow.
 
 1. Copy `src/i18n/so.ts`, translate the values (the keys are typed against `en.ts`, so a
    missing key is a compile error).
-2. Register it in `dictionaries` and `LANGUAGES` in `src/i18n/index.tsx`.
+2. Add the code to `Lang` and the `LANGUAGES` list in `src/i18n/langs.ts`, including its
+   `dir` (`'ltr'` or `'rtl'`) and the browser tags it should match on first visit.
+3. Register the dictionary in `dictionaries` in `src/i18n/index.tsx`.
+4. Add the country and relationship labels to `countryI18n` / `relationI18n` in
+   `src/data/mock.ts` — both fall back to English when a language is missing.
 
-The chosen language persists in `localStorage`; a browser set to Somali gets Somali on
-first visit, everyone else gets English.
+The chosen language persists in `localStorage`; a browser set to one of the supported
+languages gets it on first visit, everyone else gets English.
+
+### Right-to-left
+
+`I18nProvider` writes `lang` and `dir` onto `<html>` whenever the language changes, so
+Arabic flips the document and every other language flips it back. Layout uses logical
+Tailwind utilities (`text-start`/`text-end`, `start-*`/`end-*`) rather than physical
+`left`/`right` ones, so it mirrors for free. Icons that carry a direction — the back
+chevron, list-row chevrons, the send arrow — take `useMirrorClass()` from `src/i18n`,
+which applies `scale-x-[-1]` under RTL. Latin runs inside Arabic text (phone numbers,
+reference IDs, masked wallets) are wrapped in `<bdi>` so the bidi algorithm keeps them
+intact.
 
 ### Rates and fees
 

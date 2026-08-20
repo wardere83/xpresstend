@@ -27,5 +27,5 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   },
-  "description": "XpressHawala — voice-first money remittance app (English + Somali)"
+  "description": "XpressHawala — voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
 }

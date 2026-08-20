@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { Logo } from '../components/AppLayout'
 import { Avatar, IconTile, SectionTitle, Waveform } from '../components/ui'
-import { useT } from '../i18n'
+import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { getRecipient, user } from '../data/mock'
 import { formatDate, rate, usd } from '../lib/format'
@@ -49,6 +49,7 @@ const quickActions: {
 
 export function Home() {
   const t = useT()
+  const mirror = useMirrorClass()
   const navigate = useNavigate()
   const { history, corridor, setDeliveryMethod, setRecipientId } = useTransfer()
   const latest = history[0]
@@ -75,7 +76,7 @@ export function Home() {
           className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-black/5"
         >
           <Bell size={21} strokeWidth={2.1} />
-          <span className="absolute top-1 right-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-rose-500 px-[3px] text-[9px] font-bold text-white">
+          <span className="absolute top-1 end-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-rose-500 px-[3px] text-[9px] font-bold text-white">
             2
           </span>
         </button>
@@ -97,7 +98,7 @@ export function Home() {
           className="relative w-full overflow-hidden rounded-[24px] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 px-5 pt-5 pb-6 text-center shadow-[var(--shadow-float)] transition active:scale-[0.99]"
         >
           <span
-            className="pointer-events-none absolute -top-16 -right-10 h-40 w-40 rounded-full bg-white/10"
+            className="pointer-events-none absolute -top-16 -end-10 h-40 w-40 rounded-full bg-white/10"
             aria-hidden="true"
           />
           <span className="block text-[16px] font-bold text-white">{t('home.voiceTitle')}</span>
@@ -115,13 +116,13 @@ export function Home() {
           <button
             type="button"
             onClick={() => navigate('/send')}
-            className="mb-4 flex w-full items-center justify-between text-left"
+            className="mb-4 flex w-full items-center justify-between text-start"
           >
             <span>
               <span className="block text-[15px] font-bold text-ink-900">{t('home.sendMoney')}</span>
               <span className="block text-[12px] text-ink-500">{t('home.sendMoneySub')}</span>
             </span>
-            <ChevronRight size={18} className="text-ink-400" />
+            <ChevronRight size={18} className={`text-ink-400 ${mirror}`} />
           </button>
 
           <div className="grid grid-cols-4 gap-2">
@@ -157,7 +158,7 @@ export function Home() {
             <button
               type="button"
               onClick={() => navigate('/activity')}
-              className="flex w-full items-center gap-3 text-left"
+              className="flex w-full items-center gap-3 text-start"
             >
               <Avatar name={latestRecipient.name} hue={latestRecipient.hue} />
               <span className="min-w-0 flex-1">
@@ -166,9 +167,9 @@ export function Home() {
                 </span>
                 <span className="block text-[12px] text-ink-500">{formatDate(latest.date)}</span>
               </span>
-              <span className="text-right">
+              <span className="text-end">
                 <span className="block text-[14px] font-extrabold text-ink-900">
-                  {usd(latest.amountUsd)}
+                  <bdi>{usd(latest.amountUsd)}</bdi>
                 </span>
                 <span className="block text-[12px] font-semibold text-emerald-600">
                   {t(latest.status === 'completed' ? 'common.completed' : 'common.pending')}
@@ -196,14 +197,16 @@ export function Home() {
                     setRecipientId(r.id)
                     navigate('/send')
                   }}
-                  className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-xl px-2 py-1.5 text-left transition hover:bg-brand-50/70"
+                  className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-xl px-2 py-1.5 text-start transition hover:bg-brand-50/70"
                 >
                   <Avatar name={r.name} hue={r.hue} size={40} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[14px] font-bold text-ink-900">{r.name}</span>
-                    <span className="block text-[12px] text-ink-500">{r.phone}</span>
+                    <span className="block text-[12px] text-ink-500">
+                      <bdi>{r.phone}</bdi>
+                    </span>
                   </span>
-                  <ChevronRight size={17} className="text-ink-400" />
+                  <ChevronRight size={17} className={`text-ink-400 ${mirror}`} />
                 </button>
               </li>
             ))}
@@ -232,7 +235,9 @@ export function Home() {
         </section>
 
         <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-400">
-          1 USD = {rate(corridor.rate)} {corridor.currency}
+          <bdi>
+            1 USD = {rate(corridor.rate)} {corridor.currency}
+          </bdi>
         </p>
       </div>
     </div>

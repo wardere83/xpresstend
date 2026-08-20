@@ -1,10 +1,13 @@
+import type { Lang } from '../i18n/langs'
+
 export type Corridor = {
   code: string
   /** ISO currency of the destination */
   currency: string
   /** Country name in English */
   country: string
-  countrySo: string
+  /** Country name per language; English is the fallback. */
+  countryI18n: Partial<Record<Lang, string>>
   flag: string
   /** Destination currency units per 1 USD */
   rate: number
@@ -18,7 +21,12 @@ export const corridors: Corridor[] = [
     code: 'SO',
     currency: 'SOS',
     country: 'Somalia',
-    countrySo: 'Soomaaliya',
+    countryI18n: {
+      so: 'Soomaaliya',
+      'pt-BR': 'Somália',
+      es: 'Somalia',
+      ar: 'الصومال',
+    },
     flag: '🇸🇴',
     rate: 2556,
     currencyName: 'Somali Shilling',
@@ -28,7 +36,12 @@ export const corridors: Corridor[] = [
     code: 'KE',
     currency: 'KES',
     country: 'Kenya',
-    countrySo: 'Kenya',
+    countryI18n: {
+      so: 'Kenya',
+      'pt-BR': 'Quênia',
+      es: 'Kenia',
+      ar: 'كينيا',
+    },
     flag: '🇰🇪',
     rate: 129.4,
     currencyName: 'Kenyan Shilling',
@@ -38,7 +51,12 @@ export const corridors: Corridor[] = [
     code: 'ET',
     currency: 'ETB',
     country: 'Ethiopia',
-    countrySo: 'Itoobiya',
+    countryI18n: {
+      so: 'Itoobiya',
+      'pt-BR': 'Etiópia',
+      es: 'Etiopía',
+      ar: 'إثيوبيا',
+    },
     flag: '🇪🇹',
     rate: 118.2,
     currencyName: 'Ethiopian Birr',
@@ -48,7 +66,12 @@ export const corridors: Corridor[] = [
     code: 'DJ',
     currency: 'DJF',
     country: 'Djibouti',
-    countrySo: 'Jabuuti',
+    countryI18n: {
+      so: 'Jabuuti',
+      'pt-BR': 'Djibuti',
+      es: 'Yibuti',
+      ar: 'جيبوتي',
+    },
     flag: '🇩🇯',
     rate: 177.7,
     currencyName: 'Djiboutian Franc',
@@ -58,7 +81,12 @@ export const corridors: Corridor[] = [
     code: 'UG',
     currency: 'UGX',
     country: 'Uganda',
-    countrySo: 'Uganda',
+    countryI18n: {
+      so: 'Uganda',
+      'pt-BR': 'Uganda',
+      es: 'Uganda',
+      ar: 'أوغندا',
+    },
     flag: '🇺🇬',
     rate: 3785,
     currencyName: 'Ugandan Shilling',
@@ -68,7 +96,12 @@ export const corridors: Corridor[] = [
     code: 'GB',
     currency: 'GBP',
     country: 'United Kingdom',
-    countrySo: 'Boqortooyada Midowday',
+    countryI18n: {
+      so: 'Boqortooyada Midowday',
+      'pt-BR': 'Reino Unido',
+      es: 'Reino Unido',
+      ar: 'المملكة المتحدة',
+    },
     flag: '🇬🇧',
     rate: 0.78,
     currencyName: 'British Pound',
@@ -78,7 +111,12 @@ export const corridors: Corridor[] = [
     code: 'AE',
     currency: 'AED',
     country: 'United Arab Emirates',
-    countrySo: 'Imaaraadka',
+    countryI18n: {
+      so: 'Imaaraadka',
+      'pt-BR': 'Emirados Árabes Unidos',
+      es: 'Emiratos Árabes Unidos',
+      ar: 'الإمارات العربية المتحدة',
+    },
     flag: '🇦🇪',
     rate: 3.67,
     currencyName: 'UAE Dirham',
@@ -88,7 +126,12 @@ export const corridors: Corridor[] = [
     code: 'IN',
     currency: 'INR',
     country: 'India',
-    countrySo: 'Hindiya',
+    countryI18n: {
+      so: 'Hindiya',
+      'pt-BR': 'Índia',
+      es: 'India',
+      ar: 'الهند',
+    },
     flag: '🇮🇳',
     rate: 83.4,
     currencyName: 'Indian Rupee',
@@ -108,7 +151,8 @@ export type Recipient = {
   favourite: boolean
   /** Relationship label, purely cosmetic */
   relation: string
-  relationSo: string
+  /** Relationship label per language; English is the fallback. */
+  relationI18n: Partial<Record<Lang, string>>
   hue: number
 }
 
@@ -122,7 +166,12 @@ export const recipients: Recipient[] = [
     last4: '4721',
     favourite: true,
     relation: 'Mother',
-    relationSo: 'Hooyo',
+    relationI18n: {
+      so: 'Hooyo',
+      'pt-BR': 'Mãe',
+      es: 'Madre',
+      ar: 'الوالدة',
+    },
     hue: 268,
   },
   {
@@ -134,7 +183,12 @@ export const recipients: Recipient[] = [
     last4: '2210',
     favourite: true,
     relation: 'Brother',
-    relationSo: 'Walaal',
+    relationI18n: {
+      so: 'Walaal',
+      'pt-BR': 'Irmão',
+      es: 'Hermano',
+      ar: 'الأخ',
+    },
     hue: 202,
   },
   {
@@ -146,7 +200,12 @@ export const recipients: Recipient[] = [
     last4: '8903',
     favourite: true,
     relation: 'Sister',
-    relationSo: 'Walaashay',
+    relationI18n: {
+      so: 'Walaashay',
+      'pt-BR': 'Irmã',
+      es: 'Hermana',
+      ar: 'الأخت',
+    },
     hue: 340,
   },
   {
@@ -158,7 +217,12 @@ export const recipients: Recipient[] = [
     last4: '0774',
     favourite: false,
     relation: 'Cousin',
-    relationSo: 'Ina-adeer',
+    relationI18n: {
+      so: 'Ina-adeer',
+      'pt-BR': 'Primo',
+      es: 'Primo',
+      ar: 'ابن العم',
+    },
     hue: 152,
   },
   {
@@ -170,7 +234,12 @@ export const recipients: Recipient[] = [
     last4: '5118',
     favourite: false,
     relation: 'Aunt',
-    relationSo: 'Eeddo',
+    relationI18n: {
+      so: 'Eeddo',
+      'pt-BR': 'Tia',
+      es: 'Tía',
+      ar: 'العمة',
+    },
     hue: 28,
   },
   {
@@ -182,7 +251,12 @@ export const recipients: Recipient[] = [
     last4: '0145',
     favourite: false,
     relation: 'Friend',
-    relationSo: 'Saaxiib',
+    relationI18n: {
+      so: 'Saaxiib',
+      'pt-BR': 'Amigo',
+      es: 'Amigo',
+      ar: 'صديق',
+    },
     hue: 246,
   },
 ]
@@ -265,4 +339,14 @@ export function getRecipient(id: string) {
 
 export function getCorridor(code: string) {
   return corridors.find((c) => c.code === code) ?? defaultCorridor
+}
+
+/** Country name in the active language, falling back to English. */
+export function corridorName(corridor: Corridor, lang: Lang) {
+  return corridor.countryI18n[lang] ?? corridor.country
+}
+
+/** Relationship label in the active language, falling back to English. */
+export function relationName(recipient: Recipient, lang: Lang) {
+  return recipient.relationI18n[lang] ?? recipient.relation
 }

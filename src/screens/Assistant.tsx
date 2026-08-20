@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ChevronLeft, Mic, MoreVertical, Send, Sparkles } from 'lucide-react'
 import { Avatar } from '../components/ui'
-import { useI18n } from '../i18n'
+import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, rate as fmtRate, usd } from '../lib/format'
+import { corridorName } from '../data/mock'
 
 type Message = {
   id: number
@@ -22,6 +23,7 @@ function liveTime() {
 
 export function Assistant() {
   const { t, lang } = useI18n()
+  const mirror = useMirrorClass()
   const navigate = useNavigate()
   const location = useLocation()
   const intent = (location.state as { intent?: string } | null)?.intent
@@ -158,7 +160,7 @@ export function Assistant() {
           aria-label={t('common.back')}
           className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-black/5"
         >
-          <ChevronLeft size={22} strokeWidth={2.2} />
+          <ChevronLeft size={22} strokeWidth={2.2} className={mirror} />
         </button>
         <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700">
           <Sparkles size={16} className="text-white" />
@@ -201,13 +203,13 @@ export function Assistant() {
                   />
                   <QuoteRow
                     label={t('field.mobileWallet')}
-                    value={maskedWallet(recipient.wallet, recipient.last4)}
+                    value={<bdi>{maskedWallet(recipient.wallet, recipient.last4)}</bdi>}
                   />
                   <QuoteRow
                     label={t('field.country')}
                     value={
                       <span className="flex items-center gap-1.5">
-                        {lang === 'so' ? corridor.countrySo : corridor.country}
+                        {corridorName(corridor, lang)}
                         <span aria-hidden="true">{corridor.flag}</span>
                       </span>
                     }
@@ -256,15 +258,15 @@ export function Assistant() {
               <div
                 className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-[var(--shadow-card)] ${
                   mine
-                    ? 'rounded-br-md bg-brand-600 text-white'
-                    : 'rounded-bl-md bg-white text-ink-900'
+                    ? 'rounded-ee-md bg-brand-600 text-white'
+                    : 'rounded-es-md bg-white text-ink-900'
                 }`}
               >
                 <p>{m.text}</p>
                 <p
-                  className={`mt-1 text-right text-[10px] ${mine ? 'text-white/60' : 'text-ink-400'}`}
+                  className={`mt-1 text-end text-[10px] ${mine ? 'text-white/60' : 'text-ink-400'}`}
                 >
-                  {m.time}
+                  <bdi>{m.time}</bdi>
                   {mine && ' ✓✓'}
                 </p>
               </div>
@@ -277,7 +279,7 @@ export function Assistant() {
             <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700">
               <Sparkles size={12} className="text-white" />
             </span>
-            <div className="flex gap-1 rounded-2xl rounded-bl-md bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
+            <div className="flex gap-1 rounded-2xl rounded-es-md bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
@@ -321,10 +323,10 @@ export function Assistant() {
           {draft.trim() ? (
             <button
               type="submit"
-              aria-label="Send"
+              aria-label={t('chat.suggest.send')}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700"
             >
-              <Send size={18} />
+              <Send size={18} className={mirror} />
             </button>
           ) : (
             <button
@@ -355,9 +357,9 @@ function QuoteRow({
     <div className="flex items-center justify-between gap-3 py-2">
       <dt className="text-[12.5px] text-ink-500">{label}</dt>
       <dd
-        className={`text-right text-[12.5px] text-ink-900 ${strong ? 'font-extrabold' : 'font-semibold'}`}
+        className={`text-end text-[12.5px] text-ink-900 ${strong ? 'font-extrabold' : 'font-semibold'}`}
       >
-        {value}
+        <bdi>{value}</bdi>
       </dd>
     </div>
   )

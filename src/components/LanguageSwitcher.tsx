@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, Globe } from 'lucide-react'
 import { LANGUAGES, useI18n } from '../i18n'
 
-export function LanguageSwitcher({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
+export function LanguageSwitcher({
+  tone = 'light',
+  drop = 'down',
+}: {
+  tone?: 'light' | 'dark'
+  /** The sidebar control sits at the bottom of the column, so its list opens upward. */
+  drop?: 'down' | 'up'
+}) {
   const { lang, setLang } = useI18n()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -44,7 +51,9 @@ export function LanguageSwitcher({ tone = 'light' }: { tone?: 'light' | 'dark' }
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 z-40 mt-2 w-44 overflow-hidden rounded-2xl bg-white py-1 shadow-[0_16px_40px_-12px_rgba(20,18,31,0.35)] ring-1 ring-black/5"
+          className={`absolute end-0 z-40 w-44 overflow-hidden rounded-2xl bg-white py-1 shadow-[0_16px_40px_-12px_rgba(20,18,31,0.35)] ring-1 ring-black/5 ${
+            drop === 'up' ? 'bottom-full mb-2' : 'mt-2'
+          }`}
         >
           {LANGUAGES.map((l) => (
             <li key={l.code}>
@@ -56,7 +65,7 @@ export function LanguageSwitcher({ tone = 'light' }: { tone?: 'light' | 'dark' }
                   setLang(l.code)
                   setOpen(false)
                 }}
-                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] font-semibold text-ink-900 hover:bg-brand-50"
+                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-start text-[13px] font-semibold text-ink-900 hover:bg-brand-50"
               >
                 <span aria-hidden="true">{l.flag}</span>
                 <span className="flex-1">{l.nativeLabel}</span>

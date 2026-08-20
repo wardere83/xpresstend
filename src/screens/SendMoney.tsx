@@ -2,14 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Apple, ArrowDownUp, Check, ChevronRight, Lock, CreditCard, Landmark } from 'lucide-react'
 import { ScreenHeader, Avatar, PrimaryButton } from '../components/ui'
-import { useI18n } from '../i18n'
+import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { paymentMethods, recipients, user, TRANSFER_FEE } from '../data/mock'
+import { paymentMethods, recipients, relationName, user, TRANSFER_FEE } from '../data/mock'
 import { amount as fmtAmount, rate as fmtRate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 
 export function SendMoney() {
   const { t, lang } = useI18n()
+  const mirror = useMirrorClass()
   const navigate = useNavigate()
   const {
     recipient,
@@ -45,17 +46,17 @@ export function SendMoney() {
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          className="card flex w-full items-center gap-3 p-3.5 text-left transition active:scale-[0.99]"
+          className="card flex w-full items-center gap-3 p-3.5 text-start transition active:scale-[0.99]"
         >
           <Avatar name={recipient.name} hue={recipient.hue} size={42} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[14px] font-bold text-ink-900">{recipient.name}</span>
             <span className="block truncate text-[12px] text-ink-500">
-              {recipient.phone} · {recipient.wallet}
+              <bdi>{recipient.phone}</bdi> · <bdi>{recipient.wallet}</bdi>
             </span>
           </span>
           <span className="text-[12px] font-semibold text-brand-600">{t('send.changeRecipient')}</span>
-          <ChevronRight size={16} className="text-ink-400" />
+          <ChevronRight size={16} className={`text-ink-400 ${mirror}`} />
         </button>
 
         {/* From */}
@@ -65,9 +66,11 @@ export function SendMoney() {
             <span className="text-[22px]" aria-hidden="true">
               🇺🇸
             </span>
-            <span className="text-[13px] font-bold text-ink-700">USD · US Dollar</span>
+            <span className="text-[13px] font-bold text-ink-700">
+              <bdi>USD · US Dollar</bdi>
+            </span>
           </div>
-          <div className="mt-2 flex items-baseline gap-1">
+          <div className="mt-2 flex items-baseline gap-1" dir="ltr">
             <span className="text-[26px] font-extrabold text-ink-900">$</span>
             <input
               value={raw}
@@ -78,7 +81,7 @@ export function SendMoney() {
             />
           </div>
           <p className="mt-1 text-[12px] text-ink-500">
-            {t('field.availableBalance')} · {usd(user.balanceUsd)}
+            {t('field.availableBalance')} · <bdi>{usd(user.balanceUsd)}</bdi>
           </p>
         </div>
 
@@ -97,11 +100,13 @@ export function SendMoney() {
               {corridor.flag}
             </span>
             <span className="text-[13px] font-bold text-ink-700">
-              {corridor.currency} · {corridor.currencyName}
+              <bdi>
+                {corridor.currency} · {corridor.currencyName}
+              </bdi>
             </span>
           </div>
           <p className="mt-2 text-[30px] font-extrabold tracking-tight text-ink-900">
-            {fmtAmount(quote.recipientLocal)}
+            <bdi>{fmtAmount(quote.recipientLocal)}</bdi>
           </p>
           <p className="mt-1 text-[12px] text-ink-500">{t('field.estimated')}</p>
         </div>
@@ -109,7 +114,9 @@ export function SendMoney() {
         <div className="mt-3 flex items-center justify-between rounded-2xl bg-brand-50 px-4 py-3">
           <span className="text-[12px] font-semibold text-brand-700">{t('field.exchangeRate')}</span>
           <span className="text-[12px] font-bold text-brand-700">
-            1 USD = {fmtRate(corridor.rate)} {corridor.currency}
+            <bdi>
+              1 USD = {fmtRate(corridor.rate)} {corridor.currency}
+            </bdi>
           </span>
         </div>
 
@@ -130,7 +137,7 @@ export function SendMoney() {
                 type="button"
                 onClick={() => setPaymentMethod(m.id)}
                 aria-pressed={selected}
-                className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition ${
+                className={`flex w-full items-center gap-3 px-4 py-3.5 text-start transition ${
                   i > 0 ? 'border-t border-ink-200/60' : ''
                 } ${selected ? 'bg-brand-50/70' : 'hover:bg-black/[0.02]'}`}
               >
@@ -145,7 +152,11 @@ export function SendMoney() {
                   <span className="block text-[14px] font-semibold text-ink-900">
                     {t(m.labelKey as TranslationKey)}
                   </span>
-                  {m.detail && <span className="block text-[12px] text-ink-500">{m.detail}</span>}
+                  {m.detail && (
+                    <span className="block text-[12px] text-ink-500">
+                      <bdi>{m.detail}</bdi>
+                    </span>
+                  )}
                 </span>
                 <span
                   className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${
@@ -193,7 +204,7 @@ export function SendMoney() {
                       setRecipientId(r.id)
                       setPickerOpen(false)
                     }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-brand-50/70"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:bg-brand-50/70"
                   >
                     <Avatar name={r.name} hue={r.hue} size={40} />
                     <span className="min-w-0 flex-1">
@@ -201,7 +212,7 @@ export function SendMoney() {
                         {r.name}
                       </span>
                       <span className="block truncate text-[12px] text-ink-500">
-                        {lang === 'so' ? r.relationSo : r.relation} · {r.phone}
+                        {relationName(r, lang)} · <bdi>{r.phone}</bdi>
                       </span>
                     </span>
                     {r.id === recipient.id && <Check size={16} className="text-brand-600" strokeWidth={3} />}

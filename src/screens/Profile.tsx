@@ -39,7 +39,9 @@ export function Profile() {
           <Avatar name={user.fullName} hue={user.hue} size={56} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-[16px] font-extrabold text-ink-900">{user.fullName}</p>
-            <p className="truncate text-[12px] text-ink-500">{user.phone}</p>
+            <p className="truncate text-[12px] text-ink-500">
+              <bdi>{user.phone}</bdi>
+            </p>
             <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700">
               <BadgeCheck size={12} />
               {t('profile.verified')}
@@ -89,11 +91,13 @@ export function Profile() {
         <footer className="mt-6 space-y-1 text-center text-[11px] leading-relaxed text-ink-400">
           <p className="font-semibold text-ink-500">{brand.name}</p>
           <p>
-            {brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}
+            <bdi>
+              {brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}
+            </bdi>
           </p>
           <p>{brand.legal.licence}</p>
           <p>
-            {brand.support.email} · {brand.support.phone}
+            <bdi>{brand.support.email}</bdi> · <bdi>{brand.support.phone}</bdi>
           </p>
         </footer>
       </div>

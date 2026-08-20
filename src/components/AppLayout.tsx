@@ -82,7 +82,7 @@ function Sidebar() {
       </div>
 
       <div className="mt-10 space-y-4">
-        <LanguageSwitcher tone="dark" />
+        <LanguageSwitcher tone="dark" drop="up" />
         <p className="text-[12px] leading-relaxed text-white/50">
           {t('shell.hq')}
           <br />

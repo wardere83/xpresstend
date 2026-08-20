@@ -4,7 +4,7 @@ import { Plus, Search, Star } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { getCorridor, recipients } from '../data/mock'
+import { getCorridor, recipients, relationName } from '../data/mock'
 
 export function Recipients() {
   const { t, lang } = useI18n()
@@ -35,7 +35,7 @@ export function Recipients() {
         <button
           type="button"
           onClick={() => open(r.id)}
-          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-brand-50/70"
+          className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:bg-brand-50/70"
         >
           <Avatar name={r.name} hue={r.hue} size={44} />
           <span className="min-w-0 flex-1">
@@ -44,12 +44,12 @@ export function Recipients() {
               {r.favourite && <Star size={12} className="fill-amber-400 text-amber-400" />}
             </span>
             <span className="block truncate text-[12px] text-ink-500">
-              {lang === 'so' ? r.relationSo : r.relation} · {r.phone}
+              {relationName(r, lang)} · <bdi>{r.phone}</bdi>
             </span>
           </span>
           <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-500">
             <span aria-hidden="true">{corridor.flag}</span>
-            {r.wallet}
+            <bdi>{r.wallet}</bdi>
           </span>
         </button>
       </li>
