@@ -228,7 +228,7 @@ export function Assistant() {
               <div key={m.id} className="animate-fade-up grid grid-cols-2 gap-3 pt-1">
                 <button
                   type="button"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/app')}
                   className="rounded-2xl border border-brand-200 bg-white py-3.5 text-[14px] font-bold text-brand-600 transition hover:bg-brand-50"
                 >
                   {t('common.cancel')}

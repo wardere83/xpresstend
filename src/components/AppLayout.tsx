@@ -5,11 +5,11 @@ import { BottomNav } from './BottomNav'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { StatusBar } from './ui'
 
-const NAV_ROUTES = ['/', '/recipients', '/activity', '/profile']
+const NAV_ROUTES = ['/app', '/recipients', '/activity', '/profile']
 const DARK_ROUTES = ['/success']
 
 const SCREEN_LINKS: { to: string; label: string }[] = [
-  { to: '/', label: 'Home' },
+  { to: '/app', label: 'Home' },
   { to: '/voice', label: 'Voice Assistant' },
   { to: '/assistant', label: 'AI Assistant chat' },
   { to: '/send', label: 'Send Money' },

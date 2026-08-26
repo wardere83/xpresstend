@@ -51,6 +51,118 @@ Set the variable `DEPLOY_PAGES` to `true`, **and** set **Settings → Pages → 
 deployment → Source** to **GitHub Actions**. Creating a Pages site needs repo-admin rights
 that the workflow token does not have, so that switch has to be flipped by hand once.
 
+## The platform
+
+The site is now a marketing shopfront with a product behind a login, plus a
+separate staff console — the shape WorldRemit and Remitly use.
+
+| Route | What it is | Who gets in |
+| --- | --- | --- |
+| `/` | Marketing site with a live rate calculator | Everyone |
+| `/login`, `/register` | Customer accounts | Everyone |
+| `/app` and its screens | The send-money product | Signed-in customers |
+| `/admin` | Operations console | Staff, via a separate login |
+
+### API
+
+`api/` is a Cloudflare Worker on D1. Run it with `npm --prefix api run dev`,
+deploy with `npm --prefix api run deploy`, and test the money rules with
+`npm --prefix api test`.
+
+Secrets are never in the repository. Set them once per environment:
+
+```bash
+cd api
+npx wrangler secret put SESSION_PEPPER        # any long random string
+npx wrangler secret put STRIPE_SECRET_KEY     # test key for now
+```
+
+`SESSION_PEPPER` is mixed into every password hash and is not stored in the
+database, so a leaked table cannot be cracked offline. **Changing it invalidates
+every existing password**, so set it before the first account is created.
+
+### The first staff account
+
+```bash
+cd api
+SESSION_PEPPER='<the same value you set above>' node scripts/create-admin.mjs \
+  you@xpresstend.com "Your Name" owner
+```
+
+It prints an INSERT statement and a one-time password. Run the statement with
+`wrangler d1 execute` and store the password in a password manager.
+
+Roles are `viewer`, `agent`, `compliance` and `owner`. Releasing a payout is
+restricted to `compliance` and `owner`, and is always recorded against a named
+person in the audit log.
+
+### How the money is modelled
+
+Amounts are integer minor units and BigInt arithmetic — no float ever touches
+one. Balances are not stored; they are derived from `ledger_entries`, where
+every posting must net to zero within each currency. `/admin/ledger/trial-balance`
+re-proves this on demand and the console shows a red banner if it ever fails.
+
+Fees round **up** and recipient amounts round **down**, so rounding never costs
+the business money or promises the recipient more than the margin funds.
+
+Quotes are re-priced server-side when a transfer is created, so a tampered
+client payload cannot buy a better rate than the corridor allows.
+
+### Before this can move real money
+
+Payments run in **test mode**. Capturing a payment moves a transfer to
+`compliance_hold` and writes the ledger, but charges nothing and releases
+nothing. Going live needs, in this order:
+
+1. FinCEN MSB registration and money transmitter licences in every state served
+2. A licensed banking or payment partner, and payout partners per corridor
+3. A real KYC/sanctions provider wired into `kyc_checks` and `sanctions_screenings`
+4. Replacing the test handler in `api/src/routes-transfers.ts`
+
+Until then the marketing footer says so plainly, and it should stay that way.
+
+## Mobile apps (iOS + Android)
+
+The native apps wrap the same build that serves xpresstend.com, so web, iOS and
+Android are always the same product and only have to be QA'd once. Anything that
+must behave natively is a real platform API rather than a web imitation: the
+launch splash, status-bar tint, haptics, the Android back gesture, network
+awareness and push registration.
+
+| | |
+| --- | --- |
+| App name | XpressTend |
+| Bundle / application ID | `com.xpresstend.app` |
+| iOS deployment target | 15.0 |
+| Android min / target SDK | 24 / 36 |
+
+```bash
+npm run sync       # build the web layer and copy it into both native projects
+npm run ios        # ...then open the project in Xcode
+npm run android    # ...then open the project in Android Studio
+npm run native:icons   # regenerate launcher icons + splash from assets/*.svg
+```
+
+Requires **Node 22+** (the Capacitor CLI enforces it), Xcode 16+ with CocoaPods
+for iOS, and Android Studio with JDK 21 for Android. `ios/` and `android/` are
+real, checked-in native projects — open them directly and build as usual.
+
+### Signing
+
+Neither platform is signed yet. iOS needs a team and provisioning profile set on
+the `App` target in Xcode; Android needs a release keystore referenced from
+`android/app/build.gradle`. Keep the keystore and its passwords out of the
+repository.
+
+### Known dependency advisory
+
+`npm audit` reports three moderate advisories against `uuid`, reached through
+`xcode` inside `@capacitor/cli`. That is a build-time dev dependency used to edit
+the Xcode project; it is never bundled into the shipped app. The only available
+"fix" downgrades the CLI to v7, which is incompatible with the v8 platforms, so
+it is accepted deliberately rather than silently.
+
 ## What's in it
 
 Every screen from the mockups is implemented and connected — you can walk the whole

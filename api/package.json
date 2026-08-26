@@ -1,0 +1,21 @@
+{
+  "name": "@xpresstend/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "migrate": "wrangler d1 execute xpresstend-production --remote --file=migrations/0001_init.sql",
+    "seed:admin": "node scripts/create-admin.mjs",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
+  },
+  "dependencies": {
+    "hono": "^4.13.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260826.1",
+    "typescript": "~6.0.2",
+    "wrangler": "^4.126.0"
+  }
+}
