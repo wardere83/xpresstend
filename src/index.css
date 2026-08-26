@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+/* Vite's root is web/, so Tailwind's automatic content detection starts there
+   and would only see the entry HTML. Point it at the component tree explicitly,
+   otherwise the build emits a stylesheet with almost no utilities in it. */
+@source '../src';
+@source '../web';
+
 @theme {
   --font-sans:
     'Inter', 'Noto Sans Arabic', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,

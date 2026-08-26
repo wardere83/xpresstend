@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- Android adaptive foreground: art stays inside the inner 66% safe zone
-       because the launcher may crop to a circle, squircle or rounded square. -->
-  <g transform="translate(512,512) scale(0.62) translate(-512,-512)">
-    <path d="M176 560h144l72-176 108 352 108-424 90 248h198"
-          fill="none" stroke="#fff" stroke-width="64"
-          stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
-</svg>
