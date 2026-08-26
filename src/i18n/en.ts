@@ -36,7 +36,7 @@ export const en = {
   'home.recentTransaction': 'Recent Transaction',
   'home.recipients': 'Recipients',
   'home.quickActions': 'Quick Actions',
-  'home.noTransactions': 'No transfers yet — your first one takes about a minute.',
+  'home.noTransactions': 'No transfers yet. Your first one takes about a minute.',
 
   // ---- Services ----
   'service.mobileMoney': 'Mobile Money',
@@ -219,16 +219,16 @@ export const en = {
 
   // ---- Desktop shell ----
   'shell.screens': 'Screens',
-  'shell.hint': 'Use the app just like on a phone — every screen is live.',
+  'shell.hint': 'Use the app just like on a phone. Every screen is live.',
   'shell.openFull': 'Open full screen',
-  'network.offline': 'No connection — your transfer is safe and will resume.',
+  'network.offline': 'No connection. Your transfer is safe and will resume.',
   // ---- Marketing site and accounts ----
   'marketing.signIn': 'Sign in',
   'marketing.getStarted': 'Get started',
   'marketing.openApp': 'Open app',
   'marketing.tryDemo': 'Explore the app',
   'marketing.heroTitle': 'Send money home, in your language.',
-  'marketing.heroBody': 'Clear rates, one flat fee, and a receipt every time. Speak or type in five languages — the whole app, not just the marketing.',
+  'marketing.heroBody': 'Clear rates. One flat fee. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
   'marketing.statLanguages': 'Languages, fully translated',
   'marketing.statSupport': 'Support, every day',
   'marketing.statHidden': 'Hidden charges',
@@ -247,7 +247,7 @@ export const en = {
   'marketing.f2Title': 'One flat fee',
   'marketing.f2Body': 'You see the fee and the rate before you confirm. What you are quoted is what you pay.',
   'marketing.f3Title': 'Built to be audited',
-  'marketing.f3Body': 'Every transfer is double-entry booked and every staff action is recorded against a named person.',
+  'marketing.f3Body': 'Every transfer is double-entry booked and every staff action is recorded against a named person, not an AI agent!',
   'marketing.ctaTitle': 'Ready to send?',
   'marketing.ctaBody': 'Create an account in a couple of minutes. You only verify your identity when you first send.',
   'marketing.disclaimer': 'XpressTend is in private beta. Payments run in test mode and no customer funds are moved until licensing and a payment partner are in place.',
@@ -271,6 +271,20 @@ export const en = {
   'auth.errWeak': 'Please choose a stronger password.',
   'auth.errNetwork': 'Cannot reach XpressTend right now.',
   'auth.errGeneric': 'Something went wrong. Please try again.',
+  // ---- Rate comparison and language search ----
+  'compare.title': 'We checked. We are the cheapest.',
+  'compare.intro': 'Move the amount and pick a destination. Every rival figure below is a published, dated price with a link to its source, so you can check it yourself.',
+  'compare.cta': 'Compare the cost',
+  'compare.cheapest': 'Cheapest',
+  'compare.saving': 'You keep {amount} more than the next cheapest.',
+  'compare.ourLive': 'Live quote from our pricing engine.',
+  'compare.excludesMargin': 'excludes FX margin, so the real cost is higher',
+  'compare.noData': 'We have not yet sourced published competitor pricing for this destination. We will not guess at it.',
+  'compare.disclaimer': 'Competitor figures are published prices collected on the dates shown, not live quotes, and pricing changes. Always confirm with the provider before you send.',
+  'lang.search': 'Type your language',
+  'lang.noMatch': 'No match yet.',
+  'lang.previewHeading': 'Preview only',
+  'lang.notYetTranslated': 'The homepage speaks this language. The full app is being translated next.',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

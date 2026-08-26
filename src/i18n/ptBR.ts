@@ -1,6 +1,6 @@
 import type { en } from './en'
 
-/** Português (Brasil). Everyday remittance wording — direct, warm, no jargon. */
+/** Português (Brasil). Everyday remittance wording. Direct, warm, no jargon. */
 export const ptBR: Record<keyof typeof en, string> = {
   // ---- Generic ----
   'common.continue': 'Continuar',
@@ -39,7 +39,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'home.recentTransaction': 'Transferência recente',
   'home.recipients': 'Destinatários',
   'home.quickActions': 'Ações rápidas',
-  'home.noTransactions': 'Nenhuma transferência ainda — a primeira leva cerca de um minuto.',
+  'home.noTransactions': 'Nenhuma transferência ainda. A primeira leva cerca de um minuto.',
 
   // ---- Services ----
   'service.mobileMoney': 'Mobile Money',
@@ -222,16 +222,16 @@ export const ptBR: Record<keyof typeof en, string> = {
 
   // ---- Desktop shell ----
   'shell.screens': 'Telas',
-  'shell.hint': 'Use o app como no celular — todas as telas estão funcionando.',
+  'shell.hint': 'Use o app como no celular. Todas as telas estão funcionando.',
   'shell.openFull': 'Abrir em tela cheia',
-  'network.offline': 'Sem conexão — sua transferência está segura e será retomada.',
+  'network.offline': 'Sem conexão. Sua transferência está segura e será retomada.',
   // ---- Marketing site and accounts ----
   'marketing.signIn': 'Entrar',
   'marketing.getStarted': 'Começar',
   'marketing.openApp': 'Abrir app',
   'marketing.tryDemo': 'Explorar o app',
   'marketing.heroTitle': 'Envie dinheiro para casa, no seu idioma.',
-  'marketing.heroBody': 'Taxas claras, uma taxa fixa e um recibo sempre. Fale ou digite em cinco idiomas — o app inteiro, não só o site.',
+  'marketing.heroBody': 'Taxas claras, uma taxa fixa e um recibo sempre. Fale ou digite em cinco idiomas. O app inteiro, não só o site.',
   'marketing.statLanguages': 'Idiomas, totalmente traduzidos',
   'marketing.statSupport': 'Suporte, todos os dias',
   'marketing.statHidden': 'Taxas ocultas',
@@ -250,7 +250,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'Uma taxa fixa',
   'marketing.f2Body': 'Você vê a taxa e o câmbio antes de confirmar. O que é cotado é o que você paga.',
   'marketing.f3Title': 'Feito para ser auditado',
-  'marketing.f3Body': 'Cada transferência tem lançamento em partidas dobradas e cada ação da equipe fica registrada em nome de uma pessoa.',
+  'marketing.f3Body': 'Cada transferência tem lançamento em partidas dobradas e cada ação da equipe fica registrada em nome de uma pessoa, não de um agente de IA!',
   'marketing.ctaTitle': 'Pronto para enviar?',
   'marketing.ctaBody': 'Crie uma conta em poucos minutos. Você só verifica a identidade no primeiro envio.',
   'marketing.disclaimer': 'A XpressTend está em beta privado. Os pagamentos são em modo de teste e nenhum recurso de cliente é movimentado até haver licença e parceiro de pagamento.',
@@ -274,5 +274,19 @@ export const ptBR: Record<keyof typeof en, string> = {
   'auth.errWeak': 'Escolha uma senha mais forte.',
   'auth.errNetwork': 'Não é possível conectar à XpressTend agora.',
   'auth.errGeneric': 'Algo deu errado. Tente novamente.',
+  // ---- Rate comparison and language search ----
+  'compare.title': 'Nós verificamos. Somos os mais baratos.',
+  'compare.intro': 'Ajuste o valor e escolha um destino. Cada número dos concorrentes abaixo é um preço publicado e datado, com link para a fonte, para você mesmo conferir.',
+  'compare.cta': 'Comparar o custo',
+  'compare.cheapest': 'Mais barato',
+  'compare.saving': 'Você economiza {amount} a mais que o segundo mais barato.',
+  'compare.ourLive': 'Cotação ao vivo do nosso motor de preços.',
+  'compare.excludesMargin': 'não inclui a margem de câmbio, então o custo real é maior',
+  'compare.noData': 'Ainda não obtivemos preços publicados de concorrentes para este destino. Não vamos adivinhar.',
+  'compare.disclaimer': 'Os números dos concorrentes são preços publicados coletados nas datas indicadas, não cotações ao vivo, e os preços mudam. Confirme sempre com o provedor antes de enviar.',
+  'lang.search': 'Digite seu idioma',
+  'lang.noMatch': 'Nenhuma correspondência.',
+  'lang.previewHeading': 'Somente prévia',
+  'lang.notYetTranslated': 'A página inicial fala este idioma. O app completo será traduzido em seguida.',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

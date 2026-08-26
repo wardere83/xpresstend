@@ -2,8 +2,7 @@ import type { en } from './en'
 
 /**
  * Español. Deliberately neutral and formal (usted) so the same copy reads
- * naturally in Mexico, Central America, US Hispanic markets and Spain —
- * no regional slang, no country-specific vocabulary.
+ * naturally in Mexico, Central America, US Hispanic markets and Spain. * no regional slang, no country-specific vocabulary.
  */
 export const es: Record<keyof typeof en, string> = {
   // ---- Generic ----
@@ -255,7 +254,7 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'Una tarifa fija',
   'marketing.f2Body': 'Ve la comisión y el tipo antes de confirmar. Lo cotizado es lo que paga.',
   'marketing.f3Title': 'Diseñado para ser auditado',
-  'marketing.f3Body': 'Cada transferencia se registra por partida doble y cada acción del personal queda registrada a nombre de una persona.',
+  'marketing.f3Body': 'Cada transferencia se registra por partida doble y cada acción del personal queda registrada a nombre de una persona, no de un agente de IA!',
   'marketing.ctaTitle': '¿Listo para enviar?',
   'marketing.ctaBody': 'Cree una cuenta en un par de minutos. Solo verifica su identidad al enviar por primera vez.',
   'marketing.disclaimer': 'XpressTend está en beta privada. Los pagos se ejecutan en modo de prueba y no se mueven fondos de clientes hasta contar con licencia y socio de pagos.',
@@ -279,5 +278,19 @@ export const es: Record<keyof typeof en, string> = {
   'auth.errWeak': 'Elija una contraseña más segura.',
   'auth.errNetwork': 'No se puede conectar con XpressTend ahora.',
   'auth.errGeneric': 'Algo salió mal. Inténtelo de nuevo.',
+  // ---- Rate comparison and language search ----
+  'compare.title': 'Lo comprobamos. Somos los más baratos.',
+  'compare.intro': 'Ajuste el importe y elija un destino. Cada cifra de la competencia es un precio publicado y fechado, con enlace a su fuente, para que usted mismo lo compruebe.',
+  'compare.cta': 'Comparar el costo',
+  'compare.cheapest': 'Más barato',
+  'compare.saving': 'Usted conserva {amount} más que el siguiente más barato.',
+  'compare.ourLive': 'Cotización en vivo de nuestro motor de precios.',
+  'compare.excludesMargin': 'no incluye el margen de cambio, por lo que el costo real es mayor',
+  'compare.noData': 'Aún no hemos obtenido precios publicados de la competencia para este destino. No los vamos a suponer.',
+  'compare.disclaimer': 'Las cifras de la competencia son precios publicados recopilados en las fechas indicadas, no cotizaciones en vivo, y los precios cambian. Confirme siempre con el proveedor antes de enviar.',
+  'lang.search': 'Escriba su idioma',
+  'lang.noMatch': 'Sin coincidencias.',
+  'lang.previewHeading': 'Solo vista previa',
+  'lang.notYetTranslated': 'La página de inicio habla este idioma. La app completa se traducirá a continuación.',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }

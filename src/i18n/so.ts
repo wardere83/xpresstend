@@ -39,7 +39,7 @@ export const so: Record<keyof typeof en, string> = {
   'home.recentTransaction': 'Wareejintii u dambaysay',
   'home.recipients': 'Qaataayaashayda',
   'home.quickActions': 'Tilmaamaha Kale',
-  'home.noTransactions': 'Weli wax wareejin ah ma jiraan — tii ugu horreysay hal daqiiqo bay qaadataa.',
+  'home.noTransactions': 'Weli wax wareejin ah ma jiraan. Tii ugu horreysay hal daqiiqo bay qaadataa.',
 
   // ---- Services ----
   'service.mobileMoney': 'Mobile Money',
@@ -135,7 +135,7 @@ export const so: Record<keyof typeof en, string> = {
   'review.securityBody': 'Fadlan xaqiiji aqoonsigaaga si aad u dirto lacagta.',
   'review.faceId': 'Face ID',
   'review.pin': 'PIN',
-  'review.send': 'Dir Lacagta — {amount}',
+  'review.send': 'Dir Lacagta. {amount}',
   'review.verifying': 'Waa la xaqiijinayaa...',
 
   // ---- Success ----
@@ -221,16 +221,16 @@ export const so: Record<keyof typeof en, string> = {
 
   // ---- Desktop shell ----
   'shell.screens': 'Boggagga',
-  'shell.hint': 'U isticmaal sida telefoonka — bog kastaa waa mid shaqeynaya.',
+  'shell.hint': 'U isticmaal sida telefoonka. Bog kastaa waa mid shaqeynaya.',
   'shell.openFull': 'Fur si buuxda',
-  'network.offline': 'Xiriir ma jiro — wareejintaadu waa badbaado, waana la sii wadi doonaa.',
+  'network.offline': 'Xiriir ma jiro. Wareejintaadu waa badbaado, waana la sii wadi doonaa.',
   // ---- Marketing site and accounts ----
   'marketing.signIn': 'Gal',
   'marketing.getStarted': 'Bilow',
   'marketing.openApp': 'Fur abka',
   'marketing.tryDemo': 'Isku day abka',
   'marketing.heroTitle': 'Lacag u dir gurigaaga, luqaddaada.',
-  'marketing.heroBody': 'Sicir cad, khidmad hal mar ah, iyo rasiid mar kasta. Ku hadal ama ku qor shan luqadood — abka oo dhan, ma aha oo kaliya bogga.',
+  'marketing.heroBody': 'Sicir cad, khidmad hal mar ah, iyo rasiid mar kasta. Ku hadal ama ku qor shan luqadood. Abka oo dhan, ma aha oo kaliya bogga.',
   'marketing.statLanguages': 'Luqadood, si buuxda loo turjumay',
   'marketing.statSupport': 'Taageero, maalin kasta',
   'marketing.statHidden': 'Khidmado qarsoon',
@@ -249,7 +249,7 @@ export const so: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'Hal khidmad go\'an',
   'marketing.f2Body': 'Waxaad aragtaa khidmadda iyo sicirka ka hor inta aanad xaqiijin. Waxa lagu siiyay ayaa ah waxa aad bixinayso.',
   'marketing.f3Title': 'Loo dhisay in la hubiyo',
-  'marketing.f3Body': 'Wareejin kasta laba jibbaar ayaa loo diiwaangeliyaa, ficil kasta oo shaqaaluhu qabtaanna waxaa lagu duubaa magac.',
+  'marketing.f3Body': 'Wareejin kasta laba jibbaar ayaa loo diiwaangeliyaa, ficil kasta oo shaqaaluhu qabtaanna waxaa lagu duubaa magac, ma aha wakiil AI ah!',
   'marketing.ctaTitle': 'Ma diyaar u tahay inaad dirto?',
   'marketing.ctaBody': 'Akoon samee laba daqiiqo gudahood. Aqoonsigaaga waxaad xaqiijinaysaa markaad marka ugu horreysa dirayso.',
   'marketing.disclaimer': 'XpressTend waa beta gaar ah. Lacag-bixinta waa qaab tijaabo, lacag macmiil laguma wareejiyo ilaa shatiga iyo shariig lacag-bixin la helo.',
@@ -273,5 +273,19 @@ export const so: Record<keyof typeof en, string> = {
   'auth.errWeak': 'Fadlan dooro fure sir oo xoog badan.',
   'auth.errNetwork': 'Hadda XpressTend lama gaadhi karo.',
   'auth.errGeneric': 'Wax baa qaldamay. Fadlan isku day mar kale.',
+  // ---- Rate comparison and language search ----
+  'compare.title': 'Waan hubinnay. Annaga ayaa ugu jaban.',
+  'compare.intro': 'Beddel qaddarka oo dooro halka la dirayo. Tiro kasta oo tartame ah oo hoos ku qoran waa qiime la daabacay, taariikh leh, oo xiriir isha ah leh, si aad adigu u hubiso.',
+  'compare.cta': 'Isbarbardhig qiimaha',
+  'compare.cheapest': 'Ugu jaban',
+  'compare.saving': 'Waxaad hayneysaa {amount} ka badan tan xigta ee ugu jaban.',
+  'compare.ourLive': 'Qiime toos ah oo ka yimid nidaamkayaga qiimaynta.',
+  'compare.excludesMargin': 'ma xisaabtamin faaiidada sarrifka, sidaas awgeed qiimaha dhabta ah wuu ka sarreeyaa',
+  'compare.noData': 'Weli ma helin qiimaha la daabacay ee tartamayaasha halkan loo dirayo. Ma malaynayno.',
+  'compare.disclaimer': 'Tirooyinka tartamayaasha waa qiimayaal la daabacay oo la ururiyay taariikhaha la muujiyay, ma aha qiime toos ah, qiimuhuna wuu beddelmaa. Had iyo jeer la xaqiiji bixiyaha ka hor intaadan dirin.',
+  'lang.search': 'Ku qor luqaddaada',
+  'lang.noMatch': 'Wax u dhigma lama helin.',
+  'lang.previewHeading': 'Muuqaal kaliya',
+  'lang.notYetTranslated': 'Bogga hore luqaddan buu ku hadlaa. Abka oo dhan ayaa xiga in la turjumo.',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

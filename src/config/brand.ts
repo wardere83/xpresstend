@@ -10,11 +10,11 @@ export const brand = {
   referencePrefix: 'XPT',
   tagline: 'Send money home, in your language',
   hq: {
-    city: 'Seattle',
-    state: 'WA',
+    city: 'New York',
+    state: 'NY',
     country: 'USA',
-    line1: '1201 Third Avenue, Suite 2200',
-    zip: '98101',
+    line1: '255 West 43rd Street',
+    zip: '10036',
   },
   support: {
     phone: '+1 (206) 555-0142',
@@ -22,6 +22,6 @@ export const brand = {
     hours: '24/7',
   },
   legal: {
-    licence: 'Licensed money transmitter (NMLS #1847302)',
+    licence: 'Private beta. Not yet a licensed money transmitter.',
   },
 } as const

@@ -1,7 +1,7 @@
 import type { en } from './en'
 
 /**
- * العربية — Modern Standard Arabic, so the copy reads the same from Somalia
+ * العربية. Modern Standard Arabic, so the copy reads the same from Somalia
  * and Djibouti through the Gulf. Rendered right-to-left; see `dirOf` in
  * `./langs` and the `dir` attribute set by the provider.
  */
@@ -43,7 +43,7 @@ export const ar: Record<keyof typeof en, string> = {
   'home.recentTransaction': 'آخر تحويل',
   'home.recipients': 'المستفيدون',
   'home.quickActions': 'إجراءات سريعة',
-  'home.noTransactions': 'لا توجد تحويلات بعد — تحويلك الأول يستغرق دقيقة تقريبًا.',
+  'home.noTransactions': 'لا توجد تحويلات بعد. تحويلك الأول يستغرق دقيقة تقريبًا.',
 
   // ---- Services ----
   'service.mobileMoney': 'المحفظة الإلكترونية',
@@ -226,16 +226,16 @@ export const ar: Record<keyof typeof en, string> = {
 
   // ---- Desktop shell ----
   'shell.screens': 'الشاشات',
-  'shell.hint': 'استخدم التطبيق تمامًا كما على الهاتف — كل شاشة تعمل فعليًا.',
+  'shell.hint': 'استخدم التطبيق تمامًا كما على الهاتف. كل شاشة تعمل فعليًا.',
   'shell.openFull': 'فتح بملء الشاشة',
-  'network.offline': 'لا يوجد اتصال — تحويلك آمن وسيُستأنف.',
+  'network.offline': 'لا يوجد اتصال. تحويلك آمن وسيُستأنف.',
   // ---- Marketing site and accounts ----
   'marketing.signIn': 'تسجيل الدخول',
   'marketing.getStarted': 'ابدأ الآن',
   'marketing.openApp': 'فتح التطبيق',
   'marketing.tryDemo': 'استكشف التطبيق',
   'marketing.heroTitle': 'أرسل المال إلى الوطن، بلغتك.',
-  'marketing.heroBody': 'أسعار واضحة، ورسوم ثابتة، وإيصال في كل مرة. تحدث أو اكتب بخمس لغات — التطبيق بالكامل، وليس الموقع فقط.',
+  'marketing.heroBody': 'أسعار واضحة، ورسوم ثابتة، وإيصال في كل مرة. تحدث أو اكتب بخمس لغات. التطبيق بالكامل، وليس الموقع فقط.',
   'marketing.statLanguages': 'لغات مترجمة بالكامل',
   'marketing.statSupport': 'دعم، كل يوم',
   'marketing.statHidden': 'رسوم خفية',
@@ -254,7 +254,7 @@ export const ar: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'رسوم ثابتة واحدة',
   'marketing.f2Body': 'ترى الرسوم والسعر قبل التأكيد. ما يُعرض عليك هو ما تدفعه.',
   'marketing.f3Title': 'مصمم للتدقيق',
-  'marketing.f3Body': 'كل تحويل مُقيَّد بالقيد المزدوج، وكل إجراء للموظفين مسجَّل باسم شخص محدد.',
+  'marketing.f3Body': 'كل تحويل مُقيَّد بالقيد المزدوج، وكل إجراء للموظفين مسجَّل باسم شخص محدد، وليس وكيل ذكاء اصطناعي!',
   'marketing.ctaTitle': 'هل أنت مستعد للإرسال؟',
   'marketing.ctaBody': 'أنشئ حسابًا في دقيقتين. لا تتحقق من هويتك إلا عند الإرسال لأول مرة.',
   'marketing.disclaimer': 'إن XpressTend في نسخة تجريبية خاصة. تعمل المدفوعات في وضع الاختبار ولا تُنقل أموال العملاء حتى تتوفر التراخيص وشريك الدفع.',
@@ -278,5 +278,19 @@ export const ar: Record<keyof typeof en, string> = {
   'auth.errWeak': 'يرجى اختيار كلمة مرور أقوى.',
   'auth.errNetwork': 'تعذّر الوصول إلى XpressTend الآن.',
   'auth.errGeneric': 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+  // ---- Rate comparison and language search ----
+  'compare.title': 'لقد تحققنا. نحن الأرخص.',
+  'compare.intro': 'غيّر المبلغ واختر الوجهة. كل رقم لمنافس أدناه هو سعر منشور ومؤرَّخ مع رابط لمصدره، حتى تتحقق بنفسك.',
+  'compare.cta': 'قارن التكلفة',
+  'compare.cheapest': 'الأرخص',
+  'compare.saving': 'توفّر {amount} أكثر من التالي الأرخص.',
+  'compare.ourLive': 'عرض سعر مباشر من محرك التسعير لدينا.',
+  'compare.excludesMargin': 'لا يشمل هامش الصرف، لذا التكلفة الحقيقية أعلى',
+  'compare.noData': 'لم نحصل بعد على أسعار منشورة للمنافسين لهذه الوجهة. ولن نخمّنها.',
+  'compare.disclaimer': 'أرقام المنافسين أسعار منشورة جُمعت في التواريخ الموضّحة، وليست عروضًا مباشرة، والأسعار تتغير. تأكد دائمًا من المزوّد قبل الإرسال.',
+  'lang.search': 'اكتب لغتك',
+  'lang.noMatch': 'لا توجد نتائج.',
+  'lang.previewHeading': 'معاينة فقط',
+  'lang.notYetTranslated': 'الصفحة الرئيسية تتحدث هذه اللغة. وتتم ترجمة التطبيق بالكامل تاليًا.',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }

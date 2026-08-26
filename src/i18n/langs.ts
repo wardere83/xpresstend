@@ -11,7 +11,7 @@ export type LangMeta = {
   code: Lang
   /** English name, used for `aria`/debugging. */
   label: string
-  /** How the language names itself — what the switcher shows. */
+  /** How the language names itself. What the switcher shows. */
   nativeLabel: string
   flag: string
   dir: 'ltr' | 'rtl'
