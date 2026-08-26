@@ -3,7 +3,7 @@ import { Home, Mic, Receipt, User, Users } from 'lucide-react'
 import { useT } from '../i18n'
 
 const items = [
-  { to: '/', icon: Home, key: 'nav.home' as const, end: true },
+  { to: '/app', icon: Home, key: 'nav.home' as const, end: true },
   { to: '/recipients', icon: Users, key: 'nav.recipients' as const, end: false },
   { to: '/activity', icon: Receipt, key: 'nav.activity' as const, end: false },
   { to: '/profile', icon: User, key: 'nav.profile' as const, end: false },
