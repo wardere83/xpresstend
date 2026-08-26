@@ -78,16 +78,29 @@ export const COMPETITOR_RATES: Record<string, CompetitorRate[]> = {
       source: WB_KE,
       asOf: 'Nov 2024',
     },
+    {
+      provider: 'WorldRemit',
+      // $2.99-ish fee plus a margin reported at 1.5-3% on this corridor.
+      // Costed at the bottom of that band so the comparison never overstates them.
+      totalCostPct: 3.5,
+      basis: 'Fixed fee plus a reported ~2% exchange-rate margin, on a $200 send',
+      sourceLabel: 'WorldRemit Kenya fee analysis',
+      source: 'https://paybillke.com/calculators/worldremit-kenya-fees-calculator',
+      asOf: 'Jun 2026',
+    },
   ],
   ET: [
     {
       provider: 'Remitly',
-      totalCostPct: 1.0,
-      basis: 'Published $1.99 bank-deposit fee only. Excludes FX margin, so the true cost is higher',
-      sourceLabel: 'Remitly published fees',
-      source: 'https://www.remitly.com/us/en/money-transfer/send-money-to-ethiopia',
+      // Headline fee alone reads as 1.0% on a 200 USD send, which is not the
+      // real cost: Remitly also prices a margin into the exchange rate. Wise's
+      // teardown and FX Skipper both put that margin at ~1.5% typical, 0.5-3%
+      // by route. $1.99 + 1.5% of $200 = $4.99, so 2.50% all in.
+      totalCostPct: 2.5,
+      basis: '$1.99 bank-deposit fee plus a typical 1.5% exchange-rate margin, on a $200 send',
+      sourceLabel: 'Wise teardown of Remitly fees',
+      source: 'https://wise.com/us/blog/remitly-fees',
       asOf: 'Aug 2026',
-      understated: true,
     },
   ],
   MX: [

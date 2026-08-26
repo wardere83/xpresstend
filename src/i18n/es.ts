@@ -235,7 +235,7 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.openApp': 'Abrir la app',
   'marketing.tryDemo': 'Explorar la app',
   'marketing.heroTitle': 'Envíe dinero a casa, en su idioma.',
-  'marketing.heroBody': 'Tipos de cambio claros, una tarifa fija y un recibo siempre. Hable o escriba en cinco idiomas: toda la app, no solo la web.',
+  'marketing.heroBody': 'Tipos de cambio claros. Una tasa única. Puntos de bonificación para usar después. Hable o escriba en su idioma, y toda la app responde en él.',
   'marketing.statLanguages': 'Idiomas, totalmente traducidos',
   'marketing.statSupport': 'Soporte, todos los días',
   'marketing.statHidden': 'Cargos ocultos',

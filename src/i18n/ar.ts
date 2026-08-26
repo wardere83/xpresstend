@@ -235,7 +235,7 @@ export const ar: Record<keyof typeof en, string> = {
   'marketing.openApp': 'فتح التطبيق',
   'marketing.tryDemo': 'استكشف التطبيق',
   'marketing.heroTitle': 'أرسل المال إلى الوطن، بلغتك.',
-  'marketing.heroBody': 'أسعار واضحة، ورسوم ثابتة، وإيصال في كل مرة. تحدث أو اكتب بخمس لغات. التطبيق بالكامل، وليس الموقع فقط.',
+  'marketing.heroBody': 'أسعار واضحة. نسبة ثابتة واحدة. نقاط مكافآت تستخدمها لاحقًا. تحدث أو اكتب بلغتك، والتطبيق بأكمله يردّ بها.',
   'marketing.statLanguages': 'لغات مترجمة بالكامل',
   'marketing.statSupport': 'دعم، كل يوم',
   'marketing.statHidden': 'رسوم خفية',

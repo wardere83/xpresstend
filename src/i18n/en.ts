@@ -228,7 +228,7 @@ export const en = {
   'marketing.openApp': 'Open app',
   'marketing.tryDemo': 'Explore the app',
   'marketing.heroTitle': 'Send money home, in your language.',
-  'marketing.heroBody': 'Clear rates. One flat fee. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
+  'marketing.heroBody': 'Clear rates. One flat rate. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
   'marketing.statLanguages': 'Languages, fully translated',
   'marketing.statSupport': 'Support, every day',
   'marketing.statHidden': 'Hidden charges',

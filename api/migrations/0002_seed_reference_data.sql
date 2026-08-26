@@ -2,8 +2,8 @@
 --
 -- Corridor pricing is deliberately set below every competitor figure we could
 -- source and cite (see src/marketing/competitors.ts). At the World Bank's
--- 200 USD benchmark a 0.99 USD flat fee with no FX margin is 0.495%, against a
--- cheapest sourced rival of 1.00% and a US market average of 5.04%. The
+-- 200 USD benchmark a 0.99% fee on the amount sent with no FX margin is 0.99% at every amount, against a
+-- cheapest sourced rival of 1.40% (Walmart2World) and a US market average of 5.04%. The
 -- "cheapest" claim on the marketing page is computed from these numbers at
 -- render time, not asserted, so if this pricing changes the claim changes with it.
 
@@ -30,11 +30,11 @@ INSERT INTO ledger_accounts (id, code, type, currency, name) VALUES
 INSERT INTO corridors (id, send_country, receive_country, send_currency, receive_currency,
                        fee_flat_minor, fee_percent_bps, min_send_minor, max_send_minor,
                        fx_margin_bps, enabled, created_at) VALUES
- ('cor_us_so','US','SO','USD','USD',99,0,5000,500000,0,1,datetime('now')),
- ('cor_us_ke','US','KE','USD','KES',99,0,5000,500000,0,1,datetime('now')),
- ('cor_us_et','US','ET','USD','ETB',99,0,5000,500000,0,1,datetime('now')),
- ('cor_us_br','US','BR','USD','BRL',99,0,5000,500000,0,1,datetime('now')),
- ('cor_us_mx','US','MX','USD','MXN',99,0,5000,500000,0,1,datetime('now'));
+ ('cor_us_so','US','SO','USD','USD',0,99,1000,500000,0,1,datetime('now')),
+ ('cor_us_ke','US','KE','USD','KES',0,99,1000,500000,0,1,datetime('now')),
+ ('cor_us_et','US','ET','USD','ETB',0,99,1000,500000,0,1,datetime('now')),
+ ('cor_us_br','US','BR','USD','BRL',0,99,1000,500000,0,1,datetime('now')),
+ ('cor_us_mx','US','MX','USD','MXN',0,99,1000,500000,0,1,datetime('now'));
 
 -- Opening mid-market rates, scaled by 1e8. Replace with a live feed before launch.
 INSERT INTO fx_rates (id, base, quote, rate_e8, source, fetched_at) VALUES

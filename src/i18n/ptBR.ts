@@ -231,7 +231,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.openApp': 'Abrir app',
   'marketing.tryDemo': 'Explorar o app',
   'marketing.heroTitle': 'Envie dinheiro para casa, no seu idioma.',
-  'marketing.heroBody': 'Taxas claras, uma taxa fixa e um recibo sempre. Fale ou digite em cinco idiomas. O app inteiro, não só o site.',
+  'marketing.heroBody': 'Taxas claras. Uma taxa única. Pontos de bônus para usar depois. Fale ou digite no seu idioma, e o app inteiro responde nele.',
   'marketing.statLanguages': 'Idiomas, totalmente traduzidos',
   'marketing.statSupport': 'Suporte, todos os dias',
   'marketing.statHidden': 'Taxas ocultas',

@@ -230,7 +230,7 @@ export const so: Record<keyof typeof en, string> = {
   'marketing.openApp': 'Fur abka',
   'marketing.tryDemo': 'Isku day abka',
   'marketing.heroTitle': 'Lacag u dir gurigaaga, luqaddaada.',
-  'marketing.heroBody': 'Sicir cad, khidmad hal mar ah, iyo rasiid mar kasta. Ku hadal ama ku qor shan luqadood. Abka oo dhan, ma aha oo kaliya bogga.',
+  'marketing.heroBody': 'Sicir cad. Hal boqolkiiba go\'an. Dhibco bonus ah oo aad markii dambe isticmaasho. Ku hadal ama ku qor luqaddaada, abkuna wuu kaaga jawaabayaa.',
   'marketing.statLanguages': 'Luqadood, si buuxda loo turjumay',
   'marketing.statSupport': 'Taageero, maalin kasta',
   'marketing.statHidden': 'Khidmado qarsoon',
