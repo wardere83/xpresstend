@@ -224,5 +224,6 @@ export const ptBR: Record<keyof typeof en, string> = {
   'shell.screens': 'Telas',
   'shell.hint': 'Use o app como no celular — todas as telas estão funcionando.',
   'shell.openFull': 'Abrir em tela cheia',
+  'network.offline': 'Sem conexão — sua transferência está segura e será retomada.',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

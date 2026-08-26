@@ -221,6 +221,7 @@ export const en = {
   'shell.screens': 'Screens',
   'shell.hint': 'Use the app just like on a phone — every screen is live.',
   'shell.openFull': 'Open full screen',
+  'network.offline': 'No connection — your transfer is safe and will resume.',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

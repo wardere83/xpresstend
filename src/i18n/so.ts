@@ -223,5 +223,6 @@ export const so: Record<keyof typeof en, string> = {
   'shell.screens': 'Boggagga',
   'shell.hint': 'U isticmaal sida telefoonka — bog kastaa waa mid shaqeynaya.',
   'shell.openFull': 'Fur si buuxda',
+  'network.offline': 'Xiriir ma jiro — wareejintaadu waa badbaado, waana la sii wadi doonaa.',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

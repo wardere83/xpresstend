@@ -229,5 +229,6 @@ export const es: Record<keyof typeof en, string> = {
   'shell.screens': 'Pantallas',
   'shell.hint': 'Use la aplicación igual que en un teléfono: todas las pantallas funcionan.',
   'shell.openFull': 'Abrir en pantalla completa',
+  'network.offline': 'Sin conexión: su transferencia está segura y se reanudará.',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }

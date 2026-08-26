@@ -228,5 +228,6 @@ export const ar: Record<keyof typeof en, string> = {
   'shell.screens': 'الشاشات',
   'shell.hint': 'استخدم التطبيق تمامًا كما على الهاتف — كل شاشة تعمل فعليًا.',
   'shell.openFull': 'فتح بملء الشاشة',
+  'network.offline': 'لا يوجد اتصال — تحويلك آمن وسيُستأنف.',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }

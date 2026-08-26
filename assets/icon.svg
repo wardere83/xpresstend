@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C4DFF"/>
+      <stop offset="1" stop-color="#4A1FC0"/>
+    </linearGradient>
+  </defs>
+  <!-- Full bleed: iOS and Android apply their own corner mask. -->
+  <rect width="1024" height="1024" fill="url(#g)"/>
+  <path d="M176 560h144l72-176 108 352 108-424 90 248h198"
+        fill="none" stroke="#fff" stroke-width="64"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

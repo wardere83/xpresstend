@@ -51,6 +51,47 @@ Set the variable `DEPLOY_PAGES` to `true`, **and** set **Settings → Pages → 
 deployment → Source** to **GitHub Actions**. Creating a Pages site needs repo-admin rights
 that the workflow token does not have, so that switch has to be flipped by hand once.
 
+## Mobile apps (iOS + Android)
+
+The native apps wrap the same build that serves xpresstend.com, so web, iOS and
+Android are always the same product and only have to be QA'd once. Anything that
+must behave natively is a real platform API rather than a web imitation: the
+launch splash, status-bar tint, haptics, the Android back gesture, network
+awareness and push registration.
+
+| | |
+| --- | --- |
+| App name | XpressTend |
+| Bundle / application ID | `com.xpresstend.app` |
+| iOS deployment target | 15.0 |
+| Android min / target SDK | 24 / 36 |
+
+```bash
+npm run sync       # build the web layer and copy it into both native projects
+npm run ios        # ...then open the project in Xcode
+npm run android    # ...then open the project in Android Studio
+npm run native:icons   # regenerate launcher icons + splash from assets/*.svg
+```
+
+Requires **Node 22+** (the Capacitor CLI enforces it), Xcode 16+ with CocoaPods
+for iOS, and Android Studio with JDK 21 for Android. `ios/` and `android/` are
+real, checked-in native projects — open them directly and build as usual.
+
+### Signing
+
+Neither platform is signed yet. iOS needs a team and provisioning profile set on
+the `App` target in Xcode; Android needs a release keystore referenced from
+`android/app/build.gradle`. Keep the keystore and its passwords out of the
+repository.
+
+### Known dependency advisory
+
+`npm audit` reports three moderate advisories against `uuid`, reached through
+`xcode` inside `@capacitor/cli`. That is a build-time dev dependency used to edit
+the Xcode project; it is never bundled into the shipped app. The only available
+"fix" downgrades the CLI to v7, which is incompatible with the v8 platforms, so
+it is accepted deliberately rather than silently.
+
 ## What's in it
 
 Every screen from the mockups is implemented and connected — you can walk the whole

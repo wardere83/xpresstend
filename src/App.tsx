@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
+import { NativeShell } from './native/NativeShell'
 import { I18nProvider } from './i18n'
 import { TransferProvider } from './state/TransferContext'
 import { Home } from './screens/Home'
@@ -18,6 +19,7 @@ export default function App() {
     <I18nProvider>
       <TransferProvider>
         <HashRouter>
+          <NativeShell />
           <Routes>
             <Route element={<AppLayout />}>
               <Route index element={<Home />} />
