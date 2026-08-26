@@ -1,5 +1,5 @@
 {
-  "name": "xpresshawala",
+  "name": "xpresstend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -27,5 +27,5 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   },
-  "description": "XpressHawala — voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
+  "description": "XpressTend — voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
 }

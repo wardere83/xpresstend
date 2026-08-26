@@ -1,6 +1,6 @@
-# XpressHawala
+# XpressTend
 
-A working web build of the XpressHawala money-transfer app from the product mockups: a
+A working web build of the XpressTend money-transfer app from the product mockups: a
 voice-first remittance experience for a Seattle, WA based money transmitter serving
 customers worldwide. **English is the primary language, with full translations into Somali
 (Af-Soomaali), Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
@@ -38,7 +38,7 @@ site as a `site` artifact, which can be downloaded and uploaded by hand at any t
 | --- | --- | --- |
 | Variable | `DEPLOY_HOSTGATOR` | `true` |
 | Variable | `HOSTGATOR_DIR` | target directory, defaults to `public_html/` |
-| Secret | `HOSTGATOR_FTP_SERVER` | e.g. `ftp.xpresshawala.com` |
+| Secret | `HOSTGATOR_FTP_SERVER` | e.g. `ftp.xpresstend.com` |
 | Secret | `HOSTGATOR_FTP_USERNAME` | cPanel or FTP account username |
 | Secret | `HOSTGATOR_FTP_PASSWORD` | that account's password |
 

@@ -288,7 +288,7 @@ export const transactions: Transaction[] = [
     fee: 4.99,
     date: '2024-05-12T09:24:00Z',
     status: 'completed',
-    reference: 'XPH-7741-1180-2024',
+    reference: 'XPT-7741-1180-2024',
   },
   {
     id: 't2',
@@ -297,7 +297,7 @@ export const transactions: Transaction[] = [
     fee: 4.99,
     date: '2024-05-04T17:02:00Z',
     status: 'completed',
-    reference: 'XPH-7620-8842-2024',
+    reference: 'XPT-7620-8842-2024',
   },
   {
     id: 't3',
@@ -306,7 +306,7 @@ export const transactions: Transaction[] = [
     fee: 4.99,
     date: '2024-04-28T12:41:00Z',
     status: 'completed',
-    reference: 'XPH-7455-3391-2024',
+    reference: 'XPT-7455-3391-2024',
   },
   {
     id: 't4',
@@ -315,7 +315,7 @@ export const transactions: Transaction[] = [
     fee: 4.99,
     date: '2024-04-19T08:15:00Z',
     status: 'pending',
-    reference: 'XPH-7302-5527-2024',
+    reference: 'XPT-7302-5527-2024',
   },
 ]
 
