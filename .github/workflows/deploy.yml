@@ -59,7 +59,7 @@ jobs:
   # HostGator (cPanel shared hosting) over FTPS.
   #
   # Required secrets — Settings -> Secrets and variables -> Actions -> Secrets:
-  #   HOSTGATOR_FTP_SERVER    e.g. ftp.xpresshawala.com
+  #   HOSTGATOR_FTP_SERVER    e.g. ftp.xpresstend.com
   #   HOSTGATOR_FTP_USERNAME  cPanel or FTP account username
   #   HOSTGATOR_FTP_PASSWORD  that account's password
   # Optional variable:

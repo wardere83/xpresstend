@@ -47,7 +47,7 @@ export function formatDate(iso: string) {
   })
 }
 
-/** `XPH-8457-2391-2024` */
+/** `XPT-8457-2391-2024` */
 export function makeReference(date = new Date()) {
   const block = () => String(Math.floor(1000 + Math.random() * 9000))
   return `${brand.referencePrefix}-${block()}-${block()}-${date.getFullYear()}`

@@ -20,7 +20,7 @@ export { LANGUAGES } from './langs'
 
 const dictionaries: Record<Lang, Record<string, string>> = { en, so, 'pt-BR': ptBR, es, ar }
 
-const STORAGE_KEY = 'xpresshawala.lang'
+const STORAGE_KEY = 'xpresstend.lang'
 
 /** Variables every string can rely on without the caller passing them. */
 const globalVars: Record<string, string> = {
