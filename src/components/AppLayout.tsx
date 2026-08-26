@@ -3,6 +3,7 @@ import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { BottomNav } from './BottomNav'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { Logo as BrandLogo } from './Logo'
 import { StatusBar } from './ui'
 
 const NAV_ROUTES = ['/app', '/recipients', '/activity', '/profile']
@@ -23,28 +24,9 @@ const SCREEN_LINKS: { to: string; label: string }[] = [
 ]
 
 function Logo({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
-  return (
-    <span className="flex items-center gap-2">
-      <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700">
-        <svg width="16" height="16" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-          <path
-            d="M10 34h9l4-11 6 21 6-25 5 15h14"
-            stroke="#fff"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-      <span
-        className={`text-[17px] font-extrabold tracking-tight ${
-          tone === 'dark' ? 'text-white' : 'text-ink-900'
-        }`}
-      >
-        {brand.name}
-      </span>
-    </span>
-  )
+  // 28px matches the height of the mark this replaced, so the app chrome keeps
+  // its existing rhythm. The dark variant is used on the navy sidebar.
+  return <BrandLogo tone={tone} height={28} />
 }
 
 export { Logo }

@@ -3,6 +3,7 @@ import { ArrowRight, Lock, ShieldCheck, Zap } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
 import { HeroRotator } from './HeroRotator'
 import { RateCompare } from './RateCompare'
@@ -16,14 +17,8 @@ export function Marketing() {
     <div className="min-h-dvh bg-white text-ink-900">
       <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-4">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700">
-              <svg width="18" height="18" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                <path d="M10 34h9l4-11 6 21 6-25 5 15h14" stroke="#fff" strokeWidth="6"
-                      strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-            <span className="text-[17px] font-extrabold tracking-tight">{brand.name}</span>
+          <Link to="/" className="flex items-center" aria-label={brand.name}>
+            <Logo height={32} />
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <LanguageSwitcher />

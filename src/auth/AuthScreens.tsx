@@ -3,20 +3,15 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { ApiError } from '../lib/api'
+import { Logo } from '../components/Logo'
 import { useAuth } from './AuthContext'
 
 function Shell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-canvas">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10">
-        <Link to="/" className="mb-8 flex items-center gap-2 self-start">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700">
-            <svg width="18" height="18" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-              <path d="M10 34h9l4-11 6 21 6-25 5 15h14" stroke="#fff" strokeWidth="6"
-                    strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <span className="text-[17px] font-extrabold tracking-tight">{brand.name}</span>
+        <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
+          <Logo height={32} />
         </Link>
         <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
