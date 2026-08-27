@@ -22,9 +22,10 @@ export interface LocalCorridor {
   maxSendMinor: number
 }
 
+/** Display order. The first entry is what the calculator opens on. */
 export const CORRIDORS: LocalCorridor[] = [
-  { id: 'cor_us_so', receive_country: 'SO', receive_currency: 'USD', send_currency: 'USD', label: 'Somalia',  feePercentBps: 99, fxMarginBps: 0, midRateE8: 100_000_000,    minSendMinor: 1000, maxSendMinor: 500_000 },
   { id: 'cor_us_ke', receive_country: 'KE', receive_currency: 'KES', send_currency: 'USD', label: 'Kenya',    feePercentBps: 99, fxMarginBps: 0, midRateE8: 12_950_000_000, minSendMinor: 1000, maxSendMinor: 500_000 },
+  { id: 'cor_us_so', receive_country: 'SO', receive_currency: 'USD', send_currency: 'USD', label: 'Somalia',  feePercentBps: 99, fxMarginBps: 0, midRateE8: 100_000_000,    minSendMinor: 1000, maxSendMinor: 500_000 },
   { id: 'cor_us_et', receive_country: 'ET', receive_currency: 'ETB', send_currency: 'USD', label: 'Ethiopia', feePercentBps: 99, fxMarginBps: 0, midRateE8: 15_000_000_000, minSendMinor: 1000, maxSendMinor: 500_000 },
   { id: 'cor_us_br', receive_country: 'BR', receive_currency: 'BRL', send_currency: 'USD', label: 'Brazil',   feePercentBps: 99, fxMarginBps: 0, midRateE8: 540_000_000,    minSendMinor: 1000, maxSendMinor: 500_000 },
   { id: 'cor_us_mx', receive_country: 'MX', receive_currency: 'MXN', send_currency: 'USD', label: 'Mexico',   feePercentBps: 99, fxMarginBps: 0, midRateE8: 1_850_000_000,  minSendMinor: 1000, maxSendMinor: 500_000 },

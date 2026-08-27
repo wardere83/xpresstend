@@ -26,12 +26,18 @@ export function RateQuote() {
       .get<{ corridors: Corridor[] }>('/corridors')
       .then(({ corridors }) => {
         if (!corridors?.length) return
-        setCorridors(
-          corridors.map((c) => {
-            const known = CORRIDORS.find((k) => k.id === c.id)
-            return { ...(known ?? CORRIDORS[0]), ...c, label: known?.label ?? c.receive_country } as LocalCorridor
-          }),
-        )
+        const merged = corridors.map((c) => {
+          const known = CORRIDORS.find((k) => k.id === c.id)
+          return { ...(known ?? CORRIDORS[0]), ...c, label: known?.label ?? c.receive_country } as LocalCorridor
+        })
+        // The API sorts by country code; keep our own display order so the
+        // calculator does not reshuffle when the live data arrives.
+        const rank = (id: string) => {
+          const i = CORRIDORS.findIndex((k) => k.id === id)
+          return i === -1 ? Number.MAX_SAFE_INTEGER : i
+        }
+        merged.sort((a, b) => rank(a.id) - rank(b.id))
+        setCorridors(merged)
         setLive(true)
       })
       .catch(() => setLive(false))
