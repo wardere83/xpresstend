@@ -276,6 +276,9 @@ export const en = {
   'lang.previewHeading': 'Preview only',
   'lang.notYetTranslated': 'The homepage speaks this language. The full app is being translated next.',
   'marketing.statMany': 'Many',
+  'join.mediaAlt': 'A family together at home, celebrating money that has just arrived.',
+  'join.mediaTitle': 'The moment it lands.',
+  'join.mediaBody': 'Money sent in minutes, not days. Your family sees it arrive while you are still on the call.',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

@@ -279,5 +279,8 @@ export const ptBR: Record<keyof typeof en, string> = {
   'lang.previewHeading': 'Somente prévia',
   'lang.notYetTranslated': 'A página inicial fala este idioma. O app completo será traduzido em seguida.',
   'marketing.statMany': 'Vários',
+  'join.mediaAlt': 'Uma família reunida em casa, comemorando o dinheiro que acabou de chegar.',
+  'join.mediaTitle': 'O momento em que chega.',
+  'join.mediaBody': 'Dinheiro enviado em minutos, não em dias. Sua família vê a chegada enquanto você ainda está na chamada.',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

@@ -283,5 +283,8 @@ export const ar: Record<keyof typeof en, string> = {
   'lang.previewHeading': 'معاينة فقط',
   'lang.notYetTranslated': 'الصفحة الرئيسية تتحدث هذه اللغة. وتتم ترجمة التطبيق بالكامل تاليًا.',
   'marketing.statMany': 'كثيرة',
+  'join.mediaAlt': 'عائلة مجتمعة في المنزل تحتفل بأموال وصلت للتو.',
+  'join.mediaTitle': 'اللحظة التي يصل فيها المال.',
+  'join.mediaBody': 'أموال تُرسل خلال دقائق لا أيام. تراها عائلتك تصل وأنت ما زلت على المكالمة.',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }

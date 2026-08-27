@@ -4,18 +4,45 @@ import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { ApiError } from '../lib/api'
 import { Logo } from '../components/Logo'
+import { JoinMedia } from './JoinMedia'
 import { useAuth } from './AuthContext'
 
-function Shell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+function Shell({
+  title,
+  subtitle,
+  children,
+  media,
+}: {
+  title: string
+  subtitle: string
+  children: ReactNode
+  /** Rendered to the right of the form on wide screens. */
+  media?: ReactNode
+}) {
+  const column = (
+    <div className="flex w-full max-w-md flex-col justify-center">
+      <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
+        <Logo height={32} />
+      </Link>
+      <h1 className="text-balance text-2xl font-extrabold tracking-tight">{title}</h1>
+      <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
+      <div className="mt-7">{children}</div>
+    </div>
+  )
+
+  if (!media) {
+    return (
+      <div className="min-h-dvh bg-canvas">
+        <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10">{column}</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-dvh bg-canvas">
-      <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10">
-        <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
-          <Logo height={32} />
-        </Link>
-        <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
-        <div className="mt-7">{children}</div>
+      <div className="mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="flex justify-center lg:justify-start">{column}</div>
+        <div className="h-full min-h-[34rem] py-4">{media}</div>
       </div>
     </div>
   )
@@ -123,7 +150,11 @@ export function Register() {
   }
 
   return (
-    <Shell title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')}>
+    <Shell
+      title={t('auth.registerTitle')}
+      subtitle={t('auth.registerSubtitle')}
+      media={<JoinMedia />}
+    >
       <form onSubmit={submit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('auth.firstName')} name="firstName" autoComplete="given-name" required

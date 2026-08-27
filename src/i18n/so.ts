@@ -278,5 +278,8 @@ export const so: Record<keyof typeof en, string> = {
   'lang.previewHeading': 'Muuqaal kaliya',
   'lang.notYetTranslated': 'Bogga hore luqaddan buu ku hadlaa. Abka oo dhan ayaa xiga in la turjumo.',
   'marketing.statMany': 'Badan',
+  'join.mediaAlt': 'Qoys guriga ku wada jira, oo u dabaaldegaya lacag hadda soo gaadhay.',
+  'join.mediaTitle': 'Daqiiqadda ay gaadho.',
+  'join.mediaBody': 'Lacag daqiiqado gudahood la diray, ee ma aha maalmo. Qoyskaagu wuu arkaa markay timaaddo intaad wac ku jirto.',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }
