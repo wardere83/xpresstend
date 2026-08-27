@@ -41,9 +41,9 @@ export function Marketing() {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-2 md:items-center md:py-20">
+        <section className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.15fr_1fr] md:items-center md:py-20">
           <div>
-            <h1 className="max-w-[15ch] text-balance text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
+            <h1 className="text-balance text-[clamp(1.75rem,4.2vw,2.125rem)] font-extrabold leading-[1.12] tracking-tight">
               {t('marketing.heroTitle')}
             </h1>
             <div className="mt-5">
