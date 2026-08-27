@@ -38,7 +38,7 @@ function Sidebar() {
       <div>
         <Logo tone="dark" />
         <p className="mt-6 text-[28px] leading-[1.15] font-extrabold text-white">
-          {brand.tagline}
+          {t('marketing.heroTitle')}
         </p>
         <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-white/70">{t('shell.hint')}</p>
 

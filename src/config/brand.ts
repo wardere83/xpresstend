@@ -8,7 +8,9 @@ export const brand = {
   assistantName: 'Xpress Assistant',
   /** Prefix used on transfer reference IDs, e.g. XPT-8457-2391-2024 */
   referencePrefix: 'XPT',
-  tagline: 'Send money home, in your language',
+  /** Canonical English tagline. The UI reads the translated
+   *  marketing.heroTitle key instead, so this is for non-UI use. */
+  tagline: 'Closer with every transfer!',
   hq: {
     city: 'New York',
     state: 'NY',
