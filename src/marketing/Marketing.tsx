@@ -43,9 +43,7 @@ export function Marketing() {
       <main>
         <section className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-2 md:items-center md:py-20">
           <div>
-            <h1
-              lang="en"
-              className="max-w-[19ch] text-justify text-4xl font-extrabold leading-[1.08] tracking-tight [hyphens:auto] [text-align-last:justify] md:text-5xl">
+            <h1 className="max-w-[15ch] text-balance text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
               {t('marketing.heroTitle')}
             </h1>
             <div className="mt-5">
@@ -62,7 +60,7 @@ export function Marketing() {
               </Link>
             </div>
             <dl className="mt-9 grid grid-cols-3 gap-4 border-t border-ink-200/70 pt-6">
-              {([['Many', 'marketing.statLanguages'], ['24/7', 'marketing.statSupport'], ['0', 'marketing.statHidden']] as const)
+              {([[t('marketing.statMany'), 'marketing.statLanguages'], ['24/7', 'marketing.statSupport'], ['0', 'marketing.statHidden']] as const)
                 .map(([value, key]) => (
                   <div key={key}>
                     <dt className="text-2xl font-extrabold tabular-nums">{value}</dt>

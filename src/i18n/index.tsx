@@ -17,6 +17,7 @@ import { so } from './so'
 
 export type { Lang } from './langs'
 export { LANGUAGES } from './langs'
+export type { TranslationKey } from './en'
 
 const dictionaries: Record<Lang, Record<string, string>> = { en, so, 'pt-BR': ptBR, es, ar }
 

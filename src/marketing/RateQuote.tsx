@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useT } from '../i18n'
+import { useI18n, useT } from '../i18n'
 import { api, money, type Corridor, type Quote } from '../lib/api'
 import { CORRIDORS, quoteLocally, type LocalCorridor } from './pricing'
 
@@ -11,8 +11,21 @@ import { CORRIDORS, quoteLocally, type LocalCorridor } from './pricing'
  * bundled corridor table, which runs the identical arithmetic, so someone
  * checking a rate always gets an answer instead of an error.
  */
+/**
+ * Localised country name for an ISO code, e.g. KE -> "Kenya" / "كينيا".
+ * Falls back to the bundled English label on engines without Intl.DisplayNames.
+ */
+function countryName(code: string, lang: string, fallback: string): string {
+  try {
+    return new Intl.DisplayNames([lang], { type: 'region' }).of(code) ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
 export function RateQuote() {
   const t = useT()
+  const { lang } = useI18n()
   const [corridors, setCorridors] = useState<LocalCorridor[]>(CORRIDORS)
   const [corridorId, setCorridorId] = useState(CORRIDORS[0].id)
   const [amount, setAmount] = useState('200')
@@ -125,7 +138,7 @@ export function RateQuote() {
       >
         {corridors.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.label} · {c.receive_currency}
+            {countryName(c.receive_country, lang, c.label)} · {c.receive_currency}
           </option>
         ))}
       </select>

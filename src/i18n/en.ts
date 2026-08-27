@@ -271,20 +271,11 @@ export const en = {
   'auth.errWeak': 'Please choose a stronger password.',
   'auth.errNetwork': 'Cannot reach XpressTend right now.',
   'auth.errGeneric': 'Something went wrong. Please try again.',
-  // ---- Rate comparison and language search ----
-  'compare.title': 'We checked. We are the cheapest.',
-  'compare.intro': 'Move the amount and pick a destination. Every rival figure below is a published, dated price with a link to its source, so you can check it yourself.',
-  'compare.cta': 'Compare the cost',
-  'compare.cheapest': 'Cheapest',
-  'compare.saving': 'You keep {amount} more than the next cheapest.',
-  'compare.ourLive': 'Live quote from our pricing engine.',
-  'compare.excludesMargin': 'excludes FX margin, so the real cost is higher',
-  'compare.noData': 'We have not yet sourced published competitor pricing for this destination. We will not guess at it.',
-  'compare.disclaimer': 'Competitor figures are published prices collected on the dates shown, not live quotes, and pricing changes. Always confirm with the provider before you send.',
   'lang.search': 'Type your language',
   'lang.noMatch': 'No match yet.',
   'lang.previewHeading': 'Preview only',
   'lang.notYetTranslated': 'The homepage speaks this language. The full app is being translated next.',
+  'marketing.statMany': 'Many',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

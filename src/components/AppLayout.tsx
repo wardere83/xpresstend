@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { brand } from '../config/brand'
-import { useT } from '../i18n'
+import { useT, type TranslationKey } from '../i18n'
 import { BottomNav } from './BottomNav'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo as BrandLogo } from './Logo'
@@ -9,18 +9,18 @@ import { StatusBar } from './ui'
 const NAV_ROUTES = ['/app', '/recipients', '/activity', '/profile']
 const DARK_ROUTES = ['/success']
 
-const SCREEN_LINKS: { to: string; label: string }[] = [
-  { to: '/app', label: 'Home' },
-  { to: '/voice', label: 'Voice Assistant' },
-  { to: '/assistant', label: 'AI Assistant chat' },
-  { to: '/send', label: 'Send Money' },
-  { to: '/review', label: 'Review & Confirm' },
-  { to: '/success', label: 'Transfer complete' },
-  { to: '/recipients', label: 'Recipients' },
-  { to: '/activity', label: 'Activity' },
-  { to: '/profile', label: 'Profile' },
-  { to: '/rates', label: 'Live rates' },
-  { to: '/help', label: 'Help Center' },
+const SCREEN_LINKS: { to: string; labelKey: TranslationKey }[] = [
+  { to: '/app', labelKey: 'nav.home' },
+  { to: '/voice', labelKey: 'voice.title' },
+  { to: '/assistant', labelKey: 'chat.title' },
+  { to: '/send', labelKey: 'send.title' },
+  { to: '/review', labelKey: 'review.title' },
+  { to: '/success', labelKey: 'success.title' },
+  { to: '/recipients', labelKey: 'recipients.title' },
+  { to: '/activity', labelKey: 'activity.title' },
+  { to: '/profile', labelKey: 'profile.title' },
+  { to: '/rates', labelKey: 'rates.title' },
+  { to: '/help', labelKey: 'help.title' },
 ]
 
 function Logo({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
@@ -57,7 +57,7 @@ function Sidebar() {
                 }`
               }
             >
-              {link.label}
+              {t(link.labelKey)}
             </NavLink>
           ))}
         </nav>
