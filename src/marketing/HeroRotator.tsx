@@ -45,7 +45,7 @@ export function HeroRotator() {
         dir={locale.dir}
         aria-live="polite"
         style={{ transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ease` }}
-        className={`min-h-[7.5rem] max-w-prose text-[15px] leading-relaxed text-ink-500 sm:min-h-[6rem] ${
+        className={`min-h-[3.5rem] max-w-[22ch] text-justify text-[17px] font-semibold leading-snug text-ink-500 ${
           visible ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'
         }`}
       >

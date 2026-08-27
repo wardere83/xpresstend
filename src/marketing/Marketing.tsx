@@ -6,7 +6,7 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
 import { HeroRotator } from './HeroRotator'
-import { RateCompare } from './RateCompare'
+import { RateQuote } from './RateQuote'
 
 /** Public shopfront. Everything here is readable without an account. */
 export function Marketing() {
@@ -41,9 +41,9 @@ export function Marketing() {
       </header>
 
       <main>
-        <section className="mx-auto max-w-6xl px-5 py-14 md:py-20">
-          <div className="max-w-3xl">
-            <h1 className="text-balance text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
+        <section className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-2 md:items-center md:py-20">
+          <div>
+            <h1 className="text-justify text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
               {t('marketing.heroTitle')}
             </h1>
             <div className="mt-5">
@@ -54,12 +54,12 @@ export function Marketing() {
                 className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-[14px] font-semibold text-white transition hover:bg-brand-700">
                 {t('marketing.getStarted')} <ArrowRight size={16} />
               </Link>
-              <a href="#compare"
+              <Link to="/app"
                 className="inline-flex items-center gap-2 rounded-full border border-ink-200 px-6 py-3 text-[14px] font-semibold text-ink-700 transition hover:bg-canvas">
-                {t('compare.cta')}
-              </a>
+                {t('marketing.tryDemo')}
+              </Link>
             </div>
-            <dl className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-ink-200/70 pt-6">
+            <dl className="mt-9 grid grid-cols-3 gap-4 border-t border-ink-200/70 pt-6">
               {([['Many', 'marketing.statLanguages'], ['24/7', 'marketing.statSupport'], ['0', 'marketing.statHidden']] as const)
                 .map(([value, key]) => (
                   <div key={key}>
@@ -69,13 +69,11 @@ export function Marketing() {
                 ))}
             </dl>
           </div>
+
+          <RateQuote />
         </section>
 
-        <div className="border-y border-ink-200/70 bg-canvas/60">
-          <RateCompare />
-        </div>
-
-        <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 md:grid-cols-3">
+        <section className="mx-auto grid max-w-6xl gap-8 border-t border-ink-200/70 px-5 py-14 md:grid-cols-3">
           {([
             [Zap, 'marketing.f1Title', 'marketing.f1Body'],
             [ShieldCheck, 'marketing.f2Title', 'marketing.f2Body'],
