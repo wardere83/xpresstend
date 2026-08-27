@@ -162,3 +162,27 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Focus halo for the amount field.
+   A conic gradient is spun behind the input and clipped to the field's own
+   rounded box, so the light travels the outline instead of blooming out over
+   the card the way a blurred glow does. The element is centred and oversized
+   so its corners still cover the box as it turns. */
+@keyframes halo-orbit {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.halo-orbit {
+  animation: halo-orbit 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo-orbit {
+    animation: none;
+  }
+}

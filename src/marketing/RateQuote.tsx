@@ -80,23 +80,24 @@ export function RateQuote() {
         {t('marketing.youSend')}
       </label>
 
-      {/* Halo: a soft brand glow that blooms while the field has focus. */}
-      <div className="relative mt-1.5">
+      {/*
+        Focus halo. The rotating conic gradient sits behind the field and is
+        clipped by the wrapper's own rounded box, so the light rides the border
+        and never spills onto the card. The 2px padding is the only place it
+        shows; the inner surface covers the rest.
+      */}
+      <div className="relative mt-1.5 overflow-hidden rounded-[20px] p-[2px]">
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute -inset-3 rounded-[30px] bg-brand-500/25 blur-xl transition-all duration-500 ${
-            focused ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
-          }`}
-        />
-        <span
-          aria-hidden="true"
-          className={`pointer-events-none absolute -inset-0.5 rounded-[22px] bg-gradient-to-br from-brand-400 to-brand-700 transition-opacity duration-300 ${
+          className={`halo-orbit pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_200deg,var(--color-brand-400)_290deg,var(--color-brand-600)_330deg,transparent_360deg)] transition-opacity duration-300 ${
             focused ? 'opacity-100' : 'opacity-0'
           }`}
         />
         <div
           onClick={() => inputRef.current?.focus()}
-          className="relative flex items-center gap-2 rounded-[20px] bg-white px-4 py-3.5 ring-1 ring-ink-200"
+          className={`relative flex items-center gap-2 rounded-[18px] bg-white px-4 py-3.5 transition-shadow ${
+            focused ? 'ring-1 ring-brand-200' : 'ring-1 ring-ink-200'
+          }`}
         >
           <span className="text-[16px] font-bold text-ink-400">$</span>
           <input
