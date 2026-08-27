@@ -101,7 +101,7 @@ export function Marketing() {
 
       <footer className="border-t border-ink-200/70 bg-white">
         <div className="mx-auto max-w-6xl px-5 py-10 text-[12px] leading-relaxed text-ink-400">
-          <p className="font-semibold text-ink-700">{brand.name}</p>
+          <Logo height={20} className="mb-0.5" />
           <p className="mt-1">{brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}</p>
           <p className="mt-3 max-w-prose">{t('marketing.disclaimer')}</p>
           <p className="mt-4">© {new Date().getFullYear()} {brand.name}</p>
