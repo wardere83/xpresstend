@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Globe, Search } from 'lucide-react'
 import { LANGUAGES, useI18n, useT } from '../i18n'
-import { HERO_LOCALES } from '../marketing/heroLocales'
-
-/** Languages we can show a line of, but have not fully translated the UI into yet. */
-const PREVIEW_ONLY = HERO_LOCALES.filter(
-  (h) => !LANGUAGES.some((l) => l.code === h.code || l.code.split('-')[0] === h.code),
-)
 
 export function LanguageSwitcher({
   tone = 'light',
@@ -53,11 +47,6 @@ export function LanguageSwitcher({
           l.label.toLowerCase().includes(q) ||
           l.code.toLowerCase().includes(q),
       ),
-    [q],
-  )
-  const previews = useMemo(
-    () =>
-      q ? PREVIEW_ONLY.filter((p) => p.label.toLowerCase().includes(q) || p.code.includes(q)) : [],
     [q],
   )
 
@@ -117,23 +106,8 @@ export function LanguageSwitcher({
               </li>
             ))}
 
-            {previews.length > 0 && (
-              <li className="border-t border-ink-200/70 px-3 pb-1 pt-2">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-400">
-                  {t('lang.previewHeading')}
-                </p>
-              </li>
-            )}
-            {previews.map((p) => (
-              <li key={p.code}>
-                <div className="px-3 py-2 text-[13px] text-ink-400">
-                  <span className="font-semibold text-ink-500">{p.label}</span>
-                  <p className="mt-0.5 text-[11px] leading-snug">{t('lang.notYetTranslated')}</p>
-                </div>
-              </li>
-            ))}
 
-            {matches.length === 0 && previews.length === 0 && (
+            {matches.length === 0 && (
               <li className="px-3 py-4 text-center text-[12px] text-ink-400">{t('lang.noMatch')}</li>
             )}
           </ul>
