@@ -292,5 +292,7 @@ export const ar: Record<keyof typeof en, string> = {
   'lang.noMatch': 'لا توجد نتائج.',
   'lang.previewHeading': 'معاينة فقط',
   'lang.notYetTranslated': 'الصفحة الرئيسية تتحدث هذه اللغة. وتتم ترجمة التطبيق بالكامل تاليًا.',
+  'lang.translateSite': 'ترجمة الموقع',
+  'lang.translate': 'ترجمة',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }
