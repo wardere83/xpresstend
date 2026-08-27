@@ -287,7 +287,5 @@ export const so: Record<keyof typeof en, string> = {
   'lang.noMatch': 'Wax u dhigma lama helin.',
   'lang.previewHeading': 'Muuqaal kaliya',
   'lang.notYetTranslated': 'Bogga hore luqaddan buu ku hadlaa. Abka oo dhan ayaa xiga in la turjumo.',
-  'lang.translateSite': 'Turjun Bogga',
-  'lang.translate': 'Turjun',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

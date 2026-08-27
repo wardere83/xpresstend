@@ -292,7 +292,5 @@ export const es: Record<keyof typeof en, string> = {
   'lang.noMatch': 'Sin coincidencias.',
   'lang.previewHeading': 'Solo vista previa',
   'lang.notYetTranslated': 'La página de inicio habla este idioma. La app completa se traducirá a continuación.',
-  'lang.translateSite': 'Traducir sitio',
-  'lang.translate': 'Traducir',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }

@@ -288,7 +288,5 @@ export const ptBR: Record<keyof typeof en, string> = {
   'lang.noMatch': 'Nenhuma correspondência.',
   'lang.previewHeading': 'Somente prévia',
   'lang.notYetTranslated': 'A página inicial fala este idioma. O app completo será traduzido em seguida.',
-  'lang.translateSite': 'Traduzir site',
-  'lang.translate': 'Traduzir',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

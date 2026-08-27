@@ -285,8 +285,6 @@ export const en = {
   'lang.noMatch': 'No match yet.',
   'lang.previewHeading': 'Preview only',
   'lang.notYetTranslated': 'The homepage speaks this language. The full app is being translated next.',
-  'lang.translateSite': 'Translate Site',
-  'lang.translate': 'Translate',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

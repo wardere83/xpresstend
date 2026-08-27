@@ -11,13 +11,10 @@ const PREVIEW_ONLY = HERO_LOCALES.filter(
 export function LanguageSwitcher({
   tone = 'light',
   drop = 'down',
-  scope = 'app',
 }: {
   tone?: 'light' | 'dark'
   /** The sidebar control sits at the bottom of the column, so its list opens upward. */
   drop?: 'down' | 'up'
-  /** The shopfront offers to translate the site; inside the product it is just "Translate". */
-  scope?: 'site' | 'app'
 }) {
   const { lang, setLang } = useI18n()
   const t = useT()
@@ -25,6 +22,7 @@ export function LanguageSwitcher({
   const [query, setQuery] = useState('')
   const ref = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const current = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0]
   const dark = tone === 'dark'
 
   useEffect(() => {
@@ -77,7 +75,7 @@ export function LanguageSwitcher({
         }`}
       >
         <Globe size={14} strokeWidth={2.4} />
-        <span>{scope === 'site' ? t('lang.translateSite') : t('lang.translate')}</span>
+        <span>{current.nativeLabel}</span>
         <ChevronDown size={13} strokeWidth={2.6} className={open ? 'rotate-180 transition' : 'transition'} />
       </button>
 
