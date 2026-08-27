@@ -1,7 +1,7 @@
 # XpressTend
 
 A working web build of the XpressTend money-transfer app from the product mockups: a
-voice-first remittance experience for a Seattle, WA based money transmitter serving
+voice-first remittance experience for a New York, NY based money transmitter serving
 customers worldwide. **English is the primary language, with full translations into Somali
 (Af-Soomaali), Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
 the whole app, not just the marketing copy. Arabic renders right-to-left.
@@ -203,7 +203,7 @@ src/
 ### Changing the brand
 
 Everything user-visible about the company lives in `src/config/brand.ts` — name, assistant
-name, receipt prefix, Seattle HQ address, support contacts and licence line. Change `name`
+name, receipt prefix, New York HQ address, support contacts and licence line. Change `name`
 there and the logo, page copy, chat header and footers all follow.
 
 ### Adding a language

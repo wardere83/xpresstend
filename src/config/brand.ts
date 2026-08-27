@@ -19,7 +19,7 @@ export const brand = {
     zip: '10036',
   },
   support: {
-    phone: '+1 (206) 555-0142',
+    phone: '+1 (212) 555-0142',
     email: 'support@xpresstend.com',
     hours: '24/7',
   },
