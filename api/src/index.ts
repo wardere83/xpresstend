@@ -1,45 +1,54 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { secureHeaders } from 'hono/secure-headers'
 import type { Env, Vars } from './env'
+import { withSecurityHeaders } from './headers'
 import { adminAuth, auth } from './routes-auth'
 import { admin } from './routes-admin'
 import { transfers } from './routes-transfers'
 
-const app = new Hono<{ Bindings: Env; Variables: Vars }>()
+/**
+ * One Worker serves both the site and its API.
+ *
+ * The frontend used to sit on GitHub Pages, which cannot set response headers,
+ * so the sign-in page shipped with no CSP and nothing stopping it being framed.
+ * Serving the built assets from here fixes that.
+ *
+ * Collapsing the two origins into one also removes CORS entirely: the browser
+ * now treats the API as same-origin, so the session cookie travels without a
+ * cross-site exemption and can be tightened to SameSite=Strict later.
+ */
+const api = new Hono<{ Bindings: Env; Variables: Vars }>()
 
-app.use('*', secureHeaders())
-
-// Credentialed CORS must name a single origin — '*' is rejected by browsers
-// when cookies are involved, which is exactly how sessions travel here.
-app.use('*', async (c, next) => {
-  const allowed = [c.env.APP_ORIGIN, 'https://www.xpresstend.com']
-  if (c.env.ENVIRONMENT === 'development') allowed.push('http://localhost:5173')
-  return cors({
-    origin: (origin) => (allowed.includes(origin) ? origin : allowed[0]),
-    credentials: true,
-    allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type'],
-  })(c, next)
-})
-
-app.get('/health', async (c) => {
+api.get('/health', async (c) => {
   const row = await c.env.DB.prepare(`SELECT COUNT(*) AS n FROM corridors WHERE enabled = 1`)
     .first<{ n: number }>()
   return c.json({ ok: true, environment: c.env.ENVIRONMENT, corridors: row?.n ?? 0 })
 })
 
-app.route('/auth', auth)
-app.route('/admin/auth', adminAuth)
-app.route('/admin', admin)
-app.route('/', transfers)
+api.route('/auth', auth)
+api.route('/admin/auth', adminAuth)
+api.route('/admin', admin)
+api.route('/', transfers)
 
-app.notFound((c) => c.json({ error: 'not_found' }, 404))
-
-app.onError((err, c) => {
+api.notFound((c) => c.json({ error: 'not_found' }, 404))
+api.onError((err, c) => {
   // Never leak internals to the caller; the detail goes to the Worker log.
   console.error('unhandled', err)
   return c.json({ error: 'internal_error' }, 500)
 })
 
-export default app
+const app = new Hono<{ Bindings: Env; Variables: Vars }>()
+app.route('/api', api)
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const { pathname } = new URL(request.url)
+
+    if (pathname === '/api' || pathname.startsWith('/api/')) {
+      return withSecurityHeaders(await app.fetch(request, env, ctx))
+    }
+
+    // Everything else is the site. The assets binding falls back to index.html
+    // for unknown paths, which is what a client-routed app needs on a cold URL.
+    return withSecurityHeaders(await env.ASSETS.fetch(request))
+  },
+}

@@ -6,8 +6,12 @@
  * cannot read a session out of JavaScript.
  */
 
-/** Point at the deployed Worker; override per environment with VITE_API_URL. */
-export const API_BASE: string = import.meta.env.VITE_API_URL ?? 'https://api.xpresstend.com'
+/**
+ * The API is served by the same Worker as the site, so this is a relative path
+ * and requests are same-origin. Override with VITE_API_URL when running the
+ * frontend against a Worker on a different host.
+ */
+export const API_BASE: string = import.meta.env.VITE_API_URL ?? '/api'
 
 export class ApiError extends Error {
   readonly status: number

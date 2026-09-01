@@ -1,5 +1,7 @@
 export interface Env {
   DB: D1Database
+  /** Static assets binding: the built frontend from dist/. */
+  ASSETS: Fetcher
   ENVIRONMENT: string
   APP_ORIGIN: string
   /** Extra secret mixed into every password hash; set with `wrangler secret put`. */

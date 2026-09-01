@@ -1,10 +1,23 @@
-name = "xpresstend-api"
+name = "xpresstend"
 main = "src/index.ts"
 compatibility_date = "2026-08-26"
 compatibility_flags = ["nodejs_compat"]
 
-# The production database. Created in the Cloudflare account that owns
-# xpresstend.com; the id is not a secret.
+# The Worker serves the built site as well as the API, so security headers can
+# be set on every response. GitHub Pages had no way to do that.
+[assets]
+directory = "../dist"
+binding = "ASSETS"
+# Unknown paths return index.html so client-side routing survives a cold URL.
+not_found_handling = "single-page-application"
+# Static assets are served by the platform and skip the Worker entirely unless
+# this is set, which meant the site's own HTML came back with no CSP while the
+# API had one. Routing every request through the Worker is what guarantees the
+# security headers land on markup, scripts and images alike.
+run_worker_first = true
+
+# The production database, in the Cloudflare account that owns xpresstend.com.
+# The id is not a secret.
 [[d1_databases]]
 binding = "DB"
 database_name = "xpresstend-production"
