@@ -131,11 +131,25 @@ jobs:
   ios-signed:
     name: iOS signed build
     runs-on: macos-15
-    # Only runs once the signing secrets exist, so a fork or an unconfigured
-    # checkout is not failed by their absence.
     if: github.ref == 'refs/heads/main'
+    # Job level, not step level: a step's `if` is evaluated before its own env
+    # block exists, so guarding on a step-scoped secret silently skips the step
+    # and the job still passes.
+    env:
+      APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Confirm signing is configured
+        run: |
+          if [ -z "$APPLE_CERTIFICATE_P12" ]; then
+            echo "::error::Signing secrets are missing, so no IPA can be produced."
+            echo "Set APPLE_CERTIFICATE_P12, APPLE_CERTIFICATE_PASSWORD and APPLE_PROVISIONING_PROFILE."
+            exit 1
+          fi
+          echo "Signing secrets present."
 
       - uses: actions/setup-node@v4
         with:
@@ -151,10 +165,6 @@ jobs:
 
       - name: Install the signing certificate and profile
         if: env.APPLE_CERTIFICATE_P12 != ''
-        env:
-          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
         run: |
           set -euo pipefail
           # A throwaway keychain, so nothing is left behind on the runner and
@@ -181,8 +191,6 @@ jobs:
 
       - name: Archive and export the IPA
         if: env.APPLE_CERTIFICATE_P12 != ''
-        env:
-          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
         run: |
           set -euo pipefail
           xcodebuild -project App.xcodeproj -scheme App \
@@ -200,8 +208,6 @@ jobs:
 
       - name: Upload the IPA
         if: env.APPLE_CERTIFICATE_P12 != ''
-        env:
-          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
         uses: actions/upload-artifact@v4
         with:
           name: xpresstend-ios-ipa
