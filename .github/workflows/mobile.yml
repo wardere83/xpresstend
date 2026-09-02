@@ -1,5 +1,8 @@
 name: Mobile builds
 
+# Note: this workflow has a paths filter, so an empty commit will not
+# trigger it. Use the Actions tab's "Run workflow" button to re-run by hand.
+
 # Builds the apps on GitHub's runners, which already carry the Android SDK and
 # Xcode. Nothing has to be installed locally, and every run leaves a downloadable
 # artifact under the run's summary page.
