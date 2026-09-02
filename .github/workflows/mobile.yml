@@ -1,6 +1,6 @@
 name: Mobile builds
 
-# last triggered: 2026-09-02T06:50:15Z
+# last triggered: 2026-09-02T21:51:14Z
 
 # Note: this workflow has a paths filter, so an empty commit will not
 # trigger it. Use the Actions tab's "Run workflow" button to re-run by hand.
