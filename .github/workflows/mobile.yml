@@ -76,17 +76,14 @@ jobs:
         env:
           VITE_API_URL: https://xpresstend.com/api
 
-      - name: Install pods
-        run: pod install
-        working-directory: ios/App
-
-      # Unsigned. A distributable build needs an Apple Developer account and
-      # certificates, so this proves the project compiles rather than producing
-      # something installable.
+      # Capacitor 8 resolves its native dependencies through Swift Package
+      # Manager, so there is no Podfile and no workspace: the project builds
+      # directly. Unsigned, because a distributable build needs an Apple
+      # Developer account and certificates.
       - name: Compile without signing
         run: |
           xcodebuild \
-            -workspace App.xcworkspace \
+            -project App.xcodeproj \
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
