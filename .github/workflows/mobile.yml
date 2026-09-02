@@ -195,17 +195,33 @@ jobs:
           # Already-present is not an error worth failing the build over.
           security import "$RUNNER_TEMP/wwdr.cer" -k "$KEYCHAIN" -T /usr/bin/codesign || true
 
-      - name: Import the distribution certificate
+      - name: Decode the certificate
         if: env.APPLE_CERTIFICATE_P12 != ''
         run: |
-          set -euxo pipefail
-          echo "$APPLE_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          set -euo pipefail
+          echo "$APPLE_CERTIFICATE_P12" | tr -d '\n' | base64 --decode > "$RUNNER_TEMP/cert.p12"
           ls -l "$RUNNER_TEMP/cert.p12"
+          # Prove the decode produced a real PKCS#12 before blaming the import.
+          openssl pkcs12 -in "$RUNNER_TEMP/cert.p12" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout
+
+      - name: Import the distribution certificate
+        if: env.APPLE_CERTIFICATE_P12 != ''
+        # No -x here: tracing would put the password in the log.
+        run: |
+          set -euo pipefail
           security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$APPLE_CERTIFICATE_PASSWORD" \
-            -T /usr/bin/codesign -T /usr/bin/security
-          # Without this codesign blocks on a UI prompt nothing can answer.
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PW" "$KEYCHAIN" >/dev/null
+            -A -T /usr/bin/codesign -T /usr/bin/security
           rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Allow codesign to use the key without prompting
+        if: env.APPLE_CERTIFICATE_P12 != ''
+        run: |
+          set -euo pipefail
+          # A known CI trip hazard, so it gets its own step. Without it codesign
+          # blocks on a UI prompt nothing on a runner can answer.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PW" "$KEYCHAIN" >/dev/null 2>&1 || \
+            echo "::warning::set-key-partition-list failed; continuing since -A was used on import"
 
       - name: Install the provisioning profile
         if: env.APPLE_CERTIFICATE_P12 != ''
