@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2026-08-26"
 compatibility_flags = ["nodejs_compat"]
 
+# Keep the workers.dev URL live. Declaring `routes` disables it by default, and
+# it is the only reachable endpoint until the custom domain can be attached.
+workers_dev = true
+
+
 # The Worker serves the built site as well as the API, so security headers can
 # be set on every response. GitHub Pages had no way to do that.
 [assets]

@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 /**
  * Client for the XpressTend Worker API.
  *
@@ -7,11 +8,19 @@
  */
 
 /**
- * The API is served by the same Worker as the site, so this is a relative path
- * and requests are same-origin. Override with VITE_API_URL when running the
- * frontend against a Worker on a different host.
+ * On the web the API is served by the same Worker as the site, so a relative
+ * path keeps every request same-origin and CORS out of the picture.
+ *
+ * The native apps load from capacitor://localhost, where a relative path would
+ * resolve against the app bundle and find nothing, so they need an absolute
+ * origin. Set VITE_API_URL at build time to point a build at somewhere else,
+ * which is how the mobile build targets a staging Worker.
  */
-export const API_BASE: string = import.meta.env.VITE_API_URL ?? '/api'
+const REMOTE_API = import.meta.env.VITE_API_URL ?? 'https://xpresstend.com/api'
+
+export const API_BASE: string = Capacitor.isNativePlatform()
+  ? REMOTE_API
+  : (import.meta.env.VITE_API_URL ?? '/api')
 
 export class ApiError extends Error {
   readonly status: number
