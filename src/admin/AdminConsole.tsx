@@ -7,6 +7,7 @@
  */
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { api, ApiError, API_BASE, money, type AdminUser } from '../lib/api'
+import { StaffPanel } from './StaffPanel'
 
 interface TransferRow {
   id: string; reference: string; status: string
@@ -218,6 +219,7 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 }
 
 function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () => void }) {
+  const [tab, setTab] = useState<'queue' | 'staff'>('queue')
   const [rows, setRows] = useState<TransferRow[]>([])
   const [filter, setFilter] = useState('compliance_hold')
   const [balance, setBalance] = useState<TrialBalance | null>(null)
@@ -270,6 +272,26 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8">
+        <div className="mb-6 flex gap-2 border-b border-ink-200/70">
+          {([['queue', 'Transfers'], ['staff', 'Staff']] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`-mb-px border-b-2 px-4 py-2.5 text-[13px] font-semibold transition ${
+                tab === key
+                  ? 'border-brand-600 text-brand-700'
+                  : 'border-transparent text-ink-500 hover:text-ink-700'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'staff' ? <StaffPanel me={admin} /> : null}
+
+        {tab === 'queue' ? (
+        <>
         {balance ? (
           <div className={`mb-6 rounded-2xl px-4 py-3 text-[13px] font-semibold ${
             balance.balanced ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
@@ -347,6 +369,8 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
             </tbody>
           </table>
         </div>
+        </>
+        ) : null}
       </main>
     </div>
   )

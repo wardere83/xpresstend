@@ -5,10 +5,15 @@ import { payoutPostings } from './ledger'
 import { post } from './ledger-db'
 import type { Env, Vars } from './env'
 import { requireAdmin, requireRole } from './sessions'
+import { staff } from './routes-staff'
 
 export const admin = new Hono<{ Bindings: Env; Variables: Vars }>()
 
 admin.use('*', requireAdmin)
+
+// Staff administration. Mounted inside the admin guard, so every route here
+// already has a signed-in staff member.
+admin.route('/staff', staff)
 
 /** Operations dashboard: volumes, holds and today's activity. */
 admin.get('/overview', async (c) => {
