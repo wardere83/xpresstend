@@ -23,33 +23,22 @@ configure and the site works just as well from a subfolder as from a domain root
 
 ## Deploying
 
-`.github/workflows/deploy.yml` builds and checks every push and pull request. Deploys are
-opt-in, so nothing goes red before a target is configured. Each run also attaches the built
-site as a `site` artifact, which can be downloaded and uploaded by hand at any time.
+The site and the API are one Cloudflare Worker. A Worker route intercepts every
+request to `xpresstend.com` ahead of any origin, which is what allows the
+security headers a static host cannot set: CSP, X-Frame-Options,
+X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP and HSTS.
 
-### HostGator (cPanel)
+```bash
+npm run deploy          # builds the site and deploys the Worker
+```
 
-**Manual, once:** unzip a build into `public_html/` with cPanel's File Manager.
+GitHub Pages and the HostGator FTPS target are retired. Nothing is copied into
+the repository root any more; the Worker serves `dist/` directly.
 
-**Automatic, on every push to `main`:** add these under **Settings → Secrets and variables
-→ Actions**, then push.
-
-| Kind | Name | Value |
-| --- | --- | --- |
-| Variable | `DEPLOY_HOSTGATOR` | `true` |
-| Variable | `HOSTGATOR_DIR` | target directory, defaults to `public_html/` |
-| Secret | `HOSTGATOR_FTP_SERVER` | e.g. `ftp.xpresstend.com` |
-| Secret | `HOSTGATOR_FTP_USERNAME` | cPanel or FTP account username |
-| Secret | `HOSTGATOR_FTP_PASSWORD` | that account's password |
-
-Credentials belong in GitHub Secrets, never in the repository. The job uses FTPS on port 21
-and only replaces files the build produces, leaving anything else in the directory alone.
-
-### GitHub Pages
-
-Set the variable `DEPLOY_PAGES` to `true`, **and** set **Settings → Pages → Build and
-deployment → Source** to **GitHub Actions**. Creating a Pages site needs repo-admin rights
-that the workflow token does not have, so that switch has to be flipped by hand once.
+CI runs lint, the Worker type-check, the money tests and the build on every
+push and pull request. It deploys only from `main`, and only once a
+`CLOUDFLARE_API_TOKEN` secret exists, so a fork builds without trying to
+publish.
 
 ## The platform
 

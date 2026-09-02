@@ -3,6 +3,21 @@ main = "src/index.ts"
 compatibility_date = "2026-08-26"
 compatibility_flags = ["nodejs_compat"]
 
+# Keep the workers.dev URL live alongside the routes below. Declaring routes
+# turns it off by default, and it is useful for testing a deploy before the
+# domain picks it up.
+workers_dev = true
+
+# Routes rather than custom domains. A custom domain insists on managing the
+# zone's DNS itself and refuses while records already exist, but a route simply
+# intercepts matching requests ahead of the origin, which works with the proxied
+# records already in place. Nothing in DNS has to be deleted.
+routes = [
+  { pattern = "xpresstend.com/*", zone_name = "xpresstend.com" },
+  { pattern = "www.xpresstend.com/*", zone_name = "xpresstend.com" },
+]
+
+
 # The Worker serves the built site as well as the API, so security headers can
 # be set on every response. GitHub Pages had no way to do that.
 [assets]

@@ -36,14 +36,14 @@ const config: CapacitorConfig = {
       // Held open until React has painted the first screen, so the app never
       // shows a white flash between the splash and the UI.
       launchAutoHide: false,
-      backgroundColor: '#5B2BE0',
+      backgroundColor: '#FFFFFF',
       showSpinner: false,
       androidScaleType: 'CENTER_CROP',
       splashFullScreen: true,
     },
     StatusBar: {
       style: 'LIGHT',
-      backgroundColor: '#5B2BE0',
+      backgroundColor: '#FFFFFF',
     },
     Keyboard: {
       resize: 'native',
