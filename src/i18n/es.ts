@@ -284,5 +284,10 @@ export const es: Record<keyof typeof en, string> = {
   'join.mediaAlt': 'Una familia reunida en casa, celebrando el dinero que acaba de llegar.',
   'join.mediaTitle': 'El momento en que llega.',
   'join.mediaBody': 'Dinero enviado en minutos, no en días. Su familia lo ve llegar mientras usted sigue en la llamada.',
+  'lock.title': 'Aplicación bloqueada',
+  'lock.reason': 'Confirme que es usted antes de mostrar sus transferencias.',
+  'lock.unlock': 'Desbloquear',
+  'lock.usePasscode': 'Usar código del dispositivo',
+  'lock.failed': 'No reconocido. Inténtelo de nuevo.',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }

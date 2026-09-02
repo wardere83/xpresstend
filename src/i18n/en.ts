@@ -277,6 +277,11 @@ export const en = {
   'join.mediaAlt': 'A family together at home, celebrating money that has just arrived.',
   'join.mediaTitle': 'The moment it lands.',
   'join.mediaBody': 'Money sent in minutes, not days. Your family sees it arrive while you are still on the call.',
+  'lock.title': 'App locked',
+  'lock.reason': 'Confirm it is you before your transfers are shown.',
+  'lock.unlock': 'Unlock',
+  'lock.usePasscode': 'Use passcode',
+  'lock.failed': 'Not recognised. Try again.',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

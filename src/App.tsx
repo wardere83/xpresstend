@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
+import { AppLock } from './native/AppLock'
 import { NativeShell } from './native/NativeShell'
 import { I18nProvider } from './i18n'
 import { TransferProvider } from './state/TransferContext'
@@ -21,6 +22,7 @@ import { Help, Rates, Refer, Support } from './screens/Info'
 export default function App() {
   return (
     <I18nProvider>
+      <AppLock>
       <AuthProvider>
         <TransferProvider>
           <HashRouter>
@@ -56,6 +58,7 @@ export default function App() {
           </HashRouter>
         </TransferProvider>
       </AuthProvider>
+      </AppLock>
     </I18nProvider>
   )
 }

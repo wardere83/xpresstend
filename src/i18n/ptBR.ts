@@ -280,5 +280,10 @@ export const ptBR: Record<keyof typeof en, string> = {
   'join.mediaAlt': 'Uma família reunida em casa, comemorando o dinheiro que acabou de chegar.',
   'join.mediaTitle': 'O momento em que chega.',
   'join.mediaBody': 'Dinheiro enviado em minutos, não em dias. Sua família vê a chegada enquanto você ainda está na chamada.',
+  'lock.title': 'App bloqueado',
+  'lock.reason': 'Confirme que é você antes de mostrarmos suas transferências.',
+  'lock.unlock': 'Desbloquear',
+  'lock.usePasscode': 'Usar senha do aparelho',
+  'lock.failed': 'Não reconhecido. Tente novamente.',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

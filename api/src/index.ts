@@ -3,6 +3,7 @@ import type { Env, Vars } from './env'
 import { withSecurityHeaders } from './headers'
 import { adminAuth, auth } from './routes-auth'
 import { admin } from './routes-admin'
+import { bootstrap } from './routes-bootstrap'
 import { transfers } from './routes-transfers'
 
 /**
@@ -25,6 +26,7 @@ api.get('/health', async (c) => {
 })
 
 api.route('/auth', auth)
+api.route('/bootstrap', bootstrap)
 api.route('/admin/auth', adminAuth)
 api.route('/admin', admin)
 api.route('/', transfers)
