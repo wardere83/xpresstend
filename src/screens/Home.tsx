@@ -18,6 +18,7 @@ import { Avatar, IconTile, SectionTitle, Waveform } from '../components/ui'
 import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { getRecipient, user } from '../data/mock'
+import { useAuth } from '../auth/AuthContext'
 import { formatDate, rate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 import type { DeliveryMethod } from '../state/TransferContext'
@@ -48,6 +49,7 @@ const quickActions: {
 ]
 
 export function Home() {
+  const { user: account } = useAuth()
   const t = useT()
   const mirror = useMirrorClass()
   const navigate = useNavigate()
@@ -86,7 +88,7 @@ export function Home() {
         {/* Greeting */}
         <div className="mt-2 mb-4">
           <h1 className="text-[22px] leading-tight font-extrabold text-ink-900">
-            {t('home.greeting', { name: user.firstName })} <span aria-hidden="true">👋</span>
+            {t('home.greeting', { name: account?.firstName ?? user.firstName })} <span aria-hidden="true">👋</span>
           </h1>
           <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
         </div>

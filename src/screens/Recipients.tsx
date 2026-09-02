@@ -1,24 +1,44 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search, Star } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { getCorridor, recipients, relationName } from '../data/mock'
+import { useAccountData } from '../state/AccountData'
+import { recipients as seeded, relationName } from '../data/mock'
+import { seededRecipientView, toRecipientView, type RecipientView } from '../lib/view'
+import { CORRIDORS } from '../marketing/pricing'
 
+/**
+ * A signed-in customer sees their own recipients and can add more. Everyone
+ * else sees the seeded set, because /app is reachable without an account and
+ * an empty tour would say nothing about the product.
+ */
 export function Recipients() {
   const { t, lang } = useI18n()
   const navigate = useNavigate()
   const { setRecipientId } = useTransfer()
+  const { live, loading, error, recipients: mine, addRecipient } = useAccountData()
   const [query, setQuery] = useState('')
+  const [adding, setAdding] = useState(false)
+
+  const rows: RecipientView[] = useMemo(
+    () =>
+      live
+        ? mine.map(toRecipientView)
+        : seeded.map((r) => seededRecipientView(r, relationName(r, lang))),
+    [live, mine, lang],
+  )
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return recipients
-    return recipients.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')),
+    if (!q) return rows
+    return rows.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.detail.replace(/\s/g, '').toLowerCase().includes(q.replace(/\s/g, '')),
     )
-  }, [query])
+  }, [query, rows])
 
   const favourites = filtered.filter((r) => r.favourite)
   const others = filtered.filter((r) => !r.favourite)
@@ -28,33 +48,26 @@ export function Recipients() {
     navigate('/send')
   }
 
-  const renderRow = (r: (typeof recipients)[number]) => {
-    const corridor = getCorridor(r.corridorCode)
-    return (
-      <li key={r.id}>
-        <button
-          type="button"
-          onClick={() => open(r.id)}
-          className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:bg-brand-50/70"
-        >
-          <Avatar name={r.name} hue={r.hue} size={44} />
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5">
-              <span className="truncate text-[14px] font-bold text-ink-900">{r.name}</span>
-              {r.favourite && <Star size={12} className="fill-amber-400 text-amber-400" />}
-            </span>
-            <span className="block truncate text-[12px] text-ink-500">
-              {relationName(r, lang)} · <bdi>{r.phone}</bdi>
-            </span>
+  const renderRow = (r: RecipientView) => (
+    <li key={r.id}>
+      <button
+        type="button"
+        onClick={() => open(r.id)}
+        className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:bg-brand-50/70"
+      >
+        <Avatar name={r.name} hue={r.hue} size={44} />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1.5">
+            <span className="truncate text-[14px] font-bold text-ink-900">{r.name}</span>
+            {r.favourite && <Star size={12} className="fill-amber-400 text-amber-400" />}
           </span>
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-[11px] font-semibold text-ink-500">
-            <span aria-hidden="true">{corridor.flag}</span>
-            <bdi>{r.wallet}</bdi>
+          <span className="block truncate text-[12px] text-ink-500">
+            {r.subtitle} · <bdi>{r.detail}</bdi>
           </span>
-        </button>
-      </li>
-    )
-  }
+        </span>
+      </button>
+    </li>
+  )
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -64,7 +77,7 @@ export function Recipients() {
           <button
             type="button"
             aria-label={t('recipients.add')}
-            onClick={() => navigate('/send')}
+            onClick={() => (live ? setAdding((v) => !v) : navigate('/send'))}
             className="grid h-9 w-9 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700"
           >
             <Plus size={18} strokeWidth={2.6} />
@@ -86,9 +99,23 @@ export function Recipients() {
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        {filtered.length === 0 && (
+        {adding && live ? (
+          <AddRecipient
+            onCancel={() => setAdding(false)}
+            onSave={async (input) => {
+              await addRecipient(input)
+              setAdding(false)
+            }}
+          />
+        ) : null}
+
+        {error ? (
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
+        ) : loading && rows.length === 0 ? (
+          <p className="mt-10 text-center text-[13px] text-ink-400">…</p>
+        ) : filtered.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">{t('recipients.empty')}</p>
-        )}
+        ) : null}
 
         {favourites.length > 0 && (
           <>
@@ -103,11 +130,87 @@ export function Recipients() {
 
         {others.length > 0 && (
           <>
-            <h2 className="mt-5 mb-2 text-[13px] font-bold text-ink-700">{t('recipients.all')}</h2>
-            <ul className="card overflow-hidden divide-y divide-ink-200/60">{others.map(renderRow)}</ul>
+            {favourites.length > 0 ? (
+              <h2 className="mt-5 mb-2 text-[13px] font-bold text-ink-700">{t('recipients.all')}</h2>
+            ) : null}
+            <ul className="card mt-2 overflow-hidden divide-y divide-ink-200/60">
+              {others.map(renderRow)}
+            </ul>
           </>
         )}
       </div>
     </div>
+  )
+}
+
+const PAYOUT_METHODS = [
+  { value: 'mobile_wallet', label: 'Mobile wallet' },
+  { value: 'bank_account', label: 'Bank account' },
+  { value: 'cash_pickup', label: 'Cash pickup' },
+]
+
+function AddRecipient({
+  onCancel,
+  onSave,
+}: {
+  onCancel: () => void
+  onSave: (input: {
+    fullName: string; country: string; payoutMethod: string; phone?: string; relationship?: string
+  }) => Promise<void>
+}) {
+  const { t } = useI18n()
+  const [form, setForm] = useState({
+    fullName: '', country: CORRIDORS[0].receive_country, payoutMethod: 'mobile_wallet',
+    phone: '', relationship: '',
+  })
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true); setError(null)
+    try {
+      await onSave(form)
+    } catch {
+      setError(t('recipients.addFailed'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const field =
+    'w-full rounded-2xl bg-white px-4 py-3 text-[14px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+
+  return (
+    <form onSubmit={submit} className="card mb-4 space-y-3 p-4">
+      <h2 className="text-[14px] font-bold">{t('recipients.add')}</h2>
+      <input required placeholder={t('recipients.fullName')} value={form.fullName}
+             onChange={set('fullName')} className={field} />
+      <select value={form.country} onChange={set('country')} className={field} aria-label={t('marketing.destination')}>
+        {CORRIDORS.map((c) => (
+          <option key={c.id} value={c.receive_country}>{c.label}</option>
+        ))}
+      </select>
+      <select value={form.payoutMethod} onChange={set('payoutMethod')} className={field}
+              aria-label={t('recipients.payoutMethod')}>
+        {PAYOUT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+      </select>
+      <input placeholder={t('recipients.phoneOptional')} value={form.phone} onChange={set('phone')}
+             className={field} inputMode="tel" />
+      {error ? <p role="alert" className="text-[13px] font-medium text-red-600">{error}</p> : null}
+      <div className="flex gap-2 pt-1">
+        <button type="submit" disabled={busy}
+          className="flex-1 rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
+          {busy ? t('common.saving') : t('common.save')}
+        </button>
+        <button type="button" onClick={onCancel}
+          className="rounded-full border border-ink-200 px-5 py-3 text-[14px] font-semibold text-ink-700">
+          {t('common.cancel')}
+        </button>
+      </div>
+    </form>
   )
 }

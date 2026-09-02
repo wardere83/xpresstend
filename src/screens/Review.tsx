@@ -13,17 +13,27 @@ type Verification = 'face' | 'pin'
 export function Review() {
   const { t, lang } = useI18n()
   const navigate = useNavigate()
-  const { recipient, corridor, quote, commit } = useTransfer()
+  const { recipient, corridor, quote, commit, commitError } = useTransfer()
 
   const [method, setMethod] = useState<Verification>('face')
   const [stage, setStage] = useState<'idle' | 'verifying' | 'pin'>('idle')
   const [pin, setPin] = useState('')
 
-  const complete = () => {
-    // The one moment worth a distinct buzz: the money has moved.
-    void outcomeFeedback('success')
-    commit()
-    navigate('/success', { replace: true })
+  /**
+   * Records the transfer, then shows the receipt.
+   *
+   * For a signed-in customer this actually creates it, so a failure must not
+   * land on the success screen: it returns to the summary with the reason.
+   */
+  const complete = async () => {
+    try {
+      await commit()
+      void outcomeFeedback('success')
+      navigate('/success', { replace: true })
+    } catch {
+      void outcomeFeedback('error')
+      setStage('idle')
+    }
   }
 
   useEffect(() => {
@@ -33,14 +43,14 @@ export function Review() {
     // moves. In the browser there is nothing to ask, so the demo stands in with
     // a short pause rather than pretending to have verified anything.
     if (!isNative) {
-      const id = window.setTimeout(complete, 1400)
+      const id = window.setTimeout(() => void complete(), 1400)
       return () => window.clearTimeout(id)
     }
 
     let cancelled = false
     void confirmWithBiometrics(t('review.confirmReason')).then((ok) => {
       if (cancelled) return
-      if (ok) complete()
+      if (ok) void complete()
       else {
         void outcomeFeedback('warning')
         setStage('pin')
@@ -54,7 +64,7 @@ export function Review() {
 
   useEffect(() => {
     if (pin.length < 4) return
-    const id = window.setTimeout(complete, 450)
+    const id = window.setTimeout(() => void complete(), 450)
     return () => window.clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin])
@@ -69,6 +79,12 @@ export function Review() {
       <ScreenHeader title={t('review.title')} onBack={() => navigate(-1)} />
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
+        {commitError ? (
+          <p role="alert" className="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
+            {commitError}
+          </p>
+        ) : null}
+
         {/* Summary */}
         <section className="card p-4">
           <h2 className="mb-1 text-[15px] font-bold text-ink-900">{t('field.summary')}</h2>

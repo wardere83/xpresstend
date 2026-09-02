@@ -15,6 +15,7 @@ import { Avatar, ListRow, ScreenHeader } from '../components/ui'
 import { brand } from '../config/brand'
 import { useI18n } from '../i18n'
 import { user } from '../data/mock'
+import { useAuth } from '../auth/AuthContext'
 import type { TranslationKey } from '../i18n/en'
 
 const rows: { key: TranslationKey; icon: typeof UserRound; to?: string }[] = [
@@ -27,6 +28,7 @@ const rows: { key: TranslationKey; icon: typeof UserRound; to?: string }[] = [
 ]
 
 export function Profile() {
+  const { user: account, signOut } = useAuth()
   const { t } = useI18n()
   const navigate = useNavigate()
 
@@ -36,11 +38,11 @@ export function Profile() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         <section className="card flex items-center gap-3.5 p-4">
-          <Avatar name={user.fullName} hue={user.hue} size={56} />
+          <Avatar name={account ? `${account.firstName} ${account.lastName}` : user.fullName} hue={user.hue} size={56} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[16px] font-extrabold text-ink-900">{user.fullName}</p>
+            <p className="truncate text-[16px] font-extrabold text-ink-900">{account ? `${account.firstName} ${account.lastName}` : user.fullName}</p>
             <p className="truncate text-[12px] text-ink-500">
-              <bdi>{user.phone}</bdi>
+              <bdi>{account?.email ?? user.phone}</bdi>
             </p>
             <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700">
               <BadgeCheck size={12} />
@@ -81,7 +83,10 @@ export function Profile() {
 
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={async () => {
+            if (account) await signOut()
+            navigate('/')
+          }}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-[14px] font-bold text-rose-600 shadow-[var(--shadow-card)] transition hover:bg-rose-50"
         >
           <LogOut size={16} />

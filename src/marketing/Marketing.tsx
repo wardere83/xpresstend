@@ -6,6 +6,7 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
 import { HeroRotator } from './HeroRotator'
+import { GetTheApp } from './GetTheApp'
 import { RateQuote } from './RateQuote'
 
 /** Public shopfront. Everything here is readable without an account. */
@@ -21,6 +22,10 @@ export function Marketing() {
             <Logo height={32} />
           </Link>
           <div className="ml-auto flex items-center gap-2">
+            <a href="#get-the-app"
+               className="hidden rounded-full px-4 py-2 text-[13px] font-semibold text-ink-700 hover:bg-canvas sm:block">
+              {t('app.android').split(' ')[0]}
+            </a>
             <LanguageSwitcher />
             {user ? (
               <Link to="/app" className="rounded-full bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white">
@@ -89,7 +94,9 @@ export function Marketing() {
           ))}
         </section>
 
-        <section className="mx-auto max-w-6xl px-5 pb-16 text-center">
+        <GetTheApp />
+
+        <section className="mx-auto max-w-6xl px-5 py-16 text-center">
           <h2 className="text-balance text-3xl font-extrabold tracking-tight">{t('marketing.ctaTitle')}</h2>
           <p className="mx-auto mt-3 max-w-prose text-[15px] text-ink-500">{t('marketing.ctaBody')}</p>
           <Link to="/register"
