@@ -43,6 +43,17 @@ case $(( ${#clean} % 4 )) in
   3) clean="${clean}=" ;;
 esac
 
+# A value this short is not a mangled encoding, it is the wrong thing
+# entirely — a filename, a path, or a placeholder. Say that rather than
+# blaming the base64, which sends the reader looking in the wrong place.
+if [ ${#clean} -lt 100 ]; then
+  echo "::group::What is wrong with $VAR"
+  echo "characters in the secret: ${#raw}"
+  echo "note: base64 of even a small file runs to hundreds of characters."
+  echo "::endgroup::"
+  fail "the value is only ${#clean} characters, far too short to be a file. $VAR looks like it holds a name, a path or a placeholder rather than the base64 of the file itself."
+fi
+
 # openssl is the tolerant decoder of the two and is present on every runner;
 # BSD base64 is the fallback for a stripped image.
 if printf '%s' "$clean" | openssl base64 -d -A > "$OUT" 2>/dev/null && [ -s "$OUT" ]; then
