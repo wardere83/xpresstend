@@ -47,8 +47,72 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { pathname } = new URL(request.url)
 
+    /*
+     * Refuse to serve without the pepper in production.
+     *
+     * It was optional, so a deployment missing it would hash every password
+     * with an empty value and carry on creating accounts. Adding it later then
+     * invalidates every password and session already stored, which is only
+     * discovered when customers cannot sign in.
+     */
+    if (env.ENVIRONMENT === 'production' && !env.SESSION_PEPPER) {
+      console.error('SESSION_PEPPER is not set; refusing to serve')
+      return new Response(
+        JSON.stringify({ error: 'misconfigured' }),
+        { status: 503, headers: { 'content-type': 'application/json' } },
+      )
+    }
+
     if (pathname === '/api' || pathname.startsWith('/api/')) {
-      return withSecurityHeaders(await app.fetch(request, env, ctx))
+      /*
+       * The native apps load from capacitor://localhost (iOS) and
+       * https://localhost (Android), so their API calls are cross-origin.
+       * Without CORS the browser in the WebView drops the response, and
+       * without SameSite=None the session cookie is never sent back, so
+       * sign-in appears to succeed and then every later call is anonymous.
+       *
+       * The allowlist is exact: the app origins and the site itself. It is not
+       * a wildcard, because credentialed requests must name a single origin
+       * and reflecting an arbitrary Origin would let any site call this API
+       * with the customer's cookie.
+       */
+      const origin = request.headers.get('origin') ?? ''
+      const allowed = new Set([
+        env.APP_ORIGIN,
+        'https://www.xpresstend.com',
+        'capacitor://localhost',
+        'https://localhost',
+        'http://localhost',
+      ])
+      if (env.ENVIRONMENT === 'development') allowed.add('http://localhost:5173')
+
+      const corsHeaders: Record<string, string> = {}
+      if (origin && allowed.has(origin)) {
+        corsHeaders['access-control-allow-origin'] = origin
+        corsHeaders['access-control-allow-credentials'] = 'true'
+        corsHeaders['vary'] = 'Origin'
+      }
+
+      if (request.method === 'OPTIONS') {
+        return withSecurityHeaders(
+          new Response(null, {
+            status: 204,
+            headers: {
+              ...corsHeaders,
+              'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
+              'access-control-allow-headers': 'Content-Type, x-bootstrap-secret',
+              'access-control-max-age': '86400',
+            },
+          }),
+        )
+      }
+
+      const res = await app.fetch(request, env, ctx)
+      const merged = new Headers(res.headers)
+      for (const [k, v] of Object.entries(corsHeaders)) merged.set(k, v)
+      return withSecurityHeaders(
+        new Response(res.body, { status: res.status, statusText: res.statusText, headers: merged }),
+      )
     }
 
     // Everything else is the site. The assets binding falls back to index.html

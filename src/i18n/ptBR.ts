@@ -302,5 +302,9 @@ export const ptBR: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Em breve na App Store',
   'app.sideloadNote': 'A versão Android é para testes, então seu telefone pedirá permissão para instalar de um desenvolvedor desconhecido.',
+  'review.authFailed': 'Essa senha não foi aceita.',
+  'review.enterPassword': 'Digite a senha da sua conta para autorizar esta transferência.',
+  'review.authorise': 'Autorizar transferência',
+  'common.sending': 'Enviando…',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

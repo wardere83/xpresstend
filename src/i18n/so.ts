@@ -301,5 +301,9 @@ export const so: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Waxay imanaysaa App Store',
   'app.sideloadNote': 'Nooca Android waa tijaabo, sidaas darteed telefoonkaagu wuxuu ku weydiin doonaa inaad ogolaato rakibaad ka timid horumariye aan la aqoon.',
+  'review.authFailed': 'Furahaas lama aqbalin.',
+  'review.enterPassword': 'Geli furahaaga akoonka si aad u ogolaato wareejintan.',
+  'review.authorise': 'Ogolow wareejinta',
+  'common.sending': 'Waa la dirayaa…',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { newId, randomHex } from './crypto'
+import { newId, randomHex, verifyPassword } from './crypto'
 import { audit } from './audit'
 import { fundingPostings } from './ledger'
-import { post } from './ledger-db'
+import { DuplicatePostingError, postOnce } from './ledger-db'
 import { QuoteError, quote, type Corridor } from './money'
 import type { Env, Vars } from './env'
 import { requireUser } from './sessions'
@@ -15,6 +15,18 @@ const TIER_LIMITS: Record<number, number> = { 0: 0, 1: 100_000, 2: 500_000, 3: 2
 
 /** How long a quoted rate is honoured before it must be re-quoted. */
 const QUOTE_TTL_MINUTES = 15
+
+/**
+ * A stored rate is only usable for so long. The newest row was previously
+ * accepted whatever its age, so a rate from weeks ago could still produce a
+ * freshly timestamped quote and book money at a price that no longer exists.
+ */
+const RATE_MAX_AGE_MINUTES = 60
+
+function isStale(fetchedAt: string): boolean {
+  const age = Date.now() - new Date(fetchedAt).getTime()
+  return !Number.isFinite(age) || age > RATE_MAX_AGE_MINUTES * 60_000
+}
 
 function reference(): string {
   const block = () => String(Math.floor(Number(`0x${randomHex(2)}`) / 65536 * 9000) + 1000)
@@ -44,9 +56,10 @@ transfers.post('/quote', async (c) => {
   if (!corridor) return c.json({ error: 'unknown_corridor' }, 404)
 
   const rate = await c.env.DB.prepare(
-    `SELECT rate_e8 FROM fx_rates WHERE base = ? AND quote = ? ORDER BY fetched_at DESC LIMIT 1`,
-  ).bind(corridor.send_currency, corridor.receive_currency).first<{ rate_e8: number }>()
+    `SELECT rate_e8, fetched_at FROM fx_rates WHERE base = ? AND quote = ? ORDER BY fetched_at DESC LIMIT 1`,
+  ).bind(corridor.send_currency, corridor.receive_currency).first<{ rate_e8: number; fetched_at: string }>()
   if (!rate) return c.json({ error: 'no_rate_available' }, 503)
+  if (isStale(rate.fetched_at)) return c.json({ error: 'rate_stale' }, 503)
 
   try {
     const q = quote(corridor, rate.rate_e8, body.sendAmountMinor)
@@ -138,10 +151,25 @@ transfers.post('/transfers', async (c) => {
     .bind(b.corridorId).first<Corridor>()
   if (!corridor) return c.json({ error: 'unknown_corridor' }, 404)
 
+  /*
+   * The corridor has to match where the money is actually going. Without this a
+   * tampered payload could pair a recipient in one country with a cheaper
+   * corridor for another, and the server would price and book it happily.
+   */
+  const recipientCountry = await c.env.DB.prepare(`SELECT country FROM recipients WHERE id = ?`)
+    .bind(b.recipientId).first<{ country: string }>()
+  if (!recipientCountry || recipientCountry.country !== corridor.receive_country) {
+    return c.json(
+      { error: 'corridor_mismatch', message: 'That corridor does not serve this recipient.' },
+      400,
+    )
+  }
+
   const rate = await c.env.DB.prepare(
-    `SELECT rate_e8 FROM fx_rates WHERE base = ? AND quote = ? ORDER BY fetched_at DESC LIMIT 1`,
-  ).bind(corridor.send_currency, corridor.receive_currency).first<{ rate_e8: number }>()
+    `SELECT rate_e8, fetched_at FROM fx_rates WHERE base = ? AND quote = ? ORDER BY fetched_at DESC LIMIT 1`,
+  ).bind(corridor.send_currency, corridor.receive_currency).first<{ rate_e8: number; fetched_at: string }>()
   if (!rate) return c.json({ error: 'no_rate_available' }, 503)
+  if (isStale(rate.fetched_at)) return c.json({ error: 'rate_stale' }, 503)
 
   let q
   try {
@@ -209,6 +237,36 @@ transfers.post('/transfers/:id/pay', async (c) => {
   const user = c.get('user')
   const id = c.req.param('id') ?? ''
 
+  /*
+   * Re-authenticate before money moves.
+   *
+   * The client previously "verified" with a PIN pad that accepted any four
+   * digits, and in a browser with a timer that authorised nothing at all. No
+   * client-side check can be trusted, so authorisation is enforced here: a
+   * valid session is not sufficient to spend from an account, the account
+   * password is required at the moment of payment.
+   */
+  const body = ((await c.req.json().catch(() => ({}))) as { password?: string })
+  const creds = await c.env.DB.prepare(
+    `SELECT password_hash, password_salt, password_iterations FROM users WHERE id = ?`,
+  ).bind(user.id).first<Record<string, string | number>>()
+  if (!creds) return c.json({ error: 'not_authenticated' }, 401)
+
+  const authorised = await verifyPassword(
+    body.password ?? '',
+    String(creds.password_salt),
+    Number(creds.password_iterations),
+    String(creds.password_hash),
+    c.env.SESSION_PEPPER ?? '',
+  )
+  if (!authorised) {
+    await audit(c.env.DB, {
+      actorType: 'customer', actorId: user.id, action: 'transfer.authorization_failed',
+      entityType: 'transfer', entityId: id, ip: c.req.header('cf-connecting-ip'),
+    })
+    return c.json({ error: 'authorization_failed', message: 'That password was not accepted.' }, 401)
+  }
+
   const t = await c.env.DB.prepare(`SELECT * FROM transfers WHERE id = ? AND user_id = ?`)
     .bind(id, user.id).first<Record<string, string | number>>()
   if (!t) return c.json({ error: 'not_found' }, 404)
@@ -218,25 +276,49 @@ transfers.post('/transfers/:id/pay', async (c) => {
   }
 
   const now = new Date().toISOString()
-  await c.env.DB.batch([
-    c.env.DB.prepare(
-      `UPDATE transfers SET status = 'compliance_hold', paid_at = ?, updated_at = ?,
-              payment_provider = 'test', payment_intent_id = ? WHERE id = ?`,
-    ).bind(now, now, `test_${randomHex(8)}`, id),
-    c.env.DB.prepare(
-      `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
-       VALUES (?, ?, 'awaiting_payment', 'compliance_hold', 'system', NULL, 'Test payment captured', ?)`,
-    ).bind(newId('tev'), id, now),
-  ])
 
-  await post(c.env.DB, id, fundingPostings({
-    sendAmountMinor: Number(t.send_amount_minor),
-    feeMinor: Number(t.fee_minor),
-    receiveAmountMinor: Number(t.receive_amount_minor),
-    sendCurrency: String(t.send_currency),
-    receiveCurrency: String(t.receive_currency),
-    reference: String(t.reference),
-  }))
+  /*
+   * Claim the transfer with a conditional update rather than trusting the read
+   * above. Two simultaneous requests both pass that check; only one can change
+   * a row still sitting in awaiting_payment, and only that one goes on to post
+   * the money.
+   */
+  const claim = await c.env.DB.prepare(
+    `UPDATE transfers SET status = 'compliance_hold', paid_at = ?, updated_at = ?,
+            payment_provider = 'test', payment_intent_id = ?
+      WHERE id = ? AND user_id = ? AND status = 'awaiting_payment'`,
+  ).bind(now, now, `test_${randomHex(8)}`, id, user.id).run()
+
+  if (claim.meta.changes !== 1) {
+    // Someone else got there first, which is a duplicate submit, not an error
+    // worth alarming the sender about.
+    return c.json({ error: 'already_paid' }, 409)
+  }
+
+  try {
+    await postOnce(c.env.DB, id, 'funding', fundingPostings({
+      sendAmountMinor: Number(t.send_amount_minor),
+      feeMinor: Number(t.fee_minor),
+      receiveAmountMinor: Number(t.receive_amount_minor),
+      sendCurrency: String(t.send_currency),
+      receiveCurrency: String(t.receive_currency),
+      reference: String(t.reference),
+    }))
+  } catch (err) {
+    if (!(err instanceof DuplicatePostingError)) {
+      // The claim succeeded but the money was not booked. Put the transfer back
+      // so it is retried, rather than leaving it paid with no accounting.
+      await c.env.DB.prepare(
+        `UPDATE transfers SET status = 'awaiting_payment', paid_at = NULL, updated_at = ? WHERE id = ?`,
+      ).bind(new Date().toISOString(), id).run()
+      throw err
+    }
+  }
+
+  await c.env.DB.prepare(
+    `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
+     VALUES (?, ?, 'awaiting_payment', 'compliance_hold', 'system', NULL, 'Test payment captured', ?)`,
+  ).bind(newId('tev'), id, now).run()
 
   await audit(c.env.DB, {
     actorType: 'customer', actorId: user.id, action: 'transfer.paid',

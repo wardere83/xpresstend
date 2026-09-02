@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { newId } from './crypto'
 import { audit } from './audit'
 import { payoutPostings } from './ledger'
-import { post } from './ledger-db'
+import { DuplicatePostingError, postOnce } from './ledger-db'
 import type { Env, Vars } from './env'
 import { requireAdmin, requireRole } from './sessions'
 import { staff } from './routes-staff'
@@ -67,20 +67,37 @@ admin.post('/transfers/:id/approve', requireRole('compliance', 'owner'), async (
   if (t.status !== 'compliance_hold') return c.json({ error: 'wrong_status', status: t.status }, 409)
 
   const now = new Date().toISOString()
-  await c.env.DB.batch([
-    c.env.DB.prepare(`UPDATE transfers SET status = 'completed', completed_at = ?, updated_at = ? WHERE id = ?`)
-      .bind(now, now, id),
-    c.env.DB.prepare(
-      `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
-       VALUES (?, ?, 'compliance_hold', 'completed', 'admin', ?, ?, ?)`,
-    ).bind(newId('tev'), id, staff.id, c.req.query('note') ?? 'Released by compliance', now),
-  ])
 
-  await post(c.env.DB, id, payoutPostings({
-    receiveAmountMinor: Number(t.receive_amount_minor),
-    receiveCurrency: String(t.receive_currency),
-    reference: String(t.reference),
-  }))
+  // Same conditional claim as payment capture: two reviewers pressing Release
+  // at once must not both release the payout.
+  const claim = await c.env.DB.prepare(
+    `UPDATE transfers SET status = 'completed', completed_at = ?, updated_at = ?
+      WHERE id = ? AND status = 'compliance_hold'`,
+  ).bind(now, now, id).run()
+
+  if (claim.meta.changes !== 1) {
+    return c.json({ error: 'already_decided' }, 409)
+  }
+
+  try {
+    await postOnce(c.env.DB, id, 'payout', payoutPostings({
+      receiveAmountMinor: Number(t.receive_amount_minor),
+      receiveCurrency: String(t.receive_currency),
+      reference: String(t.reference),
+    }))
+  } catch (err) {
+    if (!(err instanceof DuplicatePostingError)) {
+      await c.env.DB.prepare(
+        `UPDATE transfers SET status = 'compliance_hold', completed_at = NULL, updated_at = ? WHERE id = ?`,
+      ).bind(new Date().toISOString(), id).run()
+      throw err
+    }
+  }
+
+  await c.env.DB.prepare(
+    `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
+     VALUES (?, ?, 'compliance_hold', 'completed', 'admin', ?, ?, ?)`,
+  ).bind(newId('tev'), id, staff.id, c.req.query('note') ?? 'Released by compliance', now).run()
 
   await audit(c.env.DB, {
     actorType: 'admin', actorId: staff.id, action: 'transfer.approved',
@@ -102,14 +119,16 @@ admin.post('/transfers/:id/reject', requireRole('compliance', 'owner'), async (c
   if (t.status !== 'compliance_hold') return c.json({ error: 'wrong_status', status: t.status }, 409)
 
   const now = new Date().toISOString()
-  await c.env.DB.batch([
-    c.env.DB.prepare(`UPDATE transfers SET status = 'failed', failure_reason = ?, updated_at = ? WHERE id = ?`)
-      .bind(reason, now, id),
-    c.env.DB.prepare(
-      `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
-       VALUES (?, ?, 'compliance_hold', 'failed', 'admin', ?, ?, ?)`,
-    ).bind(newId('tev'), id, staff.id, reason, now),
-  ])
+  const claim = await c.env.DB.prepare(
+    `UPDATE transfers SET status = 'failed', failure_reason = ?, updated_at = ?
+      WHERE id = ? AND status = 'compliance_hold'`,
+  ).bind(reason, now, id).run()
+  if (claim.meta.changes !== 1) return c.json({ error: 'already_decided' }, 409)
+
+  await c.env.DB.prepare(
+    `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
+     VALUES (?, ?, 'compliance_hold', 'failed', 'admin', ?, ?, ?)`,
+  ).bind(newId('tev'), id, staff.id, reason, now).run()
 
   await audit(c.env.DB, {
     actorType: 'admin', actorId: staff.id, action: 'transfer.rejected',

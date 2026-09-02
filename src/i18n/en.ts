@@ -299,6 +299,10 @@ export const en = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Coming to the App Store',
   'app.sideloadNote': 'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',
+  'review.authFailed': 'That password was not accepted.',
+  'review.enterPassword': 'Enter your account password to authorise this transfer.',
+  'review.authorise': 'Authorise transfer',
+  'common.sending': 'Sending…',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

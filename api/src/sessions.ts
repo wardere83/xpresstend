@@ -12,11 +12,21 @@ const ADMIN_TTL_SECONDS = 60 * 60 * 8
 
 type Ctx = Context<{ Bindings: Env; Variables: Vars }>
 
+/**
+ * SameSite=None because the native apps call this API cross-origin from
+ * capacitor://localhost. Under Lax the cookie is simply never sent from the
+ * WebView, so sign-in succeeds and every subsequent request is anonymous.
+ *
+ * None requires Secure, which holds in production. The CORS allowlist in
+ * index.ts is what keeps this from being an open door: only the site and the
+ * app origins may make credentialed calls.
+ */
 function cookieOptions(env: Env, maxAge: number) {
+  const isDev = env.ENVIRONMENT === 'development'
   return {
     httpOnly: true,
-    secure: env.ENVIRONMENT !== 'development',
-    sameSite: 'Lax' as const,
+    secure: !isDev,
+    sameSite: (isDev ? 'Lax' : 'None') as 'Lax' | 'None',
     path: '/',
     maxAge,
   }

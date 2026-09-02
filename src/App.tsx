@@ -6,7 +6,7 @@ import { I18nProvider } from './i18n'
 import { AccountDataProvider } from './state/AccountData'
 import { TransferProvider } from './state/TransferContext'
 import { AuthProvider } from './auth/AuthContext'
-import { Login, Register } from './auth/AuthScreens'
+import { Login, RequireAuth, Register } from './auth/AuthScreens'
 import { AdminConsole } from './admin/AdminConsole'
 import { InviteAccept } from './admin/InviteAccept'
 import { Marketing } from './marketing/Marketing'
@@ -41,7 +41,10 @@ export default function App() {
               <Route path="/invite/:token" element={<InviteAccept />} />
 
               {/* The product. */}
-              <Route element={<AppLayout />}>
+              {/* Signed out, the product is not reachable at all: a demo that can
+                  mint a convincing "transfer complete" screen is a liability for a
+                  financial product, whatever the marketing page invites. */}
+              <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                 <Route path="/app" element={<Home />} />
                 <Route path="voice" element={<Voice />} />
                 <Route path="assistant" element={<Assistant />} />

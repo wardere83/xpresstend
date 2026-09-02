@@ -55,7 +55,8 @@ type TransferValue = {
    * API and captures the (test-mode) payment, so it lands in the compliance
    * queue; for a visitor touring the app it only appends to local history.
    */
-  commit: () => Promise<Transaction>
+  /** Requires the account password: the server authorises payment with it. */
+  commit: (password: string) => Promise<Transaction>
   reset: () => void
   /** True when the numbers and the recipient come from the customer's account. */
   live: boolean
@@ -139,7 +140,7 @@ export function TransferProvider({ children }: { children: ReactNode }) {
     }
   }, [amountUsd, corridor, liveCorridor])
 
-  const commit = useCallback(async (): Promise<Transaction> => {
+  const commit = useCallback(async (password: string): Promise<Transaction> => {
     setCommitError(null)
 
     if (live && mineSelected && liveCorridor) {
@@ -151,7 +152,7 @@ export function TransferProvider({ children }: { children: ReactNode }) {
         })
         // Capture is test mode: it books the ledger and moves the transfer into
         // the compliance queue without charging anything.
-        await api.post(`/transfers/${created.transfer.id}/pay`)
+        await api.post(`/transfers/${created.transfer.id}/pay`, { password })
         await refresh()
 
         const tx: Transaction = {

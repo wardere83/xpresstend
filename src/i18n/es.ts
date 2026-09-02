@@ -306,5 +306,9 @@ export const es: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Próximamente en la App Store',
   'app.sideloadNote': 'La versión de Android es para pruebas, así que su teléfono le pedirá permitir la instalación de un desarrollador desconocido.',
+  'review.authFailed': 'Esa contraseña no fue aceptada.',
+  'review.enterPassword': 'Introduzca la contraseña de su cuenta para autorizar esta transferencia.',
+  'review.authorise': 'Autorizar transferencia',
+  'common.sending': 'Enviando…',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }

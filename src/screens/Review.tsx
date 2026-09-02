@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Delete, Lock, ScanFace, ShieldCheck } from 'lucide-react'
+import { Lock, ShieldCheck } from 'lucide-react'
 import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, usd } from '../lib/format'
-import { confirmWithBiometrics, isNative, outcomeFeedback, tapFeedback } from '../native/capabilities'
+import { outcomeFeedback, tapFeedback } from '../native/capabilities'
 import { corridorName } from '../data/mock'
 
 type Verification = 'face' | 'pin'
@@ -17,7 +17,6 @@ export function Review() {
 
   const [method, setMethod] = useState<Verification>('face')
   const [stage, setStage] = useState<'idle' | 'verifying' | 'pin'>('idle')
-  const [pin, setPin] = useState('')
 
   /**
    * Records the transfer, then shows the receipt.
@@ -25,53 +24,38 @@ export function Review() {
    * For a signed-in customer this actually creates it, so a failure must not
    * land on the success screen: it returns to the summary with the reason.
    */
-  const complete = async () => {
+  const [password, setPassword] = useState('')
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  /**
+   * Sends the transfer.
+   *
+   * Authorisation happens on the server, which requires the account password:
+   * a valid session alone cannot spend from an account. The previous PIN pad
+   * accepted any four digits and the browser path completed on a timer, so
+   * neither authorised anything.
+   */
+  const complete = async (secret: string) => {
+    setBusy(true)
+    setAuthError(null)
     try {
-      await commit()
+      await commit(secret)
       void outcomeFeedback('success')
       navigate('/success', { replace: true })
-    } catch {
+    } catch (err) {
       void outcomeFeedback('error')
-      setStage('idle')
+      const message = err instanceof Error ? err.message : ''
+      setAuthError(/password/i.test(message) ? message : t('review.authFailed'))
+      setPassword('')
+    } finally {
+      setBusy(false)
     }
   }
 
-  useEffect(() => {
-    if (stage !== 'verifying') return
-
-    // On a device this is a real Face ID / fingerprint prompt before money
-    // moves. In the browser there is nothing to ask, so the demo stands in with
-    // a short pause rather than pretending to have verified anything.
-    if (!isNative) {
-      const id = window.setTimeout(() => void complete(), 1400)
-      return () => window.clearTimeout(id)
-    }
-
-    let cancelled = false
-    void confirmWithBiometrics(t('review.confirmReason')).then((ok) => {
-      if (cancelled) return
-      if (ok) void complete()
-      else {
-        void outcomeFeedback('warning')
-        setStage('pin')
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage])
-
-  useEffect(() => {
-    if (pin.length < 4) return
-    const id = window.setTimeout(() => void complete(), 450)
-    return () => window.clearTimeout(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pin])
-
   const start = () => {
     void tapFeedback('medium')
-    setStage(method === 'face' ? 'verifying' : 'pin')
+    setStage('pin')
   }
 
   return (
@@ -129,7 +113,6 @@ export function Review() {
         <div className="mt-4 grid grid-cols-2 gap-3">
           {(
             [
-              { id: 'face' as const, label: t('review.faceId'), icon: ScanFace },
               { id: 'pin' as const, label: t('review.pin'), icon: Lock },
             ]
           ).map(({ id, label, icon: Icon }) => {
@@ -163,66 +146,50 @@ export function Review() {
       </div>
 
       {/* Face ID overlay */}
-      {stage === 'verifying' && (
-        <div className="absolute inset-0 z-40 grid place-items-center bg-ink-900/70 backdrop-blur-sm">
-          <div className="animate-pop-in flex flex-col items-center gap-4 rounded-3xl bg-white px-10 py-8">
-            <span className="grid h-20 w-20 place-items-center rounded-2xl bg-brand-50 text-brand-600">
-              <ScanFace size={40} strokeWidth={1.8} />
-            </span>
-            <p className="text-[14px] font-bold text-ink-900">{t('review.verifying')}</p>
+      {stage === 'pin' && (
+        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-ink-900/40">
+          <div className="rounded-t-[26px] bg-white px-5 pb-8 pt-6">
+            <div className="mb-4 flex items-center gap-2">
+              <Lock size={16} className="text-brand-600" />
+              <h2 className="text-[15px] font-bold text-ink-900">{t('review.authorise')}</h2>
+            </div>
+            <p className="mb-4 text-[13px] leading-relaxed text-ink-500">
+              {t('review.enterPassword')}
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                void complete(password)
+              }}
+            >
+              <input
+                type="password"
+                autoComplete="current-password"
+                autoFocus
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-2xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+              />
+              {authError ? (
+                <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">{authError}</p>
+              ) : null}
+              <div className="mt-5 flex gap-2">
+                <PrimaryButton type="submit" disabled={busy || password.length === 0}>
+                  {busy ? t('common.sending') : t('review.authorise')}
+                </PrimaryButton>
+                <button
+                  type="button"
+                  onClick={() => { setStage('idle'); setPassword(''); setAuthError(null) }}
+                  className="rounded-full border border-ink-200 px-5 text-[14px] font-semibold text-ink-700"
+                >
+                  {t('common.cancel')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* PIN pad */}
-      {stage === 'pin' && (
-        <div className="absolute inset-0 z-40 flex flex-col justify-end">
-          <button
-            type="button"
-            aria-label={t('common.close')}
-            onClick={() => {
-              setStage('idle')
-              setPin('')
-            }}
-            className="absolute inset-0 bg-black/40"
-          />
-          <div className="animate-fade-up relative rounded-t-[28px] bg-white px-6 pt-5 pb-8">
-            <span className="mx-auto mb-4 block h-1 w-10 rounded-full bg-ink-200" />
-            <p className="text-center text-[14px] font-bold text-ink-900">{t('review.pin')}</p>
-            <div className="my-5 flex justify-center gap-3">
-              {[0, 1, 2, 3].map((i) => (
-                <span
-                  key={i}
-                  className={`h-3.5 w-3.5 rounded-full transition ${
-                    i < pin.length ? 'bg-brand-600' : 'bg-ink-200'
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'].map((key, i) =>
-                key === '' ? (
-                  <span key={i} />
-                ) : (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() =>
-                      key === 'del'
-                        ? setPin((p) => p.slice(0, -1))
-                        : setPin((p) => (p.length < 4 ? p + key : p))
-                    }
-                    aria-label={key === 'del' ? 'Delete' : key}
-                    className="grid h-14 place-items-center rounded-2xl bg-canvas text-[20px] font-bold text-ink-900 transition active:scale-95 hover:bg-brand-50"
-                  >
-                    {key === 'del' ? <Delete size={20} /> : key}
-                  </button>
-                ),
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

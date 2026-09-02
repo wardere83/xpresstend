@@ -306,5 +306,9 @@ export const ar: Record<keyof typeof en, string> = {
   'app.ios': 'آيفون',
   'app.iosNote': 'قريبًا على App Store',
   'app.sideloadNote': 'إصدار أندرويد للاختبار، لذا سيطلب هاتفك السماح بالتثبيت من مطوّر غير معروف.',
+  'review.authFailed': 'لم يتم قبول كلمة المرور.',
+  'review.enterPassword': 'أدخل كلمة مرور حسابك للموافقة على هذا التحويل.',
+  'review.authorise': 'الموافقة على التحويل',
+  'common.sending': 'جارٍ الإرسال…',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }
