@@ -139,6 +139,9 @@ jobs:
       APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
       APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
       APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+      APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+      APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+      APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -199,6 +202,7 @@ jobs:
             DEVELOPMENT_TEAM=64H8428M8D \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="XpressTend App Store" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive
           xcodebuild -exportArchive \
             -archivePath "$RUNNER_TEMP/XpressTend.xcarchive" \
@@ -214,3 +218,31 @@ jobs:
           path: ${{ runner.temp }}/export/*.ipa
           retention-days: 30
           if-no-files-found: error
+
+      - name: Upload to TestFlight
+        if: env.APPSTORE_PRIVATE_KEY != ''
+        run: |
+          set -euo pipefail
+          # altool reads the key from this fixed location, named for the key id.
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$APPSTORE_PRIVATE_KEY" | base64 --decode \
+            > ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+
+          IPA=$(find "$RUNNER_TEMP/export" -name '*.ipa' | head -1)
+          echo "Uploading $(basename "$IPA")"
+
+          # Validate first: a rejected binary fails here with a readable reason
+          # rather than as a silent processing failure in App Store Connect.
+          xcrun altool --validate-app -f "$IPA" -t ios \
+            --apiKey "$APPSTORE_KEY_ID" --apiIssuer "$APPSTORE_ISSUER_ID"
+
+          xcrun altool --upload-app -f "$IPA" -t ios \
+            --apiKey "$APPSTORE_KEY_ID" --apiIssuer "$APPSTORE_ISSUER_ID"
+
+          rm -f ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          echo "Uploaded. Processing in App Store Connect usually takes 10 to 15 minutes."
+
+      - name: Say why TestFlight was skipped
+        if: env.APPSTORE_PRIVATE_KEY == ''
+        run: |
+          echo "::notice::IPA built but not uploaded: App Store Connect API key secrets are not set."
