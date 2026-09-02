@@ -199,10 +199,30 @@ jobs:
         if: env.APPLE_CERTIFICATE_P12 != ''
         run: |
           set -euo pipefail
-          echo "$APPLE_CERTIFICATE_P12" | tr -d '\n' | base64 --decode > "$RUNNER_TEMP/cert.p12"
-          ls -l "$RUNNER_TEMP/cert.p12"
-          # Prove the decode produced a real PKCS#12 before blaming the import.
-          openssl pkcs12 -in "$RUNNER_TEMP/cert.p12" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout
+          echo "$APPLE_CERTIFICATE_P12" | tr -d '\n\r ' | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          SIZE=$(stat -f%z "$RUNNER_TEMP/cert.p12")
+          echo "decoded $SIZE bytes"
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "::error::The decoded certificate is $SIZE bytes, far too small. APPLE_CERTIFICATE_P12 is truncated or not base64."
+            exit 1
+          fi
+          # A PKCS#12 is DER: it must begin with a SEQUENCE tag.
+          if [ "$(xxd -p -l1 "$RUNNER_TEMP/cert.p12")" != "30" ]; then
+            echo "::error::Decoded bytes are not DER, so the secret is not valid base64 of a .p12."
+            exit 1
+          fi
+          echo "Decoded file looks like a PKCS#12."
+
+      - name: Check the certificate password
+        if: env.APPLE_CERTIFICATE_P12 != ''
+        run: |
+          set -euo pipefail
+          if openssl pkcs12 -in "$RUNNER_TEMP/cert.p12" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout 2>/dev/null; then
+            echo "Password accepted."
+          else
+            echo "::error::The .p12 decoded correctly but APPLE_CERTIFICATE_PASSWORD does not open it."
+            exit 1
+          fi
 
       - name: Import the distribution certificate
         if: env.APPLE_CERTIFICATE_P12 != ''
