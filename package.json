@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/publish-root.mjs",
+    "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "typecheck": "tsc -b",
@@ -13,7 +13,8 @@
     "ios": "npm run build:mobile && npx cap open ios",
     "android": "npm run build:mobile && npx cap open android",
     "native:icons": "./scripts/generate-native-assets.sh",
-    "build:mobile": "npm run build && npx cap sync"
+    "build:mobile": "npm run build && npx cap sync",
+    "deploy": "npm run build && npm --prefix api run deploy"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

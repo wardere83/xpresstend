@@ -1,14 +1,9 @@
 name: Build & deploy
 
-# Build and checks run on every push and pull request.
-#
-# Deploys are opt-in, so the pipeline stays green until a target is configured.
-# Turn one on with a repository variable (Settings -> Secrets and variables ->
-# Actions -> Variables):
-#
-#   DEPLOY_HOSTGATOR = true   publish over FTPS to HostGator (see secrets below)
-#   DEPLOY_PAGES     = true   publish to GitHub Pages
-#                             (also needs Settings -> Pages -> Source = GitHub Actions)
+# The site and API are one Cloudflare Worker. GitHub Pages and the HostGator
+# FTPS target are both retired: a Worker route intercepts every request to
+# xpresstend.com ahead of any origin, which is what allows the security headers
+# that a static host could not set.
 
 on:
   push:
@@ -18,15 +13,13 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,64 +30,50 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run lint
-      - run: npm run build
+      - run: npm ci --prefix api
 
-      - name: Upload site for GitHub Pages
-        if: github.event_name != 'pull_request' && vars.DEPLOY_PAGES == 'true'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+      - name: Lint
+        run: npm run lint
 
-      # Plain artifact so the built site can always be downloaded from the run,
-      # whatever the deploy targets are set to.
-      - name: Upload site as a build artifact
+      - name: Type-check the Worker
+        run: npx tsc --noEmit
+        working-directory: api
+
+      - name: Money and ledger tests
+        run: npm test
+        working-directory: api
+
+      - name: Build the site
+        run: npm run build
+
+      - name: Keep the built site as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
           path: dist
           retention-days: 14
 
-  # ---------------------------------------------------------------------------
-  # HostGator (cPanel shared hosting) over FTPS.
-  #
-  # Required secrets — Settings -> Secrets and variables -> Actions -> Secrets:
-  #   HOSTGATOR_FTP_SERVER    e.g. ftp.xpresstend.com
-  #   HOSTGATOR_FTP_USERNAME  cPanel or FTP account username
-  #   HOSTGATOR_FTP_PASSWORD  that account's password
-  # Optional variable:
-  #   HOSTGATOR_DIR           target directory, default public_html/
-  # ---------------------------------------------------------------------------
-  hostgator:
-    needs: build
-    if: github.event_name != 'pull_request' && vars.DEPLOY_HOSTGATOR == 'true'
+  deploy:
+    needs: check
     runs-on: ubuntu-latest
+    # Deploys only once CLOUDFLARE_API_TOKEN is present, so a fork or an
+    # unconfigured checkout builds and tests without trying to publish.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: dist
+      - uses: actions/checkout@v4
 
-      - name: Publish over FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - uses: actions/setup-node@v4
         with:
-          server: ${{ secrets.HOSTGATOR_FTP_SERVER }}
-          username: ${{ secrets.HOSTGATOR_FTP_USERNAME }}
-          password: ${{ secrets.HOSTGATOR_FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ./dist/
-          server-dir: ${{ vars.HOSTGATOR_DIR || 'public_html/' }}
-          # Leaves anything already on the host that the build does not own.
-          dangerous-clean-slate: false
+          node-version: 22
+          cache: npm
 
-  pages:
-    needs: build
-    if: github.event_name != 'pull_request' && vars.DEPLOY_PAGES == 'true'
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - run: npm ci
+      - run: npm ci --prefix api
+      - run: npm run build
+
+      - name: Deploy the Worker
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler deploy
+        working-directory: api

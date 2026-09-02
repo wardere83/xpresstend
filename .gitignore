@@ -27,3 +27,12 @@ dist-ssr
 api/node_modules
 api/.wrangler
 .dev.vars
+
+# Build output previously copied to the repo root for GitHub Pages.
+# The Cloudflare Worker serves dist/ directly, so the root stays clean.
+/assets/
+/index.html
+/favicon.svg
+/icons.svg
+/CNAME
+/media/
