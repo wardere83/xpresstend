@@ -5,6 +5,7 @@ import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, usd } from '../lib/format'
+import { confirmWithBiometrics, isNative, outcomeFeedback, tapFeedback } from '../native/capabilities'
 import { corridorName } from '../data/mock'
 
 type Verification = 'face' | 'pin'
@@ -19,14 +20,35 @@ export function Review() {
   const [pin, setPin] = useState('')
 
   const complete = () => {
+    // The one moment worth a distinct buzz: the money has moved.
+    void outcomeFeedback('success')
     commit()
     navigate('/success', { replace: true })
   }
 
   useEffect(() => {
     if (stage !== 'verifying') return
-    const id = window.setTimeout(complete, 1400)
-    return () => window.clearTimeout(id)
+
+    // On a device this is a real Face ID / fingerprint prompt before money
+    // moves. In the browser there is nothing to ask, so the demo stands in with
+    // a short pause rather than pretending to have verified anything.
+    if (!isNative) {
+      const id = window.setTimeout(complete, 1400)
+      return () => window.clearTimeout(id)
+    }
+
+    let cancelled = false
+    void confirmWithBiometrics(t('review.confirmReason')).then((ok) => {
+      if (cancelled) return
+      if (ok) complete()
+      else {
+        void outcomeFeedback('warning')
+        setStage('pin')
+      }
+    })
+    return () => {
+      cancelled = true
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage])
 
@@ -37,7 +59,10 @@ export function Review() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin])
 
-  const start = () => (method === 'face' ? setStage('verifying') : setStage('pin'))
+  const start = () => {
+    void tapFeedback('medium')
+    setStage(method === 'face' ? 'verifying' : 'pin')
+  }
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">

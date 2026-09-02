@@ -284,5 +284,6 @@ export const so: Record<keyof typeof en, string> = {
   'lock.unlock': 'Fur',
   'lock.usePasscode': 'Isticmaal furaha',
   'lock.failed': 'Lama aqoonsan. Isku day mar kale.',
+  'review.confirmReason': 'Xaqiiji wareejintan.',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

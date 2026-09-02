@@ -113,44 +113,73 @@ Until then the marketing footer says so plainly, and it should stay that way.
 
 ## Mobile apps (iOS + Android)
 
-The native apps wrap the same build that serves xpresstend.com, so web, iOS and
-Android are always the same product and only have to be QA'd once. Anything that
-must behave natively is a real platform API rather than a web imitation: the
-launch splash, status-bar tint, haptics, the Android back gesture, network
-awareness and push registration.
-
-| | |
-| --- | --- |
-| App name | XpressTend |
-| Bundle / application ID | `com.xpresstend.app` |
-| iOS deployment target | 15.0 |
-| Android min / target SDK | 24 / 36 |
+The apps are the same build the Worker serves, wrapped by Capacitor, so the
+product only has to be written and QA'd once. Native behaviour is real platform
+API, not a web imitation.
 
 ```bash
-npm run sync       # build the web layer and copy it into both native projects
-npm run ios        # ...then open the project in Xcode
-npm run android    # ...then open the project in Android Studio
-npm run native:icons   # regenerate launcher icons + splash from assets/*.svg
+npm run build:mobile     # build the web app and sync it into both projects
+npm run ios              # ...and open Xcode
+npm run android          # ...and open Android Studio
 ```
 
-Requires **Node 22+** (the Capacitor CLI enforces it), Xcode 16+ with CocoaPods
-for iOS, and Android Studio with JDK 21 for Android. `ios/` and `android/` are
-real, checked-in native projects — open them directly and build as usual.
+Building and signing needs Xcode and Android Studio; neither is required to
+develop the web app.
 
-### Signing
+### What is native
 
-Neither platform is signed yet. iOS needs a team and provisioning profile set on
-the `App` target in Xcode; Android needs a release keystore referenced from
-`android/app/build.gradle`. Keep the keystore and its passwords out of the
-repository.
+- **Biometric app lock.** Balances, recipients and history stay hidden until the
+  device confirms who is holding it, and it re-locks after a minute in the
+  background. It fails *open*: a handset with no enrolled biometry is left
+  unlocked rather than stranding someone outside their own money.
+- **Biometric transfer confirmation.** On a device, confirming a transfer is a
+  real Face ID or fingerprint prompt. Cancel it and the flow falls back to a
+  PIN rather than dead-ending. In the browser a short pause stands in, because
+  there is nothing to ask.
+- **Haptics** on the primary action and a distinct success buzz at the moment
+  the money moves.
+- Native splash and status bar, Android back-button handling, and an offline
+  notice driven by the real network state.
 
-### Known dependency advisory
+### API origin
 
-`npm audit` reports three moderate advisories against `uuid`, reached through
-`xcode` inside `@capacitor/cli`. That is a build-time dev dependency used to edit
-the Xcode project; it is never bundled into the shipped app. The only available
-"fix" downgrades the CLI to v7, which is incompatible with the v8 platforms, so
-it is accepted deliberately rather than silently.
+The apps load from `capacitor://localhost`, where a relative `/api` path would
+resolve against the app bundle and find nothing, so native builds use an
+absolute origin. Override it for a build aimed elsewhere:
+
+```bash
+VITE_API_URL=https://staging.example.com/api npm run build:mobile
+```
+
+### Icons
+
+The lockup is 5.39:1 and cannot be a square icon, so the X mark is extracted
+from it and centred on white. Regenerate from `brand-source/` if the artwork
+changes; iOS needs 1024px with no alpha, and Android needs five launcher
+densities plus the adaptive foreground.
+
+## The first staff account
+
+`/admin` needs an account, and one cannot be inserted directly: the password
+hash mixes in `SESSION_PEPPER`, which only the Worker holds. A one-time route
+supplies the way in.
+
+```bash
+cd api
+npx wrangler secret put ADMIN_BOOTSTRAP_SECRET     # choose any long random string
+
+curl -X POST https://xpresstend.com/api/bootstrap/admin \
+  -H 'Content-Type: application/json' \
+  -H 'x-bootstrap-secret: THE_SECRET_YOU_JUST_SET' \
+  -d '{"email":"you@xpresstend.com","name":"Your Name","password":"a-password-of-16-plus-characters"}'
+
+npx wrangler secret delete ADMIN_BOOTSTRAP_SECRET  # close the route again
+```
+
+You choose the password, so it is never generated, logged, or passed through
+anyone else. The route returns 404 unless the secret is set, refuses once any
+admin exists, and requires sixteen characters because staff can release other
+people's money.
 
 ## What's in it
 

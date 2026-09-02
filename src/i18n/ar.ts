@@ -289,5 +289,6 @@ export const ar: Record<keyof typeof en, string> = {
   'lock.unlock': 'فتح القفل',
   'lock.usePasscode': 'استخدام رمز الجهاز',
   'lock.failed': 'لم يتم التعرف. حاول مرة أخرى.',
+  'review.confirmReason': 'أكِّد هذا التحويل.',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }

@@ -89,3 +89,19 @@ export const deviceStore = {
     await Preferences.remove({ key })
   },
 }
+
+/**
+ * Asks the device to confirm the person holding it, immediately before money
+ * moves. Returns false when the prompt is cancelled, fails, or the device has
+ * no biometry, so callers must offer another route rather than dead-ending.
+ */
+export async function confirmWithBiometrics(reason: string): Promise<boolean> {
+  if (!isNative) return false
+  try {
+    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth')
+    await BiometricAuth.authenticate({ reason, allowDeviceCredential: true })
+    return true
+  } catch {
+    return false
+  }
+}

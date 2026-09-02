@@ -285,5 +285,6 @@ export const ptBR: Record<keyof typeof en, string> = {
   'lock.unlock': 'Desbloquear',
   'lock.usePasscode': 'Usar senha do aparelho',
   'lock.failed': 'Não reconhecido. Tente novamente.',
+  'review.confirmReason': 'Confirme esta transferência.',
   'shell.hq': 'Sede em {city}, {state} · Enviamos para o mundo todo',
 }

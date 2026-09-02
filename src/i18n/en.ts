@@ -282,6 +282,7 @@ export const en = {
   'lock.unlock': 'Unlock',
   'lock.usePasscode': 'Use passcode',
   'lock.failed': 'Not recognised. Try again.',
+  'review.confirmReason': 'Confirm this transfer.',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
 } as const
 

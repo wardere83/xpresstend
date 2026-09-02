@@ -289,5 +289,6 @@ export const es: Record<keyof typeof en, string> = {
   'lock.unlock': 'Desbloquear',
   'lock.usePasscode': 'Usar código del dispositivo',
   'lock.failed': 'No reconocido. Inténtelo de nuevo.',
+  'review.confirmReason': 'Confirme esta transferencia.',
   'shell.hq': 'Sede en {city}, {state} · Enviamos a todo el mundo',
 }
