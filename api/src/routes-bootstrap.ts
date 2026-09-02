@@ -64,11 +64,21 @@ bootstrap.post('/admin', async (c) => {
   const id = newId('adm')
   const now = new Date().toISOString()
 
-  await c.env.DB.prepare(
+  /*
+   * Insert only while the table is still empty. The count above and this insert
+   * were separate, so two valid bootstrap requests could both pass the check
+   * and create an owner. The SELECT inside the INSERT closes that.
+   */
+  const created = await c.env.DB.prepare(
     `INSERT INTO admins (id, email, password_hash, password_salt, password_iterations,
                          name, role, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, 'owner', 'active', ?, ?)`,
+     SELECT ?, ?, ?, ?, ?, ?, 'owner', 'active', ?, ?
+      WHERE NOT EXISTS (SELECT 1 FROM admins)`,
   ).bind(id, email, hash, salt, PBKDF2_ITERATIONS, name, now, now).run()
+
+  if (created.meta.changes !== 1) {
+    return c.json({ error: 'already_bootstrapped', message: 'A staff account already exists.' }, 409)
+  }
 
   await audit(c.env.DB, {
     actorType: 'system', action: 'admin.bootstrapped', entityType: 'admin', entityId: id,

@@ -56,15 +56,43 @@ jobs:
           # Points the app at production. Override for a staging build.
           VITE_API_URL: https://xpresstend.com/api
 
-      - name: Assemble the debug APK
-        run: ./gradlew --no-daemon assembleDebug
+      - name: Assemble the release APK
+        env:
+          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ANDROID_KEYSTORE" ]; then
+            echo "::error::ANDROID_KEYSTORE is not set. Refusing to build a public download."
+            echo "A debug build is debuggable and signed with the public Android debug key,"
+            echo "which is not something to hand out for a financial application."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE" | tr -d '\n' | base64 --decode > "$RUNNER_TEMP/upload.keystore"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.keystore"
+          export ANDROID_KEYSTORE_PASSWORD
+          ./gradlew --no-daemon assembleRelease
+          rm -f "$RUNNER_TEMP/upload.keystore"
         working-directory: android
+
+      - name: Confirm the APK is signed and not debuggable
+        run: |
+          set -euo pipefail
+          APK=$(find android/app/build/outputs/apk/release -name '*.apk' | head -1)
+          echo "built $APK"
+          # A release APK must carry a signature block and must not be debuggable.
+          unzip -l "$APK" | grep -qE 'META-INF/.*\.(RSA|EC|DSA)' \
+            || { echo "::error::The APK carries no signature block."; exit 1; }
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/aapt" \
+            dump badging "$APK" | grep -q "application-debuggable" \
+            && { echo "::error::The APK is debuggable."; exit 1; } || true
+          echo "Signed, not debuggable."
 
       - name: Upload the APK as a build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: xpresstend-android-debug
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: xpresstend-android-release
+          path: android/app/build/outputs/apk/release/*.apk
           retention-days: 30
           if-no-files-found: error
 
@@ -72,10 +100,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p release
-          cp android/app/build/outputs/apk/debug/app-debug.apk release/xpresstend.apk
+          cp android/app/build/outputs/apk/release/*.apk release/xpresstend.apk
 
-      # A rolling "android-latest" release, so the site can link to a stable URL
-      # that always serves the newest build.
       - name: Publish the rolling release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
@@ -88,8 +114,8 @@ jobs:
             **Install:** download `xpresstend.apk`, open it on your phone and
             allow installation from unknown sources when prompted.
 
-            This is a debug build for testing, not a Play Store release, so
-            Android will warn that it is from an unknown developer.
+            Signed with the XpressTend upload key. Not a Play Store release, so
+            Android will still warn that it comes from outside the store.
           files: release/xpresstend.apk
           make_latest: true
 

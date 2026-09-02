@@ -3,6 +3,7 @@ import { PBKDF2_ITERATIONS, hashPassword, newId, randomHex, verifyPassword } fro
 import { audit } from './audit'
 import type { Env, Vars } from './env'
 import { issueAdminSession, issueUserSession, requireAdmin, requireUser, revokeAdminSession, revokeUserSession } from './sessions'
+import { LOGIN_IP_LIMIT, REGISTER_IP_LIMIT, callerKey, overLimit } from './ratelimit'
 
 /** Five bad attempts, then a fifteen-minute lock on that account. */
 const MAX_FAILED_LOGINS = 5
@@ -20,6 +21,9 @@ function passwordProblem(pw: string): string | null {
 export const auth = new Hono<{ Bindings: Env; Variables: Vars }>()
 
 auth.post('/register', async (c) => {
+  if (await overLimit(c.env, 'register', callerKey(c.req.raw), REGISTER_IP_LIMIT)) {
+    return c.json({ error: 'too_many_requests' }, 429)
+  }
   const body = ((await c.req.json().catch(() => ({}))) as {
     email?: string; password?: string; firstName?: string; lastName?: string; language?: string
   })
@@ -64,6 +68,10 @@ auth.post('/register', async (c) => {
 })
 
 auth.post('/login', async (c) => {
+  // Before any hashing: the cost of the hash is the point of the attack.
+  if (await overLimit(c.env, 'login', callerKey(c.req.raw), LOGIN_IP_LIMIT)) {
+    return c.json({ error: 'too_many_requests' }, 429)
+  }
   const body = ((await c.req.json().catch(() => ({}))) as { email?: string; password?: string })
   const email = (body.email ?? '').trim().toLowerCase()
   const password = body.password ?? ''
@@ -135,6 +143,9 @@ auth.get('/me', requireUser, (c) => c.json({ user: c.get('user') }))
 export const adminAuth = new Hono<{ Bindings: Env; Variables: Vars }>()
 
 adminAuth.post('/login', async (c) => {
+  if (await overLimit(c.env, 'admin_login', callerKey(c.req.raw), LOGIN_IP_LIMIT)) {
+    return c.json({ error: 'too_many_requests' }, 429)
+  }
   const body = ((await c.req.json().catch(() => ({}))) as { email?: string; password?: string })
   const email = (body.email ?? '').trim().toLowerCase()
   const password = body.password ?? ''
