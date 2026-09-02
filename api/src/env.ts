@@ -11,6 +11,9 @@ export interface Env {
    * account exists so the route disappears again.
    */
   ADMIN_BOOTSTRAP_SECRET?: string
+  /** Transactional email. Without both of these, invites fall back to a link. */
+  RESEND_API_KEY?: string
+  EMAIL_FROM?: string
   STRIPE_SECRET_KEY?: string
   STRIPE_WEBHOOK_SECRET?: string
 }

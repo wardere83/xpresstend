@@ -7,6 +7,7 @@ import { TransferProvider } from './state/TransferContext'
 import { AuthProvider } from './auth/AuthContext'
 import { Login, Register } from './auth/AuthScreens'
 import { AdminConsole } from './admin/AdminConsole'
+import { InviteAccept } from './admin/InviteAccept'
 import { Marketing } from './marketing/Marketing'
 import { Home } from './screens/Home'
 import { Voice } from './screens/Voice'
@@ -35,6 +36,7 @@ export default function App() {
 
               {/* Staff console — its own login, never the customer session. */}
               <Route path="/admin" element={<AdminConsole />} />
+              <Route path="/invite/:token" element={<InviteAccept />} />
 
               {/* The product. */}
               <Route element={<AppLayout />}>

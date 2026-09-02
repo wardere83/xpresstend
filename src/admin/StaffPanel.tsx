@@ -67,7 +67,7 @@ export function StaffPanel({ me }: { me: AdminUser }) {
         {isOwner ? (
           <button onClick={() => setAdding((v) => !v)}
             className="rounded-full bg-brand-600 px-3.5 py-1.5 text-[12px] font-semibold text-white">
-            {adding ? 'Cancel' : 'Add staff'}
+            {adding ? 'Cancel' : 'Invite staff'}
           </button>
         ) : (
           <span className="text-[12px] text-ink-400">Only an owner can add or change staff.</span>
@@ -100,7 +100,11 @@ export function StaffPanel({ me }: { me: AdminUser }) {
                 <td className="px-4 py-3">
                   <span className="font-semibold">{r.name}</span>
                   {r.id === me.id ? <span className="ml-2 text-[11px] text-ink-400">you</span> : null}
-                  {r.status !== 'active' ? (
+                  {r.status === 'invited' ? (
+                    <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">
+                      invited
+                    </span>
+                  ) : r.status !== 'active' ? (
                     <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700">
                       disabled
                     </span>
@@ -157,8 +161,11 @@ export function StaffPanel({ me }: { me: AdminUser }) {
 }
 
 function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string) => void }) {
-  const [form, setForm] = useState({ name: '', email: '', role: 'viewer', password: '' })
+  const [form, setForm] = useState({ name: '', email: '', role: 'viewer' })
   const [busy, setBusy] = useState(false)
+  const [link, setLink] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
 
@@ -166,37 +173,64 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
     e.preventDefault()
     setBusy(true)
     try {
-      await api.post('/admin/staff', form)
-      setForm({ name: '', email: '', role: 'viewer', password: '' })
-      onDone()
+      const res = await api.post<{ emailed: boolean; link?: string }>('/admin/staff/invite', form)
+      setForm({ name: '', email: '', role: 'viewer' })
+      // A link comes back only when email could not be delivered.
+      if (res.link) setLink(res.link)
+      else onDone()
     } catch (err) {
-      onError(err instanceof ApiError ? (err.message || err.code) : 'Could not create that account.')
+      onError(err instanceof ApiError ? (err.message || err.code) : 'Could not send that invitation.')
     } finally {
       setBusy(false)
     }
+  }
+
+  if (link) {
+    return (
+      <div className="mb-4 rounded-[20px] bg-white p-5 ring-1 ring-ink-200/70">
+        <h3 className="text-[14px] font-bold">Invitation ready</h3>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
+          Email is not configured yet, so nothing was sent. Give this link to them
+          over a channel you trust. It works once and expires in 48 hours.
+        </p>
+        <div className="mt-3 flex gap-2">
+          <input readOnly value={link} onFocus={(e) => e.currentTarget.select()}
+            className="min-w-0 flex-1 rounded-2xl bg-canvas px-3 py-2.5 text-[12px] ring-1 ring-ink-200" />
+          <button
+            onClick={() => {
+              void navigator.clipboard?.writeText(link).then(() => setCopied(true))
+            }}
+            className="shrink-0 rounded-full bg-ink-900 px-4 py-2.5 text-[12px] font-semibold text-white">
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
+        <button onClick={() => { setLink(null); onDone() }}
+          className="mt-4 text-[12px] font-semibold text-brand-700">
+          Done
+        </button>
+      </div>
+    )
   }
 
   const field = 'rounded-2xl bg-white px-4 py-2.5 text-[13px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
     <form onSubmit={submit} className="mb-4 rounded-[20px] bg-white p-5 ring-1 ring-ink-200/70">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <input required placeholder="Full name" value={form.name} onChange={set('name')} className={field} />
         <input required type="email" placeholder="name@xpresstend.com" value={form.email}
                onChange={set('email')} className={field} autoComplete="off" />
         <select value={form.role} onChange={set('role')} className={field}>
           {ROLES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-        <input required type="password" placeholder="Temporary password, 16+ characters"
-               value={form.password} onChange={set('password')} className={field} autoComplete="new-password" />
       </div>
       <p className="mt-2 text-[11px] leading-snug text-ink-400">
-        {ROLES.find((r) => r.value === form.role)?.blurb} Give them this password in
-        person or over a channel you trust, and have them change it once they are in.
+        {ROLES.find((r) => r.value === form.role)?.blurb} They choose their own password,
+        so you never handle it. The invitation expires in 48 hours.
       </p>
       <button type="submit" disabled={busy}
         className="mt-4 rounded-full bg-ink-900 px-5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60">
-        {busy ? 'Creating…' : 'Create account'}
+        {busy ? 'Sending…' : 'Send invitation'}
       </button>
     </form>
   )

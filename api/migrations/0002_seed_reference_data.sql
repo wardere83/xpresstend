@@ -43,3 +43,18 @@ INSERT INTO fx_rates (id, base, quote, rate_e8, source, fetched_at) VALUES
  ('fx_usd_etb','USD','ETB',15000000000,'seed',datetime('now')),
  ('fx_usd_brl','USD','BRL',540000000,'seed',datetime('now')),
  ('fx_usd_mxn','USD','MXN',1850000000,'seed',datetime('now'));
+
+-- Staff invitations. An invited admin holds an unusable placeholder hash and
+-- status 'invited' until the invitation is accepted, so it cannot be signed in.
+CREATE TABLE IF NOT EXISTS staff_invites (
+  id          TEXT PRIMARY KEY,
+  admin_id    TEXT NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
+  token_hash  TEXT NOT NULL,
+  invited_by  TEXT NOT NULL REFERENCES admins(id),
+  expires_at  TEXT NOT NULL,
+  accepted_at TEXT,
+  revoked_at  TEXT,
+  created_at  TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_staff_invites_token ON staff_invites (token_hash);
+CREATE INDEX IF NOT EXISTS idx_staff_invites_admin ON staff_invites (admin_id);
