@@ -6,7 +6,7 @@
  * would add maintenance cost with no reader.
  */
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { api, ApiError, money, type AdminUser } from '../lib/api'
+import { api, ApiError, API_BASE, money, type AdminUser } from '../lib/api'
 
 interface TransferRow {
   id: string; reference: string; status: string
@@ -40,13 +40,23 @@ function Pill({ status }: { status: string }) {
 export function AdminConsole() {
   const [admin, setAdmin] = useState<AdminUser | null>(null)
   const [checking, setChecking] = useState(true)
+  const [needsSetup, setNeedsSetup] = useState(false)
 
   const refresh = useCallback(async () => {
     try {
       const { admin } = await api.get<{ admin: AdminUser }>('/admin/auth/me')
       setAdmin(admin)
+      setNeedsSetup(false)
     } catch {
       setAdmin(null)
+      // No session. Offer the setup screen only while the backend says the
+      // bootstrap is genuinely open.
+      try {
+        const { available } = await api.get<{ available: boolean }>('/bootstrap/status')
+        setNeedsSetup(available)
+      } catch {
+        setNeedsSetup(false)
+      }
     } finally {
       setChecking(false)
     }
@@ -57,8 +67,108 @@ export function AdminConsole() {
   if (checking) {
     return <div className="grid min-h-dvh place-items-center bg-ink-900 text-[13px] text-white/60">Checking session…</div>
   }
-  if (!admin) return <AdminLogin onSignedIn={refresh} />
+  if (!admin) return needsSetup ? <AdminSetup onCreated={refresh} /> : <AdminLogin onSignedIn={refresh} />
   return <Dashboard admin={admin} onSignedOut={() => setAdmin(null)} />
+}
+
+/**
+ * First-run screen for creating the owner account.
+ *
+ * The setup key is required because /admin is a public URL: without it, whoever
+ * loaded this page first would take the account. It is shown only while the
+ * backend reports the bootstrap open, and stops appearing the moment an admin
+ * exists.
+ */
+function AdminSetup({ onCreated }: { onCreated: () => void }) {
+  const [form, setForm] = useState({ email: '', name: '', password: '', secret: '' })
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState(false)
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    if (form.password.length < 16) {
+      setError('Staff passwords must be at least 16 characters.')
+      return
+    }
+    setBusy(true); setError(null)
+    try {
+      await fetch(`${API_BASE}/bootstrap/admin`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'x-bootstrap-secret': form.secret },
+        body: JSON.stringify({ email: form.email, name: form.name, password: form.password }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string }
+          throw new Error(
+            body.error === 'not_found'
+              ? 'That setup key was not accepted.'
+              : body.message ?? body.error ?? 'Could not create the account.',
+          )
+        }
+      })
+      setDone(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create the account.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-ink-900 px-5">
+        <div className="w-full max-w-sm rounded-[22px] bg-white p-7 text-center">
+          <h1 className="text-[19px] font-extrabold tracking-tight">Account created</h1>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
+            Sign in with the email and password you just chose. Then remove the
+            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 text-[12px]">ADMIN_BOOTSTRAP_SECRET</code>
+            so this screen can never appear again.
+          </p>
+          <button onClick={onCreated}
+            className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white">
+            Go to sign in
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const field = 'w-full rounded-2xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+
+  return (
+    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+      <form onSubmit={submit} className="w-full max-w-sm rounded-[22px] bg-white p-7">
+        <h1 className="text-[19px] font-extrabold tracking-tight">Create the owner account</h1>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
+          This runs once. Nobody else can create it after you.
+        </p>
+        <div className="mt-6 space-y-3">
+          <input required type="email" placeholder="you@xpresstend.com" autoComplete="username"
+            value={form.email} onChange={set('email')} className={field} />
+          <input required placeholder="Your full name" autoComplete="name"
+            value={form.name} onChange={set('name')} className={field} />
+          <input required type="password" placeholder="Password, 16+ characters"
+            autoComplete="new-password" value={form.password} onChange={set('password')} className={field} />
+          <input required type="password" placeholder="Setup key"
+            value={form.secret} onChange={set('secret')} className={field} />
+          <p className="text-[11px] leading-snug text-ink-400">
+            The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It stops a
+            stranger claiming this account before you do.
+          </p>
+        </div>
+        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-red-600">{error}</p> : null}
+        <button type="submit" disabled={busy}
+          className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
+          {busy ? 'Creating…' : 'Create account'}
+        </button>
+      </form>
+    </div>
+  )
 }
 
 function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {

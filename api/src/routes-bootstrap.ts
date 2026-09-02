@@ -19,6 +19,17 @@ import type { Env, Vars } from './env'
  */
 export const bootstrap = new Hono<{ Bindings: Env; Variables: Vars }>()
 
+/**
+ * Whether the setup screen should offer itself. True only when the secret is
+ * set and no admin exists, so it stops advertising the moment either changes.
+ * It reveals nothing an attacker could not learn by attempting the bootstrap.
+ */
+bootstrap.get('/status', async (c) => {
+  if (!c.env.ADMIN_BOOTSTRAP_SECRET) return c.json({ available: false })
+  const row = await c.env.DB.prepare(`SELECT COUNT(*) AS n FROM admins`).first<{ n: number }>()
+  return c.json({ available: (row?.n ?? 0) === 0 })
+})
+
 bootstrap.post('/admin', async (c) => {
   const expected = c.env.ADMIN_BOOTSTRAP_SECRET
   // Absent secret is a 404, not a 403: an attacker learns nothing about whether
