@@ -56,9 +56,14 @@ jobs:
   deploy:
     needs: check
     runs-on: ubuntu-latest
-    # Deploys only once CLOUDFLARE_API_TOKEN is present, so a fork or an
-    # unconfigured checkout builds and tests without trying to publish.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Job level, not step level. A step's `if` is evaluated before that step's
+    # own env block exists, so a guard on a step-scoped secret compares against
+    # an empty string and the step is skipped every time — which is how the
+    # deploy silently published nothing while reporting success. The same fault
+    # was fixed in the iOS signing job in cc384ea.
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,9 +76,15 @@ jobs:
       - run: npm ci --prefix api
       - run: npm run build
 
+      # Absence is still not a failure — a fork or an unconfigured checkout
+      # should build and test without trying to publish — but it says so,
+      # rather than leaving a green tick to mean a deploy that never happened.
       - name: Deploy the Worker
         if: env.CLOUDFLARE_API_TOKEN != ''
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: npx wrangler deploy
         working-directory: api
+
+      - name: Say why nothing was published
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: |
+          echo "::warning::CLOUDFLARE_API_TOKEN is not set, so the Worker was not deployed and the live site is unchanged."
