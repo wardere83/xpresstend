@@ -6,6 +6,11 @@ export interface Env {
   APP_ORIGIN: string
   /** Extra secret mixed into every password hash; set with `wrangler secret put`. */
   SESSION_PEPPER?: string
+  /**
+   * Enables the one-time first-admin bootstrap. Unset it once the first staff
+   * account exists so the route disappears again.
+   */
+  ADMIN_BOOTSTRAP_SECRET?: string
   STRIPE_SECRET_KEY?: string
   STRIPE_WEBHOOK_SECRET?: string
 }

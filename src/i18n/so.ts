@@ -279,5 +279,10 @@ export const so: Record<keyof typeof en, string> = {
   'join.mediaAlt': 'Qoys guriga ku wada jira, oo u dabaaldegaya lacag hadda soo gaadhay.',
   'join.mediaTitle': 'Daqiiqadda ay gaadho.',
   'join.mediaBody': 'Lacag daqiiqado gudahood la diray, ee ma aha maalmo. Qoyskaagu wuu arkaa markay timaaddo intaad wac ku jirto.',
+  'lock.title': 'Abka waa xiran yahay',
+  'lock.reason': 'Xaqiiji inaad tahay adiga ka hor inta aan wareejintaada la tusin.',
+  'lock.unlock': 'Fur',
+  'lock.usePasscode': 'Isticmaal furaha',
+  'lock.failed': 'Lama aqoonsan. Isku day mar kale.',
   'shell.hq': 'Xarunta {city}, {state} · Adduunka oo dhan ayaan u dirnaa',
 }

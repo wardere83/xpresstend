@@ -284,5 +284,10 @@ export const ar: Record<keyof typeof en, string> = {
   'join.mediaAlt': 'عائلة مجتمعة في المنزل تحتفل بأموال وصلت للتو.',
   'join.mediaTitle': 'اللحظة التي يصل فيها المال.',
   'join.mediaBody': 'أموال تُرسل خلال دقائق لا أيام. تراها عائلتك تصل وأنت ما زلت على المكالمة.',
+  'lock.title': 'التطبيق مقفل',
+  'lock.reason': 'أكِّد هويتك قبل عرض تحويلاتك.',
+  'lock.unlock': 'فتح القفل',
+  'lock.usePasscode': 'استخدام رمز الجهاز',
+  'lock.failed': 'لم يتم التعرف. حاول مرة أخرى.',
   'shell.hq': 'المقر الرئيسي في {city}، {state} · نرسل إلى جميع أنحاء العالم',
 }

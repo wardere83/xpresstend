@@ -17,6 +17,7 @@
     "deploy": "npm run build && npm --prefix api run deploy"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor/android": "^8.5.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.5.0",
@@ -46,5 +47,5 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   },
-  "description": "XpressTend \u2014 voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
+  "description": "XpressTend — voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
 }
