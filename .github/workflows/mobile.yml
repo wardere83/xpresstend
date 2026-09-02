@@ -200,23 +200,16 @@ jobs:
           # Already-present is not an error worth failing the build over.
           security import "$RUNNER_TEMP/wwdr.cer" -k "$KEYCHAIN" -T /usr/bin/codesign || true
 
+      # The decode runs through a shared helper rather than inline: base64(1)
+      # fails the same way for half a dozen different formatting mistakes, and
+      # inline under `set -e` the step died before its own diagnostics could
+      # name which one. The helper tolerates the recoverable ones and reports
+      # the rest without printing the secret.
       - name: Decode the certificate
         if: env.APPLE_CERTIFICATE_P12 != ''
         run: |
-          set -euo pipefail
-          echo "$APPLE_CERTIFICATE_P12" | tr -d '\n\r ' | base64 --decode > "$RUNNER_TEMP/cert.p12"
-          SIZE=$(stat -f%z "$RUNNER_TEMP/cert.p12")
-          echo "decoded $SIZE bytes"
-          if [ "$SIZE" -lt 1000 ]; then
-            echo "::error::The decoded certificate is $SIZE bytes, far too small. APPLE_CERTIFICATE_P12 is truncated or not base64."
-            exit 1
-          fi
-          # A PKCS#12 is DER: it must begin with a SEQUENCE tag.
-          if [ "$(xxd -p -l1 "$RUNNER_TEMP/cert.p12")" != "30" ]; then
-            echo "::error::Decoded bytes are not DER, so the secret is not valid base64 of a .p12."
-            exit 1
-          fi
-          echo "Decoded file looks like a PKCS#12."
+          scripts/ci/decode-base64-secret.sh \
+            APPLE_CERTIFICATE_P12 "$RUNNER_TEMP/cert.p12" "distribution certificate" --expect-der
 
       - name: Check the certificate password
         if: env.APPLE_CERTIFICATE_P12 != ''
@@ -250,11 +243,13 @@ jobs:
 
       - name: Install the provisioning profile
         if: env.APPLE_CERTIFICATE_P12 != ''
+        # No -x: tracing would expand the profile into the log.
         run: |
-          set -euxo pipefail
+          set -euo pipefail
           DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$DIR"
-          echo "$APPLE_PROVISIONING_PROFILE" | base64 --decode > "$DIR/XpressTend.mobileprovision"
+          scripts/ci/decode-base64-secret.sh \
+            APPLE_PROVISIONING_PROFILE "$DIR/XpressTend.mobileprovision" "provisioning profile"
           ls -l "$DIR"
 
       - name: Verify a usable signing identity
@@ -297,8 +292,9 @@ jobs:
           set -euo pipefail
           # altool reads the key from this fixed location, named for the key id.
           mkdir -p ~/.appstoreconnect/private_keys
-          echo "$APPSTORE_PRIVATE_KEY" | base64 --decode \
-            > ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8
+          scripts/ci/decode-base64-secret.sh APPSTORE_PRIVATE_KEY \
+            ~/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8 \
+            "App Store Connect key"
 
           IPA=$(find "$RUNNER_TEMP/export" -name '*.ipa' | head -1)
           echo "Uploading $(basename "$IPA")"
