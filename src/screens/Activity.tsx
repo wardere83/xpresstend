@@ -3,16 +3,68 @@ import { ArrowUpRight, Clock } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { getCorridor, getRecipient } from '../data/mock'
-import { amount as fmtAmount, formatDate, usd } from '../lib/format'
+import { useAccountData } from '../state/AccountData'
+import { getRecipient } from '../data/mock'
+import { formatDate, usd } from '../lib/format'
 
 type Filter = 'all' | 'completed' | 'pending'
+
+type Row = {
+  id: string
+  name: string
+  subtitle: string
+  hue: number
+  amountUsd: number
+  date: string
+  status: 'completed' | 'pending'
+}
+
+/** Stable avatar colour for a real recipient, who has no seeded hue. */
+function hueFor(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360
+  return h
+}
 
 export function Activity() {
   const { t } = useI18n()
   const mirror = useMirrorClass()
-  const { history } = useTransfer()
+  const { history: demoHistory } = useTransfer()
+  const { live, loading, error, transfers } = useAccountData()
   const [filter, setFilter] = useState<Filter>('all')
+
+  /**
+   * One shape for the list, whichever source it came from.
+   *
+   * A signed-in customer sees only their own transfers; the seeded history is
+   * shown solely to a visitor touring the app without an account, so real and
+   * demo figures can never be confused for one another.
+   */
+  const rows: Row[] = useMemo(() => {
+    if (live) {
+      return transfers.map((tr) => ({
+        id: tr.id,
+        name: tr.recipient_name,
+        subtitle: tr.recipient_country,
+        hue: hueFor(tr.recipient_name),
+        amountUsd: tr.send_amount_minor / 100,
+        date: tr.created_at,
+        status: tr.status === 'completed' ? 'completed' : 'pending',
+      }))
+    }
+    return demoHistory.map((tx) => {
+      const r = getRecipient(tx.recipientId)
+      return {
+        id: tx.id,
+        name: r.name,
+        subtitle: r.wallet,
+        hue: r.hue,
+        amountUsd: tx.amountUsd,
+        date: tx.date,
+        status: tx.status,
+      }
+    })
+  }, [live, transfers, demoHistory])
 
   const filters: { id: Filter; label: string }[] = [
     { id: 'all', label: t('activity.filterAll') },
@@ -21,19 +73,19 @@ export function Activity() {
   ]
 
   const visible = useMemo(
-    () => (filter === 'all' ? history : history.filter((tx) => tx.status === filter)),
-    [filter, history],
+    () => (filter === 'all' ? rows : rows.filter((r) => r.status === filter)),
+    [filter, rows],
   )
 
   const monthTotal = useMemo(() => {
     const now = new Date()
-    return history
-      .filter((tx) => {
-        const d = new Date(tx.date)
+    return rows
+      .filter((r) => {
+        const d = new Date(r.date)
         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
       })
-      .reduce((sum, tx) => sum + tx.amountUsd, 0)
-  }, [history])
+      .reduce((sum, r) => sum + r.amountUsd, 0)
+  }, [rows])
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -68,39 +120,36 @@ export function Activity() {
           ))}
         </div>
 
-        {visible.length === 0 ? (
+        {error ? (
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
+        ) : loading && rows.length === 0 ? (
+          <p className="mt-10 text-center text-[13px] text-ink-400">…</p>
+        ) : visible.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">{t('activity.empty')}</p>
         ) : (
           <ul className="card mt-4 divide-y divide-ink-200/60 overflow-hidden">
-            {visible.map((tx) => {
-              const r = getRecipient(tx.recipientId)
-              const corridor = getCorridor(r.corridorCode)
-              const done = tx.status === 'completed'
+            {visible.map((row) => {
+              const done = row.status === 'completed'
               return (
-                <li key={tx.id} className="flex items-center gap-3 px-4 py-3">
-                  <Avatar name={r.name} hue={r.hue} size={42} />
+                <li key={row.id} className="flex items-center gap-3 px-4 py-3">
+                  <Avatar name={row.name} hue={row.hue} size={42} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[14px] font-bold text-ink-900">{r.name}</p>
+                    <p className="truncate text-[14px] font-bold text-ink-900">{row.name}</p>
                     <p className="truncate text-[12px] text-ink-500">
-                      {formatDate(tx.date)} · <bdi>{r.wallet}</bdi>
+                      {formatDate(row.date)} · <bdi>{row.subtitle}</bdi>
                     </p>
                   </div>
                   <div className="text-end">
                     <p className="text-[14px] font-extrabold text-ink-900">
-                      <bdi>{usd(tx.amountUsd)}</bdi>
+                      <bdi>{usd(row.amountUsd)}</bdi>
                     </p>
                     <p
                       className={`flex items-center justify-end gap-1 text-[11.5px] font-semibold ${
                         done ? 'text-emerald-600' : 'text-amber-600'
                       }`}
                     >
-                      {done ? <ArrowUpRight size={12} className={mirror} /> : <Clock size={12} />}
-                      {t(done ? 'common.completed' : 'common.pending')}
-                    </p>
-                    <p className="text-[10.5px] text-ink-400">
-                      <bdi>
-                        {fmtAmount(tx.amountUsd * corridor.rate)} {corridor.currency}
-                      </bdi>
+                      {done ? <ArrowUpRight size={13} className={mirror} /> : <Clock size={13} />}
+                      {done ? t('activity.filterSent') : t('activity.filterPending')}
                     </p>
                   </div>
                 </li>

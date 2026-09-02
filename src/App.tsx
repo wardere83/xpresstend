@@ -3,6 +3,7 @@ import { AppLayout } from './components/AppLayout'
 import { AppLock } from './native/AppLock'
 import { NativeShell } from './native/NativeShell'
 import { I18nProvider } from './i18n'
+import { AccountDataProvider } from './state/AccountData'
 import { TransferProvider } from './state/TransferContext'
 import { AuthProvider } from './auth/AuthContext'
 import { Login, Register } from './auth/AuthScreens'
@@ -25,6 +26,7 @@ export default function App() {
     <I18nProvider>
       <AppLock>
       <AuthProvider>
+        <AccountDataProvider>
         <TransferProvider>
           <HashRouter>
             <NativeShell />
@@ -59,6 +61,7 @@ export default function App() {
             </Routes>
           </HashRouter>
         </TransferProvider>
+        </AccountDataProvider>
       </AuthProvider>
       </AppLock>
     </I18nProvider>
