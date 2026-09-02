@@ -141,6 +141,48 @@ develop the web app.
 - Native splash and status bar, Android back-button handling, and an offline
   notice driven by the real network state.
 
+### Getting a build onto TestFlight
+
+Two routes. Both use the App Store Connect API key from **App Store Connect →
+Users and Access → Integrations → Keys**; the key is downloadable once, so keep
+the `.p8` somewhere safe.
+
+**From CI**, on every push to `main`, once these repository secrets exist:
+
+| Secret | How to produce it |
+| --- | --- |
+| `APPLE_CERTIFICATE_P12` | `base64 -i Certificates.p12 \| pbcopy` — the Apple Distribution certificate exported from Keychain Access |
+| `APPLE_CERTIFICATE_PASSWORD` | the password set during that export |
+| `APPLE_PROVISIONING_PROFILE` | `base64 -i XpressTend_App_Store.mobileprovision \| pbcopy` |
+| `APPSTORE_KEY_ID`, `APPSTORE_ISSUER_ID` | shown on the Keys page |
+| `APPSTORE_PRIVATE_KEY` | `base64 -i AuthKey_XXXXXX.p8 \| pbcopy` |
+
+Paste each with no quotes and no line breaks. The decode is tolerant of most
+paste damage and names what is wrong with a value it cannot use, without
+printing it.
+
+**From a Mac that already has the build**, which does not wait on any of the
+signing secrets:
+
+```bash
+export APPSTORE_KEY_ID=XXXXXXXXXX
+export APPSTORE_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+export APPSTORE_PRIVATE_KEY_PATH=~/Downloads/AuthKey_XXXXXXXXXX.p8
+
+scripts/upload-to-testflight.sh path/to/XpressTend.ipa
+```
+
+It accepts an `.xcarchive` too and exports with the same options CI uses, so a
+local upload and a CI upload cannot drift apart. It validates before uploading,
+so a binary App Store Connect would reject fails with a readable reason rather
+than silently during processing. Xcode's Organizer (**Distribute App → App Store
+Connect**) and Transporter.app do the same job by hand.
+
+Either way the app record has to exist first: bundle id `com.xpresstend.app`
+registered under team `64H8428M8D`, and an app created in App Store Connect.
+A build lands under **TestFlight → iOS Builds** about 10 to 15 minutes after
+upload.
+
 ### API origin
 
 The apps load from `capacitor://localhost`, where a relative `/api` path would
