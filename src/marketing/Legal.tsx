@@ -34,7 +34,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
       <footer className="border-t border-ink-200/70">
         <div className="mx-auto max-w-3xl px-5 py-8 text-[12px] leading-relaxed text-ink-400">
           <p className="font-semibold text-ink-700">{brand.name}</p>
-          <p className="mt-1">{brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}</p>
+          <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
           <p className="mt-2">
             <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
           </p>
@@ -117,7 +117,7 @@ export function Privacy() {
 
       <H>Contact</H>
       <p>
-        {brand.name}, {brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}<br />
+        {brand.name}, {brand.hq.city}, {brand.hq.state}<br />
         <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
       </p>
     </Shell>
@@ -136,7 +136,7 @@ export function Support() {
       </p>
 
       <H>Post</H>
-      <p>{brand.name}<br />{brand.hq.line1}<br />{brand.hq.city}, {brand.hq.state} {brand.hq.zip}<br />
+      <p>{brand.name}<br />{brand.hq.city}, {brand.hq.state}<br />
       {brand.hq.country}</p>
 
       <H>Common questions</H>
