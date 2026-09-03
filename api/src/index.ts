@@ -6,6 +6,7 @@ import { admin } from './routes-admin'
 import { bootstrap } from './routes-bootstrap'
 import { invite } from './routes-invite'
 import { transfers } from './routes-transfers'
+import { refreshRates } from './rates'
 
 /**
  * One Worker serves both the site and its API.
@@ -143,5 +144,14 @@ export default {
     // Everything else is the site. The assets binding falls back to index.html
     // for unknown paths, which is what a client-routed app needs on a cold URL.
     return withSecurityHeaders(await env.ASSETS.fetch(request))
+  },
+
+  /*
+   * The rate feed. Quotes refuse anything older than an hour, so without a
+   * scheduled write every corridor stops quoting once the seeded rows age out
+   * — which is exactly what had happened. The cron lives in wrangler.toml.
+   */
+  async scheduled(_event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
+    await refreshRates(env)
   },
 }

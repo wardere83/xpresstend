@@ -32,6 +32,12 @@ not_found_handling = "single-page-application"
 # security headers land on markup, scripts and images alike.
 run_worker_first = true
 
+# Rates go stale after an hour on the quote path, so they are refreshed well
+# inside that window. Four runs an hour also means a single failed fetch is
+# invisible to customers: the next attempt lands long before the rate expires.
+[triggers]
+crons = ["*/15 * * * *"]
+
 # The production database, in the Cloudflare account that owns xpresstend.com.
 # The id is not a secret.
 [[d1_databases]]
