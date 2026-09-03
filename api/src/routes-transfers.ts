@@ -6,12 +6,8 @@ import { DuplicatePostingError, postOnce } from './ledger-db'
 import { QuoteError, quote, type Corridor } from './money'
 import type { Env, Vars } from './env'
 import { requireUser } from './sessions'
+import { checkLimits, reportingFlags, screenAndRecord } from './compliance'
 
-/**
- * Per-transfer ceilings by verification tier, in minor units.
- * Tier 0 has not passed KYC and cannot send at all.
- */
-const TIER_LIMITS: Record<number, number> = { 0: 0, 1: 100_000, 2: 500_000, 3: 2_000_000 }
 
 /** How long a quoted rate is honoured before it must be re-quoted. */
 const QUOTE_TTL_MINUTES = 15
@@ -134,12 +130,26 @@ transfers.post('/transfers', async (c) => {
     return c.json({ error: 'missing_fields' }, 400)
   }
 
-  const limit = TIER_LIMITS[user.kycTier] ?? 0
-  if (limit === 0) {
-    return c.json({ error: 'kyc_required', message: 'Verify your identity before sending.' }, 403)
-  }
-  if (b.sendAmountMinor > limit) {
-    return c.json({ error: 'over_tier_limit', limitMinor: limit }, 403)
+  /*
+   * Aggregate limits, not just a per-transfer ceiling. A per-transfer limit on
+   * its own is evaded by sending repeatedly, which is the structuring pattern
+   * these exist to catch, so daily value, monthly value and daily count are all
+   * checked before anything is created.
+   */
+  const decision = await checkLimits(c.env, user.id, user.kycTier, b.sendAmountMinor)
+  if (!decision.allowed) {
+    if (decision.reason === 'kyc_required') {
+      return c.json({ error: 'kyc_required', message: 'Verify your identity before sending.' }, 403)
+    }
+    return c.json(
+      {
+        error: decision.reason,
+        limitMinor: decision.limitMinor,
+        usedMinor: decision.usedMinor,
+        message: 'This transfer would take you past your current limit.',
+      },
+      403,
+    )
   }
 
   const recipient = await c.env.DB.prepare(
@@ -179,33 +189,68 @@ transfers.post('/transfers', async (c) => {
     throw err
   }
 
+  /*
+   * Screen the recipient before a transfer exists. A match holds the transfer
+   * for a named reviewer rather than refusing outright, because a false
+   * positive on a common name must not strand a legitimate sender, and every
+   * screening writes a record whether it matched or not.
+   */
+  const recipientRow = await c.env.DB.prepare(`SELECT full_name FROM recipients WHERE id = ?`)
+    .bind(b.recipientId).first<{ full_name: string }>()
+  const screening = await screenAndRecord(c.env, {
+    subjectType: 'recipient',
+    subjectId: b.recipientId,
+    name: recipientRow?.full_name ?? '',
+  })
+  if (screening.status === 'confirmed_match') {
+    await audit(c.env.DB, {
+      actorType: 'system', action: 'transfer.blocked_sanctions',
+      entityType: 'recipient', entityId: b.recipientId,
+      metadata: { matched: screening.matched }, ip: c.req.header('cf-connecting-ip'),
+    })
+    return c.json(
+      { error: 'screening_failed', message: 'We cannot process this transfer. Please contact support.' },
+      403,
+    )
+  }
+
   const id = newId('trf')
   const ref = reference()
   const now = new Date().toISOString()
+  const flags = reportingFlags(q.sendAmountMinor)
+  // A potential match, or an amount over a Bank Secrecy Act threshold, starts
+  // in review rather than awaiting payment.
+  const startStatus = screening.status === 'potential_match' || flags.includes('ctr_review')
+    ? 'compliance_hold'
+    : 'awaiting_payment'
 
   await c.env.DB.batch([
     c.env.DB.prepare(
       `INSERT INTO transfers (id, reference, user_id, recipient_id, corridor_id,
          send_amount_minor, send_currency, fee_minor, receive_amount_minor, receive_currency,
          fx_rate_e8, status, quote_expires_at, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'awaiting_payment', ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(id, ref, user.id, b.recipientId, corridor.id, q.sendAmountMinor, q.sendCurrency,
-           q.feeMinor, q.receiveAmountMinor, q.receiveCurrency, q.effectiveRateE8,
+           q.feeMinor, q.receiveAmountMinor, q.receiveCurrency, q.effectiveRateE8, startStatus,
            new Date(Date.now() + QUOTE_TTL_MINUTES * 60_000).toISOString(), now, now),
     c.env.DB.prepare(
-      `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, created_at)
-       VALUES (?, ?, NULL, 'awaiting_payment', 'customer', ?, ?)`,
-    ).bind(newId('tev'), id, user.id, now),
+      `INSERT INTO transfer_events (id, transfer_id, from_status, to_status, actor_type, actor_id, note, created_at)
+       VALUES (?, ?, NULL, ?, 'customer', ?, ?, ?)`,
+    ).bind(newId('tev'), id, startStatus, user.id,
+           flags.length ? `Reporting flags: ${flags.join(', ')}` : null, now),
   ])
 
   await audit(c.env.DB, {
     actorType: 'customer', actorId: user.id, action: 'transfer.created',
     entityType: 'transfer', entityId: id,
-    metadata: { reference: ref, sendAmountMinor: q.sendAmountMinor, corridor: corridor.id },
+    metadata: {
+      reference: ref, sendAmountMinor: q.sendAmountMinor, corridor: corridor.id,
+      screening: screening.status, reportingFlags: flags,
+    },
     ip: c.req.header('cf-connecting-ip'),
   })
 
-  return c.json({ ok: true, transfer: { id, reference: ref, ...q, status: 'awaiting_payment' } })
+  return c.json({ ok: true, transfer: { id, reference: ref, ...q, status: startStatus }, reportingFlags: flags })
 })
 
 transfers.get('/transfers/:id', async (c) => {
