@@ -5,6 +5,7 @@
  * unconditionally and the same source ships to xpresstend.com, iOS and
  * Android without branching at each call site.
  */
+import { BiometricAuth } from '@aparajita/capacitor-biometric-auth'
 import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
@@ -98,7 +99,11 @@ export const deviceStore = {
 export async function confirmWithBiometrics(reason: string): Promise<boolean> {
   if (!isNative) return false
   try {
-    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth')
+    /*
+     * Imported statically. The dynamic form bought no code splitting, because
+     * AppLock.tsx already pulls the same module in statically — the bundler
+     * kept it in the main chunk either way and warned about the mixed usage.
+     */
     await BiometricAuth.authenticate({ reason, allowDeviceCredential: true })
     return true
   } catch {
