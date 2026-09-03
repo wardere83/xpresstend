@@ -109,7 +109,7 @@ export function Marketing() {
       <footer className="border-t border-ink-200/70 bg-white">
         <div className="mx-auto max-w-6xl px-5 py-10 text-[12px] leading-relaxed text-ink-400">
           <Logo height={20} className="mb-0.5" />
-          <p className="mt-1">{brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}</p>
+          <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
           <p className="mt-3 max-w-prose">{t('marketing.disclaimer')}</p>
           <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
             <Link to="/privacy" className="underline hover:text-ink-600">Privacy Policy</Link>

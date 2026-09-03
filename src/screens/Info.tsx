@@ -241,10 +241,10 @@ export function Support() {
 
         <p className="mt-6 text-center text-[11.5px] leading-relaxed text-ink-400">
           <bdi>
-            {brand.name} · {brand.hq.line1}
+            {brand.name}
           </bdi>
           <br />
-          {brand.hq.city}, {brand.hq.state} {brand.hq.zip}, {brand.hq.country}
+          {brand.hq.city}, {brand.hq.state}, {brand.hq.country}
           <br />
           {brand.legal.licence}
         </p>

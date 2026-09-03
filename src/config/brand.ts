@@ -12,11 +12,11 @@ export const brand = {
    *  marketing.heroTitle key instead, so this is for non-UI use. */
   tagline: 'Closer with every transfer!',
   hq: {
-    city: 'New York',
-    state: 'NY',
+    city: 'Seattle',
+    state: 'WA',
     country: 'USA',
-    line1: '255 West 43rd Street',
-    zip: '10036',
+    line1: '',
+    zip: '',
   },
   support: {
     phone: '+1 (212) 555-0142',

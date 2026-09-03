@@ -2,7 +2,7 @@
  * Staff console.
  *
  * Deliberately English-only and outside the customer i18n dictionaries: this
- * is internal tooling for the New York back office, and translating it five ways
+ * is internal tooling for the Seattle back office, and translating it five ways
  * would add maintenance cost with no reader.
  */
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
