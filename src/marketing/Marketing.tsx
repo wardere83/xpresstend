@@ -111,7 +111,11 @@ export function Marketing() {
           <Logo height={20} className="mb-0.5" />
           <p className="mt-1">{brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}</p>
           <p className="mt-3 max-w-prose">{t('marketing.disclaimer')}</p>
-          <p className="mt-4">© {new Date().getFullYear()} {brand.name}</p>
+          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+            <Link to="/privacy" className="underline hover:text-ink-600">Privacy Policy</Link>
+            <Link to="/support" className="underline hover:text-ink-600">Support</Link>
+          </p>
+          <p className="mt-3">© {new Date().getFullYear()} {brand.name}</p>
         </div>
       </footer>
     </div>

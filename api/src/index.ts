@@ -115,6 +115,31 @@ export default {
       )
     }
 
+    /*
+     * Clean URLs for the pages Apple and Google need to reach.
+     *
+     * The app is hash-routed, so /privacy would otherwise serve index.html and
+     * land on the home page with the fragment empty. App Store review requires
+     * a plain URL that actually shows the policy, so these redirect into the
+     * route rather than relying on the reviewer to type a fragment.
+     */
+    const CLEAN_ROUTES: Record<string, string> = {
+      '/privacy': '/#/privacy',
+      '/privacy-policy': '/#/privacy',
+      '/support': '/#/support',
+      '/help': '/#/support',
+      '/admin': '/#/admin',
+      '/app': '/#/app',
+      '/login': '/#/login',
+      '/register': '/#/register',
+    }
+    const target = CLEAN_ROUTES[pathname.replace(/\/$/, '')]
+    if (target) {
+      return withSecurityHeaders(
+        new Response(null, { status: 302, headers: { location: target } }),
+      )
+    }
+
     // Everything else is the site. The assets binding falls back to index.html
     // for unknown paths, which is what a client-routed app needs on a cold URL.
     return withSecurityHeaders(await env.ASSETS.fetch(request))

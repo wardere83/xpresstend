@@ -10,6 +10,7 @@ import { Login, RequireAuth, Register } from './auth/AuthScreens'
 import { AdminConsole } from './admin/AdminConsole'
 import { InviteAccept } from './admin/InviteAccept'
 import { Marketing } from './marketing/Marketing'
+import { Privacy, Support as LegalSupport } from './marketing/Legal'
 import { Home } from './screens/Home'
 import { Voice } from './screens/Voice'
 import { Assistant } from './screens/Assistant'
@@ -35,6 +36,10 @@ export default function App() {
               <Route path="/" element={<Marketing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              {/* Apple requires both of these to be reachable before an app can
+                  be submitted for review. */}
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/support" element={<LegalSupport />} />
 
               {/* Staff console — its own login, never the customer session. */}
               <Route path="/admin" element={<AdminConsole />} />
