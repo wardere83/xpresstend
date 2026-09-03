@@ -306,3 +306,4 @@ of what the recipient receives.
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router · lucide-react. No backend —
 transfers are simulated in memory, so the app resets on reload.
+
