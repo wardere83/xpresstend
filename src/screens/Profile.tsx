@@ -97,7 +97,7 @@ export function Profile() {
           <p className="font-semibold text-ink-500">{brand.name}</p>
           <p>
             <bdi>
-              {brand.hq.line1}, {brand.hq.city}, {brand.hq.state} {brand.hq.zip}
+              {brand.hq.city}, {brand.hq.state}
             </bdi>
           </p>
           <p>{brand.legal.licence}</p>
