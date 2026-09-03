@@ -46,7 +46,46 @@ app.route('/api', api)
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const { pathname } = new URL(request.url)
+    const url = new URL(request.url)
+
+    /*
+     * Upgrade plaintext before anything else looks at the request.
+     *
+     * HSTS is preloaded, so a browser that has already seen the site never
+     * sends http — but a genuinely first-time visitor, or a link opened by
+     * something that ignores the preload list, was being served over http and
+     * answered 200. The redirect carries the security headers too, so the
+     * HSTS entry is picked up on that first hop rather than the second.
+     *
+     * The scheme comes from cf-visitor, not from url.protocol. Behind the edge
+     * that header is the only honest record of what the browser actually used,
+     * and locally url.protocol is meaningless anyway: `wrangler dev` rewrites
+     * the request URL to the custom domain from wrangler.toml, so every local
+     * request looks like plaintext xpresstend.com and would redirect forever.
+     *
+     * No header means this is not running behind the edge, so there is nothing
+     * to upgrade and nothing happens. That failure direction is deliberate: it
+     * degrades to today's behaviour rather than to a redirect loop on a live
+     * money site.
+     */
+    const visitor = request.headers.get('cf-visitor')
+    if (visitor) {
+      let scheme: string | undefined
+      try {
+        scheme = (JSON.parse(visitor) as { scheme?: string }).scheme
+      } catch {
+        scheme = undefined
+      }
+      if (scheme === 'http') {
+        // Built by hand: assigning to url.protocol is a no-op in this runtime.
+        const target = `https://${url.host}${url.pathname}${url.search}`
+        return withSecurityHeaders(
+          new Response(null, { status: 301, headers: { location: target } }),
+        )
+      }
+    }
+
+    const { pathname } = url
 
     /*
      * Refuse to serve without the pepper in production.
