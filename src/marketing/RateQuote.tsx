@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n, useT } from '../i18n'
-import { api, money, type Corridor, type Quote } from '../lib/api'
+import { api, ApiError, money, type Corridor, type Quote } from '../lib/api'
 import { CORRIDORS, quoteLocally, type LocalCorridor } from './pricing'
 
 /**
@@ -10,6 +10,11 @@ import { CORRIDORS, quoteLocally, type LocalCorridor } from './pricing'
  * product would not honour. When the API cannot be reached it falls back to the
  * bundled corridor table, which runs the identical arithmetic, so someone
  * checking a rate always gets an answer instead of an error.
+ *
+ * The one case that does not fall back is a 503: that is the server saying it
+ * holds no rate it is willing to honour. The bundled table would happily print
+ * a number there, and it would be a number the product refuses at checkout, so
+ * the panel says rates are unavailable instead of inventing a price.
  */
 /**
  * Localised country name for an ISO code, e.g. KE -> "Kenya" / "كينيا".
@@ -31,6 +36,7 @@ export function RateQuote() {
   const [amount, setAmount] = useState('200')
   const [quote, setQuote] = useState<Quote | null>(null)
   const [live, setLive] = useState(false)
+  const [ratesDown, setRatesDown] = useState(false)
   const [focused, setFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -75,9 +81,17 @@ export function RateQuote() {
     const timer = setTimeout(() => {
       api
         .post<{ quote: Quote }>('/quote', { corridorId: corridor.id, sendAmountMinor: amountMinor })
-        .then(({ quote }) => setQuote(quote))
-        .catch(() => {
-          // Keep the locally computed figure rather than blanking the panel.
+        .then(({ quote }) => {
+          setQuote(quote)
+          setRatesDown(false)
+        })
+        .catch((err) => {
+          // Only a refusal to price clears the panel. Anything else — offline,
+          // a dropped connection — keeps the locally computed figure.
+          if (err instanceof ApiError && err.status === 503) {
+            setQuote(null)
+            setRatesDown(true)
+          }
         })
     }, 280)
     return () => clearTimeout(timer)
@@ -151,6 +165,8 @@ export function RateQuote() {
               max: money(corridor.maxSendMinor, corridor.send_currency),
             })}
           </p>
+        ) : ratesDown ? (
+          <p className="text-[13px] font-medium text-ink-500">{t('marketing.ratesUnavailable')}</p>
         ) : quote ? (
           <>
             <Row label={t('marketing.fee')} value={money(quote.feeMinor, quote.sendCurrency)} />
