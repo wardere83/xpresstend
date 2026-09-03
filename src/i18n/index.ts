@@ -1,17 +1,9 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { createContext, useContext } from 'react'
 import { brand } from '../config/brand'
 import { ar } from './ar'
 import { en, type TranslationKey } from './en'
 import { es } from './es'
-import { dirOf, isLang, matchBrowserLang, LANGUAGES, type Lang } from './langs'
+import { isLang, matchBrowserLang, type Lang } from './langs'
 import { ptBR } from './ptBR'
 import { so } from './so'
 
@@ -19,9 +11,9 @@ export type { Lang } from './langs'
 export { LANGUAGES } from './langs'
 export type { TranslationKey } from './en'
 
-const dictionaries: Record<Lang, Record<string, string>> = { en, so, 'pt-BR': ptBR, es, ar }
+export const dictionaries: Record<Lang, Record<string, string>> = { en, so, 'pt-BR': ptBR, es, ar }
 
-const STORAGE_KEY = 'xpresstend.lang'
+export const STORAGE_KEY = 'xpresstend.lang'
 
 /** Variables every string can rely on without the caller passing them. */
 const globalVars: Record<string, string> = {
@@ -39,7 +31,7 @@ const globalVars: Record<string, string> = {
 const FSI = '\u2068'
 const PDI = '\u2069'
 
-function interpolate(
+export function interpolate(
   template: string,
   vars?: Record<string, string | number>,
   isolate = false,
@@ -51,7 +43,7 @@ function interpolate(
   })
 }
 
-type I18nValue = {
+export type I18nValue = {
   lang: Lang
   /** Writing direction of the active language. */
   dir: 'ltr' | 'rtl'
@@ -62,53 +54,15 @@ type I18nValue = {
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string
 }
 
-const I18nContext = createContext<I18nValue | null>(null)
+export const I18nContext = createContext<I18nValue | null>(null)
 
-function readInitialLang(): Lang {
+export function readInitialLang(): Lang {
   if (typeof window === 'undefined') return 'en'
   const stored = window.localStorage.getItem(STORAGE_KEY)
   if (isLang(stored)) return stored
   // English is the primary language; only auto-switch when the browser asks
   // for one of the others.
   return matchBrowserLang(window.navigator.language) ?? 'en'
-}
-
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(readInitialLang)
-  const dir = dirOf(lang)
-  const isRtl = dir === 'rtl'
-
-  useEffect(() => {
-    // Arabic flips the whole document; every other language flips it back.
-    document.documentElement.lang = lang
-    document.documentElement.dir = dir
-    window.localStorage.setItem(STORAGE_KEY, lang)
-  }, [lang, dir])
-
-  const setLang = useCallback((next: Lang) => setLangState(next), [])
-  const toggleLang = useCallback(
-    () =>
-      setLangState((current) => {
-        const i = LANGUAGES.findIndex((l) => l.code === current)
-        return LANGUAGES[(i + 1) % LANGUAGES.length].code
-      }),
-    [],
-  )
-
-  const t = useCallback<I18nValue['t']>(
-    (key, vars) => {
-      const template = dictionaries[lang][key] ?? en[key] ?? key
-      return interpolate(template, vars, isRtl)
-    },
-    [lang, isRtl],
-  )
-
-  const value = useMemo(
-    () => ({ lang, dir, isRtl, setLang, toggleLang, t }),
-    [lang, dir, isRtl, setLang, toggleLang, t],
-  )
-
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
 
 export function useI18n() {
