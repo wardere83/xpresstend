@@ -62,7 +62,7 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -z "$ANDROID_KEYSTORE" ]; then
+          if [ -z "$ANDROID_KEYSTORE" ] || [ ${#ANDROID_KEYSTORE} -lt 4000 ]; then
             echo "::warning::ANDROID_KEYSTORE not set — building a DEBUG APK as fallback."
             ./gradlew --no-daemon assembleDebug
             mkdir -p app/build/outputs/apk/release && cp app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/
