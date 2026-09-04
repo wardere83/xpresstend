@@ -19,7 +19,8 @@
  *   classic      -> the "repo" scope
  * It is read from the file and never written anywhere.
  */
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
@@ -59,9 +60,48 @@ async function main() {
     console.log(`  ${name.padEnd(28)} ${String(value.length).padStart(6)} chars  ok`)
   }
 
-  const token = (process.env.GITHUB_TOKEN ?? (existsSync(TOKEN_FILE) ? readFileSync(TOKEN_FILE, 'utf8') : '')).trim()
+  /*
+   * The key id is the filename: AuthKey_ABC1234XYZ.p8. Deriving it removes a
+   * field that has to be typed correctly, and it cannot drift from the key it
+   * names because it comes from the same file.
+   */
+  const authKey = readdirSync(DIR).find((f) => /^AuthKey_[A-Z0-9]{10}\.p8$/.test(f))
+  if (authKey) {
+    values.APPSTORE_KEY_ID = authKey.slice(8, 18)
+    console.log(`  ${'APPSTORE_KEY_ID'.padEnd(28)} ${String(values.APPSTORE_KEY_ID.length).padStart(6)} chars  ok  (from ${authKey})`)
+  }
+
+  /*
+   * The issuer id is a UUID from App Store Connect and lives nowhere on disk
+   * unless it was saved here. Validated on shape, not just length: this is the
+   * field that was silently replaced with a 44-character value and reported OK
+   * because the check tested a minimum.
+   */
+  const issuerFile = join(DIR, 'issuer-id.txt')
+  if (existsSync(issuerFile)) {
+    const issuer = readFileSync(issuerFile, 'utf8').trim()
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(issuer)) {
+      console.error(`APPSTORE_ISSUER_ID: issuer-id.txt is not a UUID (${issuer.length} characters).`)
+      console.error('Expected 36 characters shaped 8-4-4-4-12, from App Store Connect -> Users and Access -> Integrations.')
+      process.exit(1)
+    }
+    values.APPSTORE_ISSUER_ID = issuer
+    console.log(`  ${'APPSTORE_ISSUER_ID'.padEnd(28)} ${String(issuer.length).padStart(6)} chars  ok`)
+  }
+
+  let token = (process.env.GITHUB_TOKEN ?? (existsSync(TOKEN_FILE) ? readFileSync(TOKEN_FILE, 'utf8') : '')).trim()
   if (!token) {
-    console.error(`No token. Put one in ${TOKEN_FILE} or set GITHUB_TOKEN.`)
+    // Falls back to the GitHub CLI, so `gh auth login` is enough and there is
+    // no token for anyone to copy, paste or mislay.
+    for (const bin of [join(homedir(), 'bin', 'gh'), 'gh']) {
+      try {
+        token = execFileSync(bin, ['auth', 'token'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+        if (token) { console.log('Using the credential from `gh auth login`.'); break }
+      } catch { /* not installed or not logged in; try the next */ }
+    }
+  }
+  if (!token) {
+    console.error(`No credential. Run \`gh auth login\`, or put a token in ${TOKEN_FILE}.`)
     console.error('Create one at https://github.com/settings/tokens with permission to write repository secrets.')
     process.exit(1)
   }
