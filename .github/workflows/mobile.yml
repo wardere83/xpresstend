@@ -291,11 +291,18 @@ jobs:
         if: env.APPLE_CERTIFICATE_P12 != ''
         run: |
           set -euo pipefail
+          # The project still carries Capacitor's default CODE_SIGN_IDENTITY of
+          # "iPhone Developer", so an archive asks for a development certificate
+          # and fails against a distribution one:
+          #   No "iOS Development" signing certificate matching team ID ... was found
+          # Setting the identity on the command line overrides that for every
+          # target, which is what the runner's keychain actually holds.
           xcodebuild -project App.xcodeproj -scheme App \
             -configuration Release -sdk iphoneos \
             -archivePath "$RUNNER_TEMP/XpressTend.xcarchive" \
             DEVELOPMENT_TEAM=64H8428M8D \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="XpressTend App Store" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             archive
