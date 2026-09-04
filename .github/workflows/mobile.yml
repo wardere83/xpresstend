@@ -163,7 +163,12 @@ jobs:
 
   ios-signed:
     name: iOS signed build
-    runs-on: macos-15
+    # App Store Connect rejects anything built with an SDK older than iOS 26:
+    #   "This app was built with the iOS 18.5 SDK. All iOS and iPadOS apps must
+    #    be built with the iOS 26 SDK or later"
+    # macos-15 tops out at Xcode 16, so the whole build ran and then failed at
+    # the very last step. The image has to carry Xcode 26.
+    runs-on: macos-26
     if: github.ref == 'refs/heads/main'
     # Job level, not step level: a step's `if` is evaluated before its own env
     # block exists, so guarding on a step-scoped secret silently skips the step
@@ -186,6 +191,27 @@ jobs:
             exit 1
           fi
           echo "Signing secrets present."
+
+      - name: Select the newest Xcode and require an iOS 26 SDK
+        run: |
+          set -euo pipefail
+          # Pick the highest Xcode on the image rather than trusting the default,
+          # which is not always the newest installed.
+          NEWEST=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$NEWEST" ]; then
+            echo "Selecting $NEWEST"
+            sudo xcode-select -s "$NEWEST/Contents/Developer"
+          fi
+          xcodebuild -version
+          SDK=$(xcodebuild -showsdks | grep -oE 'iphoneos[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1)
+          echo "Highest iOS SDK: $SDK"
+          # Fail here, in seconds, rather than after a full archive: App Store
+          # Connect rejects an older SDK at upload, which is the last step of a
+          # fifteen-minute job.
+          if [ -z "$SDK" ] || [ "$SDK" -lt 26 ]; then
+            echo "::error::iOS SDK $SDK is too old. App Store Connect requires 26 or later, so this build could not be uploaded."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v4
         with:
