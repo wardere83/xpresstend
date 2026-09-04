@@ -269,10 +269,18 @@ jobs:
         if: env.APPLE_CERTIFICATE_P12 != ''
         run: |
           set -euo pipefail
+          # OpenSSL 3, which ships on the newer runner image, refuses the older
+          # RC2 encryption Apple's export still produces unless -legacy is
+          # given. The same file opened cleanly under OpenSSL 1.1 on macos-15,
+          # so try the modern reader first and fall back rather than assuming
+          # either. Only if both fail is the password actually wrong.
           if openssl pkcs12 -in "$RUNNER_TEMP/cert.p12" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout 2>/dev/null; then
             echo "Password accepted."
+          elif openssl pkcs12 -legacy -in "$RUNNER_TEMP/cert.p12" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nokeys -noout 2>/dev/null; then
+            echo "Password accepted (legacy ciphers)."
           else
-            echo "::error::The .p12 decoded correctly but APPLE_CERTIFICATE_PASSWORD does not open it."
+            echo "::error::The .p12 decoded correctly but APPLE_CERTIFICATE_PASSWORD does not open it, with or without -legacy."
+            openssl version
             exit 1
           fi
 
