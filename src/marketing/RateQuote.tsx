@@ -99,11 +99,31 @@ export function RateQuote() {
 
   const belowMin = Number.isFinite(amountMinor) && corridor && amountMinor > 0 && amountMinor < corridor.minSendMinor
 
-  return (
-    <div className="rounded-[var(--radius-card)] border border-ink-200/70 bg-canvas p-6 shadow-[var(--shadow-card)]">
-      <h2 className="text-[15px] font-bold">{t('marketing.calcTitle')}</h2>
+  /* Round numbers people actually send. Chips remove the need to type at all,
+     which is the single biggest thing a rate calculator can do to feel quick. */
+  const presets = ['100', '200', '500', '1000']
 
-      <label className="mt-4 block text-[12px] font-semibold text-ink-500" htmlFor="mk-amount">
+  return (
+    <div className="rounded-[var(--radius-card)] border border-ink-200 bg-white p-6 shadow-[var(--shadow-raised)]">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[15px] font-semibold tracking-tight text-brand-600">
+          {t('marketing.calcTitle')}
+        </h2>
+        {/* Only claims to be live when it actually is. The dot is the whole
+            tell: a calculator that says "live rate" while serving a bundled
+            table is worse than one that says nothing. */}
+        {live && !ratesDown ? (
+          <span className="flex items-center gap-1.5 text-[11px] font-medium text-ink-500">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-400" />
+            </span>
+            {t('marketing.rate').toLowerCase()}
+          </span>
+        ) : null}
+      </div>
+
+      <label className="mt-5 block text-[12px] font-semibold text-ink-500" htmlFor="mk-amount">
         {t('marketing.youSend')}
       </label>
 
@@ -141,7 +161,28 @@ export function RateQuote() {
         </div>
       </div>
 
-      <label className="mt-4 block text-[12px] font-semibold text-ink-500" htmlFor="mk-dest">
+      <div className="mt-2.5 flex flex-wrap gap-1.5">
+        {presets.map((p) => {
+          const active = amount === p
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setAmount(p)}
+              aria-pressed={active}
+              className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold tabular-nums transition-colors ${
+                active
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-canvas text-ink-600 ring-1 ring-ink-200 hover:bg-brand-50 hover:text-brand-600 hover:ring-brand-200'
+              }`}
+            >
+              ${p}
+            </button>
+          )
+        })}
+      </div>
+
+      <label className="mt-5 block text-[12px] font-semibold text-ink-500" htmlFor="mk-dest">
         {t('marketing.destination')}
       </label>
       <select
@@ -175,9 +216,17 @@ export function RateQuote() {
               value={`1 ${quote.sendCurrency} = ${(quote.effectiveRateE8 / 1e8).toFixed(4)} ${quote.receiveCurrency}`}
             />
             <Row label={t('marketing.totalCharged')} value={money(quote.totalChargedMinor, quote.sendCurrency)} />
-            <div className="mt-3 flex items-baseline justify-between rounded-xl bg-brand-50 px-4 py-3">
-              <span className="text-[12px] font-semibold text-brand-700">{t('marketing.theyReceive')}</span>
-              <span className="text-[19px] font-semibold tabular-nums text-brand-700">
+            {/*
+              The one figure a visitor is actually here for, so it gets the
+              navy and the size. Everything above it is the working; this is the
+              answer. Wise puts this number at the bottom in the same weight as
+              the fee, which buries it.
+            */}
+            <div className="mt-4 rounded-xl bg-brand-600 px-4 py-4">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-brand-300">
+                {t('marketing.theyReceive')}
+              </span>
+              <span className="mt-1 block text-[28px] font-semibold leading-none tabular-nums tracking-tight text-white">
                 {money(quote.receiveAmountMinor, quote.receiveCurrency)}
               </span>
             </div>
