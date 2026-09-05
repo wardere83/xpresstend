@@ -11,30 +11,59 @@
     'Inter', 'Noto Sans Arabic', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
 
-  /* Brand purple — pulled from the app mockups */
-  --color-brand-50: #f4f1ff;
-  --color-brand-100: #ebe5ff;
-  --color-brand-200: #d9cfff;
-  --color-brand-300: #bcaaff;
-  --color-brand-400: #9b7bff;
-  --color-brand-500: #7c4dff;
-  --color-brand-600: #5b2be0;
-  --color-brand-700: #4a1fc0;
-  --color-brand-800: #3a1795;
-  --color-brand-900: #2a0e63;
-  --color-brand-950: #1a0740;
+  /*
+   * Brand palette, taken from the compliance document rather than sampled from
+   * a screenshot: navy and turquoise are the pairing, everything else supports
+   * them. The eight document colours are marked; the rest are interpolated to
+   * fill the scale Tailwind expects, so no utility class is left undefined.
+   *
+   * The scale is deliberately not one hue. 400 and below are the turquoise
+   * side, used for accents, tints and focus. 600 and above are the navy side,
+   * used for primary surfaces and buttons. That keeps `bg-brand-600` reading as
+   * the authoritative action it already is everywhere in the app, and reserves
+   * the bright turquoise for the few places that should actually draw the eye.
+   */
+  --color-brand-50: #ecf8f9;
+  --color-brand-100: #d4f0f1;
+  --color-brand-200: #b9d0d6; /* document: pale blue */
+  --color-brand-300: #83a6b0; /* document: supporting blue */
+  --color-brand-400: #4bd1d3; /* document: primary turquoise */
+  --color-brand-500: #29b6b9;
+  --color-brand-600: #0b252f; /* document: primary navy */
+  --color-brand-700: #18313b; /* document: heading ink */
+  --color-brand-800: #0e232b;
+  --color-brand-900: #081a20;
+  --color-brand-950: #051216;
 
-  --color-ink-900: #14121f;
-  --color-ink-700: #38344a;
-  --color-ink-500: #6b6880;
-  --color-ink-400: #8f8ca3;
-  --color-ink-200: #e6e5ee;
-  --color-canvas: #f5f5fa;
+  /*
+   * Text and borders. Every step from 500 down is a document colour, so body
+   * copy, captions, placeholders and rules all come straight from the source
+   * rather than being approximated with neutral greys.
+   */
+  --color-ink-900: #18313b; /* document: heading ink */
+  --color-ink-700: #2e4a56;
+  --color-ink-600: #4a6570;
+  --color-ink-500: #627780; /* document: muted slate */
+  --color-ink-400: #83a6b0; /* document: supporting blue */
+  --color-ink-300: #b9d0d6; /* document: pale blue */
+  --color-ink-200: #d7e2e6; /* document: border grey */
+  --color-ink-100: #e9f0f2;
+  --color-canvas: #f5f9fa;
 
-  --radius-card: 20px;
+  /* Cards sit slightly tighter than before. A 20px radius reads soft and
+     consumer; 14px reads considered, which is the register a money transmitter
+     wants. */
+  --radius-card: 14px;
 
-  --shadow-card: 0 1px 2px rgb(20 18 31 / 0.04), 0 8px 24px -12px rgb(20 18 31 / 0.12);
-  --shadow-float: 0 10px 30px -10px rgb(91 43 224 / 0.45);
+  /*
+   * Shadows are tinted with the navy rather than neutral black, so a raised
+   * surface still belongs to the palette. They are also much shallower than
+   * before: on a light ground, restraint reads as expensive and a large soft
+   * bloom reads as a template.
+   */
+  --shadow-card: 0 1px 2px rgb(11 37 47 / 0.05), 0 1px 3px rgb(11 37 47 / 0.04);
+  --shadow-raised: 0 2px 4px rgb(11 37 47 / 0.05), 0 12px 28px -16px rgb(11 37 47 / 0.22);
+  --shadow-float: 0 8px 24px -10px rgb(11 37 47 / 0.35);
 }
 
 @layer base {
@@ -51,16 +80,23 @@
     font: inherit;
   }
 
+  /* Turquoise rather than navy: on a light ground the navy ring is easy to read
+     as part of the design instead of as focus, and a focus indicator has to be
+     unmistakable. */
   :focus-visible {
-    outline: 2px solid var(--color-brand-600);
+    outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
     border-radius: 6px;
   }
 }
 
 @layer components {
+  /* A hairline plus a shallow shadow, rather than a shadow alone. The border is
+     what actually defines the card at rest; the shadow only lifts it off the
+     canvas. This is the difference between a surface that looks drawn and one
+     that looks like a default. */
   .card {
-    @apply rounded-[var(--radius-card)] bg-white shadow-[var(--shadow-card)];
+    @apply rounded-[var(--radius-card)] border border-ink-200 bg-white shadow-[var(--shadow-card)];
   }
 
   .row-label {

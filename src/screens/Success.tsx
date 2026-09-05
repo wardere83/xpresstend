@@ -61,7 +61,7 @@ export function Success() {
   }
 
   return (
-    <div className="relative flex flex-1 flex-col overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#3a1795_0%,#26085c_55%,#190540_100%)]">
+    <div className="relative flex flex-1 flex-col overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#18313B_0%,#0B252F_55%,#051216_100%)]">
       {/* Confetti */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-64 overflow-hidden" aria-hidden="true">
         {CONFETTI.map((c, i) => (

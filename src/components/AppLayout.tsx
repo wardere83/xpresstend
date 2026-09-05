@@ -81,7 +81,7 @@ export function AppLayout() {
   const tone: 'light' | 'dark' = DARK_ROUTES.includes(pathname) ? 'dark' : 'light'
 
   return (
-    <div className="min-h-[100dvh] bg-canvas lg:bg-[radial-gradient(120%_120%_at_15%_0%,#3a1795_0%,#1a0740_55%,#12042e_100%)]">
+    <div className="min-h-[100dvh] bg-canvas lg:bg-[radial-gradient(120%_120%_at_15%_0%,#18313B_0%,#0B252F_55%,#051216_100%)]">
       <div className="mx-auto flex min-h-[100dvh] max-w-6xl items-center gap-12 px-0 lg:px-8">
         <Sidebar />
 

@@ -8,8 +8,8 @@ import { hideSplash, isNative, setStatusBarTint } from './capabilities'
 /** Screens that paint a dark ground and need the status bar to match. */
 const DARK_TINT_ROUTES = ['/success']
 
-const BRAND_TINT = '#5B2BE0'
-const DARK_TINT = '#14121f'
+const BRAND_TINT = '#0B252F'
+const DARK_TINT = '#051216'
 
 /**
  * Native behaviour that has no web equivalent: dismissing the launch splash
