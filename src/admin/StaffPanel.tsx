@@ -70,7 +70,7 @@ export function StaffPanel({ me }: { me: AdminUser }) {
             {adding ? 'Cancel' : 'Invite staff'}
           </button>
         ) : (
-          <span className="text-[12px] text-ink-400">Only an owner can add or change staff.</span>
+          <span className="text-[12px] text-ink-500">Only an owner can add or change staff.</span>
         )}
       </div>
 
@@ -83,9 +83,9 @@ export function StaffPanel({ me }: { me: AdminUser }) {
 
       {note ? <p role="alert" className="mb-3 text-[13px] font-medium text-red-600">{note}</p> : null}
 
-      <div className="overflow-x-auto rounded-[20px] bg-white ring-1 ring-ink-200/70">
+      <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
         <table className="w-full min-w-[760px] text-left text-[13px]">
-          <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-400">
+          <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-500">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
@@ -99,7 +99,7 @@ export function StaffPanel({ me }: { me: AdminUser }) {
               <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
                 <td className="px-4 py-3">
                   <span className="font-semibold">{r.name}</span>
-                  {r.id === me.id ? <span className="ml-2 text-[11px] text-ink-400">you</span> : null}
+                  {r.id === me.id ? <span className="ml-2 text-[11px] text-ink-500">you</span> : null}
                   {r.status === 'invited' ? (
                     <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">
                       invited
@@ -151,7 +151,7 @@ export function StaffPanel({ me }: { me: AdminUser }) {
         </table>
       </div>
 
-      <p className="mt-4 text-[11px] leading-relaxed text-ink-400">
+      <p className="mt-4 text-[11px] leading-relaxed text-ink-500">
         Every change here is written to the audit log against your name. You cannot change
         your own role or disable yourself, and the last active owner cannot be demoted, so
         the console can never be locked from the inside.
@@ -187,7 +187,7 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
 
   if (link) {
     return (
-      <div className="mb-4 rounded-[20px] bg-white p-5 ring-1 ring-ink-200/70">
+      <div className="mb-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70">
         <h3 className="text-[14px] font-bold">Invitation ready</h3>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
           Email is not configured yet, so nothing was sent. Give this link to them
@@ -195,7 +195,7 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
         </p>
         <div className="mt-3 flex gap-2">
           <input readOnly value={link} onFocus={(e) => e.currentTarget.select()}
-            className="min-w-0 flex-1 rounded-2xl bg-canvas px-3 py-2.5 text-[12px] ring-1 ring-ink-200" />
+            className="min-w-0 flex-1 rounded-xl bg-canvas px-3 py-2.5 text-[12px] ring-1 ring-ink-200" />
           <button
             onClick={() => {
               void navigator.clipboard?.writeText(link).then(() => setCopied(true))
@@ -212,10 +212,10 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
     )
   }
 
-  const field = 'rounded-2xl bg-white px-4 py-2.5 text-[13px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+  const field = 'rounded-xl bg-white px-4 py-2.5 text-[13px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
-    <form onSubmit={submit} className="mb-4 rounded-[20px] bg-white p-5 ring-1 ring-ink-200/70">
+    <form onSubmit={submit} className="mb-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70">
       <div className="grid gap-3 sm:grid-cols-3">
         <input required placeholder="Full name" value={form.name} onChange={set('name')} className={field} />
         <input required type="email" placeholder="name@xpresstend.com" value={form.email}
@@ -224,7 +224,7 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
           {ROLES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
-      <p className="mt-2 text-[11px] leading-snug text-ink-400">
+      <p className="mt-2 text-[11px] leading-snug text-ink-500">
         {ROLES.find((r) => r.value === form.role)?.blurb} They choose their own password,
         so you never handle it. The invitation expires in 48 hours.
       </p>

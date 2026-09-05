@@ -133,7 +133,7 @@ export function Marketing() {
               <div key={title}>
                 {/* The one place turquoise appears on a light ground. Used on
                     all three, it stays a system rather than a decoration. */}
-                <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-brand-500 ring-1 ring-brand-200/60">
+                <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200/60">
                   <Icon size={17} strokeWidth={2} />
                 </span>
                 <h3 className="mt-5 text-[15px] font-semibold tracking-tight text-brand-600">
@@ -173,7 +173,7 @@ export function Marketing() {
       <footer className="border-t border-ink-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-12 text-[12px] leading-relaxed text-ink-500">
           <Logo height={20} className="mb-0.5" />
-          <p className="mt-1.5 text-ink-400">
+          <p className="mt-1.5 text-ink-500">
             {brand.hq.city}, {brand.hq.state}
           </p>
           <p className="mt-4 max-w-prose">{t('marketing.disclaimer')}</p>
@@ -185,7 +185,7 @@ export function Marketing() {
               Support
             </Link>
           </p>
-          <p className="mt-4 text-ink-400">
+          <p className="mt-4 text-ink-500">
             © {new Date().getFullYear()} {brand.name}
           </p>
         </div>

@@ -56,7 +56,7 @@ export function SendMoney() {
             </span>
           </span>
           <span className="text-[12px] font-semibold text-brand-600">{t('send.changeRecipient')}</span>
-          <ChevronRight size={16} className={`text-ink-400 ${mirror}`} />
+          <ChevronRight size={16} className={`text-ink-500 ${mirror}`} />
         </button>
 
         {/* From */}
@@ -71,13 +71,13 @@ export function SendMoney() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-1" dir="ltr">
-            <span className="text-[26px] font-extrabold text-ink-900">$</span>
+            <span className="text-[26px] font-semibold text-ink-900">$</span>
             <input
               value={raw}
               onChange={(e) => onAmountChange(e.target.value)}
               inputMode="decimal"
               aria-label={t('field.youSend')}
-              className="w-full min-w-0 bg-transparent text-[30px] font-extrabold tracking-tight text-ink-900 outline-none"
+              className="w-full min-w-0 bg-transparent text-[30px] font-semibold tracking-tight text-ink-900 outline-none"
             />
           </div>
           <p className="mt-1 text-[12px] text-ink-500">
@@ -105,13 +105,13 @@ export function SendMoney() {
               </bdi>
             </span>
           </div>
-          <p className="mt-2 text-[30px] font-extrabold tracking-tight text-ink-900">
+          <p className="mt-2 text-[30px] font-semibold tracking-tight text-ink-900">
             <bdi>{fmtAmount(quote.recipientLocal)}</bdi>
           </p>
           <p className="mt-1 text-[12px] text-ink-500">{t('field.estimated')}</p>
         </div>
 
-        <div className="mt-3 flex items-center justify-between rounded-2xl bg-brand-50 px-4 py-3">
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
           <span className="text-[12px] font-semibold text-brand-700">{t('field.exchangeRate')}</span>
           <span className="text-[12px] font-bold text-brand-700">
             <bdi>
@@ -121,7 +121,7 @@ export function SendMoney() {
         </div>
 
         {error && (
-          <p className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-[12px] font-semibold text-rose-600">
+          <p className="mt-3 rounded-xl bg-rose-50 px-4 py-3 text-[12px] font-semibold text-rose-600">
             {error}
           </p>
         )}
@@ -174,7 +174,7 @@ export function SendMoney() {
           <PrimaryButton disabled={!!error} onClick={() => navigate('/review')}>
             {t('common.continue')}
           </PrimaryButton>
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-ink-400">
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-ink-500">
             <Lock size={12} />
             {t('common.secure')}
           </p>

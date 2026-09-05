@@ -58,19 +58,19 @@ export function InviteAccept() {
 
   const shell = (children: React.ReactNode) => (
     <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
-      <div className="w-full max-w-sm rounded-[22px] bg-white p-7">
+      <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <Logo height={26} />
         <div className="mt-6">{children}</div>
       </div>
     </div>
   )
 
-  if (loading) return shell(<p className="text-[13px] text-ink-400">Checking your invitation…</p>)
+  if (loading) return shell(<p className="text-[13px] text-ink-500">Checking your invitation…</p>)
 
   if (!info) {
     return shell(
       <>
-        <h1 className="text-[19px] font-extrabold tracking-tight">Invitation not valid</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">Invitation not valid</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
           This link has expired, been used already, or was withdrawn. Ask whoever
           invited you to send a new one.
@@ -82,7 +82,7 @@ export function InviteAccept() {
   if (done) {
     return shell(
       <>
-        <h1 className="text-[19px] font-extrabold tracking-tight">You are set up</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">You are set up</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
           Sign in with <span className="font-semibold text-ink-700">{info.email}</span> and the
           password you just chose.
@@ -95,11 +95,11 @@ export function InviteAccept() {
     )
   }
 
-  const field = 'w-full rounded-2xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+  const field = 'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return shell(
     <form onSubmit={submit}>
-      <h1 className="text-[19px] font-extrabold tracking-tight">Welcome, {info.name}</h1>
+      <h1 className="text-[19px] font-semibold tracking-tight">Welcome, {info.name}</h1>
       <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
         You have been given <span className="font-semibold text-ink-700">{info.role}</span> access
         as <span className="font-semibold text-ink-700">{info.email}</span>. Choose a password to

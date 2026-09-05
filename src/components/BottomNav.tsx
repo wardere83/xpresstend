@@ -23,7 +23,7 @@ export function BottomNav() {
       end={end}
       className={({ isActive }) =>
         `flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-semibold transition ${
-          isActive ? 'text-brand-600' : 'text-ink-400 hover:text-ink-500'
+          isActive ? 'text-brand-600' : 'text-ink-500 hover:text-ink-500'
         }`
       }
     >

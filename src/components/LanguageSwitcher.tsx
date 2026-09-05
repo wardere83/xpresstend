@@ -70,19 +70,19 @@ export function LanguageSwitcher({
 
       {open && (
         <div
-          className={`absolute end-0 z-40 w-60 overflow-hidden rounded-2xl bg-white shadow-[0_16px_40px_-12px_rgba(11,37,47,0.35)] ring-1 ring-black/5 ${
+          className={`absolute end-0 z-40 w-60 overflow-hidden rounded-xl bg-white shadow-[0_16px_40px_-12px_rgba(11,37,47,0.35)] ring-1 ring-black/5 ${
             drop === 'up' ? 'bottom-full mb-2' : 'mt-2'
           }`}
         >
           <div className="flex items-center gap-2 border-b border-ink-200/70 px-3 py-2.5">
-            <Search size={14} className="shrink-0 text-ink-400" />
+            <Search size={14} className="shrink-0 text-ink-500" />
             <input
               ref={searchRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('lang.search')}
               aria-label={t('lang.search')}
-              className="w-full bg-transparent text-[13px] outline-none placeholder:text-ink-400"
+              className="w-full bg-transparent text-[13px] outline-none placeholder:text-ink-500"
             />
           </div>
 
@@ -108,7 +108,7 @@ export function LanguageSwitcher({
 
 
             {matches.length === 0 && (
-              <li className="px-3 py-4 text-center text-[12px] text-ink-400">{t('lang.noMatch')}</li>
+              <li className="px-3 py-4 text-center text-[12px] text-ink-500">{t('lang.noMatch')}</li>
             )}
           </ul>
         </div>

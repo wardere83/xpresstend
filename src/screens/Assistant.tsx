@@ -229,14 +229,14 @@ export function Assistant() {
                 <button
                   type="button"
                   onClick={() => navigate('/app')}
-                  className="rounded-2xl border border-brand-200 bg-white py-3.5 text-[14px] font-bold text-brand-600 transition hover:bg-brand-50"
+                  className="rounded-xl border border-brand-200 bg-white py-3.5 text-[14px] font-bold text-brand-600 transition hover:bg-brand-50"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate('/send')}
-                  className="rounded-2xl bg-brand-600 py-3.5 text-[14px] font-bold text-white shadow-[var(--shadow-float)] transition hover:bg-brand-700"
+                  className="rounded-xl bg-brand-600 py-3.5 text-[14px] font-bold text-white shadow-[var(--shadow-float)] transition hover:bg-brand-700"
                 >
                   {t('common.continue')}
                 </button>
@@ -256,7 +256,7 @@ export function Assistant() {
                 </span>
               )}
               <div
-                className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-[var(--shadow-card)] ${
+                className={`max-w-[78%] rounded-xl px-3.5 py-2.5 text-[13px] leading-relaxed shadow-[var(--shadow-card)] ${
                   mine
                     ? 'rounded-ee-md bg-brand-600 text-white'
                     : 'rounded-es-md bg-white text-ink-900'
@@ -264,7 +264,7 @@ export function Assistant() {
               >
                 <p>{m.text}</p>
                 <p
-                  className={`mt-1 text-end text-[10px] ${mine ? 'text-white/60' : 'text-ink-400'}`}
+                  className={`mt-1 text-end text-[10px] ${mine ? 'text-white/60' : 'text-ink-500'}`}
                 >
                   <bdi>{m.time}</bdi>
                   {mine && ' ✓✓'}
@@ -279,7 +279,7 @@ export function Assistant() {
             <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700">
               <Sparkles size={12} className="text-white" />
             </span>
-            <div className="flex gap-1 rounded-2xl rounded-es-md bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
+            <div className="flex gap-1 rounded-xl rounded-es-md bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
@@ -318,7 +318,7 @@ export function Assistant() {
             onChange={(e) => setDraft(e.target.value)}
             placeholder={t('chat.placeholder')}
             aria-label={t('chat.placeholder')}
-            className="min-w-0 flex-1 rounded-full bg-canvas px-4 py-3 text-[13px] text-ink-900 outline-none placeholder:text-ink-400"
+            className="min-w-0 flex-1 rounded-full bg-canvas px-4 py-3 text-[13px] text-ink-900 outline-none placeholder:text-ink-500"
           />
           {draft.trim() ? (
             <button
@@ -357,7 +357,7 @@ function QuoteRow({
     <div className="flex items-center justify-between gap-3 py-2">
       <dt className="text-[12.5px] text-ink-500">{label}</dt>
       <dd
-        className={`text-end text-[12.5px] text-ink-900 ${strong ? 'font-extrabold' : 'font-semibold'}`}
+        className={`text-end text-[12.5px] text-ink-900 ${strong ? 'font-semibold' : 'font-semibold'}`}
       >
         <bdi>{value}</bdi>
       </dd>

@@ -92,7 +92,7 @@ export function Voice() {
           </button>
         </div>
 
-        <h2 className="mt-8 text-[22px] font-extrabold text-ink-900">
+        <h2 className="mt-8 text-[22px] font-semibold text-ink-900">
           {listening ? t('voice.listening') : t('voice.tapToStart')}
         </h2>
         <p className="mt-1 text-[13px] text-ink-500">{t('voice.speakNow')}</p>
@@ -102,11 +102,11 @@ export function Voice() {
             <button
               type="button"
               onClick={() => finish('send')}
-              className="rounded-2xl border border-ink-200 bg-white px-10 py-3 text-[15px] font-bold text-brand-600 shadow-[var(--shadow-card)] transition active:scale-[0.98] hover:bg-brand-50"
+              className="rounded-xl border border-ink-200 bg-white px-10 py-3 text-[15px] font-bold text-brand-600 shadow-[var(--shadow-card)] transition active:scale-[0.98] hover:bg-brand-50"
             >
               {t('voice.stop')}
             </button>
-            <span className="text-[12px] text-ink-400">
+            <span className="text-[12px] text-ink-500">
               {t('voice.secondsLeft', { seconds })}
             </span>
           </div>
@@ -122,15 +122,15 @@ export function Voice() {
               key={key}
               type="button"
               onClick={() => finish(intent)}
-              className="rounded-2xl bg-white px-4 py-2.5 text-[13px] font-medium text-ink-700 shadow-[var(--shadow-card)] transition active:scale-[0.98] hover:text-brand-700"
+              className="rounded-xl bg-white px-4 py-2.5 text-[13px] font-medium text-ink-700 shadow-[var(--shadow-card)] transition active:scale-[0.98] hover:text-brand-700"
             >
               “{t(key)}”
             </button>
           ))}
         </div>
 
-        <p className="mt-6 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-ink-400">
-          <Sparkles size={14} className="text-brand-500" />
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-ink-500">
+          <Sparkles size={14} className="text-brand-600" />
           {t('voice.poweredBy')}
         </p>
       </div>

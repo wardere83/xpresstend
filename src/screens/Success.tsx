@@ -82,7 +82,7 @@ export function Success() {
           <span className="animate-pop-in grid h-20 w-20 place-items-center rounded-full bg-emerald-500 shadow-[0_12px_36px_-8px_rgba(16,185,129,0.8)]">
             <Check size={40} strokeWidth={3.4} className="text-white" />
           </span>
-          <h1 className="mt-5 text-[26px] font-extrabold text-white">{t('success.title')}</h1>
+          <h1 className="mt-5 text-[26px] font-semibold text-white">{t('success.title')}</h1>
           <p className="mt-2 text-[13.5px] text-white/75">
             {t('success.subtitle', { amount: usd(quote.recipientUsd), name: recipient.name })}
           </p>
@@ -92,7 +92,7 @@ export function Success() {
         </div>
 
         {/* Receipt */}
-        <section className="mt-6 rounded-[22px] bg-white p-4">
+        <section className="mt-6 rounded-[var(--radius-card)] bg-white p-4">
           <button
             type="button"
             onClick={() => copy(lastTransaction.reference)}
@@ -101,7 +101,7 @@ export function Success() {
             <span className="text-[13px] text-ink-500">{t('field.referenceId')}</span>
             <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-900">
               <bdi>{lastTransaction.reference}</bdi>
-              <Copy size={13} className="text-ink-400" />
+              <Copy size={13} className="text-ink-500" />
             </span>
           </button>
           <SummaryRow label={t('field.dateTime')} value={formatDateTime(lastTransaction.date)} />
@@ -117,7 +117,7 @@ export function Success() {
           <button
             type="button"
             onClick={share}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-[14px] font-bold text-ink-900 transition active:scale-[0.99]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-[14px] font-bold text-ink-900 transition active:scale-[0.99]"
           >
             {t('success.share')}
             <Share2 size={16} />
@@ -128,7 +128,7 @@ export function Success() {
               reset()
               navigate('/send')
             }}
-            className="w-full rounded-2xl bg-white py-3.5 text-[14px] font-bold text-brand-600 transition active:scale-[0.99]"
+            className="w-full rounded-xl bg-white py-3.5 text-[14px] font-bold text-brand-600 transition active:scale-[0.99]"
           >
             {t('success.sendAnother')}
           </button>

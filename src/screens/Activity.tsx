@@ -92,9 +92,9 @@ export function Activity() {
       <ScreenHeader title={t('activity.title')} />
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        <section className="rounded-[22px] bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-[var(--shadow-float)]">
+        <section className="rounded-[var(--radius-card)] bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-[var(--shadow-float)]">
           <p className="text-[12px] font-semibold text-white/70">{t('activity.sentThisMonth')}</p>
-          <p className="mt-1 text-[30px] leading-none font-extrabold">
+          <p className="mt-1 text-[30px] leading-none font-semibold">
             <bdi>{usd(monthTotal)}</bdi>
           </p>
           <p className="mt-2 text-[12px] text-white/70">
@@ -123,7 +123,7 @@ export function Activity() {
         {error ? (
           <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
         ) : loading && rows.length === 0 ? (
-          <p className="mt-10 text-center text-[13px] text-ink-400">…</p>
+          <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : visible.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">{t('activity.empty')}</p>
         ) : (
@@ -140,7 +140,7 @@ export function Activity() {
                     </p>
                   </div>
                   <div className="text-end">
-                    <p className="text-[14px] font-extrabold text-ink-900">
+                    <p className="text-[14px] font-semibold text-ink-900">
                       <bdi>{usd(row.amountUsd)}</bdi>
                     </p>
                     <p

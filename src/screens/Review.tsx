@@ -64,7 +64,7 @@ export function Review() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         {commitError ? (
-          <p role="alert" className="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
+          <p role="alert" className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
             {commitError}
           </p>
         ) : null}
@@ -97,7 +97,7 @@ export function Review() {
         </section>
 
         {/* Security */}
-        <section className="mt-4 rounded-2xl border border-amber-200/80 bg-amber-50 p-4">
+        <section className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50 p-4">
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={18} className="mt-0.5 shrink-0 text-amber-600" />
             <div>
@@ -123,7 +123,7 @@ export function Review() {
                 type="button"
                 onClick={() => setMethod(id)}
                 aria-pressed={active}
-                className={`flex items-center justify-center gap-2 rounded-2xl border py-3.5 text-[14px] font-bold transition ${
+                className={`flex items-center justify-center gap-2 rounded-xl border py-3.5 text-[14px] font-bold transition ${
                   active
                     ? 'border-brand-600 bg-brand-50 text-brand-700'
                     : 'border-ink-200 bg-white text-ink-500 hover:bg-canvas'
@@ -168,7 +168,7 @@ export function Review() {
                 autoFocus
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-2xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
               />
               {authError ? (
                 <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">{authError}</p>

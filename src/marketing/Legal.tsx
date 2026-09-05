@@ -27,12 +27,12 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-5 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
-        <p className="mt-2 text-[13px] text-ink-400">Last updated {UPDATED}</p>
+        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-2 text-[13px] text-ink-500">Last updated {UPDATED}</p>
         <div className="mt-8 space-y-6 text-[14px] leading-relaxed text-ink-700">{children}</div>
       </main>
       <footer className="border-t border-ink-200/70">
-        <div className="mx-auto max-w-3xl px-5 py-8 text-[12px] leading-relaxed text-ink-400">
+        <div className="mx-auto max-w-3xl px-5 py-8 text-[12px] leading-relaxed text-ink-500">
           <p className="font-semibold text-ink-700">{brand.name}</p>
           <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
           <p className="mt-2">
@@ -57,7 +57,7 @@ export function Privacy() {
         describes the service as it actually works today.
       </p>
 
-      <div className="rounded-2xl bg-canvas p-4 text-[13px]">
+      <div className="rounded-xl bg-canvas p-4 text-[13px]">
         <strong>XpressTend is currently in private beta.</strong> Payments run in test mode.
         No customer funds are transmitted, and no card or bank account is charged.
       </div>

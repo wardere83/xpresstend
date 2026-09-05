@@ -198,7 +198,7 @@ export function SummaryRow({
       <span className={`text-[13px] ${dark ? 'text-white/60' : 'text-ink-500'}`}>{label}</span>
       <span
         className={`flex items-center gap-1.5 text-end text-[13px] ${
-          strong ? 'font-extrabold' : 'font-semibold'
+          strong ? 'font-semibold' : 'font-semibold'
         } ${dark ? 'text-white' : 'text-ink-900'}`}
       >
         <bdi>{value}</bdi>
@@ -226,7 +226,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`w-full rounded-2xl bg-brand-600 px-5 py-4 text-[15px] font-bold text-white shadow-[var(--shadow-float)] transition active:scale-[0.99] hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400 disabled:shadow-none ${className}`}
+      className={`w-full rounded-xl bg-brand-600 px-5 py-4 text-[15px] font-bold text-white shadow-[var(--shadow-float)] transition active:scale-[0.99] hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none ${className}`}
     >
       {children}
     </button>
@@ -246,7 +246,7 @@ export function SecondaryButton({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-2xl border border-brand-200 bg-white px-5 py-3.5 text-[15px] font-bold text-brand-600 transition active:scale-[0.99] hover:bg-brand-50 ${className}`}
+      className={`w-full rounded-xl border border-brand-200 bg-white px-5 py-3.5 text-[15px] font-bold text-brand-600 transition active:scale-[0.99] hover:bg-brand-50 ${className}`}
     >
       {children}
     </button>
@@ -281,7 +281,7 @@ export function ListRow({
         {subtitle && <span className="block truncate text-[12px] text-ink-500">{subtitle}</span>}
       </span>
       {right ??
-        (onClick ? <ChevronRight size={18} className={`shrink-0 text-ink-400 ${mirror}`} /> : null)}
+        (onClick ? <ChevronRight size={18} className={`shrink-0 text-ink-500 ${mirror}`} /> : null)}
     </Tag>
   )
 }
@@ -298,7 +298,7 @@ export function IconTile({
 }) {
   return (
     <span
-      className="grid place-items-center rounded-2xl"
+      className="grid place-items-center rounded-xl"
       style={{
         width: size,
         height: size,

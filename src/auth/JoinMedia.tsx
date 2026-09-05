@@ -35,7 +35,7 @@ export function JoinMedia() {
   }, [])
 
   return (
-    <div className="relative hidden overflow-hidden rounded-[28px] bg-ink-900 lg:block">
+    <div className="relative hidden overflow-hidden rounded-[var(--radius-card)] bg-ink-900 lg:block">
       {hasVideo ? (
         <video
           className="h-full w-full object-cover"
@@ -55,7 +55,7 @@ export function JoinMedia() {
 
       {/* Scrim so the caption stays legible whatever the frame underneath does. */}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-900/85 via-ink-900/40 to-transparent p-7 pt-16">
-        <p className="text-[19px] font-extrabold leading-snug text-white">{t('join.mediaTitle')}</p>
+        <p className="text-[19px] font-semibold leading-snug text-white">{t('join.mediaTitle')}</p>
         <p className="mt-2 max-w-[34ch] text-[13px] leading-relaxed text-white">{t('join.mediaBody')}</p>
       </div>
     </div>

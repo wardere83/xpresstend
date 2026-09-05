@@ -98,10 +98,10 @@ export function AppLock({ children }: { children: ReactNode }) {
     <div className="grid min-h-dvh place-items-center bg-canvas px-6">
       <div className="flex max-w-xs flex-col items-center text-center">
         <Logo height={30} />
-        <span className="mt-8 grid h-14 w-14 place-items-center rounded-2xl bg-brand-100 text-brand-700">
+        <span className="mt-8 grid h-14 w-14 place-items-center rounded-xl bg-brand-100 text-brand-700">
           <Lock size={22} />
         </span>
-        <h1 className="mt-5 text-[17px] font-extrabold tracking-tight">{t('lock.title')}</h1>
+        <h1 className="mt-5 text-[17px] font-semibold tracking-tight">{t('lock.title')}</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{t('lock.reason')}</p>
         {error ? <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">{error}</p> : null}
         {!checking ? (

@@ -87,7 +87,7 @@ export function Home() {
       <div className="px-4 pb-8">
         {/* Greeting */}
         <div className="mt-2 mb-4">
-          <h1 className="text-[22px] leading-tight font-extrabold text-ink-900">
+          <h1 className="text-[22px] leading-tight font-semibold text-ink-900">
             {t('home.greeting', { name: account?.firstName ?? user.firstName })} <span aria-hidden="true">👋</span>
           </h1>
           <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
@@ -97,7 +97,7 @@ export function Home() {
         <button
           type="button"
           onClick={() => navigate('/voice')}
-          className="relative w-full overflow-hidden rounded-[24px] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 px-5 pt-5 pb-6 text-center shadow-[var(--shadow-float)] transition active:scale-[0.99]"
+          className="relative w-full overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 px-5 pt-5 pb-6 text-center shadow-[var(--shadow-float)] transition active:scale-[0.99]"
         >
           <span
             className="pointer-events-none absolute -top-16 -end-10 h-40 w-40 rounded-full bg-white/10"
@@ -124,7 +124,7 @@ export function Home() {
               <span className="block text-[15px] font-bold text-ink-900">{t('home.sendMoney')}</span>
               <span className="block text-[12px] text-ink-500">{t('home.sendMoneySub')}</span>
             </span>
-            <ChevronRight size={18} className={`text-ink-400 ${mirror}`} />
+            <ChevronRight size={18} className={`text-ink-500 ${mirror}`} />
           </button>
 
           <div className="grid grid-cols-4 gap-2">
@@ -136,7 +136,7 @@ export function Home() {
                   setDeliveryMethod(method)
                   navigate('/send')
                 }}
-                className="flex flex-col items-center gap-1.5 rounded-2xl py-1 transition active:scale-95"
+                className="flex flex-col items-center gap-1.5 rounded-xl py-1 transition active:scale-95"
               >
                 <IconTile hue={hue}>
                   <Icon size={22} strokeWidth={2} />
@@ -170,7 +170,7 @@ export function Home() {
                 <span className="block text-[12px] text-ink-500">{formatDate(latest.date)}</span>
               </span>
               <span className="text-end">
-                <span className="block text-[14px] font-extrabold text-ink-900">
+                <span className="block text-[14px] font-semibold text-ink-900">
                   <bdi>{usd(latest.amountUsd)}</bdi>
                 </span>
                 <span className="block text-[12px] font-semibold text-emerald-600">
@@ -208,7 +208,7 @@ export function Home() {
                       <bdi>{r.phone}</bdi>
                     </span>
                   </span>
-                  <ChevronRight size={17} className={`text-ink-400 ${mirror}`} />
+                  <ChevronRight size={17} className={`text-ink-500 ${mirror}`} />
                 </button>
               </li>
             ))}
@@ -236,7 +236,7 @@ export function Home() {
           </div>
         </section>
 
-        <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-400">
+        <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-500">
           <bdi>
             1 USD = {rate(corridor.rate)} {corridor.currency}
           </bdi>

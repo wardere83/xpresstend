@@ -86,14 +86,14 @@ export function Recipients() {
       />
 
       <div className="px-4 pb-3">
-        <div className="flex items-center gap-2 rounded-2xl bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
-          <Search size={17} className="shrink-0 text-ink-400" />
+        <div className="flex items-center gap-2 rounded-xl bg-white px-3.5 py-3 shadow-[var(--shadow-card)]">
+          <Search size={17} className="shrink-0 text-ink-500" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('recipients.searchPlaceholder')}
             aria-label={t('common.search')}
-            className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none placeholder:text-ink-400"
+            className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none placeholder:text-ink-500"
           />
         </div>
       </div>
@@ -112,7 +112,7 @@ export function Recipients() {
         {error ? (
           <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
         ) : loading && rows.length === 0 ? (
-          <p className="mt-10 text-center text-[13px] text-ink-400">…</p>
+          <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : filtered.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">{t('recipients.empty')}</p>
         ) : null}
@@ -182,7 +182,7 @@ function AddRecipient({
   }
 
   const field =
-    'w-full rounded-2xl bg-white px-4 py-3 text-[14px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+    'w-full rounded-xl bg-white px-4 py-3 text-[14px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
     <form onSubmit={submit} className="card mb-4 space-y-3 p-4">

@@ -40,7 +40,7 @@ export function Profile() {
         <section className="card flex items-center gap-3.5 p-4">
           <Avatar name={account ? `${account.firstName} ${account.lastName}` : user.fullName} hue={user.hue} size={56} />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[16px] font-extrabold text-ink-900">{account ? `${account.firstName} ${account.lastName}` : user.fullName}</p>
+            <p className="truncate text-[16px] font-semibold text-ink-900">{account ? `${account.firstName} ${account.lastName}` : user.fullName}</p>
             <p className="truncate text-[12px] text-ink-500">
               <bdi>{account?.email ?? user.phone}</bdi>
             </p>
@@ -51,7 +51,7 @@ export function Profile() {
           </div>
         </section>
 
-        <p className="mt-2 px-1 text-[11.5px] text-ink-400">
+        <p className="mt-2 px-1 text-[11.5px] text-ink-500">
           {t('profile.member', { year: user.memberSince })}
         </p>
 
@@ -87,13 +87,13 @@ export function Profile() {
             if (account) await signOut()
             navigate('/')
           }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-[14px] font-bold text-rose-600 shadow-[var(--shadow-card)] transition hover:bg-rose-50"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-[14px] font-bold text-rose-600 shadow-[var(--shadow-card)] transition hover:bg-rose-50"
         >
           <LogOut size={16} />
           {t('profile.signOut')}
         </button>
 
-        <footer className="mt-6 space-y-1 text-center text-[11px] leading-relaxed text-ink-400">
+        <footer className="mt-6 space-y-1 text-center text-[11px] leading-relaxed text-ink-500">
           <p className="font-semibold text-ink-500">{brand.name}</p>
           <p>
             <bdi>

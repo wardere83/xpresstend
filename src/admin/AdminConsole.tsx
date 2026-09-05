@@ -123,8 +123,8 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
   if (done) {
     return (
       <div className="grid min-h-dvh place-items-center bg-ink-900 px-5">
-        <div className="w-full max-w-sm rounded-[22px] bg-white p-7 text-center">
-          <h1 className="text-[19px] font-extrabold tracking-tight">Account created</h1>
+        <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7 text-center">
+          <h1 className="text-[19px] font-semibold tracking-tight">Account created</h1>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
             Sign in with the email and password you just chose. Then remove the
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 text-[12px]">ADMIN_BOOTSTRAP_SECRET</code>
@@ -139,12 +139,12 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
     )
   }
 
-  const field = 'w-full rounded-2xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+  const field = 'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
     <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-[22px] bg-white p-7">
-        <h1 className="text-[19px] font-extrabold tracking-tight">Create the owner account</h1>
+      <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
+        <h1 className="text-[19px] font-semibold tracking-tight">Create the owner account</h1>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
           This runs once. Nobody else can create it after you.
         </p>
@@ -157,7 +157,7 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
             autoComplete="new-password" value={form.password} onChange={set('password')} className={field} />
           <input required type="password" placeholder="Setup key"
             value={form.secret} onChange={set('secret')} className={field} />
-          <p className="text-[11px] leading-snug text-ink-400">
+          <p className="text-[11px] leading-snug text-ink-500">
             The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It stops a
             stranger claiming this account before you do.
           </p>
@@ -197,16 +197,16 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 
   return (
     <div className="grid min-h-dvh place-items-center bg-ink-900 px-5">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-[22px] bg-white p-7">
-        <h1 className="text-[19px] font-extrabold tracking-tight">Staff sign in</h1>
+      <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
+        <h1 className="text-[19px] font-semibold tracking-tight">Staff sign in</h1>
         <p className="mt-1.5 text-[12px] text-ink-500">Authorised personnel only. Sessions last 8 hours.</p>
         <div className="mt-6 space-y-3">
           <input type="email" required placeholder="you@xpresstend.com" autoComplete="username"
             value={email} onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-2xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
+            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
           <input type="password" required placeholder="Password" autoComplete="current-password"
             value={password} onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-2xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
+            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
         </div>
         {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-red-600">{error}</p> : null}
         <button type="submit" disabled={busy}
@@ -257,7 +257,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     <div className="min-h-dvh bg-canvas">
       <header className="border-b border-ink-200/70 bg-ink-900 text-white">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-4">
-          <span className="text-[15px] font-extrabold tracking-tight">XpressTend Operations</span>
+          <span className="text-[15px] font-semibold tracking-tight">XpressTend Operations</span>
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide">
             {admin.role}
           </span>
@@ -293,7 +293,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
         {tab === 'queue' ? (
         <>
         {balance ? (
-          <div className={`mb-6 rounded-2xl px-4 py-3 text-[13px] font-semibold ${
+          <div className={`mb-6 rounded-xl px-4 py-3 text-[13px] font-semibold ${
             balance.balanced ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
             {balance.balanced
               ? 'Ledger balanced — every currency nets to zero.'
@@ -313,9 +313,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
 
         {note ? <p role="alert" className="mb-4 text-[13px] font-medium text-red-600">{note}</p> : null}
 
-        <div className="overflow-x-auto rounded-[20px] bg-white ring-1 ring-ink-200/70">
+        <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
           <table className="w-full min-w-[860px] text-left text-[13px]">
-            <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-400">
+            <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-500">
               <tr>
                 <th className="px-4 py-3">Reference</th>
                 <th className="px-4 py-3">Sender</th>
@@ -328,21 +328,21 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-ink-400">Nothing in this queue.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-ink-500">Nothing in this queue.</td></tr>
               ) : rows.map((r) => (
                 <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
                   <td className="px-4 py-3 font-semibold tabular-nums">{r.reference}</td>
                   <td className="px-4 py-3">
                     <div>{r.first_name} {r.last_name}</div>
-                    <div className="text-[11px] text-ink-400">{r.user_email} · KYC {r.kyc_status}</div>
+                    <div className="text-[11px] text-ink-500">{r.user_email} · KYC {r.kyc_status}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div>{r.recipient_name}</div>
-                    <div className="text-[11px] text-ink-400">{r.recipient_country}</div>
+                    <div className="text-[11px] text-ink-500">{r.recipient_country}</div>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">
                     {money(r.send_amount_minor, r.send_currency)}
-                    <div className="text-[11px] text-ink-400">+{money(r.fee_minor, r.send_currency)} fee</div>
+                    <div className="text-[11px] text-ink-500">+{money(r.fee_minor, r.send_currency)} fee</div>
                   </td>
                   <td className="px-4 py-3 text-right font-semibold tabular-nums">
                     {money(r.receive_amount_minor, r.receive_currency)}
@@ -361,7 +361,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                         </button>
                       </div>
                     ) : r.status === 'compliance_hold' ? (
-                      <span className="text-[11px] text-ink-400">Compliance role required</span>
+                      <span className="text-[11px] text-ink-500">Compliance role required</span>
                     ) : null}
                   </td>
                 </tr>

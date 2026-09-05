@@ -29,7 +29,7 @@ export function Rates() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <ScreenHeader title={t('rates.title')} onBack={() => navigate(-1)} />
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        <div className="flex items-center gap-2 rounded-2xl bg-brand-50 px-4 py-3">
+        <div className="flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3">
           <TrendingUp size={16} className="text-brand-600" />
           <p className="text-[12px] font-semibold text-brand-700">{t('rates.subtitle')}</p>
         </div>
@@ -49,10 +49,10 @@ export function Rates() {
                 </span>
               </span>
               <span className="text-end">
-                <span className="block text-[14px] font-extrabold text-ink-900">
+                <span className="block text-[14px] font-semibold text-ink-900">
                   <bdi>{fmtRate(c.rate)}</bdi>
                 </span>
-                <span className="block text-[11px] text-ink-400">
+                <span className="block text-[11px] text-ink-500">
                   <bdi>{c.currency}</bdi> {t('rates.perUsd')}
                 </span>
               </span>
@@ -105,7 +105,7 @@ export function Help() {
                   <span className="flex-1 text-[13.5px] font-semibold text-ink-900">{t(f.q)}</span>
                   <ChevronDown
                     size={17}
-                    className={`shrink-0 text-ink-400 transition ${isOpen ? 'rotate-180' : ''}`}
+                    className={`shrink-0 text-ink-500 transition ${isOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
                 {isOpen && (
@@ -150,22 +150,22 @@ export function Refer() {
     <div className="relative flex flex-1 flex-col overflow-hidden">
       <ScreenHeader title={t('refer.title')} onBack={() => navigate(-1)} />
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        <section className="rounded-[22px] bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-center text-white shadow-[var(--shadow-float)]">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-white/15">
+        <section className="rounded-[var(--radius-card)] bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-center text-white shadow-[var(--shadow-float)]">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-white/15">
             <Gift size={26} />
           </span>
           <p className="mt-4 text-[14px] leading-relaxed text-white/85">{t('refer.subtitle')}</p>
           <p className="mt-5 text-[11px] font-bold tracking-[0.18em] text-white/60 uppercase">
             {t('refer.yourCode')}
           </p>
-          <p className="mt-1 text-[24px] font-extrabold tracking-wide">
+          <p className="mt-1 text-[24px] font-semibold tracking-wide">
             <bdi>{user.referralCode}</bdi>
           </p>
         </section>
 
         <div className="card mt-4 flex items-center justify-between px-4 py-3.5">
           <span className="text-[13px] text-ink-500">{t('refer.earned')}</span>
-          <span className="text-[16px] font-extrabold text-emerald-600">
+          <span className="text-[16px] font-semibold text-emerald-600">
             <bdi>{usd(user.referralEarned)}</bdi>
           </span>
         </div>
@@ -197,7 +197,7 @@ export function Support() {
     <div className="flex flex-1 flex-col overflow-hidden">
       <ScreenHeader title={t('support.title')} onBack={() => navigate(-1)} />
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        <div className="flex items-center gap-3 rounded-2xl bg-brand-50 px-4 py-3.5">
+        <div className="flex items-center gap-3 rounded-xl bg-brand-50 px-4 py-3.5">
           <Headphones size={18} className="text-brand-600" />
           <p className="text-[12.5px] font-semibold text-brand-700">{t('support.subtitle')}</p>
         </div>
@@ -239,7 +239,7 @@ export function Support() {
           </a>
         </div>
 
-        <p className="mt-6 text-center text-[11.5px] leading-relaxed text-ink-400">
+        <p className="mt-6 text-center text-[11.5px] leading-relaxed text-ink-500">
           <bdi>
             {brand.name}
           </bdi>

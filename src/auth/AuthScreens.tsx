@@ -24,7 +24,7 @@ function Shell({
       <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
         <Logo height={32} />
       </Link>
-      <h1 className="text-balance text-2xl font-extrabold tracking-tight">{title}</h1>
+      <h1 className="text-balance text-2xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
       <div className="mt-7">{children}</div>
     </div>
@@ -54,7 +54,7 @@ function Field({ label, ...props }: { label: string } & React.InputHTMLAttribute
     <div>
       <label htmlFor={id} className="block text-[12px] font-semibold text-ink-500">{label}</label>
       <input id={id} {...props}
-        className="mt-1 w-full rounded-2xl bg-white px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
+        className="mt-1 w-full rounded-xl bg-white px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
     </div>
   )
 }
@@ -166,7 +166,7 @@ export function Register() {
                value={form.email} onChange={set('email')} />
         <Field label={t('auth.password')} name="password" type="password" autoComplete="new-password"
                required value={form.password} onChange={set('password')} />
-        <p className="text-[11px] leading-snug text-ink-400">{t('auth.passwordHint')}</p>
+        <p className="text-[11px] leading-snug text-ink-500">{t('auth.passwordHint')}</p>
         {error ? <p role="alert" className="text-[13px] font-medium text-red-600">{error}</p> : null}
         <button type="submit" disabled={busy}
           className="w-full rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60">
@@ -186,7 +186,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
   if (loading) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-canvas text-[13px] text-ink-400">
+      <div className="grid min-h-dvh place-items-center bg-canvas text-[13px] text-ink-500">
         {'…'}
       </div>
     )
