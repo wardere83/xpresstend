@@ -80,7 +80,7 @@ export function Voice() {
             type="button"
             onClick={() => (listening ? setListening(false) : (setSeconds(LISTEN_SECONDS), setListening(true)))}
             aria-label={listening ? t('voice.stop') : t('voice.tapToStart')}
-            className="relative grid h-[124px] w-[124px] place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_18px_40px_-12px_rgba(91,43,224,0.75)] transition active:scale-95"
+            className="relative grid h-[124px] w-[124px] place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_18px_40px_-12px_rgba(11,37,47,0.45)] transition active:scale-95"
           >
             {listening ? (
               <span className="px-6">

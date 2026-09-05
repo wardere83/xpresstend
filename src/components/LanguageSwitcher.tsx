@@ -70,7 +70,7 @@ export function LanguageSwitcher({
 
       {open && (
         <div
-          className={`absolute end-0 z-40 w-60 overflow-hidden rounded-2xl bg-white shadow-[0_16px_40px_-12px_rgba(20,18,31,0.35)] ring-1 ring-black/5 ${
+          className={`absolute end-0 z-40 w-60 overflow-hidden rounded-2xl bg-white shadow-[0_16px_40px_-12px_rgba(11,37,47,0.35)] ring-1 ring-black/5 ${
             drop === 'up' ? 'bottom-full mb-2' : 'mt-2'
           }`}
         >
