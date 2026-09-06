@@ -304,6 +304,51 @@ export const en = {
   'review.authorise': 'Authorise transfer',
   'common.sending': 'Sending…',
   'shell.hq': 'Headquartered in {city}, {state} · Sending worldwide',
+
+  // ---- Marketing: nav ----
+  'marketing.navHow': 'How it works',
+  'marketing.navSecurity': 'Security',
+  'marketing.navPricing': 'Pricing',
+
+  // ---- Marketing: trust & security ----
+  'marketing.trustKicker': 'Built to be trusted',
+  'marketing.trustTitle': 'The parts of the product that are not visible until something goes wrong',
+  'marketing.trustBody':
+    'A remittance product earns trust in the details a visitor never sees on the happy path. These are the four that hold this one up.',
+  'marketing.tr1Title': 'Encrypted end to end',
+  'marketing.tr1Body': 'Every transfer, and every detail attached to it, is encrypted in transit and at rest — not just the card number.',
+  'marketing.tr2Title': 'Double-entry booked',
+  'marketing.tr2Body': 'Every transfer posts as a matching debit and credit. The books either balance or the transfer did not happen.',
+  'marketing.tr3Title': 'A named person, not an agent',
+  'marketing.tr3Body': 'Every account action taken by staff is logged against a real person. An AI assistant can suggest; it cannot move money on its own.',
+  'marketing.tr4Title': 'The rate you see is the rate you get',
+  'marketing.tr4Body': 'The fee and the exchange rate are shown before you confirm, and locked for the length of the quote. No surprise on the receipt.',
+
+  // ---- Marketing: how it works ----
+  'marketing.howKicker': 'From here to arrived',
+  'marketing.howTitle': 'Three steps. No branch visit, either side.',
+  'marketing.step1Title': 'Create your account',
+  'marketing.step1Body': 'A couple of minutes. You verify your identity the first time you actually send, not before.',
+  'marketing.step2Title': 'Enter an amount and a recipient',
+  'marketing.step2Body': 'Pick a corridor, see the fee and the rate instantly, and choose how they collect it.',
+  'marketing.step3Title': 'They receive it',
+  'marketing.step3Body': 'Most transfers land the same day. You can follow every step from your phone until it does.',
+
+  // ---- Marketing: savings comparison ----
+  'marketing.saveKicker': 'What it actually costs',
+  'marketing.saveTitle': 'One flat fee. No markup hiding in the exchange rate.',
+  'marketing.saveBody':
+    'International bank wires are usually priced twice: once as a visible flat fee, and again as an invisible markup baked into the exchange rate. This product prices once.',
+  'marketing.saveNote': 'Illustrative example for a $500 transfer. Bank figures are a typical wire fee plus a typical FX markup, not a quote from any specific bank.',
+  'marketing.saveExample': 'Sending $500',
+  'marketing.saveBankLabel': 'Typical bank wire',
+  'marketing.saveUsLabel': '{brand}',
+  'marketing.saveKeepMore': 'More of your $500 arrives',
+
+  // ---- Marketing: footer ----
+  'marketing.footerAbout': 'A flat-fee money transfer product, built so the rate you are quoted is the rate you pay — nothing added at the end.',
+  'marketing.footerCompany': 'Company',
+  'marketing.footerSupport': 'Support',
 } as const
 
 export type TranslationKey = keyof typeof en
