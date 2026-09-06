@@ -111,14 +111,19 @@ export function SendMoney() {
           <p className="mt-1 text-[12px] text-ink-500">{t('field.estimated')}</p>
         </div>
 
-        <div className="mt-3 flex items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
-          <span className="text-[12px] font-semibold text-brand-700">{t('field.exchangeRate')}</span>
-          <span className="text-[12px] font-bold text-brand-700">
-            <bdi>
-              1 USD = {fmtRate(corridor.rate)} {corridor.currency}
-            </bdi>
-          </span>
-        </div>
+        {/* Corridors pay out in the currency they are funded in, so there is
+            no exchange rate to show. Printing "1 USD = 1 USD" would look like
+            a bug. The row returns on its own if an FX corridor is ever added. */}
+        {corridor.currency !== 'USD' ? (
+          <div className="mt-3 flex items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
+            <span className="text-[12px] font-semibold text-brand-700">{t('field.exchangeRate')}</span>
+            <span className="text-[12px] font-bold text-brand-700">
+              <bdi>
+                1 USD = {fmtRate(corridor.rate)} {corridor.currency}
+              </bdi>
+            </span>
+          </div>
+        ) : null}
 
         {error && (
           <p className="mt-3 rounded-xl bg-rose-50 px-4 py-3 text-[12px] font-semibold text-rose-600">

@@ -19,7 +19,7 @@ export type Corridor = {
 export const corridors: Corridor[] = [
   {
     code: 'SO',
-    currency: 'SOS',
+    currency: 'USD',
     country: 'Somalia',
     countryI18n: {
       so: 'Soomaaliya',
@@ -28,13 +28,13 @@ export const corridors: Corridor[] = [
       ar: 'الصومال',
     },
     flag: '🇸🇴',
-    rate: 2556,
-    currencyName: 'Somali Shilling',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['EVC Plus', 'Zaad', 'Sahal', 'eDahab'],
   },
   {
     code: 'KE',
-    currency: 'KES',
+    currency: 'USD',
     country: 'Kenya',
     countryI18n: {
       so: 'Kenya',
@@ -43,13 +43,13 @@ export const corridors: Corridor[] = [
       ar: 'كينيا',
     },
     flag: '🇰🇪',
-    rate: 129.4,
-    currencyName: 'Kenyan Shilling',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['M-Pesa', 'Airtel Money'],
   },
   {
     code: 'ET',
-    currency: 'ETB',
+    currency: 'USD',
     country: 'Ethiopia',
     countryI18n: {
       so: 'Itoobiya',
@@ -58,13 +58,13 @@ export const corridors: Corridor[] = [
       ar: 'إثيوبيا',
     },
     flag: '🇪🇹',
-    rate: 118.2,
-    currencyName: 'Ethiopian Birr',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['Telebirr', 'CBE Birr'],
   },
   {
     code: 'DJ',
-    currency: 'DJF',
+    currency: 'USD',
     country: 'Djibouti',
     countryI18n: {
       so: 'Jabuuti',
@@ -73,13 +73,13 @@ export const corridors: Corridor[] = [
       ar: 'جيبوتي',
     },
     flag: '🇩🇯',
-    rate: 177.7,
-    currencyName: 'Djiboutian Franc',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['D-Money', 'Waafi'],
   },
   {
     code: 'UG',
-    currency: 'UGX',
+    currency: 'USD',
     country: 'Uganda',
     countryI18n: {
       so: 'Uganda',
@@ -88,13 +88,13 @@ export const corridors: Corridor[] = [
       ar: 'أوغندا',
     },
     flag: '🇺🇬',
-    rate: 3785,
-    currencyName: 'Ugandan Shilling',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['MTN MoMo', 'Airtel Money'],
   },
   {
     code: 'GB',
-    currency: 'GBP',
+    currency: 'USD',
     country: 'United Kingdom',
     countryI18n: {
       so: 'Boqortooyada Midowday',
@@ -103,13 +103,13 @@ export const corridors: Corridor[] = [
       ar: 'المملكة المتحدة',
     },
     flag: '🇬🇧',
-    rate: 0.78,
-    currencyName: 'British Pound',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['Bank transfer'],
   },
   {
     code: 'AE',
-    currency: 'AED',
+    currency: 'USD',
     country: 'United Arab Emirates',
     countryI18n: {
       so: 'Imaaraadka',
@@ -118,13 +118,13 @@ export const corridors: Corridor[] = [
       ar: 'الإمارات العربية المتحدة',
     },
     flag: '🇦🇪',
-    rate: 3.67,
-    currencyName: 'UAE Dirham',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['Bank transfer', 'Cash pickup'],
   },
   {
     code: 'IN',
-    currency: 'INR',
+    currency: 'USD',
     country: 'India',
     countryI18n: {
       so: 'Hindiya',
@@ -133,8 +133,8 @@ export const corridors: Corridor[] = [
       ar: 'الهند',
     },
     flag: '🇮🇳',
-    rate: 83.4,
-    currencyName: 'Indian Rupee',
+    rate: 1,
+    currencyName: 'US Dollar',
     wallets: ['UPI', 'Bank transfer'],
   },
 ]

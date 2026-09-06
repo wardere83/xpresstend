@@ -211,10 +211,15 @@ export function RateQuote() {
         ) : quote ? (
           <>
             <Row label={t('marketing.fee')} value={money(quote.feeMinor, quote.sendCurrency)} />
-            <Row
-              label={t('marketing.rate')}
-              value={`1 ${quote.sendCurrency} = ${(quote.effectiveRateE8 / 1e8).toFixed(4)} ${quote.receiveCurrency}`}
-            />
+            {/* No conversion happens on a same-currency corridor, so quoting
+                "1 USD = 1.0000 USD" would be noise pretending to be
+                information. The fee is the whole price. */}
+            {quote.sendCurrency !== quote.receiveCurrency ? (
+              <Row
+                label={t('marketing.rate')}
+                value={`1 ${quote.sendCurrency} = ${(quote.effectiveRateE8 / 1e8).toFixed(4)} ${quote.receiveCurrency}`}
+              />
+            ) : null}
             <Row label={t('marketing.totalCharged')} value={money(quote.totalChargedMinor, quote.sendCurrency)} />
             {/*
               The one figure a visitor is actually here for, so it gets the

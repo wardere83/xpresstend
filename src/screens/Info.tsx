@@ -48,12 +48,21 @@ export function Rates() {
                   {t('rates.feeFrom', { fee: usd(TRANSFER_FEE) })}
                 </span>
               </span>
+              {/* Dollars in, dollars out. "1 : 1" needs no translation and is
+                  the honest value; the old column printed a conversion that no
+                  longer happens. */}
               <span className="text-end">
-                <span className="block text-[14px] font-semibold text-ink-900">
-                  <bdi>{fmtRate(c.rate)}</bdi>
+                <span className="block text-[14px] font-semibold tabular-nums text-ink-900">
+                  {c.currency === 'USD' ? '1 : 1' : <bdi>{fmtRate(c.rate)}</bdi>}
                 </span>
                 <span className="block text-[11px] text-ink-500">
-                  <bdi>{c.currency}</bdi> {t('rates.perUsd')}
+                  {c.currency === 'USD' ? (
+                    <bdi>USD</bdi>
+                  ) : (
+                    <>
+                      <bdi>{c.currency}</bdi> {t('rates.perUsd')}
+                    </>
+                  )}
                 </span>
               </span>
             </li>
