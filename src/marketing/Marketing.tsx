@@ -8,6 +8,11 @@ import { useAuth } from '../auth/AuthContext'
 import { HeroRotator } from './HeroRotator'
 import { GetTheApp } from './GetTheApp'
 import { RateQuote } from './RateQuote'
+import { TransferRoute } from './TransferRoute'
+import { TrustSecurity } from './TrustSecurity'
+import { HowItWorks } from './HowItWorks'
+import { SavingsCompare } from './SavingsCompare'
+import { scrollToSection } from '../lib/scrollToSection'
 
 /**
  * Public shopfront. Everything here is readable without an account.
@@ -42,9 +47,23 @@ export function Marketing() {
           <Link to="/" className="flex items-center" aria-label={brand.name}>
             <Logo height={30} />
           </Link>
+
+          <nav className="ml-6 hidden items-center gap-6 lg:flex" aria-label="Page sections">
+            <a href="#how-it-works" onClick={scrollToSection('how-it-works')} className="text-[13px] font-medium text-ink-600 transition-colors hover:text-brand-600">
+              {t('marketing.navHow')}
+            </a>
+            <a href="#security" onClick={scrollToSection('security')} className="text-[13px] font-medium text-ink-600 transition-colors hover:text-brand-600">
+              {t('marketing.navSecurity')}
+            </a>
+            <a href="#pricing" onClick={scrollToSection('pricing')} className="text-[13px] font-medium text-ink-600 transition-colors hover:text-brand-600">
+              {t('marketing.navPricing')}
+            </a>
+          </nav>
+
           <div className="ml-auto flex items-center gap-1.5">
             <a
               href="#get-the-app"
+              onClick={scrollToSection('get-the-app')}
               className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 sm:block"
             >
               {t('app.android').split(' ')[0]}
@@ -78,7 +97,16 @@ export function Marketing() {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-16 md:py-24">
+        <section className="relative overflow-hidden">
+          {/* A quiet gradient wash behind the fold only — two blooms, well off
+              to the sides, so the type and the calculator both still read on
+              flat white. */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute -left-40 -top-40 h-[26rem] w-[26rem] rounded-full bg-brand-100/70 blur-3xl" />
+            <div className="absolute -right-32 top-10 h-80 w-80 rounded-full bg-brand-50 blur-3xl" />
+          </div>
+
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-16 md:py-24">
           <div>
             {/*
               Large but not heavy. The previous heading capped at about 34px in
@@ -119,7 +147,10 @@ export function Marketing() {
           </div>
 
           <RateQuote />
+          </div>
         </section>
+
+        <TransferRoute />
 
         <section className="border-t border-ink-200">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3 md:gap-12 md:py-20">
@@ -144,6 +175,16 @@ export function Marketing() {
             ))}
           </div>
         </section>
+
+        <div id="security">
+          <TrustSecurity />
+        </div>
+
+        <HowItWorks />
+
+        <div id="pricing">
+          <SavingsCompare />
+        </div>
 
         <GetTheApp />
 
@@ -171,23 +212,77 @@ export function Marketing() {
       </main>
 
       <footer className="border-t border-ink-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-12 text-[12px] leading-relaxed text-ink-500">
-          <Logo height={20} className="mb-0.5" />
-          <p className="mt-1.5 text-ink-500">
-            {brand.hq.city}, {brand.hq.state}
-          </p>
-          <p className="mt-4 max-w-prose">{t('marketing.disclaimer')}</p>
-          <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1">
-            <Link to="/privacy" className="transition-colors hover:text-brand-600">
-              Privacy Policy
-            </Link>
-            <Link to="/support" className="transition-colors hover:text-brand-600">
-              Support
-            </Link>
-          </p>
-          <p className="mt-4 text-ink-500">
-            © {new Date().getFullYear()} {brand.name}
-          </p>
+        <div className="mx-auto max-w-6xl px-6 py-14">
+          <div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr]">
+            <div>
+              <Logo height={22} />
+              <p className="mt-4 max-w-[38ch] text-[13px] leading-relaxed text-ink-500">
+                {t('marketing.footerAbout')}
+              </p>
+              <p className="mt-4 text-[12.5px] text-ink-500">
+                {brand.hq.city}, {brand.hq.state}
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
+                {t('marketing.footerCompany')}
+              </h3>
+              <ul className="mt-3 space-y-2.5 text-[13px]">
+                <li>
+                  <a href="#how-it-works" onClick={scrollToSection('how-it-works')} className="text-ink-600 transition-colors hover:text-brand-600">
+                    {t('marketing.navHow')}
+                  </a>
+                </li>
+                <li>
+                  <a href="#security" onClick={scrollToSection('security')} className="text-ink-600 transition-colors hover:text-brand-600">
+                    {t('marketing.navSecurity')}
+                  </a>
+                </li>
+                <li>
+                  <a href="#pricing" onClick={scrollToSection('pricing')} className="text-ink-600 transition-colors hover:text-brand-600">
+                    {t('marketing.navPricing')}
+                  </a>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-ink-600 transition-colors hover:text-brand-600">
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-[12px] font-semibold uppercase tracking-wide text-ink-400">
+                {t('marketing.footerSupport')}
+              </h3>
+              <ul className="mt-3 space-y-2.5 text-[13px]">
+                <li>
+                  <Link to="/support" className="text-ink-600 transition-colors hover:text-brand-600">
+                    Support
+                  </Link>
+                </li>
+                <li>
+                  <a href={`mailto:${brand.support.email}`} className="text-ink-600 transition-colors hover:text-brand-600">
+                    {brand.support.email}
+                  </a>
+                </li>
+                <li>
+                  <a href={`tel:${brand.support.phone}`} className="text-ink-600 transition-colors hover:text-brand-600">
+                    {brand.support.phone}
+                  </a>
+                </li>
+                <li className="text-ink-500">{brand.support.hours}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-ink-200/70 pt-6">
+            <p className="max-w-prose text-[12px] leading-relaxed text-ink-500">{t('marketing.disclaimer')}</p>
+            <p className="mt-4 text-[12px] text-ink-500">
+              © {new Date().getFullYear()} {brand.name}
+            </p>
+          </div>
         </div>
       </footer>
     </div>
