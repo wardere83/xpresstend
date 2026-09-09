@@ -33,14 +33,14 @@ function Shell({
   if (!media) {
     return (
       <div className="min-h-dvh bg-canvas">
-        <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10">{column}</div>
+        <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10 pt-[max(env(safe-area-inset-top),2.5rem)] pb-[max(env(safe-area-inset-bottom),2.5rem)]">{column}</div>
       </div>
     )
   }
 
   return (
     <div className="min-h-dvh bg-canvas">
-      <div className="mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-5 py-10 pt-[max(env(safe-area-inset-top),2.5rem)] pb-[max(env(safe-area-inset-bottom),2.5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex justify-center lg:justify-start">{column}</div>
         <div className="h-full min-h-[34rem] py-4">{media}</div>
       </div>

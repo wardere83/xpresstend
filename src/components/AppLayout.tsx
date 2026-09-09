@@ -5,6 +5,7 @@ import { BottomNav } from './BottomNav'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo as BrandLogo } from './Logo'
 import { StatusBar } from './ui'
+import { isNative } from '../native/capabilities'
 
 const NAV_ROUTES = ['/app', '/recipients', '/activity', '/profile']
 const DARK_ROUTES = ['/success']
@@ -86,11 +87,30 @@ export function AppLayout() {
 
         <main className="flex flex-1 justify-center">
           <div
-            className={`relative flex h-[100dvh] w-full flex-col overflow-hidden lg:h-[min(844px,calc(100dvh-64px))] lg:w-[390px] lg:rounded-[44px] lg:shadow-[0_40px_90px_-30px_rgba(0,0,0,0.65)] lg:ring-8 lg:ring-black/80 ${
+            /*
+             * The top inset is what keeps content out from under the notch.
+             * viewport-fit=cover is set so the web view fills the screen, which
+             * means the app has to inset itself; the bottom was handled and the
+             * top was not, so on a real handset the first row of every screen
+             * sat under the Dynamic Island. Zeroed at lg, where the shell is a
+             * mockup on a desktop page and there is no hardware to avoid.
+             */
+            className={`relative flex h-[100dvh] w-full flex-col overflow-hidden pt-[env(safe-area-inset-top)] lg:h-[min(844px,calc(100dvh-64px))] lg:w-[390px] lg:rounded-[44px] lg:pt-0 lg:shadow-[0_40px_90px_-30px_rgba(0,0,0,0.65)] lg:ring-8 lg:ring-black/80 ${
               tone === 'dark' ? 'bg-brand-950' : 'bg-canvas'
             }`}
           >
-            <StatusBar tone={tone} />
+            {/*
+              A drawn status bar reading 9:41 with painted signal and battery
+              glyphs. It belongs to the desktop phone mockup and nowhere else:
+              on an actual device it renders directly beneath the real one, so
+              the app shipped showing two status bars and the wrong time. Hidden
+              below lg, and never rendered in the native shell at all.
+            */}
+            {isNative ? null : (
+              <div className="hidden lg:block">
+                <StatusBar tone={tone} />
+              </div>
+            )}
             <Outlet />
             {showNav && <BottomNav />}
           </div>

@@ -38,14 +38,23 @@ export function Marketing() {
   return (
     <div className="min-h-dvh bg-white text-ink-900">
       <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-4">
-          <Link to="/" className="flex items-center" aria-label={brand.name}>
-            <Logo height={30} />
+        {/*
+          Tight on a 375px screen: the mark, the switcher and two actions do not
+          fit at desktop padding, and the row was overflowing rather than
+          wrapping. Padding and the gap step up with the viewport, and the two
+          secondary links appear only once there is room for them. Get started
+          is always present, and sign in is reachable from it, so nothing is
+          stranded on a phone.
+        */}
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-4">
+          <Link to="/" className="flex min-w-0 items-center" aria-label={brand.name}>
+            <Logo height={26} className="sm:hidden" />
+            <Logo height={30} className="hidden sm:inline-flex" />
           </Link>
-          <div className="ml-auto flex items-center gap-1.5">
+          <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <a
               href="#get-the-app"
-              className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 sm:block"
+              className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 md:block"
             >
               {t('app.android').split(' ')[0]}
             </a>
@@ -53,7 +62,7 @@ export function Marketing() {
             {user ? (
               <Link
                 to="/app"
-                className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700"
+                className="rounded-lg bg-brand-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
               >
                 {t('marketing.openApp')}
               </Link>
@@ -61,13 +70,13 @@ export function Marketing() {
               <>
                 <Link
                   to="/login"
-                  className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900"
+                  className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 sm:block"
                 >
                   {t('marketing.signIn')}
                 </Link>
                 <Link
                   to="/register"
-                  className="rounded-lg bg-brand-600 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700"
+                  className="whitespace-nowrap rounded-lg bg-brand-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
                 >
                   {t('marketing.getStarted')}
                 </Link>
