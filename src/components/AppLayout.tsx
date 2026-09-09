@@ -11,7 +11,6 @@ const DARK_ROUTES = ['/success']
 
 const SCREEN_LINKS: { to: string; labelKey: TranslationKey }[] = [
   { to: '/app', labelKey: 'nav.home' },
-  { to: '/voice', labelKey: 'voice.title' },
   { to: '/assistant', labelKey: 'chat.title' },
   { to: '/send', labelKey: 'send.title' },
   { to: '/review', labelKey: 'review.title' },

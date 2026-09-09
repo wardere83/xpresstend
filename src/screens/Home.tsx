@@ -7,14 +7,13 @@ import {
   Landmark,
   Menu,
   MessageCircleMore,
-  Mic,
   ShieldCheck,
   Signal,
   Smartphone,
   TrendingUp,
 } from 'lucide-react'
 import { Logo } from '../components/AppLayout'
-import { Avatar, IconTile, SectionTitle, Waveform } from '../components/ui'
+import { Avatar, IconTile, SectionTitle } from '../components/ui'
 import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { getRecipient, user } from '../data/mock'
@@ -93,25 +92,13 @@ export function Home() {
           <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
         </div>
 
-        {/* Voice hero */}
-        <button
-          type="button"
-          onClick={() => navigate('/voice')}
-          className="relative w-full overflow-hidden rounded-[var(--radius-card)] bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 px-5 pt-5 pb-6 text-center shadow-[var(--shadow-float)] transition active:scale-[0.99]"
-        >
-          <span
-            className="pointer-events-none absolute -top-16 -end-10 h-40 w-40 rounded-full bg-white/10"
-            aria-hidden="true"
-          />
-          <span className="block text-[16px] font-bold text-white">{t('home.voiceTitle')}</span>
-          <span className="mt-1 block text-[12px] text-white/75">{t('home.voiceSubtitle')}</span>
-          <span className="mt-4 mb-4 block">
-            <Waveform color="rgba(255,255,255,0.5)" height={30} />
-          </span>
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-white shadow-lg">
-            <Mic size={26} className="text-brand-600" strokeWidth={2.3} />
-          </span>
-        </button>
+        {/*
+          Voice used to open this screen with a full-bleed hero, which put a
+          secondary input method above the thing people actually come here to
+          do. It now lives beside the assistant's text field, where someone
+          reaches for it only if they want it, so sending money is the first
+          action on the page.
+        */}
 
         {/* Send money */}
         <section className="card mt-4 p-4">
