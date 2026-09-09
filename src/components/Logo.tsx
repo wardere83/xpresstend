@@ -1,48 +1,97 @@
-import logo32 from '../assets/brand/logo-32.png'
-import logo64 from '../assets/brand/logo-64.png'
-import logo96 from '../assets/brand/logo-96.png'
-import inv32 from '../assets/brand/logo-inverse-32.png'
-import inv64 from '../assets/brand/logo-inverse-64.png'
-import inv96 from '../assets/brand/logo-inverse-96.png'
 import { brand } from '../config/brand'
 
 /**
  * The XpressTend lockup.
  *
- * Served at 1x/2x/3x so it stays crisp on retina and phone screens rather than
- * being upscaled from a single bitmap. `dark` swaps to a variant whose wordmark
- * is white, because the black half of the logo disappears on the dark screens.
+ * Set as live text rather than shipped as artwork. The mark is pure typography
+ * with no graphic element, so a bitmap buys nothing and costs a great deal: the
+ * previous version was six PNGs, two tones at three densities, each baked onto
+ * its own background. Any surface that was not white or near-black showed the
+ * baked ground as a visible rectangle, and the whole set had to be re-exported
+ * to change one thing.
  *
- * Height is fixed and width is auto, so the 5.39:1 lockup can never be squashed
- * by a flex parent. width/height are declared to reserve the box before the
- * image loads and stop the header shifting.
+ * As text it has no background at all, takes its colour from whatever it sits
+ * on through `currentColor`, and stays sharp at any size on any screen. Placing
+ * it on navy, on white, or on a photograph all work without a separate file,
+ * which is what "does not clash with the background" actually requires.
+ *
+ * `height` is the height of the whole lockup, so existing call sites keep their
+ * sizing. Type scales from it rather than being fixed, so the mark holds its
+ * proportions from a 20px footer to a splash screen.
  */
 export function Logo({
-  tone = 'light',
+  tone,
   height = 32,
+  variant = 'wordmark',
   className = '',
 }: {
+  /**
+   * Retained so existing callers keep working. `dark` forces white, `light`
+   * forces navy, and omitting it inherits the surrounding text colour, which
+   * is what most placements should do.
+   */
   tone?: 'light' | 'dark'
   height?: number
+  /**
+   * `wordmark` is XpressTend alone, for headers and other tight horizontal
+   * space. `full` stacks Financial Services beneath it, for the footer, auth
+   * screens and anywhere the mark is being presented rather than worn.
+   */
+  variant?: 'wordmark' | 'full'
   className?: string
 }) {
-  const dark = tone === 'dark'
-  const src = dark ? inv32 : logo32
-  const srcSet = dark
-    ? `${inv32} 1x, ${inv64} 2x, ${inv96} 3x`
-    : `${logo32} 1x, ${logo64} 2x, ${logo96} 3x`
+  const full = variant === 'full'
+
+  /*
+   * The wordmark fills the height on its own. In the stacked lockup the two
+   * lines and the gap between them share it, in roughly the 0.58 / 0.34 ratio
+   * the artwork uses, so both variants read as the same mark at the same size.
+   */
+  const primarySize = full ? height * 0.58 : height * 0.82
+  const secondarySize = height * 0.34
+
+  const colour =
+    tone === 'dark' ? '#FFFFFF' : tone === 'light' ? 'var(--color-brand-600)' : 'currentColor'
 
   return (
-    <img
-      src={src}
-      srcSet={srcSet}
-      alt={brand.name}
-      width={Math.round((height * 1823) / 338)}
-      height={height}
-      style={{ height }}
-      draggable={false}
-      decoding="async"
-      className={`w-auto max-w-full select-none ${className}`}
-    />
+    <span
+      className={`inline-flex select-none flex-col justify-center leading-none ${className}`}
+      style={{ height, color: colour }}
+      /* One accessible name for the whole lockup, so a screen reader announces
+         the company rather than spelling out two stacked lines. */
+      role="img"
+      aria-label={full ? `${brand.name} Financial Services` : brand.name}
+    >
+      <span
+        aria-hidden="true"
+        style={{
+          fontFamily: "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
+          fontSize: primarySize,
+          fontWeight: 300,
+          letterSpacing: '-0.005em',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {brand.name}
+      </span>
+      {full ? (
+        <span
+          aria-hidden="true"
+          style={{
+            fontFamily: "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
+            fontSize: secondarySize,
+            fontWeight: 300,
+            /* The artwork sets the second line slightly open, which is what
+               stops it reading as a caption and keeps it part of the mark. */
+            letterSpacing: '0.01em',
+            lineHeight: 1.15,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Financial Services
+        </span>
+      ) : null}
+    </span>
   )
 }

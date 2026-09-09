@@ -172,7 +172,7 @@ export function Marketing() {
 
       <footer className="border-t border-ink-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-12 text-[12px] leading-relaxed text-ink-500">
-          <Logo height={20} className="mb-0.5" />
+          <Logo variant="full" height={38} className="mb-1" />
           <p className="mt-1.5 text-ink-500">
             {brand.hq.city}, {brand.hq.state}
           </p>

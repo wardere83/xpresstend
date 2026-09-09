@@ -22,7 +22,7 @@ function Shell({
   const column = (
     <div className="flex w-full max-w-md flex-col justify-center">
       <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
-        <Logo height={32} />
+        <Logo variant="full" height={44} />
       </Link>
       <h1 className="text-balance text-2xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
