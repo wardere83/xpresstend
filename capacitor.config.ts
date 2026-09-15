@@ -29,6 +29,9 @@ const config: CapacitorConfig = {
 
   ios: {
     contentInset: 'never',
+    // The Xcode scheme was renamed from the Capacitor default "App" so the
+    // IDE toolbar shows the product name; `cap run ios` must follow suit.
+    scheme: 'XpressTend',
   },
 
   plugins: {
