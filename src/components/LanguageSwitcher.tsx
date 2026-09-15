@@ -22,8 +22,14 @@ export function LanguageSwitcher({
   useEffect(() => {
     if (!open) return
     setQuery('')
+    // Focus the search only where a keyboard is already at hand. On a phone,
+    // focusing would raise the software keyboard over the very list the
+    // person is trying to read.
+    const touch = window.matchMedia('(pointer: coarse)').matches
     // Let the list paint before stealing focus, so the caret lands reliably.
-    const focus = setTimeout(() => searchRef.current?.focus(), 30)
+    const focus = setTimeout(() => {
+      if (!touch) searchRef.current?.focus()
+    }, 30)
     const onDown = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }

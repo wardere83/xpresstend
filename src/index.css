@@ -102,6 +102,36 @@
     outline-offset: 2px;
     border-radius: 6px;
   }
+
+  /* The native shell adds `.native` (see NativeShell.tsx). Installed apps do
+     not flash gray on every tap or offer the long-press selection callout on
+     their own chrome — both are webview tells. Fields keep selection so
+     people can still edit and copy what they typed. */
+  html.native {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html.native body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  html.native input,
+  html.native textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Scrollbars are the loudest webview tell of all: iOS apps only show a
+     transient overlay indicator, never a persistent gutter track. */
+  html.native * {
+    scrollbar-width: none;
+  }
+
+  html.native ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
@@ -233,6 +263,47 @@
 
 @media (prefers-reduced-motion: reduce) {
   .halo-orbit {
+    animation: none;
+  }
+}
+
+/* Native launch reveal.
+   Continues the static splash in the web layer: the wordmark sits at rest on
+   the same white ground, breathes up a few percent, and the whole sheet
+   dissolves into the first screen. Sized so the mark matches the splash
+   artwork closely enough for the native 200ms crossfade to read as one
+   continuous motion. */
+.launch-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.launch-reveal--leave {
+  opacity: 0;
+}
+
+.launch-reveal__mark {
+  animation: launch-mark 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes launch-mark {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-reveal__mark {
     animation: none;
   }
 }

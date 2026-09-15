@@ -1,4 +1,4 @@
-import { Apple, Download, Smartphone } from 'lucide-react'
+import { Apple, Download } from 'lucide-react'
 import { useT } from '../i18n'
 
 /**
@@ -58,10 +58,9 @@ export function GetTheApp() {
             </span>
           </div>
 
-          <p className="flex items-start gap-2 pt-1 text-[11px] leading-relaxed text-ink-500">
-            <Smartphone size={13} className="mt-0.5 shrink-0" />
-            {t('app.sideloadNote')}
-          </p>
+          {/* No icon: a smartphone outline at footnote size reads as a
+              missing-glyph box, not as an icon. */}
+          <p className="pt-1 text-[11px] leading-relaxed text-ink-500">{t('app.sideloadNote')}</p>
         </div>
       </div>
     </section>

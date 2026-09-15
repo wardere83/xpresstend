@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { App as CapApp } from '@capacitor/app'
 import { Network } from '@capacitor/network'
 import { useT } from '../i18n'
+import { Logo } from '../components/Logo'
 import { hideSplash, isNative, setStatusBarTint } from './capabilities'
 
 /** Screens that paint a dark ground and need the status bar to match. */
@@ -26,11 +27,46 @@ export function NativeShell() {
   const navigate = useNavigate()
   const t = useT()
   const [offline, setOffline] = useState(false)
+  /**
+   * The launch reveal continues the native splash in the web layer: the same
+   * wordmark, on the same white ground, breathes up a few percent and then
+   * dissolves into the first screen. The static splash crossfades into this
+   * overlay (200ms native fade), so launch reads as one continuous motion
+   * instead of a hard cut from artwork to UI. 'hold' shows the mark at rest,
+   * 'leave' plays the exit, 'done' unmounts the overlay entirely.
+   */
+  const [reveal, setReveal] = useState<'hold' | 'leave' | 'done'>(isNative ? 'hold' : 'done')
 
   // The splash is configured not to auto-hide, so the first paint is never a
   // white flash. Dismiss it once we are mounted and the UI is on screen.
   useEffect(() => {
     void hideSplash()
+  }, [])
+
+  useEffect(() => {
+    if (!isNative) return
+    const leave = window.setTimeout(() => setReveal('leave'), 500)
+    const done = window.setTimeout(() => setReveal('done'), 1150)
+    return () => {
+      window.clearTimeout(leave)
+      window.clearTimeout(done)
+    }
+  }, [])
+
+  // The same bundle serves xpresstend.com, where pinch zoom stays available as
+  // an accessibility feature. Inside the shell the app must hold native scale:
+  // without a maximum scale, iOS zooms the whole page whenever an input under
+  // 16px is focused — to the person signing in, the app suddenly enlarges.
+  // The `native` class lets the stylesheet strip the remaining webview tells.
+  useEffect(() => {
+    if (!isNative) return
+    document.documentElement.classList.add('native')
+    document
+      .querySelector('meta[name="viewport"]')
+      ?.setAttribute(
+        'content',
+        'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
+      )
   }, [])
 
   useEffect(() => {
@@ -66,15 +102,25 @@ export function NativeShell() {
     return () => remove?.()
   }, [])
 
-  if (!offline) return null
-
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="fixed inset-x-0 top-0 z-50 bg-ink-900 px-4 py-2 text-center text-[13px] font-semibold text-white"
-    >
-      {t('network.offline')}
-    </div>
+    <>
+      {reveal !== 'done' ? (
+        <div
+          aria-hidden="true"
+          className={`launch-reveal text-ink-900 ${reveal === 'leave' ? 'launch-reveal--leave' : ''}`}
+        >
+          <Logo variant="full" height={56} className="launch-reveal__mark" />
+        </div>
+      ) : null}
+      {offline ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-x-0 top-0 z-50 bg-ink-900 px-4 py-2 text-center text-[13px] font-semibold text-white"
+        >
+          {t('network.offline')}
+        </div>
+      ) : null}
+    </>
   )
 }

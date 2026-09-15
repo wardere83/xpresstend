@@ -49,6 +49,15 @@ export function AppLock({ children }: { children: ReactNode }) {
     }
   }, [t])
 
+  // `authenticate` is recreated whenever the language (and so `t`) changes.
+  // The launch gate below must not re-run on that — switching language used to
+  // summon a fresh Face ID prompt — so it reads the latest copy from a ref and
+  // runs exactly once.
+  const authenticateRef = useRef(authenticate)
+  useEffect(() => {
+    authenticateRef.current = authenticate
+  }, [authenticate])
+
   useEffect(() => {
     if (!isNative) return
     let cancelled = false
@@ -59,7 +68,7 @@ export function AppLock({ children }: { children: ReactNode }) {
         if (cancelled) return
         setAvailable(usable)
         setChecking(false)
-        if (usable) await authenticate()
+        if (usable) await authenticateRef.current()
         else setUnlocked(true)
       } catch {
         // Plugin unavailable: do not strand the user behind a lock we cannot open.
@@ -72,7 +81,7 @@ export function AppLock({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [authenticate])
+  }, [])
 
   // Re-lock after the app has been away long enough to change hands.
   useEffect(() => {

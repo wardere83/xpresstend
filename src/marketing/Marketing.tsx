@@ -37,7 +37,9 @@ export function Marketing() {
 
   return (
     <div className="min-h-dvh bg-white text-ink-900">
-      <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 backdrop-blur-md">
+      {/* In the native shell the webview draws under the status bar, so the
+          header pads itself down by the safe-area inset; on the web it is 0. */}
+      <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         {/*
           Tight on a 375px screen: the mark, the switcher and two actions do not
           fit at desktop padding, and the row was overflowing rather than
