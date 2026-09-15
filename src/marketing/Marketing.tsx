@@ -48,8 +48,15 @@ export function Marketing() {
         */}
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-4">
           <Link to="/" className="flex min-w-0 items-center" aria-label={brand.name}>
-            <Logo height={26} className="sm:hidden" />
-            <Logo height={30} className="hidden sm:inline-flex" />
+            {/* Wrapped, because the lockup sets its own display and a bare
+                `hidden` on it loses the cascade: both sizes were drawn at once
+                on phones, so the header read "XpressTendXpressTend". */}
+            <span className="sm:hidden">
+              <Logo height={26} />
+            </span>
+            <span className="hidden sm:block">
+              <Logo height={30} />
+            </span>
           </Link>
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <a

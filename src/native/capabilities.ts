@@ -43,11 +43,19 @@ export async function outcomeFeedback(outcome: 'success' | 'warning' | 'error') 
   }
 }
 
-/** Tints the status bar to match the screen behind it. */
-export async function setStatusBarTint(backgroundColor: string) {
+/**
+ * Tints the status bar to match the screen behind it.
+ *
+ * Capacitor names the style after the background it sits on: `Style.Dark`
+ * is white text for a dark screen, `Style.Light` is dark text for a light
+ * one. Every screen used to ask for `Dark`, so on iOS the clock and battery
+ * were painted white over the app's near-white canvas and vanished. The text
+ * colour now follows the ground it is drawn over.
+ */
+export async function setStatusBarTint(backgroundColor: string, ground: 'light' | 'dark' = 'light') {
   if (!isNative) return
   try {
-    await StatusBar.setStyle({ style: Style.Dark })
+    await StatusBar.setStyle({ style: ground === 'dark' ? Style.Dark : Style.Light })
     if (platform === 'android') await StatusBar.setBackgroundColor({ color: backgroundColor })
   } catch {
     // Some Android skins reject colour changes; the default tint stays.

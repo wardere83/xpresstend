@@ -80,10 +80,25 @@ export function AppLayout() {
   const showNav = NAV_ROUTES.includes(pathname)
   const tone: 'light' | 'dark' = DARK_ROUTES.includes(pathname) ? 'dark' : 'light'
 
+  /*
+   * On the web at desktop widths the product is presented inside a phone
+   * mockup beside a navy sidebar. In the native apps there is real hardware
+   * around the screen, so the mockup would be a phone drawn inside a phone
+   * (or, on an iPad, a small fake handset floating on a navy page). Native
+   * therefore always gets the full-bleed layout, whatever the width.
+   */
+  const mockup = !isNative
+
   return (
-    <div className="min-h-[100dvh] bg-canvas lg:bg-[radial-gradient(120%_120%_at_15%_0%,#18313B_0%,#0B252F_55%,#051216_100%)]">
-      <div className="mx-auto flex min-h-[100dvh] max-w-6xl items-center gap-12 px-0 lg:px-8">
-        <Sidebar />
+    <div
+      className={`min-h-[100dvh] bg-canvas ${
+        mockup ? 'lg:bg-[radial-gradient(120%_120%_at_15%_0%,#18313B_0%,#0B252F_70%,#0B252F_100%)]' : ''
+      }`}
+    >
+      <div
+        className={`mx-auto flex min-h-[100dvh] items-center gap-12 px-0 ${mockup ? 'max-w-6xl lg:px-8' : ''}`}
+      >
+        {mockup ? <Sidebar /> : null}
 
         <main className="flex flex-1 justify-center">
           <div
@@ -95,9 +110,11 @@ export function AppLayout() {
              * sat under the Dynamic Island. Zeroed at lg, where the shell is a
              * mockup on a desktop page and there is no hardware to avoid.
              */
-            className={`relative flex h-[100dvh] w-full flex-col overflow-hidden pt-[env(safe-area-inset-top)] lg:h-[min(844px,calc(100dvh-64px))] lg:w-[390px] lg:rounded-[44px] lg:pt-0 lg:shadow-[0_40px_90px_-30px_rgba(0,0,0,0.65)] lg:ring-8 lg:ring-black/80 ${
-              tone === 'dark' ? 'bg-brand-950' : 'bg-canvas'
-            }`}
+            className={`relative flex h-[100dvh] w-full flex-col overflow-hidden pt-[env(safe-area-inset-top)] ${
+              mockup
+                ? 'lg:h-[min(844px,calc(100dvh-64px))] lg:w-[390px] lg:rounded-[44px] lg:pt-0 lg:shadow-[0_40px_90px_-30px_rgba(11,37,47,0.65)] lg:ring-8 lg:ring-brand-600/80'
+                : ''
+            } ${tone === 'dark' ? 'bg-brand-950' : 'bg-canvas'}`}
           >
             {/*
               A drawn status bar reading 9:41 with painted signal and battery

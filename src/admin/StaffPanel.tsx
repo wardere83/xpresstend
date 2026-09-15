@@ -26,8 +26,8 @@ const ROLES: { value: AdminUser['role']; label: string; blurb: string }[] = [
 
 const ROLE_TONE: Record<string, string> = {
   owner: 'bg-brand-100 text-brand-700',
-  compliance: 'bg-emerald-100 text-emerald-800',
-  agent: 'bg-amber-100 text-amber-800',
+  compliance: 'bg-ok-soft text-brand-700',
+  agent: 'bg-wait-soft text-brand-700',
   viewer: 'bg-ink-200 text-ink-700',
 }
 
@@ -81,7 +81,7 @@ export function StaffPanel({ me }: { me: AdminUser }) {
         />
       ) : null}
 
-      {note ? <p role="alert" className="mb-3 text-[13px] font-medium text-red-600">{note}</p> : null}
+      {note ? <p role="alert" className="mb-3 text-[13px] font-medium text-alert">{note}</p> : null}
 
       <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
         <table className="w-full min-w-[760px] text-left text-[13px]">
@@ -101,11 +101,11 @@ export function StaffPanel({ me }: { me: AdminUser }) {
                   <span className="font-semibold">{r.name}</span>
                   {r.id === me.id ? <span className="ml-2 text-[11px] text-ink-500">you</span> : null}
                   {r.status === 'invited' ? (
-                    <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800">
+                    <span className="ml-2 rounded-full bg-wait-soft px-2 py-0.5 text-[10px] font-bold uppercase text-brand-700">
                       invited
                     </span>
                   ) : r.status !== 'active' ? (
-                    <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase text-red-700">
+                    <span className="ml-2 rounded-full bg-alert-soft px-2 py-0.5 text-[10px] font-bold uppercase text-alert">
                       disabled
                     </span>
                   ) : null}
@@ -137,8 +137,8 @@ export function StaffPanel({ me }: { me: AdminUser }) {
                       onClick={() => void update(r.id, { status: r.status === 'active' ? 'disabled' : 'active' })}
                       className={`rounded-full px-3 py-1.5 text-[12px] font-semibold disabled:opacity-50 ${
                         r.status === 'active'
-                          ? 'bg-white text-red-600 ring-1 ring-red-200'
-                          : 'bg-emerald-600 text-white'
+                          ? 'bg-white text-alert ring-1 ring-ink-200'
+                          : 'bg-brand-600 text-white'
                       }`}
                     >
                       {r.status === 'active' ? 'Disable' : 'Re-enable'}

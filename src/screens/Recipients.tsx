@@ -59,7 +59,7 @@ export function Recipients() {
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1.5">
             <span className="truncate text-[14px] font-bold text-ink-900">{r.name}</span>
-            {r.favourite && <Star size={12} className="fill-amber-400 text-amber-400" />}
+            {r.favourite && <Star size={12} className="fill-xt-turquoise text-xt-turquoise" />}
           </span>
           <span className="block truncate text-[12px] text-ink-500">
             {r.subtitle} · <bdi>{r.detail}</bdi>
@@ -110,7 +110,7 @@ export function Recipients() {
         ) : null}
 
         {error ? (
-          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">{error}</p>
         ) : loading && rows.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : filtered.length === 0 ? (
@@ -200,7 +200,7 @@ function AddRecipient({
       </select>
       <input placeholder={t('recipients.phoneOptional')} value={form.phone} onChange={set('phone')}
              className={field} inputMode="tel" />
-      {error ? <p role="alert" className="text-[13px] font-medium text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="text-[13px] font-medium text-alert">{error}</p> : null}
       <div className="flex gap-2 pt-1">
         <button type="submit" disabled={busy}
           className="flex-1 rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white disabled:opacity-60">

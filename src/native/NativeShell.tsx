@@ -8,8 +8,10 @@ import { hideSplash, isNative, setStatusBarTint } from './capabilities'
 /** Screens that paint a dark ground and need the status bar to match. */
 const DARK_TINT_ROUTES = ['/success']
 
-const BRAND_TINT = '#0B252F'
-const DARK_TINT = '#051216'
+/* Both from the document palette: the canvas is border gray over white, and
+   the success screen is primary navy. */
+const LIGHT_TINT = '#F5F8F9'
+const DARK_TINT = '#0B252F'
 
 /**
  * Native behaviour that has no web equivalent: dismissing the launch splash
@@ -33,7 +35,7 @@ export function NativeShell() {
 
   useEffect(() => {
     const dark = DARK_TINT_ROUTES.includes(location.pathname)
-    void setStatusBarTint(dark ? DARK_TINT : BRAND_TINT)
+    void setStatusBarTint(dark ? DARK_TINT : LIGHT_TINT, dark ? 'dark' : 'light')
   }, [location.pathname])
 
   // Android hardware/gesture back. Without this the OS closes the app from any

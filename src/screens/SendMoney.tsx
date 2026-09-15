@@ -126,7 +126,7 @@ export function SendMoney() {
         ) : null}
 
         {error && (
-          <p className="mt-3 rounded-xl bg-rose-50 px-4 py-3 text-[12px] font-semibold text-rose-600">
+          <p className="mt-3 rounded-xl bg-alert-soft px-4 py-3 text-[12px] font-semibold text-alert">
             {error}
           </p>
         )}
@@ -144,7 +144,7 @@ export function SendMoney() {
                 aria-pressed={selected}
                 className={`flex w-full items-center gap-3 px-4 py-3.5 text-start transition ${
                   i > 0 ? 'border-t border-ink-200/60' : ''
-                } ${selected ? 'bg-brand-50/70' : 'hover:bg-black/[0.02]'}`}
+                } ${selected ? 'bg-brand-50/70' : 'hover:bg-brand-600/[0.02]'}`}
               >
                 <span
                   className={`grid h-9 w-11 shrink-0 place-items-center rounded-lg text-[10px] font-bold ${
@@ -193,7 +193,7 @@ export function SendMoney() {
             type="button"
             aria-label={t('common.close')}
             onClick={() => setPickerOpen(false)}
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-brand-600/40"
           />
           <div className="animate-fade-up relative max-h-[70%] overflow-y-auto no-scrollbar rounded-t-[28px] bg-white pb-6">
             <div className="sticky top-0 bg-white px-4 pt-4 pb-2">

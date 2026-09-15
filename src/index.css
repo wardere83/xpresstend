@@ -12,55 +12,69 @@
     sans-serif;
 
   /*
-   * Brand palette, taken from the compliance document rather than sampled from
-   * a screenshot: navy and turquoise are the pairing, everything else supports
-   * them. The eight document colours are marked; the rest are interpolated to
-   * fill the scale Tailwind expects, so no utility class is left undefined.
-   *
-   * The scale is deliberately not one hue. 400 and below are the turquoise
-   * side, used for accents, tints and focus. 600 and above are the navy side,
-   * used for primary surfaces and buttons. That keeps `bg-brand-600` reading as
-   * the authoritative action it already is everywhere in the app, and reserves
-   * the bright turquoise for the few places that should actually draw the eye.
+   * The exact document palette. Eight verified colours, taken from the
+   * compliance document (XpressTend_Admin_Compliance_Prototype.pdf) and used
+   * as-is: every token below resolves to one of these hex values. Where the
+   * interface needs a lighter surface, the palette colour is mixed with white
+   * (also a palette colour) by the browser, so the eight source hex values are
+   * the only ones written anywhere in the build. The mixes are opaque, so a
+   * surface reads the same whatever sits behind it.
    */
-  --color-brand-50: #ecf8f9;
-  --color-brand-100: #d4f0f1;
-  --color-brand-200: #b9d0d6; /* document: pale blue */
-  --color-brand-300: #83a6b0; /* document: supporting blue */
-  --color-brand-400: #4bd1d3; /* document: primary turquoise */
-  --color-brand-500: #29b6b9;
-  --color-brand-600: #0b252f; /* document: primary navy */
-  --color-brand-700: #18313b; /* document: heading ink */
-  --color-brand-800: #0e232b;
-  --color-brand-900: #081a20;
-  --color-brand-950: #051216;
+  --color-xt-navy: #0b252f; /* Primary navy: cover background and XT lettering */
+  --color-xt-turquoise: #4bd1d3; /* Primary turquoise: tiles, rules, bullets, badges */
+  --color-xt-ink: #18313b; /* Heading ink: interior page headings */
+  --color-xt-slate: #627780; /* Muted slate: captions and footer text */
+  --color-xt-border: #d7e2e6; /* Border gray: frames and dividers */
+  --color-xt-pale: #b9d0d6; /* Pale blue: cover subtitle */
+  --color-xt-support: #83a6b0; /* Supporting blue: cover supporting text */
+  --color-xt-white: #ffffff;
 
   /*
-   * Text and borders. Every step from 500 down is a document colour, so body
-   * copy, captions, placeholders and rules all come straight from the source
-   * rather than being approximated with neutral greys.
+   * Brand scale. 400 and below are the turquoise side, used for accents, tints
+   * and focus. 600 and above are the navy side, used for primary surfaces and
+   * buttons. Nothing here is a new hue: the light steps are turquoise over
+   * white, and the dark steps are navy and heading ink.
    */
-  --color-ink-900: #18313b; /* document: heading ink */
-  --color-ink-700: #2e4a56;
-  --color-ink-600: #4a6570;
-  --color-ink-500: #627780; /* document: muted slate */
-  --color-ink-400: #83a6b0; /* document: supporting blue */
-  --color-ink-300: #b9d0d6; /* document: pale blue */
-  --color-ink-200: #d7e2e6; /* document: border grey */
-  --color-ink-100: #e9f0f2;
-  --color-canvas: #f5f9fa;
+  --color-brand-50: color-mix(in srgb, #4bd1d3 10%, #ffffff);
+  --color-brand-100: color-mix(in srgb, #4bd1d3 18%, #ffffff);
+  --color-brand-200: #b9d0d6;
+  --color-brand-300: #83a6b0;
+  --color-brand-400: #4bd1d3;
+  --color-brand-500: #4bd1d3;
+  --color-brand-600: #0b252f;
+  --color-brand-700: #18313b;
+  --color-brand-800: #0b252f;
+  --color-brand-900: #0b252f;
+  --color-brand-950: #0b252f;
 
-  /* Cards sit slightly tighter than before. A 20px radius reads soft and
-     consumer; 14px reads considered, which is the register a money transmitter
-     wants. */
+  /* Text and borders, straight from the document. */
+  --color-ink-900: #18313b;
+  --color-ink-700: #18313b;
+  --color-ink-600: #627780;
+  --color-ink-500: #627780;
+  --color-ink-400: #83a6b0;
+  --color-ink-300: #b9d0d6;
+  --color-ink-200: #d7e2e6;
+  --color-ink-100: color-mix(in srgb, #d7e2e6 50%, #ffffff);
+  --color-canvas: color-mix(in srgb, #d7e2e6 25%, #ffffff);
+
+  /*
+   * Semantic states. A money app has to say "completed", "pending" and
+   * "failed" clearly, and it does so with the palette rather than with green,
+   * amber and red: turquoise marks success, supporting blue marks waiting, and
+   * navy on white marks a failure or an error that needs reading.
+   */
+  --color-ok: #4bd1d3;
+  --color-ok-soft: color-mix(in srgb, #4bd1d3 16%, #ffffff);
+  --color-wait: #83a6b0;
+  --color-wait-soft: color-mix(in srgb, #83a6b0 18%, #ffffff);
+  --color-alert: #0b252f;
+  --color-alert-soft: color-mix(in srgb, #0b252f 8%, #ffffff);
+
   --radius-card: 14px;
 
-  /*
-   * Shadows are tinted with the navy rather than neutral black, so a raised
-   * surface still belongs to the palette. They are also much shallower than
-   * before: on a light ground, restraint reads as expensive and a large soft
-   * bloom reads as a template.
-   */
+  /* Shadows are the navy at low opacity, so a raised surface still belongs to
+     the palette. */
   --shadow-card: 0 1px 2px rgb(11 37 47 / 0.05), 0 1px 3px rgb(11 37 47 / 0.04);
   --shadow-raised: 0 2px 4px rgb(11 37 47 / 0.05), 0 12px 28px -16px rgb(11 37 47 / 0.22);
   --shadow-float: 0 8px 24px -10px rgb(11 37 47 / 0.35);

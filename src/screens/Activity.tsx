@@ -121,7 +121,7 @@ export function Activity() {
         </div>
 
         {error ? (
-          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-red-600">{error}</p>
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">{error}</p>
         ) : loading && rows.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : visible.length === 0 ? (
@@ -145,7 +145,7 @@ export function Activity() {
                     </p>
                     <p
                       className={`flex items-center justify-end gap-1 text-[11.5px] font-semibold ${
-                        done ? 'text-emerald-600' : 'text-amber-600'
+                        done ? 'text-brand-700' : 'text-ink-500'
                       }`}
                     >
                       {done ? <ArrowUpRight size={13} className={mirror} /> : <Clock size={13} />}

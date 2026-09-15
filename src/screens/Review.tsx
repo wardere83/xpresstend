@@ -64,7 +64,7 @@ export function Review() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         {commitError ? (
-          <p role="alert" className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700">
+          <p role="alert" className="mb-3 rounded-xl bg-alert-soft px-4 py-3 text-[13px] font-medium text-alert">
             {commitError}
           </p>
         ) : null}
@@ -97,12 +97,12 @@ export function Review() {
         </section>
 
         {/* Security */}
-        <section className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50 p-4">
+        <section className="mt-4 rounded-xl border border-ink-200 bg-wait-soft p-4">
           <div className="flex items-start gap-2.5">
-            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-amber-600" />
+            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-ink-500" />
             <div>
-              <h3 className="text-[13.5px] font-bold text-amber-900">{t('review.securityCheck')}</h3>
-              <p className="mt-1 text-[12px] leading-relaxed text-amber-800/90">
+              <h3 className="text-[13.5px] font-bold text-brand-700">{t('review.securityCheck')}</h3>
+              <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
                 {t('review.securityBody')}
               </p>
             </div>
@@ -171,7 +171,7 @@ export function Review() {
                 className="w-full rounded-xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
               />
               {authError ? (
-                <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">{authError}</p>
+                <p role="alert" className="mt-3 text-[13px] font-medium text-alert">{authError}</p>
               ) : null}
               <div className="mt-5 flex gap-2">
                 <PrimaryButton type="submit" disabled={busy || password.length === 0}>

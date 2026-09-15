@@ -42,8 +42,9 @@ const config: CapacitorConfig = {
       splashFullScreen: true,
     },
     StatusBar: {
+      // Light ground, dark glyphs. The shell re-tints per screen at runtime.
       style: 'LIGHT',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#F5F8F9',
     },
     Keyboard: {
       resize: 'native',

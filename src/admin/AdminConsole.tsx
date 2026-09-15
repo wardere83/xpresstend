@@ -24,9 +24,9 @@ interface TrialBalance {
 }
 
 const STATUS_TONE: Record<string, string> = {
-  compliance_hold: 'bg-amber-100 text-amber-800',
-  completed: 'bg-emerald-100 text-emerald-800',
-  failed: 'bg-red-100 text-red-800',
+  compliance_hold: 'bg-wait-soft text-brand-700',
+  completed: 'bg-ok-soft text-brand-700',
+  failed: 'bg-alert-soft text-alert',
   awaiting_payment: 'bg-ink-200 text-ink-700',
 }
 
@@ -162,7 +162,7 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
             stranger claiming this account before you do.
           </p>
         </div>
-        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
         <button type="submit" disabled={busy}
           className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
           {busy ? 'Creating…' : 'Create account'}
@@ -208,7 +208,7 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
             value={password} onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
         </div>
-        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
         <button type="submit" disabled={busy}
           className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
           {busy ? 'Signing in…' : 'Sign in'}
@@ -294,7 +294,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
         <>
         {balance ? (
           <div className={`mb-6 rounded-xl px-4 py-3 text-[13px] font-semibold ${
-            balance.balanced ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
+            balance.balanced ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'}`}>
             {balance.balanced
               ? 'Ledger balanced — every currency nets to zero.'
               : `LEDGER OUT OF BALANCE: ${balance.imbalances.map((i) => `${i.currency} off by ${i.off}`).join(', ')}`}
@@ -311,7 +311,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           ))}
         </div>
 
-        {note ? <p role="alert" className="mb-4 text-[13px] font-medium text-red-600">{note}</p> : null}
+        {note ? <p role="alert" className="mb-4 text-[13px] font-medium text-alert">{note}</p> : null}
 
         <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
           <table className="w-full min-w-[860px] text-left text-[13px]">
@@ -352,11 +352,11 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                     {r.status === 'compliance_hold' && canDecide ? (
                       <div className="flex justify-end gap-2">
                         <button disabled={busyId === r.id} onClick={() => decide(r.id, 'approve')}
-                          className="rounded-full bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50">
+                          className="rounded-full bg-brand-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50">
                           Release
                         </button>
                         <button disabled={busyId === r.id} onClick={() => decide(r.id, 'reject')}
-                          className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-red-600 ring-1 ring-red-200 disabled:opacity-50">
+                          className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-alert ring-1 ring-ink-200 disabled:opacity-50">
                           Reject
                         </button>
                       </div>

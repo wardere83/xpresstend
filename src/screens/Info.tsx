@@ -174,7 +174,7 @@ export function Refer() {
 
         <div className="card mt-4 flex items-center justify-between px-4 py-3.5">
           <span className="text-[13px] text-ink-500">{t('refer.earned')}</span>
-          <span className="text-[16px] font-semibold text-emerald-600">
+          <span className="text-[16px] font-semibold text-brand-700">
             <bdi>{usd(user.referralEarned)}</bdi>
           </span>
         </div>

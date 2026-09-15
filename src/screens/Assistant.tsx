@@ -158,7 +158,7 @@ export function Assistant() {
           type="button"
           onClick={() => navigate(-1)}
           aria-label={t('common.back')}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-black/5"
+          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
         >
           <ChevronLeft size={22} strokeWidth={2.2} className={mirror} />
         </button>
@@ -169,8 +169,8 @@ export function Assistant() {
           <div className="truncate text-[15px] font-bold text-ink-900">
             {t('chat.title')}
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-brand-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-ok" />
             {t('common.online')}
           </div>
         </div>
@@ -178,7 +178,7 @@ export function Assistant() {
           type="button"
           onClick={() => navigate('/help')}
           aria-label={t('quick.help')}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink-500 transition hover:bg-black/5"
+          className="grid h-9 w-9 place-items-center rounded-full text-ink-500 transition hover:bg-brand-600/5"
         >
           <MoreVertical size={18} />
         </button>

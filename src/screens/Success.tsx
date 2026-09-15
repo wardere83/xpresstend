@@ -61,7 +61,7 @@ export function Success() {
   }
 
   return (
-    <div className="relative flex flex-1 flex-col overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#18313B_0%,#0B252F_55%,#051216_100%)]">
+    <div className="relative flex flex-1 flex-col overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#18313B_0%,#0B252F_70%,#0B252F_100%)]">
       {/* Confetti */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-64 overflow-hidden" aria-hidden="true">
         {CONFETTI.map((c, i) => (
@@ -70,7 +70,7 @@ export function Success() {
             className="absolute top-0 h-2.5 w-1.5 rounded-[2px]"
             style={{
               left: c.left,
-              background: `hsl(${c.hue} 85% 62%)`,
+              background: c.hue % 2 === 0 ? 'var(--color-xt-turquoise)' : 'var(--color-xt-pale)',
               animation: `confetti-fall 2.6s ease-in ${c.delay} infinite`,
             }}
           />
@@ -79,8 +79,8 @@ export function Success() {
 
       <div className="relative flex-1 overflow-y-auto no-scrollbar px-5 pt-6 pb-8">
         <div className="flex flex-col items-center text-center">
-          <span className="animate-pop-in grid h-20 w-20 place-items-center rounded-full bg-emerald-500 shadow-[0_12px_36px_-8px_rgba(16,185,129,0.8)]">
-            <Check size={40} strokeWidth={3.4} className="text-white" />
+          <span className="animate-pop-in grid h-20 w-20 place-items-center rounded-full bg-xt-turquoise shadow-[0_12px_36px_-8px_rgba(75,209,211,0.8)]">
+            <Check size={40} strokeWidth={3.4} className="text-xt-navy" />
           </span>
           <h1 className="mt-5 text-[26px] font-semibold text-white">{t('success.title')}</h1>
           <p className="mt-2 text-[13.5px] text-white/75">

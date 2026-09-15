@@ -65,7 +65,7 @@ export function Home() {
           type="button"
           onClick={() => navigate('/profile')}
           aria-label={t('nav.profile')}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-black/5"
+          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
         >
           <Menu size={22} strokeWidth={2.2} />
         </button>
@@ -74,10 +74,10 @@ export function Home() {
           type="button"
           onClick={() => navigate('/activity')}
           aria-label="Notifications"
-          className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-black/5"
+          className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
         >
           <Bell size={21} strokeWidth={2.1} />
-          <span className="absolute top-1 end-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-rose-500 px-[3px] text-[9px] font-bold text-white">
+          <span className="absolute top-1 end-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-xt-turquoise px-[3px] text-[9px] font-bold text-xt-navy">
             2
           </span>
         </button>
@@ -160,7 +160,17 @@ export function Home() {
                 <span className="block text-[14px] font-semibold text-ink-900">
                   <bdi>{usd(latest.amountUsd)}</bdi>
                 </span>
-                <span className="block text-[12px] font-semibold text-emerald-600">
+                <span
+                  className={`flex items-center justify-end gap-1.5 text-[12px] font-semibold ${
+                    latest.status === 'completed' ? 'text-brand-700' : 'text-ink-500'
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      latest.status === 'completed' ? 'bg-ok' : 'bg-wait'
+                    }`}
+                    aria-hidden="true"
+                  />
                   {t(latest.status === 'completed' ? 'common.completed' : 'common.pending')}
                 </span>
               </span>

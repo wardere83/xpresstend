@@ -111,7 +111,7 @@ export function InviteAccept() {
         <input required type="password" autoComplete="new-password" placeholder="Repeat password"
                value={confirm} onChange={(e) => setConfirm(e.target.value)} className={field} />
       </div>
-      {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
       <button type="submit" disabled={busy}
         className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
         {busy ? 'Setting up…' : 'Set password'}

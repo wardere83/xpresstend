@@ -65,6 +65,25 @@ export function StatusBar({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
 /* Avatar                                                              */
 /* ------------------------------------------------------------------ */
 
+/*
+ * Avatars and tiles pick from the document palette rather than spinning a hue.
+ * The hue is still accepted so every call site keeps working; it only decides
+ * which of the palette pairings a record gets, deterministically.
+ */
+const AVATAR_SWATCHES: { background: string; color: string }[] = [
+  { background: 'var(--color-xt-navy)', color: '#ffffff' },
+  { background: 'var(--color-xt-turquoise)', color: 'var(--color-xt-navy)' },
+  { background: 'var(--color-xt-ink)', color: '#ffffff' },
+  { background: 'var(--color-xt-support)', color: '#ffffff' },
+  { background: 'var(--color-xt-slate)', color: '#ffffff' },
+  { background: 'var(--color-xt-pale)', color: 'var(--color-xt-navy)' },
+]
+
+function swatchFor(hue: number) {
+  const i = Math.floor((Math.abs(hue) % 360) / (360 / AVATAR_SWATCHES.length))
+  return AVATAR_SWATCHES[i]
+}
+
 function initials(name: string) {
   return name
     .split(' ')
@@ -87,14 +106,14 @@ export function Avatar({
 }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white select-none ${
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold select-none ${
         ring ? 'ring-2 ring-white/70' : ''
       }`}
       style={{
         width: size,
         height: size,
         fontSize: size * 0.36,
-        background: `linear-gradient(140deg, hsl(${hue} 72% 62%), hsl(${(hue + 28) % 360} 68% 46%))`,
+        ...swatchFor(hue),
       }}
       aria-hidden="true"
     >
@@ -134,7 +153,7 @@ export function ScreenHeader({
             onClick={onBack}
             aria-label={t('common.back')}
             className={`grid h-9 w-9 place-items-center rounded-full transition ${
-              dark ? 'hover:bg-white/10' : 'hover:bg-black/5'
+              dark ? 'hover:bg-white/10' : 'hover:bg-brand-600/5'
             }`}
           >
             <ChevronLeft size={22} strokeWidth={2.2} className={mirror} />
@@ -302,8 +321,8 @@ export function IconTile({
       style={{
         width: size,
         height: size,
-        background: `hsl(${hue} 88% 96%)`,
-        color: `hsl(${hue} 72% 45%)`,
+        background: hue % 2 === 0 ? 'var(--color-brand-50)' : 'var(--color-ink-100)',
+        color: hue % 2 === 0 ? 'var(--color-xt-navy)' : 'var(--color-xt-ink)',
       }}
     >
       {children}

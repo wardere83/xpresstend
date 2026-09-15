@@ -107,7 +107,7 @@ export function Login() {
                value={email} onChange={(e) => setEmail(e.target.value)} />
         <Field label={t('auth.password')} name="password" type="password" autoComplete="current-password"
                required value={password} onChange={(e) => setPassword(e.target.value)} />
-        {error ? <p role="alert" className="text-[13px] font-medium text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="text-[13px] font-medium text-alert">{error}</p> : null}
         <button type="submit" disabled={busy}
           className="w-full rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60">
           {busy ? t('auth.signingIn') : t('auth.signIn')}
@@ -167,7 +167,7 @@ export function Register() {
         <Field label={t('auth.password')} name="password" type="password" autoComplete="new-password"
                required value={form.password} onChange={set('password')} />
         <p className="text-[11px] leading-snug text-ink-500">{t('auth.passwordHint')}</p>
-        {error ? <p role="alert" className="text-[13px] font-medium text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="text-[13px] font-medium text-alert">{error}</p> : null}
         <button type="submit" disabled={busy}
           className="w-full rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white transition hover:bg-brand-700 disabled:opacity-60">
           {busy ? t('auth.creating') : t('auth.createAccount')}

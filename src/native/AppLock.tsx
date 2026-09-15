@@ -103,7 +103,7 @@ export function AppLock({ children }: { children: ReactNode }) {
         </span>
         <h1 className="mt-5 text-[17px] font-semibold tracking-tight">{t('lock.title')}</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{t('lock.reason')}</p>
-        {error ? <p role="alert" className="mt-3 text-[13px] font-medium text-red-600">{error}</p> : null}
+        {error ? <p role="alert" className="mt-3 text-[13px] font-medium text-alert">{error}</p> : null}
         {!checking ? (
           <button
             type="button"

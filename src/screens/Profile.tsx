@@ -44,7 +44,7 @@ export function Profile() {
             <p className="truncate text-[12px] text-ink-500">
               <bdi>{account?.email ?? user.phone}</bdi>
             </p>
-            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700">
+            <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-[10.5px] font-bold text-brand-700">
               <BadgeCheck size={12} />
               {t('profile.verified')}
             </p>
@@ -87,7 +87,7 @@ export function Profile() {
             if (account) await signOut()
             navigate('/')
           }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-[14px] font-bold text-rose-600 shadow-[var(--shadow-card)] transition hover:bg-rose-50"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-[14px] font-bold text-alert shadow-[var(--shadow-card)] transition hover:bg-alert-soft"
         >
           <LogOut size={16} />
           {t('profile.signOut')}
