@@ -145,7 +145,7 @@ jobs:
         run: |
           xcodebuild \
             -project App.xcodeproj \
-            -scheme App \
+            -scheme XpressTend \
             -configuration Debug \
             -sdk iphonesimulator \
             -derivedDataPath build \
@@ -331,7 +331,7 @@ jobs:
           #   No "iOS Development" signing certificate matching team ID ... was found
           # Setting the identity on the command line overrides that for every
           # target, which is what the runner's keychain actually holds.
-          xcodebuild -project App.xcodeproj -scheme App \
+          xcodebuild -project App.xcodeproj -scheme XpressTend \
             -configuration Release -sdk iphoneos \
             -archivePath "$RUNNER_TEMP/XpressTend.xcarchive" \
             DEVELOPMENT_TEAM=64H8428M8D \
