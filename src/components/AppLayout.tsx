@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { brand } from '../config/brand'
+import { useAuth } from '../auth/AuthContext'
 import { useT, type TranslationKey } from '../i18n'
 import { BottomNav } from './BottomNav'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -77,6 +78,8 @@ function Sidebar() {
 
 export function AppLayout() {
   const { pathname } = useLocation()
+  const t = useT()
+  const { isDemo } = useAuth()
   const showNav = NAV_ROUTES.includes(pathname)
   const tone: 'light' | 'dark' = DARK_ROUTES.includes(pathname) ? 'dark' : 'light'
 
@@ -128,6 +131,17 @@ export function AppLayout() {
                 <StatusBar tone={tone} />
               </div>
             )}
+            {/* The walkthrough must never read as someone's real account, so
+                every screen wears the badge for the whole demo session. It
+                floats just above the tab bar: centred at the top it sat on
+                each screen's title. */}
+            {isDemo ? (
+              <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+76px)] z-30 flex justify-center">
+                <span className="rounded-full bg-brand-600/90 px-3 py-1 text-[11px] font-bold text-white shadow-[var(--shadow-card)]">
+                  {t('app.demoBadge')}
+                </span>
+              </div>
+            ) : null}
             <Outlet />
             {showNav && <BottomNav />}
           </div>

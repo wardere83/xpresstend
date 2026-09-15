@@ -109,7 +109,7 @@ export function NativeShell() {
           aria-hidden="true"
           className={`launch-reveal text-ink-900 ${reveal === 'leave' ? 'launch-reveal--leave' : ''}`}
         >
-          <Logo variant="full" height={56} className="launch-reveal__mark" />
+          <Logo height={44} className="launch-reveal__mark" />
         </div>
       ) : null}
       {offline ? (

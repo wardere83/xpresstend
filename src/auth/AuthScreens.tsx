@@ -22,7 +22,7 @@ function Shell({
   const column = (
     <div className="flex w-full max-w-md flex-col justify-center">
       <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
-        <Logo variant="full" height={44} />
+        <Logo height={40} />
       </Link>
       <h1 className="text-balance text-2xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
@@ -76,7 +76,7 @@ function useApiMessage() {
 
 export function Login() {
   const t = useT()
-  const { signIn, user, loading } = useAuth()
+  const { signIn, enterDemo, user, loading } = useAuth()
   const navigate = useNavigate()
   const toMessage = useApiMessage()
   const [email, setEmail] = useState('')
@@ -116,6 +116,20 @@ export function Login() {
       <p className="mt-6 text-center text-[13px] text-ink-500">
         {t('auth.noAccount')}{' '}
         <Link to="/register" className="font-semibold text-brand-600">{t('auth.createAccount')}</Link>
+      </p>
+      {/* The walkthrough needs no credentials: it starts a badged demo session
+          on seeded data, so a visitor can hold the product before joining. */}
+      <p className="mt-3 text-center text-[13px] text-ink-500">
+        <button
+          type="button"
+          onClick={() => {
+            enterDemo()
+            navigate('/app', { replace: true })
+          }}
+          className="font-semibold text-brand-600"
+        >
+          {t('marketing.tryDemo')}
+        </button>
       </p>
     </Shell>
   )

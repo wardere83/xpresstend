@@ -4,6 +4,10 @@ import { type AccountUser } from '../lib/api'
 export interface AuthState {
   user: AccountUser | null
   loading: boolean
+  /** True while the session is the local demo walkthrough, never a real account. */
+  isDemo: boolean
+  /** Starts a signed-out walkthrough on seeded data; nothing touches the API. */
+  enterDemo: () => void
   signIn: (email: string, password: string) => Promise<void>
   register: (input: {
     email: string; password: string; firstName: string; lastName: string; language?: string

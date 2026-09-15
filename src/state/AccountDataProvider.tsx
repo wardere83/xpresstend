@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { type AccountDataValue, type ApiRecipient, type ApiTransfer, Ctx } from './AccountData'
 
 export function AccountDataProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+  const { user, isDemo } = useAuth()
   const [recipients, setRecipients] = useState<ApiRecipient[]>([])
   const [transfers, setTransfers] = useState<ApiTransfer[]>([])
   const [loading, setLoading] = useState(false)
@@ -12,7 +12,9 @@ export function AccountDataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
-    if (!user) {
+    // A demo session stays not-live on purpose: the transfer layer then serves
+    // its seeded sample data, and nothing here touches the API.
+    if (!user || isDemo) {
       setRecipients([]); setTransfers([]); setLive(false)
       return
     }
@@ -33,7 +35,7 @@ export function AccountDataProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user, isDemo])
 
   useEffect(() => { void refresh() }, [refresh])
 

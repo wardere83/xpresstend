@@ -280,13 +280,20 @@ export type Transaction = {
   reference: string
 }
 
+/**
+ * Seed dates are relative to now rather than fixed. The demo walkthrough shows
+ * a "sent this month" figure, and a hard-coded calendar date ages out of the
+ * current month — the tour then opens on $0.00, which reads as broken.
+ */
+const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString()
+
 export const transactions: Transaction[] = [
   {
     id: 't1',
     recipientId: 'r1',
     amountUsd: 200,
     fee: 4.99,
-    date: '2024-05-12T09:24:00Z',
+    date: daysAgo(2),
     status: 'completed',
     reference: 'XPT-7741-1180-2024',
   },
@@ -295,7 +302,7 @@ export const transactions: Transaction[] = [
     recipientId: 'r3',
     amountUsd: 150,
     fee: 4.99,
-    date: '2024-05-04T17:02:00Z',
+    date: daysAgo(9),
     status: 'completed',
     reference: 'XPT-7620-8842-2024',
   },
@@ -304,7 +311,7 @@ export const transactions: Transaction[] = [
     recipientId: 'r2',
     amountUsd: 320,
     fee: 4.99,
-    date: '2024-04-28T12:41:00Z',
+    date: daysAgo(16),
     status: 'completed',
     reference: 'XPT-7455-3391-2024',
   },
@@ -313,7 +320,7 @@ export const transactions: Transaction[] = [
     recipientId: 'r4',
     amountUsd: 90,
     fee: 4.99,
-    date: '2024-04-19T08:15:00Z',
+    date: daysAgo(0),
     status: 'pending',
     reference: 'XPT-7302-5527-2024',
   },

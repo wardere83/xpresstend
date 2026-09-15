@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Lock, ShieldCheck, Zap } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
+import { DownloadAppMenu } from './DownloadAppMenu'
 import { HeroRotator } from './HeroRotator'
 import { GetTheApp } from './GetTheApp'
 import { RateQuote } from './RateQuote'
@@ -22,7 +23,8 @@ import { RateQuote } from './RateQuote'
  */
 export function Marketing() {
   const t = useT()
-  const { user } = useAuth()
+  const { user, enterDemo } = useAuth()
+  const navigate = useNavigate()
 
   /* Buttons are defined once. Every call to action on the page is one of these
      two, which is what keeps the hierarchy legible: a visitor should never have
@@ -61,12 +63,7 @@ export function Marketing() {
             </span>
           </Link>
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
-            <a
-              href="#get-the-app"
-              className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 md:block"
-            >
-              {t('app.android').split(' ')[0]}
-            </a>
+            <DownloadAppMenu />
             <LanguageSwitcher />
             {user ? (
               <Link
@@ -114,9 +111,19 @@ export function Marketing() {
               <Link to="/register" className={primaryButton}>
                 {t('marketing.getStarted')} <ArrowRight size={16} />
               </Link>
-              <Link to="/app" className={secondaryButton}>
+              {/* Anyone may walk the product without an account: this starts a
+                  clearly-badged demo session on seeded data. A signed-in
+                  customer just goes to their own app. */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (!user) enterDemo()
+                  navigate('/app')
+                }}
+                className={secondaryButton}
+              >
                 {t('marketing.tryDemo')}
-              </Link>
+              </button>
             </div>
             <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-ink-200 pt-7">
               {(
@@ -190,7 +197,7 @@ export function Marketing() {
 
       <footer className="border-t border-ink-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-12 text-[12px] leading-relaxed text-ink-500">
-          <Logo variant="full" height={38} className="mb-1" />
+          <Logo height={26} className="mb-1" />
           <p className="mt-1.5 text-ink-500">
             {brand.hq.city}, {brand.hq.state}
           </p>

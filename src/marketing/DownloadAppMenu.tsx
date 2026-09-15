@@ -62,7 +62,9 @@ export function DownloadAppMenu() {
       {open && (
         <div
           role="menu"
-          className="absolute end-0 z-40 mt-2 w-56 overflow-hidden rounded-xl bg-white py-1 shadow-[0_16px_40px_-12px_rgba(11,37,47,0.35)] ring-1 ring-brand-600/5"
+          /* w-44 below sm: the control sits mid-header on a phone, and a wider
+             panel anchored to its right edge runs into the left screen edge. */
+          className="absolute end-0 z-40 mt-2 w-44 overflow-hidden rounded-xl bg-white py-1 shadow-[0_16px_40px_-12px_rgba(11,37,47,0.35)] ring-1 ring-brand-600/5 sm:w-56"
         >
           <a
             role="menuitem"

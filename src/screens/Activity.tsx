@@ -98,7 +98,9 @@ export function Activity() {
             <bdi>{usd(monthTotal)}</bdi>
           </p>
           <p className="mt-2 text-[12px] text-white/70">
-            {t('activity.transfers', { count: history.length })}
+            {/* Counted from the same rows the list renders, so the number can
+                never disagree with what is on screen. */}
+            {t('activity.transfers', { count: rows.length })}
           </p>
         </section>
 

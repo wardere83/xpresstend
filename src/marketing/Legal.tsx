@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { brand } from '../config/brand'
 import { Logo } from '../components/Logo'
@@ -19,11 +20,21 @@ import { Logo } from '../components/Logo'
 const UPDATED = '2 September 2026'
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
+  // Arriving from the landing-page footer carries its scroll position along,
+  // so a policy would open at its own bottom. A legal page starts at the top.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <div className="min-h-dvh bg-white text-ink-900">
-      <header className="border-b border-ink-200/70">
+      {/* Same safe-area treatment as the marketing header: the native webview
+          draws under the status bar, and the lockup must clear it. */}
+      <header className="border-b border-ink-200/70 pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-3xl items-center gap-4 px-5 py-4">
-          <Link to="/" aria-label={brand.name}><Logo height={28} /></Link>
+          {/* Legal pages carry the full lockup: here the company is being
+              presented formally rather than the product worn casually. */}
+          <Link to="/" aria-label={brand.name}><Logo variant="full" height={40} /></Link>
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-5 py-12">

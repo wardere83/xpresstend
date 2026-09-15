@@ -106,7 +106,7 @@ export function AppLock({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-dvh place-items-center bg-canvas px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       <div className="flex max-w-xs flex-col items-center text-center">
-        <Logo variant="full" height={42} />
+        <Logo height={36} />
         <span className="mt-8 grid h-14 w-14 place-items-center rounded-xl bg-brand-100 text-brand-700">
           <Lock size={22} />
         </span>

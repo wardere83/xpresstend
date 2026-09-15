@@ -26,4 +26,15 @@ export const brand = {
   legal: {
     licence: 'Private beta. Not yet a licensed money transmitter.',
   },
+  /**
+   * Where the beta builds live. The Android APK downloads straight from the
+   * rolling GitHub release. iOS is the TestFlight public link — paste it here
+   * once one is created in App Store Connect (Users and Access → TestFlight →
+   * public link); while it is empty the UI points at the get-the-app section
+   * instead of a dead button.
+   */
+  appLinks: {
+    androidApk: 'https://github.com/wardere83/xpresstend/releases/latest/download/xpresstend.apk',
+    iosTestFlight: '',
+  },
 } as const
