@@ -230,7 +230,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.getStarted': 'Começar',
   'marketing.openApp': 'Abrir app',
   'marketing.tryDemo': 'Explorar o app',
-  'marketing.heroTitle': 'Mais perto a cada transferência!',
+  'marketing.heroTitle': 'Mais perto a cada envio!',
   'marketing.heroBody': 'Taxas claras. Uma taxa única. Pontos de bônus para usar depois. Fale ou digite no seu idioma, e o app inteiro responde nele.',
   'marketing.statLanguages': 'Idiomas, totalmente traduzidos',
   'marketing.statSupport': 'Suporte, todos os dias',

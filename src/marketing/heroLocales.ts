@@ -19,8 +19,8 @@ export interface HeroLocale {
 
 export const HERO_LOCALES: HeroLocale[] = [
   { code: 'en', label: 'English', dir: 'ltr', line: 'Closer with every transfer!' },
-  { code: 'pt-BR', label: 'Português', dir: 'ltr', line: 'Mais perto a cada transferência!' },
-  { code: 'so', label: 'Af-Soomaali', dir: 'ltr', line: 'Dhawaansho wareejin kasta!' },
+  { code: 'pt-BR', label: 'Português', dir: 'ltr', line: 'Mais perto a cada envio!' },
+  { code: 'so', label: 'Af-Soomaali', dir: 'ltr', line: 'Dhawaansho dirid kasta!' },
   { code: 'ar', label: 'العربية', dir: 'rtl', line: 'أقرب مع كل تحويل!' },
   { code: 'es', label: 'Español', dir: 'ltr', line: '¡Más cerca con cada envío!' },
 ]
