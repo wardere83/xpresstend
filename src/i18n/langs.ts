@@ -15,7 +15,7 @@ export type LangMeta = {
   nativeLabel: string
   flag: string
   dir: 'ltr' | 'rtl'
-  /** BCP-47 tag matched against `navigator.language` on first load. */
+  /** BCP-47 prefixes this language answers to (see `matchBrowserLang`). */
   matches: string[]
 }
 
@@ -52,7 +52,11 @@ export function isRtlLang(lang: Lang): boolean {
   return dirOf(lang) === 'rtl'
 }
 
-/** Best match for a `navigator.language` value, or `null` when nothing fits. */
+/**
+ * Best match for a `navigator.language` value, or `null` when nothing fits.
+ * Not used to pick the startup language — the app always opens in English
+ * until the person chooses — but kept for suggesting a language in the UI.
+ */
 export function matchBrowserLang(tag: string | undefined): Lang | null {
   if (!tag) return null
   const lower = tag.toLowerCase()

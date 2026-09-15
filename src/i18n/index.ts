@@ -3,7 +3,7 @@ import { brand } from '../config/brand'
 import { ar } from './ar'
 import { en, type TranslationKey } from './en'
 import { es } from './es'
-import { isLang, matchBrowserLang, type Lang } from './langs'
+import { isLang, type Lang } from './langs'
 import { ptBR } from './ptBR'
 import { so } from './so'
 
@@ -60,9 +60,9 @@ export function readInitialLang(): Lang {
   if (typeof window === 'undefined') return 'en'
   const stored = window.localStorage.getItem(STORAGE_KEY)
   if (isLang(stored)) return stored
-  // English is the primary language; only auto-switch when the browser asks
-  // for one of the others.
-  return matchBrowserLang(window.navigator.language) ?? 'en'
+  // Always open in English until the person has picked a language themselves;
+  // the device locale is deliberately not consulted.
+  return 'en'
 }
 
 export function useI18n() {
