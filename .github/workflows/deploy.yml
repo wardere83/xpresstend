@@ -46,8 +46,11 @@ jobs:
       - name: Build the site
         run: npm run build
 
+      # Chrome, not Chromium: the bundled Chromium has no proprietary codecs,
+      # so the H.264 product film cannot play and the playback checks fail on a
+      # film that works everywhere it actually ships.
       - name: Install browser for product checks
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chrome
 
       - name: Website and app journey checks
         run: npm run test:e2e
