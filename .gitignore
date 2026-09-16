@@ -36,3 +36,7 @@ api/.wrangler
 /icons.svg
 /CNAME
 /media/
+
+# Browser test output
+/test-results/
+/playwright-report/

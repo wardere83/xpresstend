@@ -300,7 +300,7 @@ export const en = {
   'app.iosNote': 'Coming to the App Store',
   'app.iosBetaNote': 'Join the TestFlight beta',
   'app.demoBadge': 'Demo preview — sample data',
-  'nav.downloadApp': 'Download App',
+  'nav.downloadApp': 'Download the app',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',
   'review.authFailed': 'That password was not accepted.',

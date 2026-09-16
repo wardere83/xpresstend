@@ -1,85 +1,56 @@
-import { Apple, Download } from 'lucide-react'
+import { Apple, ArrowUpRight, Download, Globe2 } from 'lucide-react'
 import { brand } from '../config/brand'
-import { useT } from '../i18n'
+import { useBrandCopy } from './brandCopy'
 
-/**
- * App download.
- *
- * Android points at a rolling GitHub release, whose assets download without a
- * login. Actions artifacts would have needed one, so they cannot sit behind a
- * public button.
- *
- * iOS joins through TestFlight once a public link is configured on the brand;
- * until then the card stays honest about the beta being invite-only.
- */
-const APK_URL = brand.appLinks.androidApk
-
-export function GetTheApp() {
-  const t = useT()
-  const testflight = brand.appLinks.iosTestFlight
-
+export function GetTheApp({ onExplore }: { onExplore: () => void }) {
+  const copy = useBrandCopy()
+  const ios = brand.appLinks.iosTestFlight
   return (
-    <section id="get-the-app" className="border-t border-ink-200/70 bg-canvas">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.1fr_1fr] md:items-center">
-        <div>
-          <h2 className="text-balance text-3xl font-semibold tracking-tight">{t('app.title')}</h2>
-          <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-ink-500">{t('app.body')}</p>
-
-          <ul className="mt-6 space-y-2.5">
-            {(['app.point1', 'app.point2', 'app.point3'] as const).map((key) => (
-              <li key={key} className="flex gap-2.5 text-[13px] leading-relaxed text-ink-700">
-                <span aria-hidden="true" className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />
-                {t(key)}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="space-y-3">
-          <a
-            href={APK_URL}
-            className="flex items-center gap-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70 transition hover:ring-brand-400"
-          >
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
-              <Download size={22} />
+    <section
+      className="brand-download brand-width"
+      id="get-the-app"
+      aria-labelledby="download-title"
+    >
+      <div className="brand-download-orbit" aria-hidden="true">
+        <Globe2 strokeWidth={0.4} />
+        <span />
+      </div>
+      <div className="brand-download-content">
+        <p className="brand-eyebrow">XpressTend</p>
+        <h2 className="brand-display" id="download-title">
+          {copy.downloadTitle}
+        </h2>
+        <p className="brand-body">{copy.downloadBody}</p>
+        <div className="brand-download-buttons">
+          <a href={brand.appLinks.androidApk}>
+            <Download size={23} />
+            <span>
+              {copy.android}
+              <small>{copy.androidNote}</small>
             </span>
-            <span className="min-w-0">
-              <span className="block text-[15px] font-bold text-ink-900">{t('app.android')}</span>
-              <span className="block text-[12px] leading-snug text-ink-500">{t('app.androidNote')}</span>
-            </span>
+            <ArrowUpRight size={16} />
           </a>
-
-          {testflight ? (
-            <a
-              href={testflight}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70 transition hover:ring-brand-400"
-            >
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
-                <Apple size={22} />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[15px] font-bold text-ink-900">{t('app.ios')}</span>
-                <span className="block text-[12px] leading-snug text-ink-500">{t('app.iosBetaNote')}</span>
-              </span>
-            </a>
-          ) : (
-            <div className="flex items-center gap-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70 opacity-70">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-ink-200 text-ink-500">
-                <Apple size={22} />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[15px] font-bold text-ink-900">{t('app.ios')}</span>
-                <span className="block text-[12px] leading-snug text-ink-500">{t('app.iosNote')}</span>
-              </span>
-            </div>
-          )}
-
-          {/* No icon: a smartphone outline at footnote size reads as a
-              missing-glyph box, not as an icon. */}
-          <p className="pt-1 text-[11px] leading-relaxed text-ink-500">{t('app.sideloadNote')}</p>
+          <a
+            href={
+              ios || `mailto:${brand.support.email}?subject=iPhone%20access`
+            }
+            {...(ios ? { target: '_blank', rel: 'noreferrer' } : {})}
+          >
+            <Apple size={24} />
+            <span>
+              {copy.ios}
+              <small>{ios ? 'TestFlight' : copy.iosNote}</small>
+            </span>
+            <ArrowUpRight size={16} />
+          </a>
         </div>
+        <button type="button" className="brand-text-link" onClick={onExplore}>
+          {copy.web} <ArrowUpRight size={16} />
+        </button>
+        <details className="brand-install-help">
+          <summary>{copy.installHelp}</summary>
+          <p>{copy.installBody}</p>
+        </details>
       </div>
     </section>
   )

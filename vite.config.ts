@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -13,6 +14,7 @@ import tailwindcss from '@tailwindcss/vite'
 // the compiled site can live there instead (see scripts/publish-root.mjs).
 export default defineConfig({
   root: 'web',
+  resolve: { alias: { '/src': fileURLToPath(new URL('./src', import.meta.url)) } },
   publicDir: '../public',
   base: './',
   build: {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Lock, ShieldCheck } from 'lucide-react'
 import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
+import { useAuth } from '../auth/AuthContext'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, usd } from '../lib/format'
 import { outcomeFeedback, tapFeedback } from '../native/capabilities'
@@ -12,6 +13,7 @@ type Verification = 'face' | 'pin'
 
 export function Review() {
   const { t, lang } = useI18n()
+  const { isDemo } = useAuth()
   const navigate = useNavigate()
   const { recipient, corridor, quote, commit, commitError } = useTransfer()
 
@@ -55,6 +57,10 @@ export function Review() {
 
   const start = () => {
     void tapFeedback('medium')
+    if (isDemo) {
+      void complete('')
+      return
+    }
     setStage('pin')
   }
 
@@ -64,20 +70,33 @@ export function Review() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         {commitError ? (
-          <p role="alert" className="mb-3 rounded-xl bg-alert-soft px-4 py-3 text-[13px] font-medium text-alert">
+          <p
+            role="alert"
+            className="mb-3 rounded-xl bg-alert-soft px-4 py-3 text-[13px] font-medium text-alert"
+          >
             {commitError}
           </p>
         ) : null}
 
         {/* Summary */}
         <section className="card p-4">
-          <h2 className="mb-1 text-[15px] font-bold text-ink-900">{t('field.summary')}</h2>
+          <h2 className="mb-1 text-[15px] font-bold text-ink-900">
+            {t('field.summary')}
+          </h2>
           <SummaryRow label={t('field.youSend')} value={usd(quote.amountUsd)} />
           <SummaryRow label={t('field.fee')} value={usd(quote.fee)} />
           <div className="my-1 border-t border-ink-200/70" />
-          <SummaryRow label={t('field.total')} value={usd(quote.totalUsd)} strong />
+          <SummaryRow
+            label={t('field.total')}
+            value={usd(quote.totalUsd)}
+            strong
+          />
           <div className="my-1 border-t border-ink-200/70" />
-          <SummaryRow label={t('field.recipientGets')} value={usd(quote.recipientUsd)} strong />
+          <SummaryRow
+            label={t('field.recipientGets')}
+            value={usd(quote.recipientUsd)}
+            strong
+          />
           <SummaryRow label={t('field.to')} value={recipient.name} />
           <SummaryRow
             label={t('field.mobileWallet')}
@@ -92,8 +111,12 @@ export function Review() {
 
         {/* Important */}
         <section className="mt-5">
-          <h3 className="mb-1.5 text-[14px] font-bold text-ink-900">{t('review.important')}</h3>
-          <p className="text-[12.5px] leading-relaxed text-ink-500">{t('review.importantBody')}</p>
+          <h3 className="mb-1.5 text-[14px] font-bold text-ink-900">
+            {t('review.important')}
+          </h3>
+          <p className="text-[12.5px] leading-relaxed text-ink-500">
+            {t('review.importantBody')}
+          </p>
         </section>
 
         {/* Security */}
@@ -101,7 +124,9 @@ export function Review() {
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={18} className="mt-0.5 shrink-0 text-ink-500" />
             <div>
-              <h3 className="text-[13.5px] font-bold text-brand-700">{t('review.securityCheck')}</h3>
+              <h3 className="text-[13.5px] font-bold text-brand-700">
+                {t('review.securityCheck')}
+              </h3>
               <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
                 {t('review.securityBody')}
               </p>
@@ -110,34 +135,37 @@ export function Review() {
         </section>
 
         {/* Verification choice */}
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {(
-            [
-              { id: 'pin' as const, label: t('review.pin'), icon: Lock },
-            ]
-          ).map(({ id, label, icon: Icon }) => {
-            const active = method === id
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setMethod(id)}
-                aria-pressed={active}
-                className={`flex items-center justify-center gap-2 rounded-xl border py-3.5 text-[14px] font-bold transition ${
-                  active
-                    ? 'border-brand-600 bg-brand-50 text-brand-700'
-                    : 'border-ink-200 bg-white text-ink-500 hover:bg-canvas'
-                }`}
-              >
-                <Icon size={18} strokeWidth={2.1} />
-                {label}
-              </button>
-            )
-          })}
-        </div>
+        {!isDemo && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {[{ id: 'pin' as const, label: t('review.pin'), icon: Lock }].map(
+              ({ id, label, icon: Icon }) => {
+                const active = method === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setMethod(id)}
+                    aria-pressed={active}
+                    className={`flex items-center justify-center gap-2 rounded-xl border py-3.5 text-[14px] font-bold transition ${
+                      active
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        : 'border-ink-200 bg-white text-ink-500 hover:bg-canvas'
+                    }`}
+                  >
+                    <Icon size={18} strokeWidth={2.1} />
+                    {label}
+                  </button>
+                )
+              },
+            )}
+          </div>
+        )}
 
         <div className="mt-5">
-          <PrimaryButton onClick={start} disabled={stage === 'verifying'}>
+          <PrimaryButton
+            onClick={start}
+            disabled={busy || stage === 'verifying'}
+          >
             {stage === 'verifying'
               ? t('review.verifying')
               : t('review.send', { amount: usd(quote.totalUsd) })}
@@ -151,7 +179,9 @@ export function Review() {
           <div className="rounded-t-[26px] bg-white px-5 pb-8 pt-6">
             <div className="mb-4 flex items-center gap-2">
               <Lock size={16} className="text-brand-600" />
-              <h2 className="text-[15px] font-bold text-ink-900">{t('review.authorise')}</h2>
+              <h2 className="text-[15px] font-bold text-ink-900">
+                {t('review.authorise')}
+              </h2>
             </div>
             <p className="mb-4 text-[13px] leading-relaxed text-ink-500">
               {t('review.enterPassword')}
@@ -171,15 +201,27 @@ export function Review() {
                 className="w-full rounded-xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
               />
               {authError ? (
-                <p role="alert" className="mt-3 text-[13px] font-medium text-alert">{authError}</p>
+                <p
+                  role="alert"
+                  className="mt-3 text-[13px] font-medium text-alert"
+                >
+                  {authError}
+                </p>
               ) : null}
               <div className="mt-5 flex gap-2">
-                <PrimaryButton type="submit" disabled={busy || password.length === 0}>
+                <PrimaryButton
+                  type="submit"
+                  disabled={busy || password.length === 0}
+                >
                   {busy ? t('common.sending') : t('review.authorise')}
                 </PrimaryButton>
                 <button
                   type="button"
-                  onClick={() => { setStage('idle'); setPassword(''); setAuthError(null) }}
+                  onClick={() => {
+                    setStage('idle')
+                    setPassword('')
+                    setAuthError(null)
+                  }}
                   className="rounded-full border border-ink-200 px-5 text-[14px] font-semibold text-ink-700"
                 >
                   {t('common.cancel')}
@@ -189,7 +231,6 @@ export function Review() {
           </div>
         </div>
       )}
-
     </div>
   )
 }
