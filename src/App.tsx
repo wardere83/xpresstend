@@ -46,9 +46,8 @@ export default function App() {
               <Route path="/invite/:token" element={<InviteAccept />} />
 
               {/* The product. */}
-              {/* Signed out, the product is not reachable at all: a demo that can
-                  mint a convincing "transfer complete" screen is a liability for a
-                  financial product, whatever the marketing page invites. */}
+              {/* Real sessions and the explicitly selected local explore mode
+                  share the same product screens. */}
               <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                 <Route path="/app" element={<Home />} />
                 <Route path="voice" element={<Voice />} />
