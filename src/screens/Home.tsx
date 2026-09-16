@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import {
   Banknote,
-  Bell,
   ChevronRight,
+  ArrowUpRight,
+  User,
   Headphones,
   Landmark,
-  Menu,
   MessageCircleMore,
   ShieldCheck,
   Signal,
@@ -13,11 +13,13 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { Logo } from '../components/AppLayout'
-import { Avatar, IconTile, SectionTitle } from '../components/ui'
+import { Avatar, SectionTitle } from '../components/ui'
 import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { getRecipient, user } from '../data/mock'
 import { useAuth } from '../auth/AuthContext'
+import { useAccountData } from '../state/AccountData'
+import { hueFor } from '../lib/view'
 import { formatDate, rate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 import type { DeliveryMethod } from '../state/TransferContext'
@@ -41,81 +43,107 @@ const quickActions: {
   hue: number
   to: string
 }[] = [
-  { titleKey: 'quick.help', subKey: 'quick.helpSub', icon: MessageCircleMore, hue: 262, to: '/help' },
-  { titleKey: 'quick.rates', subKey: 'quick.ratesSub', icon: TrendingUp, hue: 152, to: '/rates' },
-  { titleKey: 'quick.refer', subKey: 'quick.referSub', icon: ShieldCheck, hue: 250, to: '/refer' },
-  { titleKey: 'quick.support', subKey: 'quick.supportSub', icon: Headphones, hue: 205, to: '/support' },
+  {
+    titleKey: 'quick.help',
+    subKey: 'quick.helpSub',
+    icon: MessageCircleMore,
+    hue: 262,
+    to: '/help',
+  },
+  {
+    titleKey: 'quick.rates',
+    subKey: 'quick.ratesSub',
+    icon: TrendingUp,
+    hue: 152,
+    to: '/rates',
+  },
+  {
+    titleKey: 'quick.refer',
+    subKey: 'quick.referSub',
+    icon: ShieldCheck,
+    hue: 250,
+    to: '/refer',
+  },
+  {
+    titleKey: 'quick.support',
+    subKey: 'quick.supportSub',
+    icon: Headphones,
+    hue: 205,
+    to: '/support',
+  },
 ]
 
 export function Home() {
-  const { user: account } = useAuth()
+  const { user: account, isDemo } = useAuth()
+  const { recipients: accountRecipients, transfers, error } = useAccountData()
   const t = useT()
   const mirror = useMirrorClass()
   const navigate = useNavigate()
   const { history, corridor, setDeliveryMethod, setRecipientId } = useTransfer()
-  const latest = history[0]
-  const latestRecipient = latest ? getRecipient(latest.recipientId) : null
-  const favourites = ['r1', 'r2', 'r3'].map(getRecipient)
+  const accountLatest = transfers[0]
+  const latest = isDemo
+    ? history[0]
+    : accountLatest
+      ? {
+          date: accountLatest.created_at,
+          amountUsd: accountLatest.send_amount_minor / 100,
+          status: accountLatest.status,
+        }
+      : null
+  const latestRecipient =
+    isDemo && history[0]
+      ? getRecipient(history[0].recipientId)
+      : accountLatest
+        ? {
+            name: accountLatest.recipient_name,
+            hue: hueFor(accountLatest.recipient_name),
+          }
+        : null
+  const favourites = isDemo
+    ? ['r1', 'r2', 'r3'].map(getRecipient)
+    : accountRecipients.slice(0, 3).map((r) => ({
+        id: r.id,
+        name: r.full_name,
+        phone: r.phone ?? r.country,
+        hue: hueFor(r.full_name),
+      }))
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="product-home-top">
+        <Logo />
         <button
           type="button"
           onClick={() => navigate('/profile')}
           aria-label={t('nav.profile')}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
         >
-          <Menu size={22} strokeWidth={2.2} />
-        </button>
-        <Logo />
-        <button
-          type="button"
-          onClick={() => navigate('/activity')}
-          aria-label="Notifications"
-          className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
-        >
-          <Bell size={21} strokeWidth={2.1} />
-          <span className="absolute top-1 end-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-xt-turquoise px-[3px] text-[9px] font-bold text-xt-navy">
-            2
-          </span>
+          <User size={18} strokeWidth={1.6} />
         </button>
       </div>
-
-      <div className="px-4 pb-8">
-        {/* Greeting */}
-        <div className="mt-2 mb-4">
-          <h1 className="text-[22px] leading-tight font-semibold text-ink-900">
-            {t('home.greeting', { name: account?.firstName ?? user.firstName })} <span aria-hidden="true">👋</span>
+      <div className="product-home-content">
+        {error && (
+          <p role="alert" className="mb-3 text-sm text-alert">
+            {error}
+          </p>
+        )}
+        <div className="product-home-greeting">
+          <h1>
+            {t('home.greeting', { name: account?.firstName ?? user.firstName })}
           </h1>
-          <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
+          <p>{t('home.subtitle')}</p>
         </div>
-
-        {/*
-          Voice used to open this screen with a full-bleed hero, which put a
-          secondary input method above the thing people actually come here to
-          do. It now lives beside the assistant's text field, where someone
-          reaches for it only if they want it, so sending money is the first
-          action on the page.
-        */}
-
-        {/* Send money */}
-        <section className="card mt-4 p-4">
-          <button
-            type="button"
-            onClick={() => navigate('/send')}
-            className="mb-4 flex w-full items-center justify-between text-start"
-          >
+        <section className="product-send-card">
+          <button type="button" onClick={() => navigate('/send')}>
             <span>
-              <span className="block text-[15px] font-bold text-ink-900">{t('home.sendMoney')}</span>
-              <span className="block text-[12px] text-ink-500">{t('home.sendMoneySub')}</span>
+              <strong>{t('home.sendMoney')}</strong>
+              <small>{t('home.sendMoneySub')}</small>
             </span>
-            <ChevronRight size={18} className={`text-ink-500 ${mirror}`} />
+            <span className="product-send-arrow">
+              <ArrowUpRight size={21} />
+            </span>
           </button>
-
-          <div className="grid grid-cols-4 gap-2">
-            {services.map(({ key, icon: Icon, hue, method }) => (
+          <div className="product-services">
+            {services.map(({ key, icon: Icon, method }) => (
               <button
                 key={key}
                 type="button"
@@ -123,21 +151,16 @@ export function Home() {
                   setDeliveryMethod(method)
                   navigate('/send')
                 }}
-                className="flex flex-col items-center gap-1.5 rounded-xl py-1 transition active:scale-95"
               >
-                <IconTile hue={hue}>
-                  <Icon size={22} strokeWidth={2} />
-                </IconTile>
-                <span className="text-center text-[10.5px] leading-tight font-semibold text-ink-700">
-                  {t(key)}
-                </span>
+                <Icon size={22} strokeWidth={1.5} />
+                <span>{t(key)}</span>
               </button>
             ))}
           </div>
         </section>
 
         {/* Recent transaction */}
-        <section className="card mt-4 p-4">
+        <section className="product-home-section card p-4">
           <SectionTitle
             title={t('home.recentTransaction')}
             action={t('common.viewAll')}
@@ -154,7 +177,9 @@ export function Home() {
                 <span className="block truncate text-[14px] font-bold text-ink-900">
                   {latestRecipient.name}
                 </span>
-                <span className="block text-[12px] text-ink-500">{formatDate(latest.date)}</span>
+                <span className="block text-[12px] text-ink-500">
+                  {formatDate(latest.date)}
+                </span>
               </span>
               <span className="text-end">
                 <span className="block text-[14px] font-semibold text-ink-900">
@@ -162,7 +187,9 @@ export function Home() {
                 </span>
                 <span
                   className={`flex items-center justify-end gap-1.5 text-[12px] font-semibold ${
-                    latest.status === 'completed' ? 'text-brand-700' : 'text-ink-500'
+                    latest.status === 'completed'
+                      ? 'text-brand-700'
+                      : 'text-ink-500'
                   }`}
                 >
                   <span
@@ -171,22 +198,36 @@ export function Home() {
                     }`}
                     aria-hidden="true"
                   />
-                  {t(latest.status === 'completed' ? 'common.completed' : 'common.pending')}
+                  {t(
+                    latest.status === 'completed'
+                      ? 'common.completed'
+                      : 'common.pending',
+                  )}
                 </span>
               </span>
             </button>
           ) : (
-            <p className="text-[13px] text-ink-500">{t('home.noTransactions')}</p>
+            <p className="text-[13px] text-ink-500">
+              {t('home.noTransactions')}
+            </p>
           )}
         </section>
 
         {/* Recipients */}
-        <section className="card mt-4 p-4">
+        <section className="product-home-section card p-4">
           <SectionTitle
             title={t('home.recipients')}
             action={t('common.viewAll')}
             onAction={() => navigate('/recipients')}
           />
+          {favourites.length === 0 && (
+            <button
+              className="text-sm text-ink-500"
+              onClick={() => navigate('/recipients')}
+            >
+              {t('recipients.add')}
+            </button>
+          )}
           <ul className="space-y-1">
             {favourites.map((r) => (
               <li key={r.id}>
@@ -200,37 +241,33 @@ export function Home() {
                 >
                   <Avatar name={r.name} hue={r.hue} size={40} />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-bold text-ink-900">{r.name}</span>
+                    <span className="block truncate text-[14px] font-bold text-ink-900">
+                      {r.name}
+                    </span>
                     <span className="block text-[12px] text-ink-500">
                       <bdi>{r.phone}</bdi>
                     </span>
                   </span>
-                  <ChevronRight size={17} className={`text-ink-500 ${mirror}`} />
+                  <ChevronRight
+                    size={17}
+                    className={`text-ink-500 ${mirror}`}
+                  />
                 </button>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* Quick actions */}
-        <section className="mt-6">
-          <h2 className="mb-3 text-[15px] font-bold text-ink-900">{t('home.quickActions')}</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map(({ titleKey, subKey, icon: Icon, hue, to }) => (
-              <button
-                key={titleKey}
-                type="button"
-                onClick={() => navigate(to)}
-                className="card flex flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]"
-              >
-                <IconTile hue={hue} size={46}>
-                  <Icon size={21} strokeWidth={2} />
-                </IconTile>
-                <span className="text-[13px] font-bold text-ink-900">{t(titleKey)}</span>
-                <span className="text-[11px] leading-snug text-ink-500">{t(subKey)}</span>
-              </button>
-            ))}
-          </div>
+        <section
+          className="product-home-tools"
+          aria-label={t('home.quickActions')}
+        >
+          {quickActions.map(({ titleKey, icon: Icon, to }) => (
+            <button key={titleKey} type="button" onClick={() => navigate(to)}>
+              <Icon size={17} strokeWidth={1.6} />
+              <span>{t(titleKey)}</span>
+            </button>
+          ))}
         </section>
 
         <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-500">
