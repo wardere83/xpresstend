@@ -5,6 +5,7 @@ import { adminAuth, auth } from './routes-auth'
 import { admin } from './routes-admin'
 import { bootstrap } from './routes-bootstrap'
 import { invite } from './routes-invite'
+import { recovery } from './routes-recovery'
 import { transfers } from './routes-transfers'
 import { refreshRates } from './rates'
 
@@ -31,6 +32,13 @@ api.route('/auth', auth)
 api.route('/bootstrap', bootstrap)
 api.route('/invite', invite)
 api.route('/admin/auth', adminAuth)
+/*
+ * Recovery sits on the same prefix but is mounted separately, and before the
+ * guarded `/admin` router, because it has to stay public: someone who cannot
+ * sign in has no session to authenticate with. Paths do not overlap with
+ * adminAuth's, so the two coexist on /admin/auth.
+ */
+api.route('/admin/auth', recovery)
 api.route('/admin', admin)
 api.route('/', transfers)
 

@@ -4,7 +4,9 @@ import { audit } from './audit'
 import type { Env, SessionAdmin, Vars } from './env'
 import { requireRole } from './sessions'
 import { hashToken } from './crypto'
-import { sendEmail, staffInviteEmail } from './email'
+import { passwordResetEmail, sendEmail, staffInviteEmail } from './email'
+import { RESET_MINUTES } from './recovery-rules'
+import { issueResetToken } from './routes-recovery'
 
 /**
  * Staff administration.
@@ -104,6 +106,74 @@ staff.post('/invite', requireRole('owner'), async (c) => {
     // never puts the credential on someone's screen.
     link: delivery.sent ? undefined : link,
     expiresAt,
+  })
+})
+
+/**
+ * Issues a password reset link for another staff member, on an owner's word.
+ *
+ * This exists because the self-service route cannot hand a link back over HTTP.
+ * Returning a reset link to an unauthenticated caller would let anyone who
+ * knows an address take that account, so that route only ever emails. Until a
+ * mail provider is configured, that leaves a genuinely locked-out colleague
+ * with no route back in — so an owner takes responsibility instead, exactly as
+ * they already do when inviting someone.
+ *
+ * This grants no privilege an owner lacks: they can already invite staff, set
+ * roles and disable accounts. What it adds is a record of who did it.
+ *
+ * Refused for a disabled account. Re-enabling somebody is a separate, explicit
+ * decision made through PATCH /:id, and it should not be a side effect of
+ * handing out a link.
+ */
+staff.post('/:id/reset-link', requireRole('owner'), async (c) => {
+  const me = c.get('admin')
+  const id = c.req.param('id')
+
+  const target = await c.env.DB.prepare(
+    `SELECT id, email, name, status FROM admins WHERE id = ?`,
+  ).bind(id).first<{ id: string; email: string; name: string; status: string }>()
+
+  if (!target) return c.json({ error: 'not_found' }, 404)
+  if (target.status === 'disabled') {
+    return c.json(
+      {
+        error: 'account_disabled',
+        message: 'Re-enable this account first. A reset link will not reactivate it.',
+      },
+      409,
+    )
+  }
+
+  const token = await issueResetToken(c.env, {
+    adminId: target.id,
+    issuedBy: me.id,
+    ip: c.req.header('cf-connecting-ip'),
+  })
+  const link = `${c.env.APP_ORIGIN}/#/staff/reset/${token}`
+
+  /*
+   * Emailed as well when a provider exists, so the owner does not have to be
+   * the courier and the person gets it at their own address either way.
+   */
+  const mail = passwordResetEmail({ name: target.name, link, minutes: RESET_MINUTES })
+  const delivery = await sendEmail(c.env, { to: target.email, ...mail })
+
+  await audit(c.env.DB, {
+    actorType: 'admin', actorId: me.id, action: 'staff.reset_link_issued',
+    entityType: 'admin', entityId: target.id,
+    metadata: { email: target.email, emailed: delivery.sent },
+    ip: c.req.header('cf-connecting-ip'), userAgent: c.req.header('user-agent'),
+  })
+
+  return c.json({
+    ok: true,
+    emailed: delivery.sent,
+    // Always returned here, unlike the invite route. The owner asked for a link
+    // to hand over, and they are authenticated as someone who may grant this
+    // access; withholding it would just send them back to the same dead end.
+    link,
+    expiresInMinutes: RESET_MINUTES,
   })
 })
 

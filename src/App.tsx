@@ -9,6 +9,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { Login, RequireAuth, Register } from './auth/AuthScreens'
 import { AdminConsole } from './admin/AdminConsole'
 import { InviteAccept } from './admin/InviteAccept'
+import { StaffPasswordReset } from './admin/StaffPasswordReset'
 import { Marketing } from './marketing/Marketing'
 import { Privacy, Support as LegalSupport } from './marketing/Legal'
 import { Home } from './screens/Home'
@@ -44,6 +45,7 @@ export default function App() {
               {/* Staff console — its own login, never the customer session. */}
               <Route path="/admin" element={<AdminConsole />} />
               <Route path="/invite/:token" element={<InviteAccept />} />
+              <Route path="/staff/reset/:token" element={<StaffPasswordReset />} />
 
               {/* The product. */}
               {/* Real sessions and the explicitly selected local explore mode

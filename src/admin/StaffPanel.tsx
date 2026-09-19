@@ -36,6 +36,13 @@ export function StaffPanel({ me }: { me: AdminUser }) {
   const [note, setNote] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  const [resetLink, setResetLink] = useState<{
+    email: string
+    link: string
+    emailed: boolean
+    minutes: number
+  } | null>(null)
+  const [resetCopied, setResetCopied] = useState(false)
 
   const isOwner = me.role === 'owner'
 
@@ -60,6 +67,30 @@ export function StaffPanel({ me }: { me: AdminUser }) {
     }
   }
 
+  /**
+   * Issues a reset link for a colleague.
+   *
+   * The link is always returned here, unlike an invitation, which withholds it
+   * when the email went out. The reason is the situation this exists for: the
+   * person is locked out and cannot receive email from us, so an owner needs
+   * something to hand over by another route. It is emailed too when a provider
+   * is configured, so whichever reaches them first works.
+   */
+  async function sendReset(id: string, email: string) {
+    setBusyId(id); setNote(null); setResetLink(null)
+    try {
+      const res = await api.post<{ link: string; emailed: boolean; expiresInMinutes: number }>(
+        `/admin/staff/${id}/reset-link`,
+        {},
+      )
+      setResetLink({ email, link: res.link, emailed: res.emailed, minutes: res.expiresInMinutes })
+    } catch (err) {
+      setNote(err instanceof ApiError ? (err.message || err.code) : 'Could not create a reset link.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -73,6 +104,41 @@ export function StaffPanel({ me }: { me: AdminUser }) {
           <span className="text-[12px] text-ink-500">Only an owner can add or change staff.</span>
         )}
       </div>
+
+      {resetLink ? (
+        <div className="mb-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70">
+          <h3 className="text-[14px] font-bold">Reset link for {resetLink.email}</h3>
+          <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
+            {resetLink.emailed
+              ? 'Emailed to them as well. Send this only if they say it never arrived.'
+              : 'Email is not configured, so nothing was sent. Give this to them over a channel you trust, and confirm you are speaking to the right person first.'}{' '}
+            It works once and expires in {resetLink.minutes} minutes. Using it signs them out
+            of every other device and clears the lock on the account.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              readOnly
+              value={resetLink.link}
+              onFocus={(e) => e.currentTarget.select()}
+              className="min-w-0 flex-1 rounded-xl bg-canvas px-3 py-2.5 text-[12px] ring-1 ring-ink-200"
+            />
+            <button
+              onClick={() => {
+                void navigator.clipboard?.writeText(resetLink.link).then(() => setResetCopied(true))
+              }}
+              className="shrink-0 rounded-full bg-ink-900 px-4 py-2.5 text-[12px] font-semibold text-white"
+            >
+              {resetCopied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+          <button
+            onClick={() => { setResetLink(null); setResetCopied(false) }}
+            className="mt-4 text-[12px] font-semibold text-brand-700"
+          >
+            Done
+          </button>
+        </div>
+      ) : null}
 
       {adding && isOwner ? (
         <AddStaff
@@ -132,17 +198,36 @@ export function StaffPanel({ me }: { me: AdminUser }) {
                 </td>
                 <td className="px-4 py-3 text-right">
                   {isOwner && r.id !== me.id ? (
-                    <button
-                      disabled={busyId === r.id}
-                      onClick={() => void update(r.id, { status: r.status === 'active' ? 'disabled' : 'active' })}
-                      className={`rounded-full px-3 py-1.5 text-[12px] font-semibold disabled:opacity-50 ${
-                        r.status === 'active'
-                          ? 'bg-white text-alert ring-1 ring-ink-200'
-                          : 'bg-brand-600 text-white'
-                      }`}
-                    >
-                      {r.status === 'active' ? 'Disable' : 'Re-enable'}
-                    </button>
+                    <span className="inline-flex items-center justify-end gap-2">
+                      {/*
+                        The way back in for a colleague who is locked out and
+                        whose reset email cannot be delivered, which is every
+                        colleague until a mail provider is configured. Hidden
+                        for a disabled account: the server refuses there, since
+                        re-enabling someone should be a deliberate act and not
+                        a side effect of handing out a link.
+                      */}
+                      {r.status !== 'disabled' ? (
+                        <button
+                          disabled={busyId === r.id}
+                          onClick={() => void sendReset(r.id, r.email)}
+                          className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-ink-700 ring-1 ring-ink-200 disabled:opacity-50"
+                        >
+                          Reset link
+                        </button>
+                      ) : null}
+                      <button
+                        disabled={busyId === r.id}
+                        onClick={() => void update(r.id, { status: r.status === 'active' ? 'disabled' : 'active' })}
+                        className={`rounded-full px-3 py-1.5 text-[12px] font-semibold disabled:opacity-50 ${
+                          r.status === 'active'
+                            ? 'bg-white text-alert ring-1 ring-ink-200'
+                            : 'bg-brand-600 text-white'
+                        }`}
+                      >
+                        {r.status === 'active' ? 'Disable' : 'Re-enable'}
+                      </button>
+                    </span>
                   ) : null}
                 </td>
               </tr>

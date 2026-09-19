@@ -172,11 +172,117 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
   )
 }
 
+/**
+ * Recovering a staff account.
+ *
+ * Two things people lose, and they are different problems:
+ *
+ *   password  a reset link, emailed. Passwords are stored as PBKDF2 hashes and
+ *             cannot be read back by anyone, so there is nothing to retrieve;
+ *             the only possible answer is to set a new one.
+ *
+ *   address   which email the account is under. The only safe answer is to
+ *             confirm an address the person already has, by writing to it. An
+ *             endpoint that told a caller which addresses exist would be an
+ *             account enumeration tool, so this one cannot do that, and the
+ *             copy says so rather than implying otherwise.
+ *
+ * Both replies are identical whether or not the address has an account, which
+ * is why the confirmation below is worded as a conditional.
+ */
+function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: () => void }) {
+  const [email, setEmail] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(false)
+
+  const password = mode === 'password'
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    try {
+      await api.post(password ? '/admin/auth/forgot-password' : '/admin/auth/forgot-email', { email })
+    } catch {
+      /*
+       * Swallowed on purpose. The server answers the same way for an unknown
+       * address as for a real one, so surfacing a network error here would be
+       * the only signal that distinguished them. The confirmation is honest
+       * either way: it promises an email only if an account exists.
+       */
+    } finally {
+      setBusy(false)
+      setSent(true)
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
+        <h1 className="text-[19px] font-semibold tracking-tight">Check your inbox</h1>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
+          If <span className="font-semibold text-ink-700">{email}</span> has a staff account,
+          we have sent it an email. Look in spam too.
+        </p>
+        {password ? (
+          <p className="mt-3 text-[12px] leading-relaxed text-ink-500">
+            The link lasts one hour and works once. If it does not arrive, an owner can
+            generate one for you from the Staff tab.
+          </p>
+        ) : null}
+        <button
+          onClick={onBack}
+          className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white"
+        >
+          Back to sign in
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
+      <h1 className="text-[19px] font-semibold tracking-tight">
+        {password ? 'Reset your password' : 'Which address do I use?'}
+      </h1>
+      <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
+        {password
+          ? 'Enter your staff address and we will email you a link to choose a new password. Passwords cannot be looked up, only replaced.'
+          : 'Enter an address you might have registered. If it has a staff account we will confirm it by email. We cannot tell you an address you do not already have.'}
+      </p>
+      <input
+        type="email"
+        required
+        autoFocus
+        placeholder="you@xpresstend.com"
+        autoComplete="username"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="mt-5 w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+      />
+      <button
+        type="submit"
+        disabled={busy}
+        className="mt-4 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
+      >
+        {busy ? 'Sending…' : password ? 'Email me a reset link' : 'Confirm this address'}
+      </button>
+      <button
+        type="button"
+        onClick={onBack}
+        className="mt-3 w-full rounded-full py-2.5 text-[13px] font-semibold text-ink-600 transition-colors hover:text-ink-900"
+      >
+        Back to sign in
+      </button>
+    </form>
+  )
+}
+
 function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [recover, setRecover] = useState<'password' | 'address' | null>(null)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -195,8 +301,16 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
     }
   }
 
+  if (recover) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+        <AdminRecover mode={recover} onBack={() => setRecover(null)} />
+      </div>
+    )
+  }
+
   return (
-    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5">
+    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
       <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <h1 className="text-[19px] font-semibold tracking-tight">Staff sign in</h1>
         <p className="mt-1.5 text-[12px] text-ink-500">Authorised personnel only. Sessions last 8 hours.</p>
@@ -213,6 +327,26 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
           className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
+        {/* Both recovery paths sit here rather than behind one "trouble signing
+            in?" link, because they answer different questions and someone who
+            has forgotten which address they use will not look for it under
+            "forgot password". */}
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-ink-200 pt-4">
+          <button
+            type="button"
+            onClick={() => setRecover('password')}
+            className="text-[12px] font-semibold text-ink-600 transition-colors hover:text-brand-600"
+          >
+            Forgot password?
+          </button>
+          <button
+            type="button"
+            onClick={() => setRecover('address')}
+            className="text-[12px] font-semibold text-ink-600 transition-colors hover:text-brand-600"
+          >
+            Forgot your email?
+          </button>
+        </div>
       </form>
     </div>
   )
