@@ -21,6 +21,9 @@ const globalVars: Record<string, string> = {
   assistant: brand.assistantName,
   city: brand.hq.city,
   state: brand.hq.state,
+  // Regulatory disclosure appears in several places and in five languages, so
+  // it comes from one constant rather than being typed out in each.
+  nmls: brand.nmls.id,
 }
 
 /**

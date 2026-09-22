@@ -48,8 +48,24 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
           <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
           <p className="mt-2">
             <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
+            {' · '}
+            <a className="underline" href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
+              {brand.support.phone}
+            </a>
           </p>
+          {/* The registration, then the link that settles what it actually
+              means. Anyone checking a money transmitter starts here. */}
           <p className="mt-3">{brand.legal.licence}</p>
+          <p className="mt-2">
+            <a
+              className="underline"
+              href={brand.nmls.verifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Verify NMLS ID {brand.nmls.id} at NMLS Consumer Access
+            </a>
+          </p>
         </div>
       </footer>
     </div>

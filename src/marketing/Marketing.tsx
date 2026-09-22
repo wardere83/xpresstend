@@ -129,6 +129,15 @@ export function Marketing() {
           <span>
             © {new Date().getFullYear()} {brand.name} · {brand.hq.city},{' '}
             {brand.hq.state}
+            {' · '}
+            {/*
+              Where a money services business is expected to show its NMLS ID,
+              and linked so the reader can check the licence status themselves
+              rather than taking a sentence on a marketing page for it.
+            */}
+            <a href={brand.nmls.verifyUrl} target="_blank" rel="noopener noreferrer">
+              NMLS ID {brand.nmls.id}
+            </a>
           </span>
           <details>
             <summary>{copy.availability}</summary>
