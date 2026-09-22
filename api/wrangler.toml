@@ -53,3 +53,20 @@ APP_ORIGIN = "https://xpresstend.com"
 #   SESSION_PEPPER      extra secret mixed into every password hash
 #   STRIPE_SECRET_KEY   test key until the money transmitter licence lands
 #   STRIPE_WEBHOOK_SECRET
+#
+# Transactional email, for staff invitations and password resets. The domain is
+# on Microsoft 365 (MX points at Outlook, SPF ends in -all authorising only
+# Microsoft), so mail goes out through Graph. Sending through any other relay
+# would fail SPF at the receiver and spam-file a password reset.
+#
+#   MS_TENANT_ID        Azure directory (tenant) ID
+#   MS_CLIENT_ID        app registration's application (client) ID
+#   MS_CLIENT_SECRET    that app's client secret
+#
+# The app registration needs the Mail.Send APPLICATION permission with admin
+# consent granted. EMAIL_FROM is optional and defaults to
+# support@xpresstend.com; whatever it is set to must be a real mailbox in the
+# tenant, because Graph sends as a user rather than an arbitrary address.
+#
+# With none of these set, invites and resets still work: the owner is handed a
+# link to pass on. Nothing breaks, it is just manual.
