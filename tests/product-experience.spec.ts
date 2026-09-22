@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
-test('homepage keeps the film quiet until played, and omits preview furniture', async ({
+test('homepage loops the film silently with no route to audio, and omits preview furniture', async ({
   page,
 }) => {
   const errors: string[] = []
@@ -26,23 +26,54 @@ test('homepage keeps the film quiet until played, and omits preview furniture', 
     ),
   ).toHaveCount(0)
   const video = page.locator('video')
-  expect(await video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true)
-  await expect(video).toHaveAttribute('preload', 'none')
-  await page
-    .getByRole('button', { name: 'Play the XpressTend film', exact: true })
-    .click()
+
+  /*
+   * The film is an ambient loop now, so the guarantees worth holding are
+   * different from before: it must run by itself, keep running, and offer no
+   * route to audio.
+   *
+   * No controls is what removes the audio. `muted` alone leaves a volume
+   * slider in the control bar, so asserting muted without asserting the
+   * absence of controls would pass on a video anyone could unmute.
+   */
+  await expect(video).toHaveAttribute('loop', '')
+  await expect(video).not.toHaveAttribute('controls', /.*/)
+  /*
+   * Muted is checked on the DOM property, not the attribute. React assigns
+   * `muted` as a property and never writes the attribute, so asserting the
+   * attribute fails on a video that is genuinely silent. The property is also
+   * the thing that actually governs playback, so it is the better assertion
+   * regardless.
+   */
+  expect(await video.evaluate((v) => (v as HTMLVideoElement).muted)).toBe(true)
+  expect(await video.evaluate((v) => (v as HTMLVideoElement).controls)).toBe(false)
+  // preload=metadata: it has to start unprompted, but must not pull the whole
+  // file down on a phone before the section is even in view.
+  await expect(video).toHaveAttribute('preload', 'metadata')
+
+  /*
+   * Scrolled to first, because the film sits below the fold and Chrome holds
+   * playback on an off-screen video to save power and data. That deferral is
+   * wanted, not worked around: an ambient loop nobody can see should not be
+   * decoding. So this reaches the section the way a visitor does, then asserts
+   * it starts on its own from there.
+   */
+  await video.scrollIntoViewIfNeeded()
   await expect
     .poll(() => video.evaluate((v) => (v as HTMLVideoElement).currentTime))
     .toBeGreaterThan(0)
+  expect(await video.evaluate((v) => (v as HTMLVideoElement).paused)).toBe(false)
   expect(await video.evaluate((v) => (v as HTMLVideoElement).videoWidth)).toBe(
     1920,
   )
   expect(
     await video.evaluate((v) => (v as HTMLVideoElement).duration),
   ).toBeCloseTo(26, 0)
-  expect(await video.evaluate((v) => (v as HTMLVideoElement).controls)).toBe(
-    true,
-  )
+  /*
+   * The old flow revealed native controls once playback began, and asserted
+   * they appeared. They must never appear now, which is checked above; this is
+   * where the previous expectation lived and it would contradict that.
+   */
   expect(errors).toEqual([])
 })
 
@@ -75,14 +106,26 @@ test('download disclosure has valid targets, closes on Escape, and restores focu
   })
   await download.click()
   const popover = page.locator('.brand-download-popover')
-  await expect(popover.getByRole('link', { name: /Android/ })).toHaveAttribute(
-    'href',
-    /releases\/latest\/download\/xpresstend.apk/,
-  )
-  await expect(popover.getByRole('link', { name: /iPhone/ })).toHaveAttribute(
+
+  /*
+   * Neither app is released, so the guarantee is the opposite of before: there
+   * must be no link to a build at all. Asserting the absence of an href is the
+   * point — a disabled-looking card that still carries a download URL is
+   * exactly the mistake this catches, since anyone can read the markup.
+   */
+  await expect(popover.getByText(/Android/)).toBeVisible()
+  await expect(popover.getByText(/iPhone/)).toBeVisible()
+  await expect(popover.getByText('Coming soon').first()).toBeVisible()
+  await expect(popover.getByRole('link', { name: /Android/ })).toHaveCount(0)
+  await expect(popover.getByRole('link', { name: /iPhone/ })).toHaveCount(0)
+  await expect(popover.locator('a[href*="xpresstend.apk"]')).toHaveCount(0)
+
+  // The one live action while both are unreleased, so the menu is not a dead end.
+  await expect(popover.getByRole('link')).toHaveAttribute(
     'href',
     /^mailto:support@xpresstend.com/,
   )
+
   await page.keyboard.press('Escape')
   await expect(popover).toHaveCount(0)
   await expect(download).toBeFocused()
