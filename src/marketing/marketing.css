@@ -170,6 +170,24 @@
 #get-the-app {
   scroll-margin-top: 105px;
 }
+/*
+ * The film runs wider than the reading column.
+ *
+ * Everything else on the page sits in .brand-width, min(1320px, 100% - 96px),
+ * which is right for text: a line much longer than that is tiring to read.
+ * Film is not text. Apple caps its media at 1680px and lets it come close to
+ * the viewport edge, and the same measurements are used here: 1680px, with
+ * 24px gutters instead of 48, so it reaches noticeably further left and right
+ * than the paragraphs above it.
+ *
+ * Deliberately not full-bleed. Edge to edge loses the rounded corners and the
+ * shadow, and with them the sense that the film is an object on the page
+ * rather than a hole cut in it.
+ */
+.brand-film {
+  width: min(1680px, calc(100% - 48px));
+  margin-inline: auto;
+}
 .brand-cinema {
   position: relative;
   border-radius: 26px;
@@ -418,6 +436,48 @@
   transform: translateY(-2px);
   border-color: #739da7;
 }
+/*
+ * Coming soon.
+ *
+ * The same card, rendered as a span with no href, so it keeps its place in the
+ * layout and its meaning is carried by its look rather than by a label alone:
+ * no lift on hover, no pointer cursor, lower contrast. Giving a disabled link
+ * the same hover as a live one is the cruellest small detail in interface
+ * design, because it promises something and then does nothing.
+ */
+.brand-download-buttons > span[aria-disabled='true'],
+.brand-download-popover > span[aria-disabled='true'] {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f3f7f8;
+  border: 1px dashed #cddce1;
+  border-radius: 17px;
+  padding: 17px 20px;
+  color: #7c929b;
+  cursor: default;
+}
+.brand-download-popover > span[aria-disabled='true'] {
+  border-radius: 12px;
+  padding: 14px 12px;
+  background: transparent;
+  border: none;
+}
+.brand-download-buttons > span[aria-disabled='true'] > span,
+.brand-download-popover > span[aria-disabled='true'] > span {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+/* The one word that has to read as deliberate rather than broken. */
+.brand-download-buttons > span[aria-disabled='true'] small,
+.brand-download-popover > span[aria-disabled='true'] small {
+  display: block;
+  color: #4f6b75;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 3px;
+}
 .brand-download-buttons a > span {
   flex: 1;
   font-size: 13px;
@@ -510,6 +570,11 @@ summary {
   .brand-width {
     width: calc(100% - 48px);
   }
+  /* Below this the gutters are already tight, so the film matches the column
+     rather than sticking out by a few pixels, which just reads as misaligned. */
+  .brand-film {
+    width: calc(100% - 40px);
+  }
   .brand-nav {
     gap: 12px;
   }
@@ -542,6 +607,14 @@ summary {
 @media (max-width: 650px) {
   .brand-width {
     width: calc(100% - 36px);
+  }
+  .brand-film {
+    width: calc(100% - 28px);
+  }
+  /* A 26px radius on a phone-width video looks like a mistake rather than a
+     detail. */
+  .brand-cinema {
+    border-radius: 18px;
   }
   .brand-header-inner {
     height: 74px;

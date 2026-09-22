@@ -84,9 +84,14 @@ export function Privacy() {
         describes the service as it actually works today.
       </p>
 
+      {/* The payments disclosure stays. It is the one statement here that has
+          to be true whatever the company's licensing status, and it is exactly
+          what a prospective banking or wallet partner will look for. Only the
+          "private beta" framing around it is gone. */}
       <div className="rounded-xl bg-canvas p-4 text-[13px]">
-        <strong>XpressTend is currently in private beta.</strong> Payments run in test mode.
-        No customer funds are transmitted, and no card or bank account is charged.
+        <strong>Payments currently run in test mode.</strong> No customer funds are
+        transmitted, and no card or bank account is charged. {brand.name} is registered
+        in the Nationwide Multistate Licensing System, NMLS ID {brand.nmls.id}.
       </div>
 
       <H>What we collect</H>
@@ -168,10 +173,17 @@ export function Support() {
 
       <H>Common questions</H>
       <p><strong>Why can I not send money yet?</strong> New accounts start unverified. You need to
-      pass identity verification before a transfer can be sent, and XpressTend is in private beta
-      with payments in test mode, so no funds move at present.</p>
-      <p><strong>I forgot my password.</strong> Email us and we will help you regain access. Self
-      service password reset is not yet available.</p>
+      pass identity verification before a transfer can be sent, and payments currently run in test
+      mode, so no funds move at present.</p>
+      {/* Self-service reset now exists, so the old answer telling people to
+          email us was sending them the long way round. */}
+      <p><strong>I forgot my password.</strong> Use the Forgot password link on the sign in screen
+      and we will email you a link to choose a new one. Passwords are stored hashed and cannot be
+      looked up or sent to you, so a reset is the only way to regain access. If you are staff and
+      the email does not arrive, an owner can issue you a reset link directly.</p>
+      <p><strong>I forgot which email I registered with.</strong> Enter an address you may have used
+      on the Forgot your email link. If it has an account we will confirm it by email. For your
+      protection we cannot tell you an address you do not already have.</p>
       <p><strong>How do I remove my account?</strong> Email us and we will close it. Records we are
       required by law to retain will be kept.</p>
       <p><strong>The app asks for Face ID.</strong> It is used to unlock the app and to confirm a

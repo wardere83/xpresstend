@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Apple, ChevronDown, Download } from 'lucide-react'
+import { Apple, ChevronDown, Download, Mail } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { useBrandCopy } from './brandCopy'
@@ -11,6 +11,7 @@ export function DownloadAppMenu() {
   const ref = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
   const id = useId()
+  const released = brand.appLinks.released
   useEffect(() => {
     if (!open) return
     const onDown = (e: PointerEvent) => {
@@ -48,29 +49,55 @@ export function DownloadAppMenu() {
         <ChevronDown size={13} className={open ? 'rotate-180' : ''} />
       </button>
       {open && (
-        <div className="brand-download-popover" id={id}>
-          <a href={brand.appLinks.androidApk} onClick={() => setOpen(false)}>
-            <Download size={17} />
-            <span>
-              {copy.android}
-              <small>.apk</small>
+        <div className="brand-download-popover" id={id} data-unreleased={!released}>
+          {released ? (
+            <a href={brand.appLinks.androidApk} onClick={() => setOpen(false)}>
+              <Download size={17} />
+              <span>
+                {copy.android}
+                <small>.apk</small>
+              </span>
+            </a>
+          ) : (
+            <span aria-disabled="true">
+              <Download size={17} />
+              <span>
+                {copy.android}
+                <small>{copy.androidNote}</small>
+              </span>
             </span>
-          </a>
-          <a
-            href={
-              brand.appLinks.iosTestFlight ||
-              `mailto:${brand.support.email}?subject=iPhone%20access`
-            }
-            onClick={() => setOpen(false)}
-          >
-            <Apple size={17} />
-            <span>
-              {copy.ios}
-              <small>
-                {brand.appLinks.iosTestFlight ? 'TestFlight' : copy.iosNote}
-              </small>
+          )}
+          {released && brand.appLinks.iosTestFlight ? (
+            <a href={brand.appLinks.iosTestFlight} onClick={() => setOpen(false)}>
+              <Apple size={17} />
+              <span>
+                {copy.ios}
+                <small>TestFlight</small>
+              </span>
+            </a>
+          ) : (
+            <span aria-disabled="true">
+              <Apple size={17} />
+              <span>
+                {copy.ios}
+                <small>{copy.iosNote}</small>
+              </span>
             </span>
-          </a>
+          )}
+          {/*
+            The one live action while both are unreleased. Without it the menu
+            is a dead end, and someone who came looking for the app has no way
+            to say so.
+          */}
+          {!released ? (
+            <a
+              href={`mailto:${brand.support.email}?subject=${encodeURIComponent('Tell me when the app is ready')}`}
+              onClick={() => setOpen(false)}
+            >
+              <Mail size={17} />
+              <span>{copy.notifyMe}</span>
+            </a>
+          ) : null}
         </div>
       )}
     </div>

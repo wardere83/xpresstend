@@ -51,13 +51,20 @@ export const brand = {
       'XpressTend Financial Services is registered in the Nationwide Multistate Licensing System, NMLS ID 2900672. Current licence status for each state is published at nmlsconsumeraccess.org.',
   },
   /**
-   * Where the beta builds live. The Android APK downloads straight from the
-   * rolling GitHub release. iOS is the TestFlight public link — paste it here
-   * once one is created in App Store Connect (Users and Access → TestFlight →
-   * public link); while it is empty the UI points at the get-the-app section
-   * instead of a dead button.
+   * App availability.
+   *
+   * `released` is the single switch the UI reads. While it is false both
+   * platforms show as coming soon and neither link is rendered, so there is no
+   * way to reach a build from the public site. Flip it to true when the apps
+   * are genuinely ready and the buttons come back with no other change.
+   *
+   * The URLs are kept rather than deleted so flipping the switch is all it
+   * takes. androidApk points at the rolling GitHub release; iosTestFlight is
+   * the TestFlight public link, created in App Store Connect under Users and
+   * Access → TestFlight → public link.
    */
   appLinks: {
+    released: false,
     androidApk: 'https://github.com/wardere83/xpresstend/releases/latest/download/xpresstend.apk',
     iosTestFlight: '',
   },
