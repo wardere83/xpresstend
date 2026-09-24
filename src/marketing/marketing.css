@@ -437,13 +437,17 @@
   border-color: #739da7;
 }
 /*
- * Coming soon.
+ * Not yet published.
  *
  * The same card, rendered as a span with no href, so it keeps its place in the
  * layout and its meaning is carried by its look rather than by a label alone:
  * no lift on hover, no pointer cursor, lower contrast. Giving a disabled link
  * the same hover as a live one is the cruellest small detail in interface
  * design, because it promises something and then does nothing.
+ *
+ * The border is solid and quiet rather than dashed. A dashed outline is the
+ * visual shorthand for scaffolding, and on a page whose whole job is to read as
+ * a finished company it was the single loudest thing saying otherwise.
  */
 .brand-download-buttons > span[aria-disabled='true'],
 .brand-download-popover > span[aria-disabled='true'] {
@@ -451,7 +455,7 @@
   align-items: center;
   gap: 14px;
   background: #f3f7f8;
-  border: 1px dashed #cddce1;
+  border: 1px solid #e2ebee;
   border-radius: 17px;
   padding: 17px 20px;
   color: #7c929b;

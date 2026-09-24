@@ -19,20 +19,24 @@ const UPDATED = '2 September 2026'
 
 export function Privacy() {
   return (
-    <Shell title="Privacy Policy" updated={UPDATED}>
+    <Shell
+      title="Privacy Policy"
+      description="What XpressTend collects, why, what never reaches us, how long records are kept, and the rights you have over your data."
+      updated={UPDATED}
+    >
       <p>
         This policy explains what XpressTend collects, why, and what we do with it. It
         describes the service as it actually works today.
       </p>
 
-      {/* The payments disclosure stays. It is the one statement here that has
-          to be true whatever the company's licensing status, and it is exactly
-          what a prospective banking or wallet partner will look for. Only the
-          "private beta" framing around it is gone. */}
+      {/* The disclosure stays: it is the one statement here that has to be
+          true whatever the company's licensing status, and it is exactly what a
+          prospective banking or wallet partner looks for. It reads from the
+          single source in brand.ts rather than restating it, so the day
+          transfers go live this sentence changes with everywhere else. */}
       <div className="rounded-xl bg-canvas p-4 text-[13px]">
-        <strong>Payments currently run in test mode.</strong> No customer funds are
-        transmitted, and no card or bank account is charged. {brand.name} is registered
-        in the Nationwide Multistate Licensing System, NMLS ID {brand.nmls.id}.
+        <strong>Operating status.</strong> {brand.legal.operatingStatus} No card or bank
+        account is charged. {brand.legal.licence}
       </div>
 
       <H>What we collect</H>
@@ -143,16 +147,19 @@ export function Support() {
   )
 
   return (
-    <Shell title="Support" updated={UPDATED}>
+    <Shell
+      title="Support"
+      description="Answers about sending a transfer, tracking and delays, cancellations, verification, fraud, your rights when you send money abroad, and how to complain."
+      updated={UPDATED}
+    >
       <p>Questions about a transfer, your account, or the app.</p>
 
       {/* Stated once, at the top, rather than qualifying thirty answers
           individually. Everything below describes how the service works; this
           is where it currently stands. */}
       <div className="rounded-xl bg-canvas p-4 text-[13px]">
-        <strong>Payments currently run in test mode.</strong> No customer funds are
-        transmitted and no card or bank account is charged. The answers below describe how
-        transfers work and what will apply when payments are live.
+        <strong>Operating status.</strong> {brand.legal.operatingStatus} The answers below
+        describe how transfers work and what applies once transfers are live.
       </div>
 
       <Contents items={SUPPORT_SECTIONS} />
