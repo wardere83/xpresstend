@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { brand } from '../config/brand'
-import { Contents, Facts, H, Shell } from './PageShell'
+import { Contents, Facts, H, NeedsFact, Shell } from './PageShell'
 import { CORRIDORS as PRICED } from './pricing'
 
 /**
@@ -32,6 +32,7 @@ export function Company() {
   return (
     <Shell
       title="Company"
+      description={`${brand.legalName} is a cross-border payments company in ${brand.hq.city}, ${brand.hq.state}. Company facts, corridors served, registration and contact details.`}
       intro={`${brand.legalName} is a cross-border payments company based in ${brand.hq.city}, ${brand.hq.state}, building a remittance service for people sending money to family abroad.`}
     >
       <Contents
@@ -62,7 +63,29 @@ export function Company() {
       <Facts
         rows={[
           { k: 'Legal name', v: brand.legalName },
-          { k: 'Headquarters', v: `${brand.hq.city}, ${brand.hq.state}, ${brand.hq.country}` },
+          {
+            k: 'Entity type',
+            v: brand.formation.type || <NeedsFact what="entity type as filed" />,
+          },
+          {
+            k: 'State of formation',
+            v: brand.formation.state || <NeedsFact what="state of formation" />,
+          },
+          {
+            k: 'Year formed',
+            v: brand.formation.year || <NeedsFact what="year of formation" />,
+          },
+          {
+            k: 'Registered office',
+            v: brand.hq.line1 ? (
+              `${brand.hq.line1}, ${brand.hq.city}, ${brand.hq.state} ${brand.hq.zip}, ${brand.hq.country}`
+            ) : (
+              <>
+                {brand.hq.city}, {brand.hq.state}, {brand.hq.country} —{' '}
+                <NeedsFact what="street address and ZIP" />
+              </>
+            ),
+          },
           {
             k: 'NMLS ID',
             v: (
@@ -131,6 +154,7 @@ export function Compliance() {
   return (
     <Shell
       title="Compliance"
+      description="XpressTend's NMLS registration, verification tiers and enforced transaction limits, sanctions screening, records and audit, and consumer disclosure."
       intro="How XpressTend is registered, what is checked before a transfer is allowed, and what is recorded. Written for banking partners, payout partners and regulators."
     >
       <Contents
@@ -274,6 +298,7 @@ export function Security() {
   return (
     <Shell
       title="Security and platform"
+      description="XpressTend's architecture, response headers, credential and session handling, money representation, access control and responsible disclosure."
       intro="How the service is built, how money is represented, and what protects the data. Written for technical and security reviewers."
     >
       <Contents
@@ -372,6 +397,7 @@ export function Partners() {
   return (
     <Shell
       title="Partnerships"
+      description="What XpressTend has built, what needs a banking or payout partner, the diligence materials available, and how to start a conversation."
       intro="What is built, what we are looking for, and how to start a conversation. For banking partners, payout partners and infrastructure providers."
     >
       <Contents

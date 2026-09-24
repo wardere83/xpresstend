@@ -23,10 +23,11 @@ export function GetTheApp({ onExplore }: { onExplore: () => void }) {
         </h2>
         <p className="brand-body">{copy.downloadBody}</p>
         {/*
-          Both platforms read as coming soon until brand.appLinks.released is
-          true. Rendered as spans rather than disabled links, so there is no
-          href for a crawler to follow or a reader to right-click and copy: the
-          builds are genuinely not for public download yet.
+          Both platforms read as in release preparation until
+          brand.appLinks.released is true. Rendered as spans rather than
+          disabled links, so there is no href for a crawler to follow or a
+          reader to right-click and copy: the builds are genuinely not for
+          public download yet.
         */}
         <div className="brand-download-buttons" data-unreleased={!released}>
           {released ? (
@@ -69,8 +70,8 @@ export function GetTheApp({ onExplore }: { onExplore: () => void }) {
         <button type="button" className="brand-text-link" onClick={onExplore}>
           {copy.web} <ArrowUpRight size={16} />
         </button>
-        {/* Android sideloading instructions are dead copy with no APK to
-            install, so they wait for the release too. */}
+        {/* Sideloading instructions are dead copy with no build to install, so
+            they wait for the release too. */}
         {released ? (
           <details className="brand-install-help">
             <summary>{copy.installHelp}</summary>

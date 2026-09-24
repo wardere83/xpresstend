@@ -3,24 +3,57 @@
  * Change `name` here and it updates the logo, page title copy, assistant name,
  * receipt reference prefix and footer everywhere in the app.
  */
+
+/**
+ * The registered entity, used wherever the company is named formally rather
+ * than worn as a product: the corporate footer, the policies, and the company,
+ * compliance and security pages.
+ *
+ * Declared above the object so the sentences below can be composed from it
+ * rather than repeating it. The previous version spelled the name out again
+ * inside `legal.licence`, which is how a rename leaves one page disagreeing
+ * with another about what the company is called.
+ */
+const LEGAL_NAME = 'XpressTend Financial Services LLC'
+
+/**
+ * Marks a fact that has not been confirmed from a primary source.
+ *
+ * These render visibly on the page. That is the point: an unfilled field is
+ * meant to be impossible to miss and to be filled before the site is shown to
+ * anyone, whereas a plausible guess in its place would be read as fact by the
+ * one audience that checks. Nothing here may be invented — a registered
+ * address, a formation state or a licence number is either documented or it is
+ * one of these.
+ */
+export const NEEDS_FACT = '[NEEDS FACT]' as const
+
 export const brand = {
   name: 'XpressTend',
-  /**
-   * The registered entity, used wherever the company is named formally rather
-   * than worn as a product: the corporate footer, the policies, and the
-   * company, compliance and security pages.
-   */
-  legalName: 'XpressTend Financial Services',
+  legalName: LEGAL_NAME,
   assistantName: 'Xpress Assistant',
   /** Prefix used on transfer reference IDs, e.g. XPT-8457-2391-2024 */
   referencePrefix: 'XPT',
   /** Canonical English tagline. The UI reads the translated
    *  marketing.heroTitle key instead, so this is for non-UI use. */
   tagline: 'Closer with every transfer!',
+  /**
+   * The canonical public origin, matching the Worker's custom domain and the
+   * CNAME. Social cards need absolute URLs, so this is what they are built on.
+   */
+  site: 'https://xpresstend.com',
   hq: {
     city: 'Seattle',
     state: 'WA',
     country: 'USA',
+    /**
+     * Street address and ZIP of the registered office.
+     *
+     * Empty, and shown as an unfilled field rather than approximated. A bank's
+     * onboarding team reconciles the address on a website against the one on
+     * the NMLS record and the formation documents; a city alone is incomplete,
+     * and a street invented to look complete is a discrepancy in their file.
+     */
     line1: '',
     zip: '',
   },
@@ -28,6 +61,17 @@ export const brand = {
     phone: '+1 (206) 331-9867',
     email: 'support@xpresstend.com',
     hours: '24/7',
+  },
+  /**
+   * Corporate formation. Unfilled until read off the filed documents: the
+   * state and year a company was formed are checkable public record, so a
+   * guess here is a guess that gets caught.
+   */
+  formation: {
+    state: '',
+    year: '',
+    /** Entity type as filed, e.g. "Limited liability company". */
+    type: '',
   },
   /**
    * Nationwide Multistate Licensing System registration.
@@ -53,8 +97,7 @@ export const brand = {
      * claiming a licence you do not hold is what regulators act on, and
      * disclaiming one you do hold costs you customers.
      */
-    licence:
-      'XpressTend Financial Services is registered in the Nationwide Multistate Licensing System, NMLS ID 2900672. Current licence status for each state is published at nmlsconsumeraccess.org.',
+    licence: `${LEGAL_NAME} is registered in the Nationwide Multistate Licensing System, NMLS ID 2900672. Current licence status for each state is published at nmlsconsumeraccess.org.`,
     /*
      * Where the company actually is, in one sentence.
      *
@@ -74,10 +117,10 @@ export const brand = {
   /**
    * App availability.
    *
-   * `released` is the single switch the UI reads. While it is false both
-   * platforms show as coming soon and neither link is rendered, so there is no
-   * way to reach a build from the public site. Flip it to true when the apps
-   * are genuinely ready and the buttons come back with no other change.
+   * `released` is the single switch the UI reads. While it is false neither
+   * platform renders a link, so there is no way to reach a build from the
+   * public site. Flip it to true when the apps are published and the buttons
+   * come back with no other change.
    *
    * The URLs are kept rather than deleted so flipping the switch is all it
    * takes. androidApk points at the rolling GitHub release; iosTestFlight is
