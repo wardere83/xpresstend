@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock, ShieldCheck } from 'lucide-react'
+import { Clock, Lock, ShieldCheck } from 'lucide-react'
 import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useAuth } from '../auth/AuthContext'
@@ -11,11 +11,35 @@ import { corridorName } from '../data/mock'
 
 type Verification = 'face' | 'pin'
 
+/**
+ * Shows only the tail of the payer's wallet number.
+ *
+ * Enough for the customer to recognise which account they are approving on,
+ * and not enough to be worth anything to someone reading over their shoulder.
+ */
+function tailOf(account: string): string {
+  const digits = account.replace(/\s+/g, '')
+  return digits.length <= 4 ? digits : `•••• ${digits.slice(-4)}`
+}
+
 export function Review() {
   const { t, lang } = useI18n()
   const { isDemo } = useAuth()
   const navigate = useNavigate()
-  const { recipient, corridor, quote, commit, commitError } = useTransfer()
+  const {
+    recipient,
+    corridor,
+    quote,
+    commit,
+    commitError,
+    paymentMethod,
+    walletAccount,
+    walletPin,
+    setWalletPin,
+    railPhase,
+    railMessage,
+    refreshRailStatus,
+  } = useTransfer()
 
   const [method, setMethod] = useState<Verification>('face')
   const [stage, setStage] = useState<'idle' | 'verifying' | 'pin'>('idle')
@@ -43,6 +67,17 @@ export function Review() {
     setAuthError(null)
     try {
       await commit(secret)
+      /*
+       * A transfer whose payment is still pending has not been sent, so it
+       * must not land on a screen headed "Money Sent!". The pending panel
+       * below takes over instead, and the receipt waits until the payment
+       * actually settles.
+       */
+      if (railPhaseRef.current === 'pending') {
+        setStage('idle')
+        setPassword('')
+        return
+      }
       void outcomeFeedback('success')
       navigate('/success', { replace: true })
     } catch (err) {
@@ -54,6 +89,48 @@ export function Review() {
       setBusy(false)
     }
   }
+
+  /*
+   * commit() resolves before the provider's state reaches this component
+   * through context, so the phase is read from a ref that the effect below
+   * keeps current. Reading the prop here would see the value from the render
+   * that started the send.
+   */
+  const railPhaseRef = useRef(railPhase)
+  useEffect(() => {
+    railPhaseRef.current = railPhase
+  }, [railPhase])
+
+  /**
+   * Re-reads the real state from the server.
+   *
+   * Polls rather than assumes, and only moves on when the server says the
+   * payment settled. A poll that fails leaves the screen exactly as it was.
+   */
+  const [checking, setChecking] = useState(false)
+  const check = async () => {
+    setChecking(true)
+    try {
+      if (await refreshRailStatus()) {
+        void outcomeFeedback('success')
+        navigate('/success', { replace: true })
+      }
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  // While the payer has a prompt open on their handset, check periodically so
+  // the screen resolves itself once they approve.
+  useEffect(() => {
+    if (railPhase !== 'pending') return
+    const timer = setInterval(() => {
+      void refreshRailStatus().then((settled) => {
+        if (settled) navigate('/success', { replace: true })
+      })
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [railPhase, refreshRailStatus, navigate])
 
   const start = () => {
     void tapFeedback('medium')
@@ -76,6 +153,40 @@ export function Review() {
           >
             {commitError}
           </p>
+        ) : null}
+
+        {/*
+          The payment provider has pushed a prompt to the payer's handset and
+          has not been answered. Stated plainly, including that nothing has
+          been taken yet, because the alternative is a customer who believes
+          money has moved when it has not.
+        */}
+        {railPhase === 'pending' ? (
+          <section
+            role="status"
+            className="mb-3 rounded-xl bg-wait-soft px-4 py-4"
+          >
+            <div className="mb-2 flex items-center gap-2">
+              <Clock size={16} className="text-ink-700" />
+              <h2 className="text-[14px] font-bold text-ink-900">
+                {t('rail.pending')}
+              </h2>
+            </div>
+            <p className="text-[13px] leading-relaxed text-ink-700">
+              {t('rail.pendingBody', { account: tailOf(walletAccount) })}
+            </p>
+            {railMessage ? (
+              <p className="mt-2 text-[12px] text-ink-500">{railMessage}</p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => void check()}
+              disabled={checking}
+              className="mt-3 rounded-full border border-ink-200 bg-white px-4 py-2 text-[13px] font-semibold text-ink-700 disabled:opacity-60"
+            >
+              {checking ? t('common.sending') : t('rail.checkAgain')}
+            </button>
+          </section>
         ) : null}
 
         {/* Summary */}
@@ -200,6 +311,35 @@ export function Review() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
               />
+              {/*
+                Some mobile-money providers take a wallet PIN inline; others
+                push the approval to the handset and need nothing here. Asked
+                for optionally rather than demanded, because demanding it would
+                block every payer on a provider that does not use one.
+              */}
+              {paymentMethod === 'mwallet' ? (
+                <div className="mt-3">
+                  <label
+                    htmlFor="wallet-pin"
+                    className="block text-[12.5px] font-semibold text-ink-700"
+                  >
+                    {t('rail.pinLabel')}
+                  </label>
+                  <input
+                    id="wallet-pin"
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    dir="ltr"
+                    value={walletPin}
+                    onChange={(e) => setWalletPin(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl bg-canvas px-4 py-3 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+                  />
+                  <p className="mt-1.5 text-[11.5px] text-ink-500">
+                    {t('rail.pinHint')}
+                  </p>
+                </div>
+              ) : null}
               {authError ? (
                 <p
                   role="alert"

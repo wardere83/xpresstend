@@ -31,10 +31,10 @@ const en = {
   downloadTitle: 'Your world.\nIn your pocket.',
   downloadBody: 'The same thoughtful experience, wherever life takes you.',
   android: 'XpressTend for Android',
-  androidNote: 'Coming soon',
+  androidNote: 'In release preparation',
   ios: 'XpressTend for iPhone',
-  iosNote: 'Coming soon',
-  notifyMe: 'Email me when it is ready',
+  iosNote: 'In release preparation',
+  notifyMe: 'Email me at release',
   web: 'Or explore it in your browser',
   installHelp: 'Installing on Android',
   installBody:
@@ -56,6 +56,8 @@ const en = {
   footerCompany: 'Company',
   footerProduct: 'Product',
   footerLegal: 'Legal',
+  footerPrivacy: 'Privacy Policy',
+  footerSupport: 'Support',
   filmDescription:
     'A globe connects people across distances. In XpressTend, a person chooses a recipient, enters an amount, and sees a transfer confirmation. Closer, wherever life takes you.',
 } as const
@@ -91,10 +93,10 @@ const so: Copy = {
   downloadTitle: 'Dunidaada.\nJeebkaaga ku jirta.',
   downloadBody: 'Khibrad kuu dhow, meel kasta oo aad joogto.',
   android: 'XpressTend ee Android',
-  androidNote: 'Dhawaan',
+  androidNote: 'Diyaargarowga sii deynta',
   ios: 'XpressTend ee iPhone',
-  iosNote: 'Dhawaan',
-  notifyMe: 'I email marka ay diyaar noqoto',
+  iosNote: 'Diyaargarowga sii deynta',
+  notifyMe: 'I email marka la sii daayo',
   web: 'Ama ku tijaabi biraawsarkaaga',
   installHelp: 'Ku rakibidda Android',
   installBody:
@@ -116,6 +118,8 @@ const so: Copy = {
   footerCompany: 'Shirkadda',
   footerProduct: 'Adeegga',
   footerLegal: 'Sharciga',
+  footerPrivacy: 'Siyaasadda Sirta',
+  footerSupport: 'Taageero',
   filmDescription:
     'Dunidu waxay isku xiraysaa dad kala fog. Qof ayaa doorta qaate, geliya lacagta, kadibna arka xaqiijinta xawaaladda.',
 }
@@ -150,10 +154,10 @@ const es: Copy = {
   downloadTitle: 'Su mundo.\nEn su bolsillo.',
   downloadBody: 'La misma experiencia cuidada, vaya donde vaya.',
   android: 'XpressTend para Android',
-  androidNote: 'Muy pronto',
+  androidNote: 'En preparación de lanzamiento',
   ios: 'XpressTend para iPhone',
-  iosNote: 'Muy pronto',
-  notifyMe: 'Avísenme cuando esté listo',
+  iosNote: 'En preparación de lanzamiento',
+  notifyMe: 'Avísenme en el lanzamiento',
   web: 'O explórela en su navegador',
   installHelp: 'Instalar en Android',
   installBody:
@@ -175,6 +179,8 @@ const es: Copy = {
   footerCompany: 'Empresa',
   footerProduct: 'Producto',
   footerLegal: 'Legal',
+  footerPrivacy: 'Política de Privacidad',
+  footerSupport: 'Soporte',
   filmDescription:
     'Un globo conecta a personas a distancia. Una persona elige un destinatario, introduce un importe y ve una confirmación en XpressTend.',
 }
@@ -207,10 +213,10 @@ const pt: Copy = {
   downloadTitle: 'Seu mundo.\nNo seu bolso.',
   downloadBody: 'A mesma experiência cuidadosa, onde quer que você esteja.',
   android: 'XpressTend para Android',
-  androidNote: 'Em breve',
+  androidNote: 'Em preparação de lançamento',
   ios: 'XpressTend para iPhone',
-  iosNote: 'Em breve',
-  notifyMe: 'Avise-me quando estiver pronto',
+  iosNote: 'Em preparação de lançamento',
+  notifyMe: 'Avise-me no lançamento',
   web: 'Ou explore no seu navegador',
   installHelp: 'Instalar no Android',
   installBody:
@@ -233,6 +239,8 @@ const pt: Copy = {
   footerCompany: 'Empresa',
   footerProduct: 'Produto',
   footerLegal: 'Jurídico',
+  footerPrivacy: 'Política de Privacidade',
+  footerSupport: 'Suporte',
   filmDescription:
     'Um globo conecta pessoas à distância. Uma pessoa escolhe um destinatário, informa um valor e vê uma confirmação na XpressTend.',
 }
@@ -263,10 +271,10 @@ const ar: Copy = {
   downloadTitle: 'عالمك.\nفي جيبك.',
   downloadBody: 'التجربة المدروسة نفسها، أينما أخذتك الحياة.',
   android: 'XpressTend لأندرويد',
-  androidNote: 'قريبًا',
+  androidNote: 'قيد التجهيز للإصدار',
   ios: 'XpressTend لآيفون',
-  iosNote: 'قريبًا',
-  notifyMe: 'أبلغوني عند الجهوزية',
+  iosNote: 'قيد التجهيز للإصدار',
+  notifyMe: 'أبلغوني عند الإصدار',
   web: 'أو استكشفه في متصفحك',
   installHelp: 'التثبيت على أندرويد',
   installBody:
@@ -288,6 +296,8 @@ const ar: Copy = {
   footerCompany: 'الشركة',
   footerProduct: 'المنتج',
   footerLegal: 'الشؤون القانونية',
+  footerPrivacy: 'سياسة الخصوصية',
+  footerSupport: 'الدعم',
   filmDescription:
     'كرة أرضية تصل بين أشخاص متباعدين. يختار شخص مستلماً ويدخل مبلغاً ثم يرى تأكيد التحويل في XpressTend.',
 }

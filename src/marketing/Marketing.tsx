@@ -1,11 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowUpRight, Play } from 'lucide-react'
-import { brand } from '../config/brand'
 import { useT } from '../i18n'
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
-import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
-import { DownloadAppMenu } from './DownloadAppMenu'
+import { SiteFooter, SiteHeader } from './SiteChrome'
 import { GetTheApp } from './GetTheApp'
 import { RateQuote } from './RateQuote'
 import { BrandFilm } from './BrandFilm'
@@ -44,27 +41,7 @@ export function Marketing() {
       >
         {copy.skip}
       </a>
-      <header className="brand-header">
-        <div className="brand-header-inner brand-width">
-          <Link to="/" aria-label={brand.name} className="brand-wordmark">
-            <Logo height={34} />
-          </Link>
-          <nav aria-label={copy.experience} className="brand-nav">
-            <button
-              className="brand-nav-experience"
-              onClick={() => scrollTo('experience')}
-            >
-              {copy.experience}
-            </button>
-            <DownloadAppMenu />
-            <LanguageSwitcher />
-            <Link className="brand-nav-account" to={user ? '/app' : '/login'}>
-              {t(user ? 'marketing.openApp' : 'marketing.signIn')}{' '}
-              <ArrowUpRight size={14} />
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader onExperience={() => scrollTo('experience')} />
       <main id="main" tabIndex={-1}>
         <section className="brand-hero brand-width">
           <p className="brand-eyebrow">{copy.connected}</p>
@@ -142,69 +119,7 @@ export function Marketing() {
           </div>
         </section>
       </main>
-      <footer className="brand-footer brand-width">
-        <div className="brand-footer-top">
-          <div className="brand-footer-brand">
-            <Link to="/" aria-label={brand.name}>
-              <Logo variant="full" height={44} />
-            </Link>
-            <p>
-              {brand.hq.city}, {brand.hq.state}, {brand.hq.country}
-            </p>
-            <p>
-              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
-              <br />
-              <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
-                {brand.support.phone}
-              </a>
-            </p>
-          </div>
-          <nav className="brand-footer-columns" aria-label={copy.footerCompany}>
-            <div>
-              <h2>{copy.footerCompany}</h2>
-              <Link to="/company">{copy.trustCompany}</Link>
-              <Link to="/compliance">{copy.trustCompliance}</Link>
-              <Link to="/security">{copy.trustSecurity}</Link>
-              <Link to="/partners">{copy.trustPartners}</Link>
-            </div>
-            <div>
-              <h2>{copy.footerProduct}</h2>
-              <Link to={user ? '/app' : '/login'}>
-                {t(user ? 'marketing.openApp' : 'marketing.signIn')}
-              </Link>
-              <Link to="/register">{t('marketing.getStarted')}</Link>
-              <Link to="/support">{t('quick.support')}</Link>
-            </div>
-            <div>
-              <h2>{copy.footerLegal}</h2>
-              <Link to="/privacy">Privacy</Link>
-              <a href={brand.nmls.verifyUrl} target="_blank" rel="noopener noreferrer">
-                NMLS ID {brand.nmls.id}
-              </a>
-            </div>
-          </nav>
-        </div>
-        <div className="brand-footer-bottom">
-          <p className="brand-footer-legal">
-            {/*
-              The registration, then the link that settles what it means, then
-              where the company actually stands. Stated rather than tucked into
-              a disclosure toggle: the readers this page is for establish it in
-              minutes anyway, and finding it stated is what makes the rest of
-              the page credible.
-            */}
-            {brand.legal.licence}{' '}
-            <a href={brand.nmls.verifyUrl} target="_blank" rel="noopener noreferrer">
-              Verify at NMLS Consumer Access
-            </a>
-            .
-          </p>
-          <p className="brand-footer-legal">{brand.legal.operatingStatus}</p>
-          <p className="brand-footer-copyright">
-            © {new Date().getFullYear()} {brand.legalName}. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

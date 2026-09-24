@@ -1,7 +1,7 @@
 # XpressTend
 
 A working web build of the XpressTend money-transfer app from the product mockups: a
-voice-first remittance experience for a Seattle, WA based money transmitter serving
+cross-border remittance experience for a Seattle, WA based money transmitter serving
 customers worldwide. **English is the primary language, with full translations into Somali
 (Af-Soomaali), Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
 the whole app, not just the marketing copy. Arabic renders right-to-left.

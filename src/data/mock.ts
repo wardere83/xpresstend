@@ -75,7 +75,7 @@ export const corridors: Corridor[] = [
     flag: '🇩🇯',
     rate: 1,
     currencyName: 'US Dollar',
-    wallets: ['D-Money', 'Waafi'],
+    wallets: ['D-Money'],
   },
   {
     code: 'UG',
@@ -261,11 +261,18 @@ export const recipients: Recipient[] = [
   },
 ]
 
-export type PaymentMethodId = 'bank' | 'debit' | 'apple' | 'google'
+export type PaymentMethodId = 'bank' | 'debit' | 'apple' | 'google' | 'mwallet'
 
 export const paymentMethods: { id: PaymentMethodId; labelKey: string; detail: string }[] = [
   { id: 'bank', labelKey: 'pay.bank', detail: 'Chase •••• 1234' },
   { id: 'debit', labelKey: 'pay.debit', detail: 'Visa •••• 5678' },
+  /*
+   * Mobile money is the one method that actually reaches a payment rail (see
+   * api/src/rails). It asks for the payer's own wallet number rather than
+   * showing a stored card, because the funds come from that wallet and the
+   * provider has to be told which one.
+   */
+  { id: 'mwallet', labelKey: 'pay.mobileMoney', detail: '' },
   { id: 'apple', labelKey: 'pay.applePay', detail: '' },
   { id: 'google', labelKey: 'pay.googlePay', detail: '' },
 ]

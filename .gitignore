@@ -28,6 +28,14 @@ api/node_modules
 api/.wrangler
 .dev.vars
 
+# Operator secrets. .env.example is the documented list of names and is
+# committed; anything holding an actual value is not. Merchant credentials live
+# in `wrangler secret put`, so a .env here is a local convenience that must
+# never reach the repository.
+.env
+.env.*
+!.env.example
+
 # Build output previously copied to the repo root for GitHub Pages.
 # The Cloudflare Worker serves dist/ directly, so the root stays clean.
 /assets/

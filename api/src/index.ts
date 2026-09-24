@@ -7,6 +7,7 @@ import { bootstrap } from './routes-bootstrap'
 import { invite } from './routes-invite'
 import { recovery } from './routes-recovery'
 import { transfers } from './routes-transfers'
+import { rails } from './routes-rails'
 import { refreshRates } from './rates'
 
 /**
@@ -41,6 +42,7 @@ api.route('/admin/auth', adminAuth)
 api.route('/admin/auth', recovery)
 api.route('/admin', admin)
 api.route('/', transfers)
+api.route('/', rails)
 
 api.notFound((c) => c.json({ error: 'not_found' }, 404))
 api.onError((err, c) => {

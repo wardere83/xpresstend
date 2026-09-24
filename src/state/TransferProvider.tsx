@@ -13,7 +13,8 @@ import { api } from '../lib/api'
 import { useAccountData } from './AccountData'
 import { CORRIDORS, quoteLocally } from '../marketing/pricing'
 import { hueFor } from '../lib/view'
-import { type DeliveryMethod, FEE_MODE, type Quote, TransferContext, type TransferValue } from './TransferContext'
+import { RailUnavailableError, authorizeRail, captureRail, railStatus } from '../lib/rails'
+import { type DeliveryMethod, FEE_MODE, type Quote, type RailPhase, TransferContext, type TransferValue } from './TransferContext'
 
 export function TransferProvider({ children }: { children: ReactNode }) {
   const { live, recipients: mine, refresh } = useAccountData()
@@ -24,6 +25,10 @@ export function TransferProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useState<Transaction[]>(seedTransactions)
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null)
   const [commitError, setCommitError] = useState<string | null>(null)
+  const [walletAccount, setWalletAccount] = useState('')
+  const [walletPin, setWalletPin] = useState('')
+  const [railPhase, setRailPhase] = useState<RailPhase>('idle')
+  const [railMessage, setRailMessage] = useState<string | null>(null)
 
   // A real recipient id never matches a seeded one, so pick whichever source is
   // in play and fall back rather than throwing on a stale selection.
@@ -91,6 +96,7 @@ export function TransferProvider({ children }: { children: ReactNode }) {
 
   const commit = useCallback(async (password: string): Promise<Transaction> => {
     setCommitError(null)
+    setRailMessage(null)
 
     if (live && mineSelected && liveCorridor) {
       try {
@@ -99,10 +105,6 @@ export function TransferProvider({ children }: { children: ReactNode }) {
           recipientId: mineSelected.id,
           sendAmountMinor: Math.round(amountUsd * 100),
         })
-        // Capture is test mode: it books the ledger and moves the transfer into
-        // the compliance queue without charging anything.
-        await api.post(`/transfers/${created.transfer.id}/pay`, { password })
-        await refresh()
 
         const tx: Transaction = {
           id: created.transfer.id,
@@ -113,11 +115,74 @@ export function TransferProvider({ children }: { children: ReactNode }) {
           status: 'pending',
           reference: created.transfer.reference,
         }
+        // Recorded before the payment resolves, so a transfer left pending on
+        // the payer's handset is still something the customer can come back to.
         setLastTransaction(tx)
+
+        /*
+         * Mobile money goes through the rail: hold the funds, then capture.
+         * The two steps are separate because the hold can come back PENDING —
+         * the payer's provider has pushed a prompt to their handset and has not
+         * been answered. That is neither success nor failure, so it is carried
+         * as its own state rather than resolved by guessing.
+         *
+         * Any other payment method, or an environment with no rail configured,
+         * keeps the existing path.
+         */
+        if (paymentMethod === 'mwallet') {
+          try {
+            setRailPhase('authorizing')
+            const auth = await authorizeRail(created.transfer.id, {
+              password,
+              payerAccountNo: walletAccount,
+              payerAccountPin: walletPin || undefined,
+            })
+
+            if (auth.state === 'pending') {
+              setRailPhase('pending')
+              setRailMessage(auth.message ?? null)
+              await refresh()
+              return tx
+            }
+            if (auth.state !== 'authorized' && auth.state !== 'captured') {
+              setRailPhase('failed')
+              setRailMessage(auth.message ?? null)
+              throw new Error(auth.message ?? 'That payment was declined.')
+            }
+
+            const captured = await captureRail(created.transfer.id, password)
+            if (captured.state === 'pending') {
+              setRailPhase('pending')
+              setRailMessage(captured.message ?? null)
+              await refresh()
+              return tx
+            }
+            if (captured.state !== 'captured') {
+              setRailPhase('failed')
+              setRailMessage(captured.message ?? null)
+              throw new Error(captured.message ?? 'That payment was declined.')
+            }
+
+            setRailPhase('settled')
+            await refresh()
+            return tx
+          } catch (err) {
+            // No rail configured on this environment is not a payment failure:
+            // fall through to the existing path rather than failing the send.
+            if (!(err instanceof RailUnavailableError)) throw err
+          }
+        }
+
+        // Test mode: books the ledger and moves the transfer into the
+        // compliance queue without charging anything.
+        await api.post(`/transfers/${created.transfer.id}/pay`, { password })
+        setRailPhase('settled')
+        await refresh()
         return tx
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Could not create that transfer.'
         setCommitError(message)
+        if (railPhase === 'authorizing') setRailPhase('failed')
         throw err
       }
     }
@@ -134,13 +199,42 @@ export function TransferProvider({ children }: { children: ReactNode }) {
     setHistory((prev) => [tx, ...prev])
     setLastTransaction(tx)
     return tx
-  }, [live, mineSelected, liveCorridor, amountUsd, quote.fee, refresh, history.length, recipientId])
+  }, [live, mineSelected, liveCorridor, amountUsd, quote.fee, refresh, history.length, recipientId, paymentMethod, walletAccount, walletPin, railPhase])
+
+  /**
+   * Re-reads the transfer's real state from the server.
+   *
+   * Asks our own record rather than assuming: the answer is whatever the
+   * ledger says, which is the only state this product is willing to show a
+   * customer. Returns true once the payment has settled.
+   */
+  const refreshRailStatus = useCallback(async (): Promise<boolean> => {
+    if (!live || !lastTransaction) return false
+    try {
+      const s = await railStatus(lastTransaction.id)
+      if (s.status !== 'awaiting_payment') {
+        setRailPhase('settled')
+        await refresh()
+        return true
+      }
+      setRailPhase(s.awaitingPayer ? 'pending' : 'idle')
+      return false
+    } catch {
+      // A failed poll is a failed poll. It says nothing about the payment, so
+      // the displayed state is left exactly as it was.
+      return false
+    }
+  }, [live, lastTransaction, refresh])
 
   const reset = useCallback(() => {
     setAmountUsd(500)
     setPaymentMethod('bank')
     setDeliveryMethod('mobile')
     setCommitError(null)
+    setWalletAccount('')
+    setWalletPin('')
+    setRailPhase('idle')
+    setRailMessage(null)
   }, [])
 
   const value = useMemo<TransferValue>(
@@ -159,6 +253,13 @@ export function TransferProvider({ children }: { children: ReactNode }) {
       history,
       lastTransaction,
       commit,
+      walletAccount,
+      setWalletAccount,
+      walletPin,
+      setWalletPin,
+      railPhase,
+      railMessage,
+      refreshRailStatus,
       reset,
       live,
       commitError,
@@ -174,6 +275,11 @@ export function TransferProvider({ children }: { children: ReactNode }) {
       history,
       lastTransaction,
       commit,
+      walletAccount,
+      walletPin,
+      railPhase,
+      railMessage,
+      refreshRailStatus,
       reset,
       live,
       commitError,

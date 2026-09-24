@@ -115,7 +115,7 @@ test('download disclosure has valid targets, closes on Escape, and restores focu
    */
   await expect(popover.getByText(/Android/)).toBeVisible()
   await expect(popover.getByText(/iPhone/)).toBeVisible()
-  await expect(popover.getByText('Coming soon').first()).toBeVisible()
+  await expect(popover.getByText('In release preparation').first()).toBeVisible()
   await expect(popover.getByRole('link', { name: /Android/ })).toHaveCount(0)
   await expect(popover.getByRole('link', { name: /iPhone/ })).toHaveCount(0)
   await expect(popover.locator('a[href*="xpresstend.apk"]')).toHaveCount(0)
@@ -396,5 +396,129 @@ test('every company link in the footer resolves to a real page', async ({ page }
     // page, which is the failure this catches.
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Money moves.')
     await page.goto('/')
+  }
+})
+
+/*
+ * The jump lists on the document pages were every one of them a dead link.
+ *
+ * The app is served by a hash router, so the whole route lives in
+ * location.hash. A plain href="#limits" therefore replaced the route rather
+ * than scrolling within it, matched nothing, and the catch-all returned the
+ * reader to the landing page — from the compliance page, mid-read, on the one
+ * document a banking partner opens first. It is a class of bug that looks
+ * correct in the markup and only shows itself when clicked, which is why it
+ * gets a test rather than a comment.
+ */
+test('every jump link on the document pages stays on its page and finds its section', async ({
+  page,
+}) => {
+  for (const route of ['company', 'compliance', 'security', 'partners', 'support']) {
+    await page.goto(`/#/${route}`)
+    const links = page.locator('nav[aria-label="On this page"] a')
+    const count = await links.count()
+    expect(count).toBeGreaterThan(0)
+
+    for (let i = 0; i < count; i++) {
+      const href = await links.nth(i).getAttribute('href')
+      expect(href, `${route} jump link ${i} has no href`).toBeTruthy()
+
+      // Followed as a cold URL, which is how a forwarded section link arrives.
+      await page.goto(`/${href}`)
+      const target = href!.split('#').pop()!
+      await expect(page.locator(`#${target}`)).toHaveCount(1)
+      // Landing back on the marketing page is the failure this catches.
+      await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(
+        /Money moves/,
+      )
+    }
+  }
+})
+
+/*
+ * The header and footer are one component each rather than one per page. A
+ * reader crossing from the landing page to the compliance page should not be
+ * able to tell they have changed template, because a visible seam there is
+ * read as two sites stitched together.
+ */
+test('every public page wears the same header and footer', async ({ page }) => {
+  const columns = ['Company', 'Product', 'Legal']
+  for (const route of ['', 'company', 'compliance', 'security', 'partners', 'privacy', 'support']) {
+    await page.goto(`/#/${route}`)
+    await expect(page.locator('header.brand-header')).toHaveCount(1)
+    await expect(page.locator('footer.brand-footer')).toHaveCount(1)
+    for (const column of columns) {
+      await expect(
+        page.locator('.brand-footer-columns').getByRole('heading', { name: column, exact: true }),
+      ).toBeVisible()
+    }
+    // The registration travels with the footer, so it is on every page.
+    await expect(page.getByText(/NMLS ID 2900672/).first()).toBeVisible()
+  }
+})
+
+/*
+ * Six tabs open from one diligence session used to carry six identical titles,
+ * and a forwarded link previewed as the home page whatever it pointed at.
+ */
+test('each document page sets its own title and description', async ({ page }) => {
+  const pages = [
+    ['company', 'Company | XpressTend'],
+    ['compliance', 'Compliance | XpressTend'],
+    ['security', 'Security and platform | XpressTend'],
+    ['partners', 'Partnerships | XpressTend'],
+    ['privacy', 'Privacy Policy | XpressTend'],
+    ['support', 'Support | XpressTend'],
+  ] as const
+
+  const seen = new Set<string>()
+  for (const [route, title] of pages) {
+    await page.goto(`/#/${route}`)
+    await expect(page).toHaveTitle(title)
+    const description = await page
+      .locator('meta[name="description"]')
+      .getAttribute('content')
+    expect(description, `${route} has no description`).toBeTruthy()
+    expect(seen.has(description!), `${route} reuses another page's description`).toBe(false)
+    seen.add(description!)
+    // The social card follows the page, not the site.
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title)
+  }
+})
+
+/*
+ * The public pages are read by people deciding whether this is a company worth
+ * integrating with. Development-stage vocabulary on any of them undoes the
+ * rest of the page, so the absence is asserted rather than trusted.
+ */
+test('no public page carries beta or placeholder vocabulary', async ({ page }) => {
+  const forbidden =
+    /\b(beta|coming soon|under construction|lorem ipsum|TODO|FIXME|TBD|placeholder)\b/i
+  for (const route of ['', 'company', 'compliance', 'security', 'partners', 'privacy', 'support']) {
+    await page.goto(`/#/${route}`)
+    const text = await page.locator('body').innerText()
+    expect(text, `/${route} contains development-stage copy`).not.toMatch(forbidden)
+  }
+})
+
+/*
+ * The public pages describe the shape of the system, never the suppliers
+ * underneath it. A named platform on a company page is a map of the
+ * infrastructure for anyone who wants one, it dates the page the moment a
+ * contract changes, and it tells a prospective partner more about our vendors
+ * than about us. The privacy policy still discloses the categories of party
+ * that see customer data, and offers the current list on request, which is
+ * where that disclosure belongs.
+ */
+test('no public page names a platform or supplier we build on', async ({ page }) => {
+  // Word-boundary anchored: "invitee" contains "vite", and a substring match
+  // would fail this check on correct copy.
+  const vendors =
+    /\b(github|cloudflare|wrangler|workers?|d1|vite|rolldown|tailwind|capacitor|playwright|aws|amazon web services|azure|gcp|vercel|netlify|supabase|firebase|sqlite|postgres|react)\b/i
+  for (const route of ['', 'company', 'compliance', 'security', 'partners', 'privacy', 'support']) {
+    await page.goto(`/#/${route}`)
+    const text = await page.locator('body').innerText()
+    const hit = text.match(vendors)
+    expect(hit?.[0], `/${route} names "${hit?.[0]}"`).toBeUndefined()
   }
 })

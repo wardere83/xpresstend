@@ -20,12 +20,24 @@ const CONFETTI = [
 export function Success() {
   const { t } = useI18n()
   const navigate = useNavigate()
-  const { lastTransaction, recipient, quote, reset } = useTransfer()
+  const { lastTransaction, recipient, quote, reset, railPhase, refreshRailStatus } = useTransfer()
   const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
     if (!lastTransaction) navigate('/', { replace: true })
   }, [lastTransaction, navigate])
+
+  /*
+   * This screen says the money has been sent, so it must not be reachable
+   * while the payment is still waiting on the payer. That happens on a back or
+   * forward navigation, and on a reload that restores the last transfer, so
+   * the guard is here rather than only at the point that navigates in.
+   */
+  useEffect(() => {
+    if (railPhase !== 'pending') return
+    void refreshRailStatus()
+    navigate('/review', { replace: true })
+  }, [railPhase, refreshRailStatus, navigate])
 
   useEffect(() => {
     if (!toast) return
@@ -33,7 +45,7 @@ export function Success() {
     return () => window.clearTimeout(id)
   }, [toast])
 
-  if (!lastTransaction) return null
+  if (!lastTransaction || railPhase === 'pending') return null
 
   const copy = async (value: string) => {
     try {
