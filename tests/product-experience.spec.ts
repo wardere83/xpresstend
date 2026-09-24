@@ -348,3 +348,53 @@ test('real accounts still require a password before any transfer submission', as
   ).toBeDisabled()
   expect(writes).toEqual([])
 })
+
+/**
+ * The institutional pages exist for people doing diligence, so the checks are
+ * about substance being present and reachable rather than about styling: a
+ * partner who cannot find the registration, or who finds a broken link to the
+ * register, draws exactly the conclusion the pages are there to prevent.
+ */
+test('the company pages are reachable and carry the registration', async ({ page }) => {
+  await page.goto('/')
+
+  // Reachable from the landing page rather than only by typing a URL.
+  await page.getByRole('link', { name: 'Compliance', exact: true }).first().click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Compliance')
+
+  // The registration, the verification route, and the limits that are enforced.
+  await expect(page.getByText('NMLS ID 2900672').first()).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: /NMLS Consumer Access/ }).first(),
+  ).toHaveAttribute('href', 'https://www.nmlsconsumeraccess.org/')
+  await expect(page.getByRole('table')).toContainText('No transfers permitted')
+
+  // Where the company actually stands is stated, not hidden behind a toggle.
+  await expect(page.getByText(/does not hold or move customer funds/).first()).toBeVisible()
+
+  for (const [path, heading] of [
+    ['company', 'Company'],
+    ['security', 'Security and platform'],
+    ['partners', 'Partnerships'],
+  ] as const) {
+    await page.goto(`/#/${path}`)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
+    // Every formal page repeats the registration, because each is landed on
+    // directly as often as it is navigated to.
+    await expect(page.getByText(/NMLS ID 2900672/).first()).toBeVisible()
+  }
+})
+
+test('every company link in the footer resolves to a real page', async ({ page }) => {
+  await page.goto('/')
+  const footer = page.locator('.brand-footer')
+  for (const name of ['Company', 'Compliance', 'Security', 'Partnerships']) {
+    const href = await footer.getByRole('link', { name, exact: true }).getAttribute('href')
+    expect(href).toBeTruthy()
+    await page.goto(href!.startsWith('#') ? `/${href}` : href!)
+    // A route that falls through to the catch-all lands back on the marketing
+    // page, which is the failure this catches.
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Money moves.')
+    await page.goto('/')
+  }
+})

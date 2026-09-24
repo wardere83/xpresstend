@@ -110,39 +110,99 @@ export function Marketing() {
           </div>
         </section>
         <GetTheApp onExplore={explore} />
+        {/*
+          The institutional layer. A consumer skims past it; a partner, a bank's
+          onboarding team or an examiner is looking for exactly this, and its
+          absence is what made the site read as a project rather than a company.
+        */}
+        <section className="brand-trust" aria-labelledby="trust-heading">
+          <div className="brand-trust-inner brand-width">
+            <div>
+              <p className="brand-eyebrow">{copy.trustEyebrow}</p>
+              <h2 className="brand-display" id="trust-heading">
+                {copy.trustTitle}
+              </h2>
+              <p className="brand-body">{copy.trustBody}</p>
+            </div>
+            <ul className="brand-trust-links">
+              {[
+                { to: '/company', label: copy.trustCompany },
+                { to: '/compliance', label: copy.trustCompliance },
+                { to: '/security', label: copy.trustSecurity },
+                { to: '/partners', label: copy.trustPartners },
+              ].map((l) => (
+                <li key={l.to}>
+                  <Link to={l.to}>
+                    {l.label}
+                    <ArrowUpRight size={16} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
       </main>
       <footer className="brand-footer brand-width">
         <div className="brand-footer-top">
-          <Link to="/" aria-label={brand.name}>
-            <Logo height={34} />
-          </Link>
-          <nav aria-label="Support">
-            <Link to={user ? '/app' : '/login'}>
-              {t(user ? 'marketing.openApp' : 'marketing.signIn')}
+          <div className="brand-footer-brand">
+            <Link to="/" aria-label={brand.name}>
+              <Logo variant="full" height={44} />
             </Link>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/support">{t('quick.support')}</Link>
-            <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
+            <p>
+              {brand.hq.city}, {brand.hq.state}, {brand.hq.country}
+            </p>
+            <p>
+              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
+              <br />
+              <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
+                {brand.support.phone}
+              </a>
+            </p>
+          </div>
+          <nav className="brand-footer-columns" aria-label={copy.footerCompany}>
+            <div>
+              <h2>{copy.footerCompany}</h2>
+              <Link to="/company">{copy.trustCompany}</Link>
+              <Link to="/compliance">{copy.trustCompliance}</Link>
+              <Link to="/security">{copy.trustSecurity}</Link>
+              <Link to="/partners">{copy.trustPartners}</Link>
+            </div>
+            <div>
+              <h2>{copy.footerProduct}</h2>
+              <Link to={user ? '/app' : '/login'}>
+                {t(user ? 'marketing.openApp' : 'marketing.signIn')}
+              </Link>
+              <Link to="/register">{t('marketing.getStarted')}</Link>
+              <Link to="/support">{t('quick.support')}</Link>
+            </div>
+            <div>
+              <h2>{copy.footerLegal}</h2>
+              <Link to="/privacy">Privacy</Link>
+              <a href={brand.nmls.verifyUrl} target="_blank" rel="noopener noreferrer">
+                NMLS ID {brand.nmls.id}
+              </a>
+            </div>
           </nav>
         </div>
         <div className="brand-footer-bottom">
-          <span>
-            © {new Date().getFullYear()} {brand.name} · {brand.hq.city},{' '}
-            {brand.hq.state}
-            {' · '}
+          <p className="brand-footer-legal">
             {/*
-              Where a money services business is expected to show its NMLS ID,
-              and linked so the reader can check the licence status themselves
-              rather than taking a sentence on a marketing page for it.
+              The registration, then the link that settles what it means, then
+              where the company actually stands. Stated rather than tucked into
+              a disclosure toggle: the readers this page is for establish it in
+              minutes anyway, and finding it stated is what makes the rest of
+              the page credible.
             */}
+            {brand.legal.licence}{' '}
             <a href={brand.nmls.verifyUrl} target="_blank" rel="noopener noreferrer">
-              NMLS ID {brand.nmls.id}
+              Verify at NMLS Consumer Access
             </a>
-          </span>
-          <details>
-            <summary>{copy.availability}</summary>
-            <p>{copy.availabilityBody}</p>
-          </details>
+            .
+          </p>
+          <p className="brand-footer-legal">{brand.legal.operatingStatus}</p>
+          <p className="brand-footer-copyright">
+            © {new Date().getFullYear()} {brand.legalName}. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

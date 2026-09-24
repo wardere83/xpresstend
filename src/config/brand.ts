@@ -5,6 +5,12 @@
  */
 export const brand = {
   name: 'XpressTend',
+  /**
+   * The registered entity, used wherever the company is named formally rather
+   * than worn as a product: the corporate footer, the policies, and the
+   * company, compliance and security pages.
+   */
+  legalName: 'XpressTend Financial Services',
   assistantName: 'Xpress Assistant',
   /** Prefix used on transfer reference IDs, e.g. XPT-8457-2391-2024 */
   referencePrefix: 'XPT',
@@ -49,6 +55,21 @@ export const brand = {
      */
     licence:
       'XpressTend Financial Services is registered in the Nationwide Multistate Licensing System, NMLS ID 2900672. Current licence status for each state is published at nmlsconsumeraccess.org.',
+    /*
+     * Where the company actually is, in one sentence.
+     *
+     * The audience for this is a bank's onboarding team, a payout partner and a
+     * state examiner, all of whom will establish the answer in minutes whatever
+     * the site says. A company that states it plainly reads as one that knows
+     * its own position; a company found to have implied more reads as one whose
+     * other representations now need checking too. The second is the expensive
+     * outcome, and it is the one that overstating buys.
+     *
+     * This is the only place the status is written. When transfers go live it
+     * changes here and everywhere it is shown changes with it.
+     */
+    operatingStatus:
+      'XpressTend is completing state money transmitter licensing and banking partner onboarding. Customer transfers are not yet being processed, and XpressTend does not hold or move customer funds.',
   },
   /**
    * App availability.
