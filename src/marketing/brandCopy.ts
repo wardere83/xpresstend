@@ -39,15 +39,23 @@ const en = {
   installHelp: 'Installing on Android',
   installBody:
     'Open the downloaded APK on your Android phone. If asked, allow installation from this source in your device settings.',
-  availability: 'Payment availability',
-  availabilityBody:
-    'Payments currently run in test mode. No customer funds are moved.',
   back: 'Back to website',
   exploreLabel: 'Explore mode · Sample data',
   exit: 'Leave explore mode',
   shellTitle: 'A little closer.\nWith every tap.',
   shellBody: 'Your people, your transfers, your world. All in one place.',
   skip: 'Skip to content',
+  trustEyebrow: 'The company behind it',
+  trustTitle: 'Built to be checked.',
+  trustBody:
+    'Who we are, how we are registered, how the money is handled, and how to reach us.',
+  trustCompany: 'Company',
+  trustCompliance: 'Compliance',
+  trustSecurity: 'Security',
+  trustPartners: 'Partnerships',
+  footerCompany: 'Company',
+  footerProduct: 'Product',
+  footerLegal: 'Legal',
   filmDescription:
     'A globe connects people across distances. In XpressTend, a person chooses a recipient, enters an amount, and sees a transfer confirmation. Closer, wherever life takes you.',
 } as const
@@ -91,15 +99,23 @@ const so: Copy = {
   installHelp: 'Ku rakibidda Android',
   installBody:
     'Fur APK-ga aad soo dejisay. Haddii lagu weydiiyo, oggolow rakibidda ishan ee dejimaha taleefanka.',
-  availability: 'Helitaanka lacag-bixinta',
-  availabilityBody:
-    'Lacag-bixintu waxay ku jirtaa hab tijaabo. Lacag macaamiil lama wareejiyo.',
   back: 'Ku noqo bogga',
   exploreLabel: 'Habka sahaminta · Xog tusaale ah',
   exit: 'Ka bax sahaminta',
   shellTitle: 'Isu soo dhowaada.\nTaabasho kasta.',
   shellBody: 'Dadkaaga, xawaaladahaaga, dunidaada. Hal meel.',
   skip: 'U gudub nuxurka',
+  trustEyebrow: 'Shirkadda ka dambaysa',
+  trustTitle: 'Loo dhisay in la hubiyo.',
+  trustBody:
+    'Cidda aan nahay, sida aan u diiwaangashan nahay, sida lacagta loo maareeyo, iyo sida nalagu soo gaari karo.',
+  trustCompany: 'Shirkadda',
+  trustCompliance: 'Sharci-raacid',
+  trustSecurity: 'Ammaanka',
+  trustPartners: 'Iskaashiga',
+  footerCompany: 'Shirkadda',
+  footerProduct: 'Adeegga',
+  footerLegal: 'Sharciga',
   filmDescription:
     'Dunidu waxay isku xiraysaa dad kala fog. Qof ayaa doorta qaate, geliya lacagta, kadibna arka xaqiijinta xawaaladda.',
 }
@@ -142,15 +158,23 @@ const es: Copy = {
   installHelp: 'Instalar en Android',
   installBody:
     'Abra el APK descargado en su teléfono Android. Si se le solicita, permita la instalación desde esta fuente en los ajustes.',
-  availability: 'Disponibilidad de pagos',
-  availabilityBody:
-    'Los pagos funcionan actualmente en modo de prueba. No se transfieren fondos de clientes.',
   back: 'Volver al sitio web',
   exploreLabel: 'Modo exploración · Datos de ejemplo',
   exit: 'Salir del modo exploración',
   shellTitle: 'Un poco más cerca.\nCon cada toque.',
   shellBody: 'Su gente, sus transferencias, su mundo. Todo en un solo lugar.',
   skip: 'Ir al contenido',
+  trustEyebrow: 'La empresa detrás',
+  trustTitle: 'Hecha para verificarse.',
+  trustBody:
+    'Quiénes somos, cómo estamos registrados, cómo se maneja el dinero y cómo contactarnos.',
+  trustCompany: 'Empresa',
+  trustCompliance: 'Cumplimiento',
+  trustSecurity: 'Seguridad',
+  trustPartners: 'Alianzas',
+  footerCompany: 'Empresa',
+  footerProduct: 'Producto',
+  footerLegal: 'Legal',
   filmDescription:
     'Un globo conecta a personas a distancia. Una persona elige un destinatario, introduce un importe y ve una confirmación en XpressTend.',
 }
@@ -191,9 +215,6 @@ const pt: Copy = {
   installHelp: 'Instalar no Android',
   installBody:
     'Abra o APK baixado no seu Android. Se solicitado, permita a instalação dessa fonte nas configurações do aparelho.',
-  availability: 'Disponibilidade de pagamentos',
-  availabilityBody:
-    'Os pagamentos estão em modo de teste. Nenhum valor de clientes é movimentado.',
   back: 'Voltar ao site',
   exploreLabel: 'Modo de exploração · Dados de exemplo',
   exit: 'Sair do modo de exploração',
@@ -201,6 +222,17 @@ const pt: Copy = {
   shellBody:
     'Suas pessoas, suas transferências, seu mundo. Tudo em um só lugar.',
   skip: 'Ir para o conteúdo',
+  trustEyebrow: 'A empresa por trás',
+  trustTitle: 'Feita para ser verificada.',
+  trustBody:
+    'Quem somos, como estamos registrados, como o dinheiro é tratado e como falar conosco.',
+  trustCompany: 'Empresa',
+  trustCompliance: 'Conformidade',
+  trustSecurity: 'Segurança',
+  trustPartners: 'Parcerias',
+  footerCompany: 'Empresa',
+  footerProduct: 'Produto',
+  footerLegal: 'Jurídico',
   filmDescription:
     'Um globo conecta pessoas à distância. Uma pessoa escolhe um destinatário, informa um valor e vê uma confirmação na XpressTend.',
 }
@@ -239,15 +271,23 @@ const ar: Copy = {
   installHelp: 'التثبيت على أندرويد',
   installBody:
     'افتح ملف APK الذي نزّلته. اسمح بالتثبيت من هذا المصدر في إعدادات جهازك إذا طُلب منك ذلك.',
-  availability: 'إتاحة المدفوعات',
-  availabilityBody:
-    'تعمل المدفوعات حالياً في وضع الاختبار. لا يتم تحويل أموال العملاء.',
   back: 'العودة إلى الموقع',
   exploreLabel: 'وضع الاستكشاف · بيانات تجريبية',
   exit: 'مغادرة وضع الاستكشاف',
   shellTitle: 'أقرب بقليل.\nمع كل لمسة.',
   shellBody: 'أحباؤك وتحويلاتك وعالمك. كل ذلك في مكان واحد.',
   skip: 'الانتقال إلى المحتوى',
+  trustEyebrow: 'الشركة وراء الخدمة',
+  trustTitle: 'مبنية لتكون موضع تحقق.',
+  trustBody:
+    'من نحن، وكيف نحن مسجلون، وكيف تُدار الأموال، وكيف يمكن التواصل معنا.',
+  trustCompany: 'الشركة',
+  trustCompliance: 'الامتثال',
+  trustSecurity: 'الأمان',
+  trustPartners: 'الشراكات',
+  footerCompany: 'الشركة',
+  footerProduct: 'المنتج',
+  footerLegal: 'الشؤون القانونية',
   filmDescription:
     'كرة أرضية تصل بين أشخاص متباعدين. يختار شخص مستلماً ويدخل مبلغاً ثم يرى تأكيد التحويل في XpressTend.',
 }

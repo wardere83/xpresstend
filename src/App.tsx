@@ -12,6 +12,7 @@ import { InviteAccept } from './admin/InviteAccept'
 import { StaffPasswordReset } from './admin/StaffPasswordReset'
 import { Marketing } from './marketing/Marketing'
 import { Privacy, Support as LegalSupport } from './marketing/Legal'
+import { Company, Compliance, Partners, Security } from './marketing/Company'
 import { Home } from './screens/Home'
 import { Voice } from './screens/Voice'
 import { Assistant } from './screens/Assistant'
@@ -41,6 +42,12 @@ export default function App() {
                   be submitted for review. */}
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/support" element={<LegalSupport />} />
+              {/* The company as an institution: what a partner, a bank's
+                  onboarding team or an examiner opens before anything else. */}
+              <Route path="/company" element={<Company />} />
+              <Route path="/compliance" element={<Compliance />} />
+              <Route path="/security" element={<Security />} />
+              <Route path="/partners" element={<Partners />} />
 
               {/* Staff console — its own login, never the customer session. */}
               <Route path="/admin" element={<AdminConsole />} />

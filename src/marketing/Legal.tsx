@@ -1,7 +1,5 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { brand } from '../config/brand'
-import { Logo } from '../components/Logo'
+import { Contents, H, Q, Shell } from './PageShell'
 
 /**
  * Privacy policy and support pages.
@@ -19,102 +17,9 @@ import { Logo } from '../components/Logo'
  */
 const UPDATED = '2 September 2026'
 
-function Shell({ title, children }: { title: string; children: React.ReactNode }) {
-  // Arriving from the landing-page footer carries its scroll position along,
-  // so a policy would open at its own bottom. A legal page starts at the top.
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
-
-  return (
-    <div className="min-h-dvh bg-white text-ink-900">
-      {/* Same safe-area treatment as the marketing header: the native webview
-          draws under the status bar, and the lockup must clear it. */}
-      <header className="border-b border-ink-200/70 pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex max-w-3xl items-center gap-4 px-5 py-4">
-          {/* Legal pages carry the full lockup: here the company is being
-              presented formally rather than the product worn casually. */}
-          <Link to="/" aria-label={brand.name}><Logo variant="full" height={40} /></Link>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-5 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-2 text-[13px] text-ink-500">Last updated {UPDATED}</p>
-        <div className="mt-8 space-y-6 text-[14px] leading-relaxed text-ink-700">{children}</div>
-      </main>
-      <footer className="border-t border-ink-200/70">
-        <div className="mx-auto max-w-3xl px-5 py-8 text-[12px] leading-relaxed text-ink-500">
-          <p className="font-semibold text-ink-700">{brand.name}</p>
-          <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
-          <p className="mt-2">
-            <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
-            {' · '}
-            <a className="underline" href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
-              {brand.support.phone}
-            </a>
-          </p>
-          {/* The registration, then the link that settles what it actually
-              means. Anyone checking a money transmitter starts here. */}
-          <p className="mt-3">{brand.legal.licence}</p>
-          <p className="mt-2">
-            <a
-              className="underline"
-              href={brand.nmls.verifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Verify NMLS ID {brand.nmls.id} at NMLS Consumer Access
-            </a>
-          </p>
-        </div>
-      </footer>
-    </div>
-  )
-}
-
-function H({ children }: { children: React.ReactNode }) {
-  return <h2 className="pt-2 text-[17px] font-bold text-ink-900">{children}</h2>
-}
-
-/**
- * One question and its answer.
- *
- * The support page was a run of `<p><strong>…</strong> …</p>`, which was fine
- * for five entries and unreadable at thirty. `id` gives each answer a URL, so
- * support can send someone to the exact one instead of "scroll down to
- * Refunds".
- */
-function Q({ q, id, children }: { q: string; id?: string; children: React.ReactNode }) {
-  return (
-    <p id={id} className="scroll-mt-24">
-      <strong className="text-ink-900">{q}</strong> {children}
-    </p>
-  )
-}
-
-/** Jump list, so a long page stays navigable without scrolling it twice. */
-function Contents({ items }: { items: { id: string; label: string }[] }) {
-  return (
-    <nav aria-label="On this page" className="rounded-xl bg-canvas p-4">
-      <p className="text-[12px] font-semibold uppercase tracking-wide text-ink-500">
-        On this page
-      </p>
-      <ul className="mt-2.5 grid gap-1.5 sm:grid-cols-2">
-        {items.map((i) => (
-          <li key={i.id}>
-            <a className="text-[13px] underline decoration-ink-300 hover:text-brand-600" href={`#${i.id}`}>
-              {i.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
-
 export function Privacy() {
   return (
-    <Shell title="Privacy Policy">
+    <Shell title="Privacy Policy" updated={UPDATED}>
       <p>
         This policy explains what XpressTend collects, why, and what we do with it. It
         describes the service as it actually works today.
@@ -238,7 +143,7 @@ export function Support() {
   )
 
   return (
-    <Shell title="Support">
+    <Shell title="Support" updated={UPDATED}>
       <p>Questions about a transfer, your account, or the app.</p>
 
       {/* Stated once, at the top, rather than qualifying thirty answers

@@ -504,35 +504,146 @@ summary {
 }
 .brand-footer {
   border-top: 1px solid #d7e2e6;
-  padding-block: 40px 28px;
+  padding-block: 56px 28px;
 }
-.brand-footer-top,
+.brand-footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 40px;
+}
+.brand-footer-brand {
+  display: grid;
+  gap: 12px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #627780;
+  max-width: 260px;
+}
+.brand-footer-brand a {
+  color: inherit;
+  text-decoration: none;
+}
+.brand-footer-brand a:hover {
+  color: #0b252f;
+  text-decoration: underline;
+}
+.brand-footer-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, auto));
+  gap: 32px 48px;
+}
+.brand-footer-columns > div {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+}
+.brand-footer-columns h2 {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0b252f;
+}
+.brand-footer-columns a {
+  font-size: 13px;
+  color: #627780;
+  text-decoration: none;
+}
+.brand-footer-columns a:hover {
+  color: #0b252f;
+  text-decoration: underline;
+}
 .brand-footer-bottom {
+  display: grid;
+  gap: 10px;
+  margin-top: 44px;
+  padding-top: 24px;
+  border-top: 1px solid #d7e2e6;
+}
+.brand-footer-legal {
+  margin: 0;
+  max-width: 78ch;
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: #627780;
+}
+.brand-footer-legal a {
+  color: #627780;
+  text-decoration: underline;
+}
+.brand-footer-legal a:hover {
+  color: #0b252f;
+}
+.brand-footer-copyright {
+  margin: 0;
+  font-size: 11.5px;
+  color: #83a6b0;
+}
+
+/* The institutional band: the route into the company pages. */
+.brand-trust {
+  border-top: 1px solid #d7e2e6;
+  background: color-mix(in srgb, #d7e2e6 18%, #ffffff);
+}
+.brand-trust-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+  padding-block: 72px;
+}
+.brand-trust-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.brand-trust-links a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 30px;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid #d7e2e6;
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  color: #0b252f;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
-.brand-footer nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  font-size: 12px;
-  color: #627780;
+.brand-trust-links a:hover {
+  border-color: #4bd1d3;
+  transform: translateY(-1px);
 }
-.brand-footer-bottom {
-  align-items: start;
-  margin-top: 35px;
-  font-size: 10px;
-  line-height: 1.7;
-  color: #627780;
+.brand-trust-links svg {
+  color: #4bd1d3;
+  flex: none;
 }
-.brand-footer details {
-  max-width: 330px;
+
+@media (max-width: 860px) {
+  .brand-trust-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    padding-block: 56px;
+  }
+  .brand-footer-columns {
+    grid-template-columns: repeat(2, minmax(110px, auto));
+    gap: 28px 32px;
+  }
 }
-.brand-footer details p {
-  margin-top: 10px;
+@media (prefers-reduced-motion: reduce) {
+  .brand-trust-links a:hover {
+    transform: none;
+  }
 }
+
 .brand-skip {
   position: fixed;
   top: -100px;
@@ -761,21 +872,13 @@ summary {
   .brand-install-help {
     margin-inline: auto;
   }
-  .brand-footer-top,
-  .brand-footer-bottom {
+  .brand-footer-top {
     flex-direction: column;
-    gap: 23px;
+    gap: 32px;
     align-items: flex-start;
   }
-  .brand-footer nav {
-    font-size: 11px;
-    gap: 18px;
-  }
   .brand-footer-bottom {
-    margin-top: 27px;
-  }
-  .brand-footer details {
-    max-width: 100%;
+    margin-top: 32px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
