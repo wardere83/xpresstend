@@ -117,13 +117,66 @@ export function Company() {
       </p>
 
       <H id="approach">How we are building it</H>
+      {/*
+        High level by design. This section describes the shape of the system
+        and the properties it guarantees — it names no supplier, no platform
+        and no component a reader could use to map our infrastructure. What a
+        partner needs from this page is the engineering posture; the rest is
+        for a diligence call under NDA.
+
+        Every claim below is a property the code actually has. "Sophisticated"
+        that is not also true is the one thing this audience punishes, because
+        each of these is demonstrable in a screen-share and an invented one
+        would be found in the first ten minutes.
+      */}
       <p>
-        The ledger, the compliance controls and the limits were built before the marketing was. A
-        money transmitter is judged on whether the controls it describes are the controls that
-        actually run, so ours are enforced in code on every transfer and leave a record that can be
-        queried rather than described. The{' '}
-        <Link className="underline" to="/security">security and platform</Link> page sets out how,
-        and the <Link className="underline" to="/compliance">compliance</Link> page sets out what is
+        XpressTend is built as a single distributed service deployed close to the people using it,
+        rather than as an interface calling a distant core. The customer application, the public
+        site and the transaction engine are one system, which removes an entire class of
+        cross-boundary failure and keeps the path between a sender tapping an amount and a priced,
+        recorded transaction as short as the network allows. In remittances, responsiveness is not
+        a nicety: it is the difference between a sender who completes and a sender who reconsiders.
+      </p>
+      <p>
+        <strong className="text-ink-900">Money is held in a ledger, not in a balance column.</strong>{' '}
+        Every movement is recorded as balanced double-entry postings in integer minor units under
+        arbitrary-precision arithmetic — no floating-point value touches an amount anywhere in the
+        system. Balances are derived from those postings rather than stored, so they cannot silently
+        drift, and a trial balance can be re-proved on demand. Each transfer's postings are written
+        atomically and exactly once: a retry, a timeout or a crash mid-flight cannot produce a
+        double posting or a transfer marked paid with no accounting behind it.
+      </p>
+      <p>
+        <strong className="text-ink-900">Pricing is authoritative, not advisory.</strong> Every quote
+        is recalculated by the server at the moment a transfer is created, so the figure a customer
+        agreed is the figure the ledger records and no modified client can buy a better rate than
+        the corridor allows. Reference rates are refreshed on a schedule, stored as scaled integers
+        rather than decimals, and screened on arrival: a rate that moves implausibly against the
+        last accepted value is rejected rather than used, so a bad upstream feed cannot price real
+        transfers. Fees round up and recipient amounts round down, so rounding never quietly
+        promises a recipient more than the transfer funds.
+      </p>
+      <p>
+        <strong className="text-ink-900">Controls execute; they are not merely described.</strong>{' '}
+        Verification tiers, per-transfer, daily and monthly ceilings, velocity limits and sanctions
+        screening run server-side on every transfer against the account's own history, and each
+        outcome — including a clear one — is written to an append-only record. Staff permissions are
+        role-based, privileged actions are attributable to a named person, and nothing in the system
+        updates or deletes an audit entry. A money transmitter is judged on whether the controls it
+        publishes are the controls that actually run; ours answer "show me" with a query rather than
+        a description.
+      </p>
+      <p>
+        <strong className="text-ink-900">One product across every surface.</strong> Web, iOS and
+        Android are built from a single codebase, so a control, a correction or a disclosure ships
+        everywhere at once and cannot be right on one platform and stale on another. Five languages
+        ship, including full right-to-left support, because the people this service is for do not
+        all read English.
+      </p>
+      <p>
+        The <Link className="underline" to="/security">security and platform</Link> page sets out the
+        protections in more detail, and the{' '}
+        <Link className="underline" to="/compliance">compliance</Link> page sets out exactly what is
         checked and recorded.
       </p>
 

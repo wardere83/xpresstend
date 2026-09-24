@@ -500,3 +500,25 @@ test('no public page carries beta or placeholder vocabulary', async ({ page }) =
     expect(text, `/${route} contains development-stage copy`).not.toMatch(forbidden)
   }
 })
+
+/*
+ * The public pages describe the shape of the system, never the suppliers
+ * underneath it. A named platform on a company page is a map of the
+ * infrastructure for anyone who wants one, it dates the page the moment a
+ * contract changes, and it tells a prospective partner more about our vendors
+ * than about us. The privacy policy still discloses the categories of party
+ * that see customer data, and offers the current list on request, which is
+ * where that disclosure belongs.
+ */
+test('no public page names a platform or supplier we build on', async ({ page }) => {
+  // Word-boundary anchored: "invitee" contains "vite", and a substring match
+  // would fail this check on correct copy.
+  const vendors =
+    /\b(github|cloudflare|wrangler|workers?|d1|vite|rolldown|tailwind|capacitor|playwright|aws|amazon web services|azure|gcp|vercel|netlify|supabase|firebase|sqlite|postgres|react)\b/i
+  for (const route of ['', 'company', 'compliance', 'security', 'partners', 'privacy', 'support']) {
+    await page.goto(`/#/${route}`)
+    const text = await page.locator('body').innerText()
+    const hit = text.match(vendors)
+    expect(hit?.[0], `/${route} names "${hit?.[0]}"`).toBeUndefined()
+  }
+})

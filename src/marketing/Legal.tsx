@@ -68,11 +68,21 @@ export function Privacy() {
       to money transmission; and to investigate fraud or a disputed transfer.</p>
 
       <H>Who else sees it</H>
+      {/* The categories of recipient, not the suppliers by name. A named
+          supplier list on a public page is a map of the infrastructure for
+          anyone who wants one, and it goes stale the day a contract changes.
+          The disclosure a reader is owed is what kind of party sees their
+          data and why, which is preserved in full — and the current list is
+          offered on request, which is where a regulator or a partner's
+          privacy team would expect to obtain it. */}
       <p>Our own staff, limited to what their role requires, with every action recorded against a
-      named person. Beyond that, service providers who host the platform (Cloudflare) and, once
-      the service handles real money, banking, payout, identity-verification, and sanctions-screening
-      partners as required to complete a transfer and to comply with the law. We do not sell your
-      information, and we do not share it for advertising.</p>
+      named person. Beyond that, the infrastructure and hosting providers that operate the platform
+      on our behalf under contract, and, once the service handles real money, banking, payout,
+      identity-verification, and sanctions-screening partners as required to complete a transfer and
+      to comply with the law. Every one of them is bound to use your information only to provide
+      their service to us. We do not sell your information, and we do not share it for advertising.
+      A current list of the providers we use is available on request at{' '}
+      <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>.</p>
 
       <H>How long we keep it</H>
       <p>Transaction records and the audit trail are retained for at least five years after a
