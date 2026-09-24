@@ -23,6 +23,21 @@ export type Quote = {
   currency: string
 }
 
+/**
+ * Where the money is, from the customer's point of view.
+ *
+ *  - 'idle'        nothing attempted yet
+ *  - 'authorizing' the rail has been asked to hold the funds
+ *  - 'pending'     the payer's provider has sent a prompt and has not answered
+ *  - 'settled'     captured, booked, and in compliance review
+ *  - 'failed'      the provider declined
+ *
+ * 'pending' is a state and not a spinner. Mobile money routinely answers it,
+ * and a flow that cannot represent it has to either block or claim an outcome
+ * it does not have.
+ */
+export type RailPhase = 'idle' | 'authorizing' | 'pending' | 'settled' | 'failed'
+
 export type TransferValue = {
   recipientId: string
   setRecipientId: (id: string) => void
@@ -44,6 +59,25 @@ export type TransferValue = {
    */
   /** Requires the account password: the server authorises payment with it. */
   commit: (password: string) => Promise<Transaction>
+  /**
+   * The mobile-money account the sender pays FROM. Collected on the send
+   * screen, carried to our API, and never stored by us: it is passed to the
+   * payment provider and dropped.
+   */
+  walletAccount: string
+  setWalletAccount: (value: string) => void
+  /** One-time wallet authorisation, where the provider asks for one. */
+  walletPin: string
+  setWalletPin: (value: string) => void
+  /** Where the payment stands. See RailPhase. */
+  railPhase: RailPhase
+  /** What the provider said, when it said anything worth showing. */
+  railMessage: string | null
+  /**
+   * Re-reads the transfer's real state from the server. Returns true once the
+   * payment has settled, so a caller can stop polling.
+   */
+  refreshRailStatus: () => Promise<boolean>
   reset: () => void
   /** True when the numbers and the recipient come from the customer's account. */
   live: boolean

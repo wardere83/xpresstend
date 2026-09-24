@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Apple, ArrowDownUp, Check, ChevronRight, Lock, CreditCard, Landmark } from 'lucide-react'
+import { Apple, ArrowDownUp, Check, ChevronRight, Lock, CreditCard, Landmark, Smartphone } from 'lucide-react'
 import { ScreenHeader, Avatar, PrimaryButton } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
@@ -21,6 +21,8 @@ export function SendMoney() {
     setAmountUsd,
     paymentMethod,
     setPaymentMethod,
+    walletAccount,
+    setWalletAccount,
   } = useTransfer()
 
   const [raw, setRaw] = useState(String(amountUsd))
@@ -29,7 +31,17 @@ export function SendMoney() {
   const parsed = Number(raw.replace(/[^0-9.]/g, '')) || 0
   const tooLow = parsed <= TRANSFER_FEE
   const tooHigh = quote.totalUsd > user.balanceUsd
-  const error = tooLow ? t('send.amountTooLow', { fee: usd(TRANSFER_FEE) }) : tooHigh ? t('send.amountTooHigh') : null
+  /*
+   * Mobile money is paid from an account the customer names, so there is
+   * nothing to charge until they have. Caught here rather than at the provider,
+   * where the same mistake costs a round trip and a decline on their record.
+   */
+  const missingWallet = paymentMethod === 'mwallet' && walletAccount.trim().length === 0
+  const error = tooLow
+    ? t('send.amountTooLow', { fee: usd(TRANSFER_FEE) })
+    : tooHigh
+      ? t('send.amountTooHigh')
+      : null
 
   const onAmountChange = (value: string) => {
     const cleaned = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
@@ -175,8 +187,37 @@ export function SendMoney() {
           })}
         </div>
 
+        {/*
+          Shown only for mobile money, because it is the only method where the
+          funds come from an account the customer has to name. It is sent to the
+          payment provider through our API and stored nowhere.
+        */}
+        {paymentMethod === 'mwallet' && (
+          <div className="card mt-3 p-4">
+            <label
+              htmlFor="wallet-account"
+              className="block text-[13px] font-bold text-ink-700"
+            >
+              {t('rail.accountLabel')}
+            </label>
+            <input
+              id="wallet-account"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              dir="ltr"
+              value={walletAccount}
+              onChange={(e) => setWalletAccount(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-[15px] text-ink-900 outline-none focus:border-brand-600"
+            />
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-500">
+              {t('rail.accountHint')}
+            </p>
+          </div>
+        )}
+
         <div className="mt-6">
-          <PrimaryButton disabled={!!error} onClick={() => navigate('/review')}>
+          <PrimaryButton disabled={!!error || missingWallet} onClick={() => navigate('/review')}>
             {t('common.continue')}
           </PrimaryButton>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-ink-500">
@@ -235,6 +276,7 @@ export function SendMoney() {
 function PaymentGlyph({ id }: { id: string }) {
   if (id === 'bank') return <Landmark size={17} strokeWidth={2} />
   if (id === 'debit') return <CreditCard size={17} strokeWidth={2} />
+  if (id === 'mwallet') return <Smartphone size={17} strokeWidth={2} />
   if (id === 'apple')
     return (
       <span className="flex items-center gap-0.5 text-[10px] font-bold">
