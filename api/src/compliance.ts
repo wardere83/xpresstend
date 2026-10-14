@@ -1,3 +1,4 @@
+import { ProviderError, requireProviderIdentity, screenGlobal, providerIdentitySql } from './provider-compliance'
 import type { Env } from './env'
 import { audit } from './audit'
 import { newId } from './crypto'
@@ -223,6 +224,7 @@ export interface TransferScreeningCheck {
 }
 
 export interface TransferScreening {
+  globalEvidence?: { id: string; subjectId: string; name: string; status: string }[]
   dataset: SanctionsDataset
   subjects: ScreeningSubjects
   checks: TransferScreeningCheck[]
@@ -245,6 +247,8 @@ export async function screenTransferSubjects(
 ): Promise<TransferScreening> {
   const subjects = await loadScreeningSubjects(env, args.userId, args.recipientId)
   if (args.requireVerified !== false) requireVerifiedSender(subjects)
+  await requireProviderIdentity(env, args.userId, subjects.firstName, subjects.lastName)
+  const globalEvidence = await screenGlobal(env, args.transferId, [subjects.sender, subjects.recipient])
   const dataset = await loadFreshSanctionsDataset(env)
   const records = await storedTransferScreenings(env, args.transferId)
   const transferConfirmed = records.some((record) => record.provider === 'us-treasury-ofac' && record.status === 'confirmed_match')
@@ -261,9 +265,10 @@ export async function screenTransferSubjects(
   }))
   return {
     dataset,
+    globalEvidence,
     subjects,
     checks,
-    blocked: transferConfirmed || checks.some((check) => check.confirmed || (check.result.status !== 'clear' && !check.cleared)),
+    blocked: globalEvidence.some(e => e.status !== 'clear') || transferConfirmed || checks.some((check) => check.confirmed || (check.result.status !== 'clear' && !check.cleared)),
     confirmed: transferConfirmed || checks.some((check) => check.confirmed || check.result.status === 'confirmed_match'),
   }
 }
@@ -298,8 +303,10 @@ export function complianceAuditStatement(
 
 /** Repeat mutable eligibility checks in the same SQL statement that claims money. */
 export function screeningClaimGuard(screening: TransferScreening, now: string): { sql: string; values: (string | number)[] } {
+  const global = screening.globalEvidence ?? []
+  const extraSql = global.map(() => ` AND EXISTS (SELECT 1 FROM provider_screenings ps WHERE ps.id=? AND ps.status='clear' AND ps.created_at>=?)`).join('')
   return {
-    sql: `
+    sql: `${extraSql}${global.length ? providerIdentitySql('transfers.user_id') : ''}
       AND EXISTS (
         SELECT 1 FROM sanctions_active a
         JOIN sanctions_datasets d ON d.snapshot_id = a.snapshot_id
@@ -323,6 +330,7 @@ export function screeningClaimGuard(screening: TransferScreening, now: string): 
           AND s.provider = 'us-treasury-ofac' AND s.status = 'confirmed_match'
       )`,
     values: [
+      ...global.flatMap(e => [e.id, new Date(new Date(now).getTime()-60_000).toISOString()]),
       screening.dataset.version,
       screening.dataset.contentSha256,
       new Date(new Date(now).getTime() - 24 * 3600_000).toISOString(),
@@ -338,6 +346,7 @@ export function screeningClaimGuard(screening: TransferScreening, now: string): 
 }
 
 export function screeningFailure(error: unknown): { code: string; status: 403 | 404 | 503; message: string } | null {
+  if (error instanceof ProviderError) return { code: error.code, status: error.code === 'identity_verification_required' ? 403 : 503, message: 'Identity verification and current sanctions clearance are required. Please retry or contact support.' }
   if (error instanceof SanctionsUnavailableError) {
     return { code: 'sanctions_unavailable', status: 503, message: 'Transfers are temporarily unavailable while sanctions screening is refreshed.' }
   }

@@ -1,3 +1,4 @@
+import { providersRequired, providerIdentitySql } from './provider-compliance'
 import { Hono } from 'hono'
 import { getCookie } from 'hono/cookie'
 import { hashToken, newId, randomHex, verifyPassword } from './crypto'
@@ -7,6 +8,7 @@ import { guardedPostingStatements } from './ledger-db'
 import { QuoteError, quote, type Corridor } from './money'
 import type { Env, Vars } from './env'
 import { requireUser, USER_COOKIE } from './sessions'
+import { overLimit } from './ratelimit'
 import { sanctionsScreeningStatement } from './sanctions'
 import {
   auditSanctionsUnavailable,
@@ -85,6 +87,21 @@ transfers.use('/recipients/*', requireUser)
 transfers.use('/transfers/*', requireUser)
 transfers.use('/transfers', requireUser)
 transfers.use('/recipients', requireUser)
+
+/** Preflight is UX only; creation, payment and release repeat server checks. */
+transfers.post('/transfers/preflight', async (c) => {
+  const body = await c.req.json().catch(() => ({})) as { recipientId?: string }
+  if (typeof body.recipientId !== 'string') return c.json({error:'recipient_required'},400)
+  if(await overLimit(c.env,'preflight',c.get('user').id,{max:20,windowSeconds:600},true)) return c.json({error:'rate_limited'},429)
+  try {
+    const result = await screenTransferSubjects(c.env, { userId:c.get('user').id, recipientId:body.recipientId, transferId:newId('pre') })
+    return c.json({ allowed:!result.blocked, checkedAt:new Date().toISOString(), expiresAt:new Date(Date.now()+60_000).toISOString() })
+  } catch(error) {
+    const failure=screeningFailure(error)
+    if(failure) return c.json({error:failure.code,message:failure.message},failure.status)
+    throw error
+  }
+})
 
 transfers.get('/recipients', async (c) => {
   const user = c.get('user')
@@ -240,7 +257,8 @@ transfers.post('/transfers', async (c) => {
           AND u.first_name=? AND u.last_name=? AND r.id=? AND r.archived_at IS NULL
           AND r.full_name=? AND r.country=?
           AND EXISTS (SELECT 1 FROM sessions s WHERE s.user_id=u.id AND s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>?)
-          ${limitGuard.sql}`,
+          ${limitGuard.sql}
+          ${providersRequired(c.env)?providerIdentitySql('u.id'):''}`,
     ).bind(id, ref, corridor.id, q.sendAmountMinor, q.sendCurrency,
            q.feeMinor, q.receiveAmountMinor, q.receiveCurrency, q.effectiveRateE8, startStatus,
            new Date(Date.now() + QUOTE_TTL_MINUTES * 60_000).toISOString(), now, now,

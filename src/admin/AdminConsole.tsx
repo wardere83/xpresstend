@@ -1,3 +1,4 @@
+import { CompliancePanel } from './CompliancePanel'
 /**
  * Staff console.
  *
@@ -480,7 +481,7 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 }
 
 function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () => void }) {
-  const [tab, setTab] = useState<'queue' | 'staff'>('queue')
+  const [tab, setTab] = useState<'queue' | 'staff' | 'compliance'>('queue')
   const [rows, setRows] = useState<TransferRow[]>([])
   const [filter, setFilter] = useState('compliance_hold')
   const [balance, setBalance] = useState<TrialBalance | null>(null)
@@ -574,7 +575,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   return (
     <div className="min-h-dvh bg-canvas">
       <header className="border-b border-ink-200/70 bg-ink-900 text-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-5 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
           <span className="text-[15px] font-semibold tracking-tight">XpressTend Operations</span>
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide">
             {admin.role}
@@ -590,12 +591,12 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8">
-        <div className="mb-6 flex gap-2 border-b border-ink-200/70">
-          {([['queue', 'Transfers'], ['staff', 'Staff']] as const).map(([key, label]) => (
+        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-ink-200/70">
+          {([['queue', 'Transfers'], ['staff', 'Staff'], ['compliance', 'Compliance & banks']] as const).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`-mb-px border-b-2 px-4 py-2.5 text-[13px] font-semibold transition ${
+              className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-[13px] font-semibold transition ${
                 tab === key
                   ? 'border-brand-600 text-brand-700'
                   : 'border-transparent text-ink-500 hover:text-ink-700'
@@ -607,6 +608,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
         </div>
 
         {tab === 'staff' ? <StaffPanel me={admin} /> : null}
+        {tab === 'compliance' ? <CompliancePanel admin={admin} /> : null}
 
         {tab === 'queue' ? (
         <>

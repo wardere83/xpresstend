@@ -1,4 +1,8 @@
 export interface Env {
+  PERSONA_API_KEY?: string
+  PERSONA_TEMPLATE_ID?: string
+  COMPLYADVANTAGE_API_KEY?: string
+  COMPLIANCE_PROVIDERS_REQUIRED?: string
   DB: D1Database
   /** Static assets binding: the built frontend from dist/. */
   ASSETS: Fetcher

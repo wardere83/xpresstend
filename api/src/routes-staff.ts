@@ -51,7 +51,7 @@ const INVITE_HOURS = 48
 staff.post('/invite', requireRole('owner'), async (c) => {
   const me = c.get('admin')
   const b = ((await c.req.json().catch(() => ({}))) as {
-    email?: string; name?: string; role?: string
+    email?: string; name?: string; role?: string; deliverEmail?: boolean
   })
 
   const email = (b.email ?? '').trim().toLowerCase()
@@ -89,7 +89,7 @@ staff.post('/invite', requireRole('owner'), async (c) => {
 
   const link = `${c.env.APP_ORIGIN}/#/invite/${token}`
   const mail = staffInviteEmail({ name, inviterName: me.name, link, hours: INVITE_HOURS })
-  const delivery = await sendEmail(c.env, { to: email, ...mail })
+  const delivery = b.deliverEmail === false ? { sent: false } : await sendEmail(c.env, { to: email, ...mail })
 
   await audit(c.env.DB, {
     actorType: 'admin', actorId: me.id, action: 'staff.invited',
