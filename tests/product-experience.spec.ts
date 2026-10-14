@@ -274,7 +274,9 @@ test('real accounts still require a password before any transfer submission', as
   await expect(
     page.getByRole('button', { name: 'Authorise transfer', exact: true }),
   ).toBeDisabled()
-  expect(writes).toEqual([])
+  // Screening is deliberately performed before authorization; it cannot create or pay a transfer.
+  expect(writes.filter(url => new URL(url).pathname !== '/api/transfers/preflight')).toEqual([])
+  expect(writes.some(url => new URL(url).pathname === '/api/transfers/preflight')).toBe(true)
 })
 
 test('company pages show a plain NMLS ID and accurate service availability', async ({ page }) => {
