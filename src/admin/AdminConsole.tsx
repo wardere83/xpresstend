@@ -545,6 +545,8 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     setNote(null); setTab(key)
     if (key === 'staff') { if (admin.role === 'owner') setInviteRequest(value => value + 1); return }
     if (key === 'compliance') { setSectionRequest(value => ({ section: 'readiness', request: value.request + 1 })); return }
+    ++reviewRequest.current; setSelectedTransfer(null); setReview(null); setReviewBusy(false)
+    setReviewReasons({}); setReviewError(null); setReviewMessage(null)
     try {
       setFilter('compliance_hold')
       const next = await load('compliance_hold')

@@ -41,12 +41,12 @@ bankAdmin.get('/overview', async (c) => {
 bankAdmin.get('/readiness', async (c) => {
   const [ofac, connection] = await Promise.all([
     getSanctionsStatus(c.env),
-    c.env.DB.prepare('SELECT COUNT(*) AS n FROM bank_api_keys WHERE revoked_at IS NULL AND expires_at>?')
-      .bind(new Date().toISOString()).first<{ n: number }>(),
+    c.env.DB.prepare('SELECT bank_id,COUNT(*) AS n FROM bank_api_keys WHERE revoked_at IS NULL AND expires_at>? GROUP BY bank_id ORDER BY bank_id')
+      .bind(new Date().toISOString()).all<{ bank_id: string; n: number }>(),
   ])
   return c.json({
     checkedAt: new Date().toISOString(),
-    bankApi: { available: true, activeConnections: connection?.n ?? 0, mode: 'review-only', basePath: '/api/bank/v1' },
+    bankApi: { available: true, activeConnections: (connection.results ?? []).reduce((sum, row) => sum + row.n, 0), banks: (connection.results ?? []).map(row => row.bank_id), mode: 'review-only', basePath: '/api/bank/v1' },
     identity: { provider: 'persona', configured: !!(c.env.PERSONA_API_KEY && c.env.PERSONA_TEMPLATE_ID) },
     globalSanctions: { provider: 'complyadvantage', configured: !!c.env.COMPLYADVANTAGE_API_KEY },
     ofac,

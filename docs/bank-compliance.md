@@ -93,3 +93,6 @@ Compliance staff select 1–100 funded, unassigned transfers in one send currenc
 The public `/#/demo` is isolated from transfer/account APIs. It provides local sample recipient, amount, review and activity steps. It never creates an account, submits a transfer or claims delivery.
 
 Open-source identity engines require separate infrastructure, a reviewed document/liveness policy and an authenticated server-side adapter. For example, Idswyft Community (https://github.com/team-idswyft/idswyft-community) uses a Docker/ML/PostgreSQL stack with materially different hosting requirements from this Worker. No unhosted GitHub project is represented as a live verifier. The existing Persona integration remains connection-ready and fails closed until configured and validated.
+
+
+The demo and bank portal mount outside live customer account/transfer providers, including for a signed-in customer. Bank polling preserves pages already expanded by the reviewer. Requests from a disconnected generation cannot change a replacement review. Active bank selectors come from the full active-connection query, independently of the sampled credential history. Cross-origin bearer requests use the existing exact trusted-origin allowlist; untrusted origins are not granted CORS access.

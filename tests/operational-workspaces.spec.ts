@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { expect, test, type Page } from '@playwright/test'
+import { mockAccount } from './fixtures/account'
 
 async function mockOwner(page: Page) {
   const requests: string[] = []
@@ -54,7 +55,13 @@ async function mockOwner(page: Page) {
       '/api/admin/compliance/eligible': { transfers: [] },
       '/api/admin/compliance/readiness': {
         checkedAt: '2026-10-15T09:00:00Z',
-        bankApi: { available: true, activeConnections: 0, mode: 'review-only', basePath: '/api/bank/v1' },
+        bankApi: {
+          available: true,
+          activeConnections: 0,
+          banks: [],
+          mode: 'review-only',
+          basePath: '/api/bank/v1',
+        },
         identity: { provider: 'persona', configured: false },
         globalSanctions: { provider: 'complyadvantage', configured: false },
         ofac: {
@@ -133,7 +140,7 @@ test('public navigation is compact and the demo works as a full-screen mobile ap
 
 // Deliberately synthetic, unprivileged test credential used only against intercepted routes.
 const bankKey = `xpt_bank_${'a'.repeat(64)}`
-async function mockBank(page: Page, corrupt = false) {
+async function mockBank(page: Page, corrupt = false, paged = false) {
   const manifest = {
     version: 1,
     batchId: 'wire-fixture',
@@ -165,6 +172,7 @@ async function mockBank(page: Page, corrupt = false) {
     manifest_hash: createHash('sha256').update(canonical).digest('hex'),
   }
   const decisions: unknown[] = []
+  let listRequests = 0
   await page.route('**/api/**', (route) => {
     const path = new URL(route.request().url()).pathname
     if (!path.startsWith('/api/bank/v1/')) return route.fulfill({ status: 401, json: {} })
@@ -174,7 +182,18 @@ async function mockBank(page: Page, corrupt = false) {
       decisions.push(route.request().postDataJSON())
       return route.fulfill({ json: { ok: true, expiresAt: '2026-10-15T09:05:00Z' } })
     }
-    if (path.endsWith('/batches')) return route.fulfill({ json: { batches: [batch], nextCursor: null } })
+    if (path.endsWith('/batches')) {
+      const after = new URL(route.request().url()).searchParams.get('after')
+      if (after)
+        return route.fulfill({ json: { batches: [{ ...batch, id: 'wire-later' }], nextCursor: null } })
+      listRequests++
+      return route.fulfill({
+        json: {
+          batches: [{ ...batch, status: listRequests > 1 ? 'approved' : 'submitted' }],
+          nextCursor: paged ? 'page-2' : null,
+        },
+      })
+    }
     return route.fulfill({
       json: {
         batch,
@@ -217,4 +236,131 @@ test('bank portal blocks decisions for an altered canonical manifest', async ({ 
   await expect(page.getByRole('alert')).toContainText('Manifest verification failed')
   await expect(page.getByRole('button', { name: 'Record bank approval', exact: true })).toHaveCount(0)
   expect(decisions).toEqual([])
+})
+
+test('an empty held queue clears the previously opened sanctions review', async ({ page }) => {
+  await mockOwner(page)
+  await page.goto('/#/admin')
+  await page.getByRole('button', { name: /Transfer queue/ }).click()
+  await expect(page.getByRole('region', { name: 'Sanctions review' })).toBeVisible()
+  await page.route('**/api/admin/transfers?**', (route) => route.fulfill({ json: { transfers: [] } }))
+  await page.getByRole('button', { name: /Transfer queue/ }).click()
+  await expect(page.getByRole('alert')).toContainText('No transfers are awaiting review')
+  await expect(page.getByRole('region', { name: 'Sanctions review' })).toHaveCount(0)
+})
+
+test('the demo stays outside live account providers for an authenticated customer', async ({ page }) => {
+  const requests = await mockAccount(page)
+  await page.goto('/#/demo')
+  await expect(page.getByRole('region', { name: 'Interactive app demo' })).toBeVisible()
+  await page.getByRole('button', { name: /Send money/ }).click()
+  await page.getByRole('button', { name: 'Review demo transfer' }).click()
+  await expect(page.locator('.demo-summary')).toBeVisible()
+  expect(requests).toEqual([])
+})
+
+test('bank polling preserves loaded later batches and the pagination cursor', async ({ page }) => {
+  await page.clock.install()
+  await mockBank(page, false, true)
+  await page.getByRole('button', { name: 'Load more batches' }).click()
+  await expect(page.getByRole('button', { name: /wire-later/ })).toBeVisible()
+  await page.clock.fastForward(31_000)
+  await expect(page.getByRole('button', { name: /wire-fixture/ })).toContainText('approved')
+  await expect(page.getByRole('button', { name: /wire-later/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Load more batches' })).toHaveCount(0)
+})
+
+test('a stale bank decision failure cannot invalidate a reconnected review', async ({ page }) => {
+  await mockBank(page)
+  let release: (() => Promise<void>) | undefined
+  await page.route(
+    '**/api/bank/v1/batches/*/decision',
+    (route) =>
+      new Promise<void>((resolve) => {
+        release = async () => {
+          await route.fulfill({ status: 503, json: { error: 'old_connection_failed' } })
+          resolve()
+        }
+      }),
+  )
+  await page.getByLabel('Bank review reference').fill('FIRST-CONNECTION')
+  await page.getByLabel('Review reason').fill('First fixture bank review is still waiting for a response.')
+  await page.getByRole('button', { name: 'Record bank approval', exact: true }).click()
+  await expect.poll(() => !!release).toBe(true)
+  await page.getByRole('button', { name: 'Disconnect', exact: true }).click()
+  await page.getByLabel('Bank API key', { exact: true }).fill(bankKey)
+  await page.getByRole('button', { name: 'Connect to review API' }).click()
+  await page.getByRole('button', { name: /wire-fixture/ }).click()
+  await expect(page.getByText('Hash & totals verified')).toBeVisible()
+  const finished = page.waitForResponse(
+    (response) => response.url().endsWith('/decision') && response.status() === 503,
+  )
+  await release!()
+  await finished
+  await page.waitForLoadState('networkidle')
+  await page.getByLabel('Bank review reference').fill('SECOND-CONNECTION')
+  await page
+    .getByLabel('Review reason')
+    .fill('The replacement fixture connection has completed its own review.')
+  await expect(page.getByRole('button', { name: 'Record bank approval', exact: true })).toBeEnabled()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+})
+
+test('a recovered compliance refresh clears the error and performs one refresh cycle', async ({ page }) => {
+  await mockOwner(page)
+  let calls = 0
+  await page.route('**/api/admin/compliance/overview', (route) => {
+    calls++
+    if (calls === 1) return route.fulfill({ status: 503, json: { error: 'temporarily_unavailable' } })
+    return route.fulfill({
+      json: {
+        testMode: true,
+        providers: { identity: false, sanctions: false },
+        batches: [],
+        keys: [],
+        screenings: [],
+        identity: [],
+      },
+    })
+  })
+  await page.goto('/#/admin')
+  await page.getByRole('button', { name: /Financial controls/ }).click()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await page.getByRole('button', { name: 'Refresh environment', exact: true }).click()
+  await expect(page.getByRole('status').filter({ hasText: 'Environment status refreshed.' })).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  expect(calls).toBe(2)
+})
+
+test('bank selection uses complete active connections rather than credential history', async ({ page }) => {
+  await mockOwner(page)
+  await page.route('**/api/admin/compliance/readiness', (route) =>
+    route.fulfill({
+      json: {
+        checkedAt: '2026-10-15T09:00:00Z',
+        bankApi: {
+          available: true,
+          activeConnections: 1,
+          banks: ['older-active-bank'],
+          mode: 'review-only',
+          basePath: '/api/bank/v1',
+        },
+        identity: { provider: 'persona', configured: false },
+        globalSanctions: { provider: 'complyadvantage', configured: false },
+        ofac: {
+          ready: true,
+          checkedAt: '2026-10-15T09:00:00Z',
+          reason: null,
+          entityCount: 19911,
+          nameCount: 41205,
+        },
+      },
+    }),
+  )
+  await page.goto('/#/admin')
+  await page.getByRole('button', { name: /Financial controls/ }).click()
+  await expect(page.getByText('1 active scoped connection.')).toBeVisible()
+  await page.getByRole('button', { name: 'Bank review', exact: true }).click()
+  await page.getByLabel('Review bank identifier', { exact: true }).selectOption('older-active-bank')
+  await expect(page.getByLabel('Review bank identifier', { exact: true })).toHaveValue('older-active-bank')
 })

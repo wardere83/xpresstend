@@ -10,64 +10,89 @@ import { I18nProvider } from './i18n/I18nProvider'
 import { AccountDataProvider } from './state/AccountDataProvider'
 import { TransferProvider } from './state/TransferProvider'
 import { AuthProvider } from './auth/AuthProvider'
-import { Login, RequireAuth, Register, ForgotPassword, ResetPassword, DeleteAccount } from './auth/AuthScreens'
+import {
+  Login,
+  RequireAuth,
+  Register,
+  ForgotPassword,
+  ResetPassword,
+  DeleteAccount,
+} from './auth/AuthScreens'
 import { Privacy, Support as LegalSupport } from './marketing/Legal'
 
-const AppDemo = lazy(() => import('./marketing/AppDemo').then(module => ({ default: module.AppDemo })))
-const BankReview = lazy(() => import('./admin/BankReview').then(module => ({ default: module.BankReview })))
+const AppDemo = lazy(() => import('./marketing/AppDemo').then((module) => ({ default: module.AppDemo })))
+const BankReview = lazy(() => import('./admin/BankReview').then((module) => ({ default: module.BankReview })))
 
-const AdminConsole = lazy(() => import('./admin/AdminConsole').then(module => ({ default: module.AdminConsole })))
-const ReviewerConsole = lazy(() => import('./admin/ReviewerConsole').then(module => ({ default: module.ReviewerConsole })))
+const AdminConsole = lazy(() =>
+  import('./admin/AdminConsole').then((module) => ({ default: module.AdminConsole })),
+)
+const ReviewerConsole = lazy(() =>
+  import('./admin/ReviewerConsole').then((module) => ({ default: module.ReviewerConsole })),
+)
 
-const InviteAccept = lazy(() => import('./admin/InviteAccept').then(module => ({ default: module.InviteAccept })))
+const InviteAccept = lazy(() =>
+  import('./admin/InviteAccept').then((module) => ({ default: module.InviteAccept })),
+)
 
-const StaffPasswordReset = lazy(() => import('./admin/StaffPasswordReset').then(module => ({ default: module.StaffPasswordReset })))
+const StaffPasswordReset = lazy(() =>
+  import('./admin/StaffPasswordReset').then((module) => ({ default: module.StaffPasswordReset })),
+)
 
-const Marketing = lazy(() => import('./marketing/Marketing').then(module => ({ default: module.Marketing })))
+const Marketing = lazy(() =>
+  import('./marketing/Marketing').then((module) => ({ default: module.Marketing })),
+)
 
-const Company = lazy(() => import('./marketing/Company').then(module => ({ default: module.Company })))
-const Compliance = lazy(() => import('./marketing/Company').then(module => ({ default: module.Compliance })))
-const Philanthropy = lazy(() => import('./marketing/Philanthropy').then(module => ({ default: module.Philanthropy })))
-const Security = lazy(() => import('./marketing/Company').then(module => ({ default: module.Security })))
+const Company = lazy(() => import('./marketing/Company').then((module) => ({ default: module.Company })))
+const Compliance = lazy(() =>
+  import('./marketing/Company').then((module) => ({ default: module.Compliance })),
+)
+const Philanthropy = lazy(() =>
+  import('./marketing/Philanthropy').then((module) => ({ default: module.Philanthropy })),
+)
+const Security = lazy(() => import('./marketing/Company').then((module) => ({ default: module.Security })))
 
-const Home = lazy(() => import('./screens/Home').then(module => ({ default: module.Home })))
+const Home = lazy(() => import('./screens/Home').then((module) => ({ default: module.Home })))
 
-const Voice = lazy(() => import('./screens/Voice').then(module => ({ default: module.Voice })))
+const Voice = lazy(() => import('./screens/Voice').then((module) => ({ default: module.Voice })))
 
-const Assistant = lazy(() => import('./screens/Assistant').then(module => ({ default: module.Assistant })))
+const Assistant = lazy(() => import('./screens/Assistant').then((module) => ({ default: module.Assistant })))
 
-const SendMoney = lazy(() => import('./screens/SendMoney').then(module => ({ default: module.SendMoney })))
+const SendMoney = lazy(() => import('./screens/SendMoney').then((module) => ({ default: module.SendMoney })))
 
-const Review = lazy(() => import('./screens/Review').then(module => ({ default: module.Review })))
+const Review = lazy(() => import('./screens/Review').then((module) => ({ default: module.Review })))
 
-const Success = lazy(() => import('./screens/Success').then(module => ({ default: module.Success })))
+const Success = lazy(() => import('./screens/Success').then((module) => ({ default: module.Success })))
 
-const Recipients = lazy(() => import('./screens/Recipients').then(module => ({ default: module.Recipients })))
+const Recipients = lazy(() =>
+  import('./screens/Recipients').then((module) => ({ default: module.Recipients })),
+)
 
-const Activity = lazy(() => import('./screens/Activity').then(module => ({ default: module.Activity })))
+const Activity = lazy(() => import('./screens/Activity').then((module) => ({ default: module.Activity })))
 
-const Profile = lazy(() => import('./screens/Profile').then(module => ({ default: module.Profile })))
+const Profile = lazy(() => import('./screens/Profile').then((module) => ({ default: module.Profile })))
 
-const Help = lazy(() => import('./screens/Info').then(module => ({ default: module.Help })))
-const Rates = lazy(() => import('./screens/Info').then(module => ({ default: module.Rates })))
-const Refer = lazy(() => import('./screens/Info').then(module => ({ default: module.Refer })))
-const Support = lazy(() => import('./screens/Info').then(module => ({ default: module.Support })))
+const Help = lazy(() => import('./screens/Info').then((module) => ({ default: module.Help })))
+const Rates = lazy(() => import('./screens/Info').then((module) => ({ default: module.Rates })))
+const Refer = lazy(() => import('./screens/Info').then((module) => ({ default: module.Refer })))
+const Support = lazy(() => import('./screens/Info').then((module) => ({ default: module.Support })))
 
-export default function App() {
+const loading = (
+  <div role="status" className="grid min-h-dvh place-items-center bg-canvas">
+    Loading XpressTend…
+  </div>
+)
+
+function LiveApplication() {
   return (
-    <I18nProvider>
-      <AuthProvider>
-        <AccountDataProvider>
+    <AuthProvider>
+      <AccountDataProvider>
         <TransferProvider>
-          <HashRouter>
-            <NativeShell />
-            <FieldActivity />
-            <Suspense fallback={<div role="status" className="grid min-h-dvh place-items-center bg-canvas">Loading XpressTend…</div>}>
+          <NativeShell />
+          <FieldActivity />
+          <Suspense fallback={loading}>
             <Routes>
               {/* Public shopfront and the way in. */}
               <Route path="/" element={isNative ? <Navigate to="/app" replace /> : <Marketing />} />
-              <Route path="/demo" element={<AppDemo />} />
-              <Route path="/bank-review" element={<BankReview />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -95,7 +120,15 @@ export default function App() {
 
               {/* The product. */}
               {/* Every product screen requires an authenticated customer account. */}
-              <Route element={<RequireAuth><AppLock><AppLayout /></AppLock></RequireAuth>}>
+              <Route
+                element={
+                  <RequireAuth>
+                    <AppLock>
+                      <AppLayout />
+                    </AppLock>
+                  </RequireAuth>
+                }
+              >
                 <Route path="/app" element={<Home />} />
                 <Route path="voice" element={<Voice />} />
                 <Route path="assistant" element={<Assistant />} />
@@ -114,11 +147,43 @@ export default function App() {
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            </Suspense>
-          </HashRouter>
+          </Suspense>
         </TransferProvider>
-        </AccountDataProvider>
-      </AuthProvider>
+      </AccountDataProvider>
+    </AuthProvider>
+  )
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <HashRouter>
+        <Routes>
+          <Route
+            path="/demo"
+            element={
+              <>
+                <FieldActivity />
+                <Suspense fallback={loading}>
+                  <AppDemo />
+                </Suspense>
+              </>
+            }
+          />
+          <Route
+            path="/bank-review"
+            element={
+              <>
+                <FieldActivity />
+                <Suspense fallback={loading}>
+                  <BankReview />
+                </Suspense>
+              </>
+            }
+          />
+          <Route path="/*" element={<LiveApplication />} />
+        </Routes>
+      </HashRouter>
     </I18nProvider>
   )
 }

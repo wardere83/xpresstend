@@ -126,3 +126,19 @@ test('owner-issued staff setup is emailed privately to Support and Abdikarim thr
   }
   assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admins WHERE email='hassan@bulleconsulting.com'").get()!.n, 0)
 })
+
+
+test('trusted bank clients can preflight bearer requests without broadening the origin allowlist', async (t) => {
+  const db = new SqliteD1()
+  t.after(() => db.close())
+  const env = fixtureEnv(db)
+  for (const origin of ['https://test.invalid', 'capacitor://localhost', 'https://untrusted.example.invalid']) {
+    const response = await worker.fetch(new Request('https://test.invalid/api/bank/v1/batches', {
+      method: 'OPTIONS',
+      headers: { origin, 'access-control-request-method': 'GET', 'access-control-request-headers': 'authorization' },
+    }), env, { waitUntil() {} })
+    assert.equal(response.status, 204)
+    assert.match(response.headers.get('access-control-allow-headers') ?? '', /Authorization/i)
+    assert.equal(response.headers.get('access-control-allow-origin'), origin.includes('untrusted') ? null : origin)
+  }
+})

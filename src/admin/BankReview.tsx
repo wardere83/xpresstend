@@ -45,6 +45,7 @@ export function BankReview() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const generation = useRef(0)
+  const paginated = useRef(false)
   function disconnect() {
     setBusy(false)
     generation.current++
@@ -56,6 +57,7 @@ export function BankReview() {
     setReference('')
     setReason('')
     setCursor(null)
+    paginated.current = false
     setMessage('')
   }
   const request = useCallback(
@@ -73,7 +75,10 @@ export function BankReview() {
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       })
       if (response.status === 401) {
-        if (requestGeneration === generation.current) disconnect()
+        if (requestGeneration === generation.current) {
+          disconnect()
+          setError('The bank key is invalid, expired or revoked. Connect again with a valid key.')
+        }
         throw new Error('The bank key is invalid, expired or revoked. Connect again with a valid key.')
       }
       if (response.status === 429)
@@ -89,7 +94,7 @@ export function BankReview() {
     [key],
   )
   const load = useCallback(
-    async (after?: string) => {
+    async (after?: string, preserve = false) => {
       const current = generation.current
       const result = await request<{ batches: Batch[]; nextCursor: string | null }>(
         `/batches${after ? `?after=${encodeURIComponent(after)}` : ''}`,
@@ -98,16 +103,27 @@ export function BankReview() {
       setBatches((previous) =>
         after
           ? [...previous, ...result.batches.filter((row) => !previous.some((old) => old.id === row.id))]
-          : result.batches,
+          : preserve
+            ? [
+                ...result.batches,
+                ...previous.filter((row) => !result.batches.some((fresh) => fresh.id === row.id)),
+              ]
+            : result.batches,
       )
-      setCursor(result.nextCursor)
+      if (after) paginated.current = true
+      if (!preserve || !paginated.current) setCursor(result.nextCursor)
+      if (!after && !preserve) paginated.current = false
     },
     [request],
   )
   useEffect(() => {
     if (!key) return
     const refresh = () => {
-      if (!document.hidden) void load().catch((error) => setError(error.message))
+      const current = generation.current
+      if (!document.hidden)
+        void load(undefined, true).catch((error) => {
+          if (current === generation.current) setError(error.message)
+        })
     }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
@@ -191,10 +207,12 @@ export function BankReview() {
       setReason('')
       await load()
     } catch (error) {
-      setVerified(false)
-      setError(error instanceof Error ? error.message : 'Unable to record the decision.')
+      if (current === generation.current) {
+        setVerified(false)
+        setError(error instanceof Error ? error.message : 'Unable to record the decision.')
+      }
     } finally {
-      setBusy(false)
+      if (current === generation.current) setBusy(false)
     }
   }
   function connect(event: FormEvent) {

@@ -38,7 +38,7 @@ type Overview = {
 }
 type Readiness = {
   checkedAt: string
-  bankApi: { available: boolean; activeConnections: number; mode: string; basePath: string }
+  bankApi: { available: boolean; activeConnections: number; banks: string[]; mode: string; basePath: string }
   identity: { provider: string; configured: boolean }
   globalSanctions: { provider: string; configured: boolean }
   ofac: {
@@ -81,6 +81,7 @@ export function CompliancePanel({
     setData(overview)
     setEligible(list.transfers)
     setReadiness(status)
+    setError('')
     setSelected((previous) => previous.filter((id) => list.transfers.some((transfer) => transfer.id === id)))
   }, [])
   useEffect(() => {
@@ -98,13 +99,14 @@ export function CompliancePanel({
   useEffect(() => {
     if (sectionRequest) setSection(sectionRequest.section)
   }, [sectionRequest])
-  async function act(fn: () => Promise<void>) {
+  async function act(fn: () => Promise<void>, noticeAfterRefresh?: string) {
     setBusy(true)
     setError('')
     setNotice('')
     try {
       await fn()
       await refresh()
+      if (noticeAfterRefresh) setNotice(noticeAfterRefresh)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Request failed. Please retry.')
     } finally {
@@ -114,7 +116,8 @@ export function CompliancePanel({
   if (!allowed) return <p className="rounded-xl bg-white p-6">Compliance or owner access is required.</p>
   const activeKeys =
     data?.keys.filter((key) => !key.revoked_at && Date.parse(key.expires_at) > Date.now()) ?? []
-  const banks = [...new Set(activeKeys.map((key) => key.bank_id))]
+  const banks = readiness?.bankApi.banks ?? []
+  const activeConnectionCount = readiness?.bankApi.activeConnections ?? activeKeys.length
   return (
     <div className="compliance-workspace">
       <div className="compliance-heading">
@@ -125,12 +128,7 @@ export function CompliancePanel({
         <button
           className={button}
           disabled={busy}
-          onClick={() =>
-            void act(async () => {
-              await refresh()
-              setNotice('Environment status refreshed.')
-            })
-          }
+          onClick={() => void act(async () => undefined, 'Environment status refreshed.')}
         >
           {busy ? 'Checking…' : 'Refresh environment'}
         </button>
@@ -191,8 +189,8 @@ export function CompliancePanel({
                   },
                   {
                     title: 'Bank connectivity',
-                    status: activeKeys.length ? 'Configured' : 'Setup required',
-                    detail: `${activeKeys.length} active scoped connection${activeKeys.length === 1 ? '' : 's'}.`,
+                    status: activeConnectionCount ? 'Configured' : 'Setup required',
+                    detail: `${activeConnectionCount} active scoped connection${activeConnectionCount === 1 ? '' : 's'}.`,
                     body: 'The bank review API accepts assigned manifests and hash-bound decisions. A connection does not enable live wire execution.',
                     action: 'Manage bank connections',
                     target: 'connections' as const,

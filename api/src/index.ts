@@ -167,7 +167,7 @@ export default {
             headers: {
               ...corsHeaders,
               'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
-              'access-control-allow-headers': 'Content-Type, x-bootstrap-secret',
+              'access-control-allow-headers': 'Content-Type, Authorization, x-bootstrap-secret',
               'access-control-max-age': '86400',
             },
           }),
