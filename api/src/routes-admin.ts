@@ -1,3 +1,5 @@
+import { bankAdmin, bankReleaseGuard } from './routes-bank'
+import { requireProviderIdentity } from './provider-compliance'
 import { Hono } from 'hono'
 import { newId, randomHex } from './crypto'
 import { audit } from './audit'
@@ -26,6 +28,7 @@ admin.use('*', requireAdmin)
 // Staff administration. Mounted inside the admin guard, so every route here
 // already has a signed-in staff member.
 admin.route('/staff', staff)
+admin.route('/compliance', bankAdmin)
 
 /** Operations dashboard: volumes, holds and today's activity. */
 admin.get('/overview', async (c) => {
@@ -98,7 +101,10 @@ admin.post('/transfers/:id/approve', requireRole('compliance', 'owner'), async (
     return c.json({ error: screening.confirmed ? 'sanctions_blocked' : 'sanctions_review_required', status: 'compliance_hold', message: 'Resolve sanctions screening before release.' }, 403)
   }
 
+  const bankGuard = bankReleaseGuard(now, c.env)
   const guard = screeningClaimGuard(screening, now)
+  guard.sql += bankGuard.sql
+  guard.values.push(...bankGuard.values)
   const operationReference = `test_${randomHex(8)}`
   const posting = guardedPostingStatements(c.env.DB, id, 'payout', payoutPostings({
     receiveAmountMinor: Number(t.receive_amount_minor),
@@ -150,7 +156,7 @@ admin.get('/transfers/:id/screenings', async (c) => {
   let screening: TransferScreening | null = null
   let readinessError: string | null = null
   try {
-    screening = await screenTransferSubjects(c.env, { userId: transfer.user_id, recipientId: transfer.recipient_id, transferId: id, requireVerified: false })
+    screening = await screenTransferSubjects(c.env, { userId: transfer.user_id, recipientId: transfer.recipient_id, transferId: id, requireVerified: false, cachedProviders: true })
   } catch (error) {
     const failure = screeningFailure(error)
     if (!failure) throw error
@@ -359,6 +365,12 @@ admin.post('/users/:id/kyc', requireRole('compliance', 'owner'), async (c) => {
   const tier = b.decision === 'verified' ? b.tier ?? 1 : 0
   if (!Number.isInteger(tier) || tier < 0 || tier > 3 || (b.decision === 'verified' && tier < 1)) {
     return c.json({ error: 'invalid_kyc_tier' }, 400)
+  }
+  if (b.decision === 'verified') {
+    const customer = await c.env.DB.prepare('SELECT first_name,last_name FROM users WHERE id=?').bind(id).first<{first_name:string;last_name:string}>()
+    if (!customer) return c.json({error:'not_found'},404)
+    try { await requireProviderIdentity(c.env,id,customer.first_name,customer.last_name) }
+    catch { return c.json({error:'provider_identity_required',message:'Government ID and live selfie verification must pass before staff can raise limits.'},403) }
   }
   const now = new Date().toISOString()
   const kycId = newId('kyc')

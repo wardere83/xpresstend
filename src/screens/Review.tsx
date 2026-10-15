@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { api } from '../lib/api'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lock, ShieldCheck } from 'lucide-react'
 import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
@@ -13,8 +14,20 @@ export function Review() {
   const { t, lang } = useI18n()
   const { isDemo } = useAuth()
   const navigate = useNavigate()
-  const { recipient, corridor, quote, commit, commitError, availableError, quoteReady } = useTransfer()
+  const { recipientId, recipient, corridor, quote, commit, commitError, availableError, quoteReady } = useTransfer()
 
+  const [screening,setScreening]=useState({allowed:false,message:'Checking identity and sanctions…'})
+  useEffect(()=>{
+    if(isDemo||!quoteReady||availableError)return
+    let active=true
+    const check=async()=>{
+      if(active)setScreening({allowed:false,message:'Checking identity and sanctions…'})
+      try{const result=await api.post<{allowed:boolean}>('/transfers/preflight',{recipientId});if(active)setScreening({allowed:result.allowed,message:result.allowed?'Identity and sanctions checks passed.':'Compliance review is required before sending.'})}
+      catch{if(active)setScreening({allowed:false,message:'Identity verification and current sanctions clearance are required. Open Profile to verify your ID or contact support.'})}
+    }
+    void check();const timer=setInterval(()=>void check(),45_000)
+    return()=>{active=false;clearInterval(timer)}
+  },[isDemo,recipientId,quoteReady,availableError])
   const [stage, setStage] = useState<'idle' | 'verifying' | 'pin'>('idle')
 
   /**
@@ -133,13 +146,14 @@ export function Review() {
           </div>
         </section>
 
+        {!isDemo&&<p role="status" className="mt-4 rounded-xl bg-canvas p-3 text-sm">{screening.message}</p>}
         {/* Verification choice */}
         {!isDemo && <p className="mt-4 flex items-center gap-2 text-[13px] text-ink-700"><Lock size={16} />Authorize with your account password</p>}
 
         <div className="mt-5">
           <PrimaryButton
             onClick={start}
-            disabled={busy || stage === 'verifying' || !!availableError || !quoteReady}
+            disabled={busy || stage === 'verifying' || !!availableError || !quoteReady || (!isDemo&&!screening.allowed)}
           >
             {stage === 'verifying'
               ? t('review.verifying')

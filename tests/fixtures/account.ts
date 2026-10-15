@@ -37,6 +37,7 @@ export async function mockAccount(page: Page, options: {
     requests.push({ path, method: request.method(), body })
     let response: unknown
     if (path === '/api/auth/me') response = { user: options.user ?? customer }
+    else if (path === '/api/transfers/preflight') response = { allowed: true }
     else if (path === '/api/recipients') response = { recipients: paid && options.recipientAfterPayment
       ? recipients.map((recipient) => ({ ...recipient, full_name: options.recipientAfterPayment })) : recipients }
     else if (path === '/api/corridors') response = { corridors: [corridor] }

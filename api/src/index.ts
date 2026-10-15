@@ -1,3 +1,5 @@
+import { identity } from './routes-identity'
+import { bankApi } from './routes-bank'
 import { Hono } from 'hono'
 import type { Env, Vars } from './env'
 import { withSecurityHeaders } from './headers'
@@ -40,6 +42,8 @@ api.get('/compliance/sanctions-status', async (c) => {
   return c.json(await getSanctionsStatus(c.env))
 })
 
+api.route('/identity', identity)
+api.route('/bank/v1', bankApi)
 api.route('/auth', auth)
 api.route('/bootstrap', bootstrap)
 api.route('/invite', invite)

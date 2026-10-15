@@ -1,3 +1,4 @@
+import { Identity } from './screens/Identity'
 import { lazy, Suspense } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
@@ -96,6 +97,7 @@ export default function App() {
                 <Route path="recipients" element={<Recipients />} />
                 <Route path="activity" element={<Activity />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="verify-identity" element={<Identity />} />
                 <Route path="rates" element={<Rates />} />
                 <Route path="help" element={<Help />} />
                 <Route path="refer" element={<Refer />} />

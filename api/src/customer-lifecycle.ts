@@ -154,6 +154,9 @@ export const ACCOUNT_FINANCIAL_GUARD = `
   )`
 
 const HAS_RETAINED_RECORDS = `(EXISTS (SELECT 1 FROM transfers t WHERE t.user_id=u.id)
+  OR EXISTS (SELECT 1 FROM identity_sessions i WHERE i.user_id=u.id)
+  OR EXISTS (SELECT 1 FROM provider_screenings p WHERE p.subject_type='user' AND p.subject_id=u.id)
+  OR EXISTS (SELECT 1 FROM provider_screenings p JOIN recipients r ON r.id=p.subject_id WHERE p.subject_type='recipient' AND r.user_id=u.id)
   OR EXISTS (SELECT 1 FROM kyc_checks k WHERE k.user_id=u.id)
   OR EXISTS (SELECT 1 FROM sanctions_screenings s WHERE s.subject_type='user' AND s.subject_id=u.id)
   OR EXISTS (SELECT 1 FROM sanctions_screenings s JOIN recipients r ON r.id=s.subject_id WHERE s.subject_type='recipient' AND r.user_id=u.id))`
@@ -182,7 +185,7 @@ export async function deleteCustomerAccount(env: Env, userId: string, password: 
       `INSERT INTO customer_retained_identities(user_id,identity_json,retained_at)
        SELECT u.id,json_object('firstName',u.first_name,'lastName',u.last_name,'country',u.country),?
          FROM users u WHERE u.id=? AND ${guard.sql} AND
-          (EXISTS (SELECT 1 FROM transfers t WHERE t.user_id=u.id) OR EXISTS (SELECT 1 FROM kyc_checks k WHERE k.user_id=u.id))`,
+          ${HAS_RETAINED_RECORDS}`,
     ).bind(now, userId, ...guard.values),
     env.DB.prepare(
       `INSERT INTO transfer_events(id,transfer_id,from_status,to_status,actor_type,actor_id,note,created_at)

@@ -43,12 +43,13 @@ export function Privacy() {
       with sign-ins and with actions that change money or access. We keep this to detect fraud
       and to reconstruct what happened if a transfer is disputed.</p>
 
-      <H>What never reaches us</H>
+      <H>Biometric unlock and identity verification</H>
       <p>
-        <strong>Your fingerprint or face.</strong> Biometric unlock is handled entirely by your
+        <strong>Device unlock.</strong> Biometric unlock is handled entirely by your
         phone. iOS and Android tell the app only whether the check passed. The biometric data
-        itself never leaves your device and we never receive, store, or see it.
+        used for device unlock stays on your device.
       </p>
+      <p><strong>Identity verification.</strong> This is a separate check: our verification provider, Persona, receives your government ID and selfie to check identity and liveness. XpressTend stores verification results and evidence references, rather than ID or biometric images. These compliance records may be retained after account closure.</p>
       <H>Password protection</H>
       <p>
         We do not store your password in readable form. We store a slow one-way hash, combined

@@ -107,6 +107,11 @@ jobs:
         run: npx wrangler d1 execute xpresstend-production --remote --file=migrations/0008_customer_lifecycle.sql --yes
         working-directory: api
 
+      - name: Prepare bank audit and provider compliance controls
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler d1 execute xpresstend-production --remote --file=migrations/0009_bank_compliance.sql --yes
+        working-directory: api
+
       - name: Refresh and validate official Treasury sanctions data
         id: sanctions-data
         if: env.CLOUDFLARE_API_TOKEN != ''

@@ -47,6 +47,7 @@ export function Profile() {
           <LanguageSwitcher />
         </section>
         <section className="card mt-4 divide-y divide-ink-200/60 overflow-hidden">
+          <ListRow onClick={() => navigate('/verify-identity')} icon={<ShieldCheck size={17} />} title="Verify government ID and live selfie" />
           <ListRow onClick={() => setPersonalOpen((open) => !open)} icon={<UserRound size={17} />} title={t('profile.personal')} />
           {personalOpen && <div className="space-y-2 px-4 py-3 text-[13px] text-ink-700">
             <p>{name}</p><p><bdi>{email}</bdi></p>

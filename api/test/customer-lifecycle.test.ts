@@ -231,7 +231,8 @@ test('pending transfers and unresolved monetary evidence block account deletion 
         f.db.sqlite.prepare('UPDATE transfers SET paid_at=? WHERE id=?').run(new Date().toISOString(), id)
       } else if (scenario === 'unbalanced') {
         await f.completedTransfer()
-        f.db.sqlite.exec("UPDATE ledger_entries SET amount_minor=amount_minor+1 WHERE id=(SELECT id FROM ledger_entries WHERE account_code<>'payout_payable' LIMIT 1)")
+        // Simulate an imported bad posting without bypassing append-only protections.
+        f.db.sqlite.exec("INSERT INTO ledger_entries(id,transfer_id,account_code,currency,amount_minor,entry_group,created_at) SELECT 'corrupt-import',transfer_id,account_code,currency,1,'corrupt-group',created_at FROM ledger_entries WHERE account_code<>'payout_payable' LIMIT 1")
       } else if (scenario === 'failed-liability') {
         const created = await f.create()
         assert.equal((await f.request(`/transfers/${created.body.transfer.id}/pay`, { body: { password: f.sessions.password } })).status, 200)
