@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS bank_decisions (
   decision TEXT NOT NULL CHECK(decision IN ('approved','rejected')),
   manifest_hash TEXT NOT NULL, reference TEXT NOT NULL, reason TEXT NOT NULL,
   created_at TEXT NOT NULL, expires_at TEXT NOT NULL,
-  UNIQUE(batch_id,reference)
+  UNIQUE(bank_id,reference)
 );
 CREATE TRIGGER IF NOT EXISTS batch_reconcile BEFORE UPDATE OF status ON wire_batches
 WHEN NEW.status='submitted' AND (
@@ -64,3 +64,7 @@ CREATE TRIGGER IF NOT EXISTS batch_manifest_immutable BEFORE UPDATE ON wire_batc
 WHEN OLD.status<>'building' AND (NEW.bank_id<>OLD.bank_id OR NEW.currency<>OLD.currency OR NEW.total_minor<>OLD.total_minor OR NEW.item_count<>OLD.item_count OR NEW.manifest_hash<>OLD.manifest_hash OR NEW.created_at<>OLD.created_at)
 BEGIN SELECT RAISE(ABORT,'immutable_manifest'); END;
 CREATE TRIGGER IF NOT EXISTS batch_no_delete BEFORE DELETE ON wire_batches BEGIN SELECT RAISE(ABORT,'immutable_manifest'); END;
+
+CREATE TRIGGER IF NOT EXISTS batch_live_bank BEFORE INSERT ON wire_batches
+WHEN NOT EXISTS(SELECT 1 FROM bank_api_keys WHERE bank_id=NEW.bank_id AND revoked_at IS NULL AND expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+BEGIN SELECT RAISE(ABORT,'bank_connection_required'); END;

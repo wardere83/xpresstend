@@ -156,7 +156,7 @@ admin.get('/transfers/:id/screenings', async (c) => {
   let screening: TransferScreening | null = null
   let readinessError: string | null = null
   try {
-    screening = await screenTransferSubjects(c.env, { userId: transfer.user_id, recipientId: transfer.recipient_id, transferId: id, requireVerified: false })
+    screening = await screenTransferSubjects(c.env, { userId: transfer.user_id, recipientId: transfer.recipient_id, transferId: id, requireVerified: false, cachedProviders: true })
   } catch (error) {
     const failure = screeningFailure(error)
     if (!failure) throw error

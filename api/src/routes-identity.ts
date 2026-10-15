@@ -10,6 +10,9 @@ import {
 } from './provider-compliance'
 import { audit } from './audit'
 
+// A provider result cannot undo the latest staff rejection.
+const noManualRejection = `COALESCE((SELECT status FROM kyc_checks WHERE user_id=users.id AND provider='manual' ORDER BY created_at DESC,rowid DESC LIMIT 1),'')<>'failed'`
+
 export const identity = new Hono<{ Bindings: Env; Variables: Vars }>()
 identity.use('*', requireUser)
 identity.onError((error, c) =>
@@ -25,7 +28,7 @@ identity.onError((error, c) =>
 )
 identity.get('/', async (c) => {
   const session = await c.env.DB.prepare(
-    `SELECT id,status,created_at,checked_at FROM identity_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 1`,
+    `SELECT id,CASE WHEN status='verified' AND checked_at<strftime('%Y-%m-%dT%H:%M:%fZ','now','-365 days') THEN 'expired' ELSE status END AS status,created_at,checked_at FROM identity_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 1`,
   )
     .bind(c.get('user').id)
     .first()
@@ -79,10 +82,10 @@ identity.post('/start', async (c) => {
   const data = result.data as { id?: string } | undefined
   if (!data?.id || !/^inq_[a-zA-Z0-9]+$/.test(data.id))
     throw new ProviderError('invalid_identity_response')
-  await c.env.DB.batch([
+  const saved = await c.env.DB.batch([
     c.env.DB.prepare(
       `INSERT INTO identity_sessions (id,user_id,provider_ref,first_name,last_name,created_at)
-      SELECT ?,id,?,?,?,? FROM users WHERE id=? AND status='active' AND first_name=? AND last_name=?`,
+      SELECT ?,id,?,?,?,? FROM users WHERE id=? AND status='active' AND first_name=? AND last_name=? AND ${noManualRejection}`,
     ).bind(
       id,
       data.id,
@@ -94,9 +97,11 @@ identity.post('/start', async (c) => {
       user.lastName,
     ),
     c.env.DB.prepare(
-      `UPDATE users SET kyc_status='pending',kyc_tier=0 WHERE id=? AND status='active'`,
-    ).bind(user.id),
+      `UPDATE users SET kyc_status='pending',kyc_tier=0 WHERE id=? AND status='active' AND ${noManualRejection} AND EXISTS(SELECT 1 FROM identity_sessions WHERE id=? AND user_id=users.id)`,
+    ).bind(user.id, id),
   ])
+  if (saved[0].meta.changes !== 1 || saved[1].meta.changes !== 1)
+    return c.json({ error: 'account_changed_or_review_required' }, 409)
   await audit(c.env.DB, {
     actorType: 'customer',
     actorId: user.id,
@@ -156,7 +161,7 @@ identity.post('/refresh', async (c) => {
   const result = await c.env.DB.batch([
     c.env.DB.prepare(
       `UPDATE identity_sessions SET status=?,evidence_json=?,checked_at=? WHERE id=? AND id=(SELECT latest.id FROM identity_sessions latest WHERE latest.user_id=identity_sessions.user_id ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1)
-      AND EXISTS(SELECT 1 FROM users WHERE id=? AND status='active' AND first_name=? AND last_name=?)`,
+      AND EXISTS(SELECT 1 FROM users WHERE id=? AND status='active' AND first_name=? AND last_name=? AND ${noManualRejection})`,
     ).bind(
       decision.status,
       JSON.stringify(decision),
@@ -167,7 +172,7 @@ identity.post('/refresh', async (c) => {
       row.last_name,
     ),
     c.env.DB.prepare(
-      `UPDATE users SET kyc_status=?,kyc_tier=?,updated_at=? WHERE id=? AND status='active' AND first_name=? AND last_name=?
+      `UPDATE users SET kyc_status=?,kyc_tier=?,updated_at=? WHERE id=? AND status='active' AND first_name=? AND last_name=? AND ${noManualRejection}
       AND EXISTS(SELECT 1 FROM identity_sessions WHERE id=? AND checked_at=? AND status=?)`,
     ).bind(
       decision.status,

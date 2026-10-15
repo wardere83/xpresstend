@@ -477,3 +477,31 @@ test('new declined identity evidence supersedes prior verification', async (t) =
   )
   assert.equal(r.status, 403)
 })
+
+test('staff rejection cannot be reset by starting a provider inquiry', async (t) => {
+  const f = await setup(t)
+  f.env.PERSONA_API_KEY = 'test-key'
+  f.env.PERSONA_TEMPLATE_ID = 'itmpl_test'
+  f.db.sqlite.exec(`INSERT INTO kyc_checks(id,user_id,provider,status,created_at) VALUES ('manual-reject','customer-1','manual','failed','2026-10-15T00:00:00Z'); UPDATE users SET kyc_status='rejected' WHERE id='customer-1'`)
+  const original = globalThis.fetch
+  t.after(() => { globalThis.fetch = original })
+  globalThis.fetch = async () => Response.json({data:{id:'inq_newtest'}})
+  const result = await f.req('/identity/start',{consent:true},undefined,f.sessions.userCookie)
+  assert.equal(result.status,409)
+  assert.equal(f.db.sqlite.prepare(`SELECT kyc_status FROM users WHERE id='customer-1'`).get().kyc_status,'rejected')
+  assert.equal(f.db.sqlite.prepare('SELECT count(*) AS n FROM identity_sessions').get().n,0)
+})
+
+test('expired identity evidence exposes a re-verification state', async (t) => {
+  const f = await setup(t)
+  f.db.sqlite.exec(`INSERT INTO identity_sessions(id,user_id,provider_ref,first_name,last_name,status,created_at,checked_at) VALUES ('expired','customer-1','inq_expired','Zelda','Evergreen Merritt','verified','2020-01-01','2020-01-01')`)
+  const result = await f.req('/identity',undefined,undefined,f.sessions.userCookie)
+  assert.equal(result.body.session.status,'expired')
+})
+
+test('bank decisions reject whitespace-only audit fields', async (t) => {
+  const f = await setup(t)
+  const key = await f.key()
+  const result = await f.req('/bank/batches/absent/decision',{decision:'approved',manifestHash:'hash',reference:'   ',reason:' '.repeat(30)},key.token)
+  assert.equal(result.status,400)
+})

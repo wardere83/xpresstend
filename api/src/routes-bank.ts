@@ -162,6 +162,7 @@ bankAdmin.post('/batches', async (c) => {
         userId: item.user_id,
         recipientId: item.recipient_id,
         transferId: item.id,
+        cachedProviders: true,
       })
       if (result.blocked)
         return c.json({ error: 'sanctions_review_required' }, 403)
@@ -359,6 +360,8 @@ bankApi.post('/batches/:id/decision', async (c) => {
       reference?: string
       reason?: string
     }
+  if (typeof b.reference === 'string') b.reference = b.reference.trim()
+  if (typeof b.reason === 'string') b.reason = b.reason.trim()
   if (
     !['approved', 'rejected'].includes(b.decision ?? '') ||
     typeof b.manifestHash !== 'string' ||
@@ -379,7 +382,7 @@ bankApi.post('/batches/:id/decision', async (c) => {
       `INSERT INTO bank_decisions(id,batch_id,bank_id,key_id,decision,manifest_hash,reference,reason,created_at,expires_at)
       SELECT ?,id,?,?,?,?,?,?,?,? FROM wire_batches WHERE id=? AND bank_id=? AND status IN ('submitted','approved') AND manifest_hash=?
         AND EXISTS(SELECT 1 FROM bank_api_keys WHERE id=? AND revoked_at IS NULL AND expires_at>?)
-      ON CONFLICT(batch_id,reference) DO NOTHING`,
+      ON CONFLICT(bank_id,reference) DO NOTHING`,
     ).bind(
       decisionId,
       bank.bank_id,

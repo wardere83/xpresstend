@@ -1,4 +1,4 @@
-import { ProviderError, requireProviderIdentity, screenGlobal, providerIdentitySql } from './provider-compliance'
+import { cachedGlobal, ProviderError, requireProviderIdentity, screenGlobal, providerIdentitySql } from './provider-compliance'
 import type { Env } from './env'
 import { audit } from './audit'
 import { newId } from './crypto'
@@ -243,12 +243,12 @@ export async function storedTransferScreenings(env: Env, transferId: string): Pr
 
 export async function screenTransferSubjects(
   env: Env,
-  args: { userId: string; recipientId: string; transferId: string; requireVerified?: boolean },
+  args: { userId: string; recipientId: string; transferId: string; requireVerified?: boolean; cachedProviders?: boolean },
 ): Promise<TransferScreening> {
   const subjects = await loadScreeningSubjects(env, args.userId, args.recipientId)
   if (args.requireVerified !== false) requireVerifiedSender(subjects)
   await requireProviderIdentity(env, args.userId, subjects.firstName, subjects.lastName)
-  const globalEvidence = await screenGlobal(env, args.transferId, [subjects.sender, subjects.recipient])
+  const globalEvidence = await (args.cachedProviders ? cachedGlobal : screenGlobal)(env, args.transferId, [subjects.sender, subjects.recipient])
   const dataset = await loadFreshSanctionsDataset(env)
   const records = await storedTransferScreenings(env, args.transferId)
   const transferConfirmed = records.some((record) => record.provider === 'us-treasury-ofac' && record.status === 'confirmed_match')

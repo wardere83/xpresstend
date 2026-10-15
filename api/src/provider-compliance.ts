@@ -225,3 +225,17 @@ export function providerIdentitySql(userExpression: string): string {
       AND ids.checked_at>=strftime('%Y-%m-%dT%H:%M:%fZ','now','-365 days')
       AND ids.id=(SELECT latest.id FROM identity_sessions latest WHERE latest.user_id=ids.user_id ORDER BY latest.created_at DESC,latest.rowid DESC LIMIT 1))`
 }
+
+/** Review and batch assembly reuse recent evidence without purchasing new searches. */
+export async function cachedGlobal(env: Env, transferId: string, subjects: {subjectId: string; subjectType: string; name: string}[]) {
+  if (!providersRequired(env)) return []
+  return Promise.all(subjects.map(async subject => {
+    const row = await env.DB.prepare(`SELECT id,status,created_at,subject_name FROM provider_screenings
+      WHERE transfer_id=? AND subject_id=? AND subject_type=? AND provider='complyadvantage'
+      ORDER BY created_at DESC,rowid DESC LIMIT 1`).bind(transferId,subject.subjectId,subject.subjectType)
+      .first<{id:string;status:string;created_at:string;subject_name:string}>()
+    if (!row || row.subject_name!==subject.name || row.created_at < new Date(Date.now()-60_000).toISOString())
+      throw new ProviderError('fresh_screening_required')
+    return {id:row.id,status:row.status,subjectId:subject.subjectId,name:subject.name}
+  }))
+}
