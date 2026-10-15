@@ -100,12 +100,12 @@
 }
 .signin-meteor {
   opacity: 0;
-  animation: signin-shoot 9s linear infinite;
+  animation: signin-shoot 12s linear infinite;
   will-change: transform, opacity;
 }
 .signin-meteor-two {
   animation-delay: 4.5s;
-  animation-duration: 12s;
+  animation-duration: 16s;
 }
 @keyframes signin-connect {
   from {

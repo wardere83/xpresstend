@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Logo } from '../components/Logo'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
@@ -20,6 +20,20 @@ const point = (star: (typeof stars)[number]) => ({
   x: 75 + (6.1 - star.ra) * 150 * Math.cos((star.dec * Math.PI) / 180),
   y: 35 + (10 - star.dec) * 10,
 })
+// Principal-star halo bounds define the visible chart, independently of the surrounding starfield.
+const bounds = stars.reduce(
+  (box, star) => {
+    const p = point(star),
+      radius = star.r * 2.5
+    return {
+      left: Math.min(box.left, p.x - radius),
+      right: Math.max(box.right, p.x + radius),
+      top: Math.min(box.top, p.y - radius),
+      bottom: Math.max(box.bottom, p.y + radius),
+    }
+  },
+  { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity },
+)
 const edges = [
   [0, 1],
   [0, 4],
@@ -185,12 +199,85 @@ export function SignInFrame({
   className?: string
   wide?: boolean
 }) {
+  const frame = useRef<HTMLDivElement>(null)
+  const content = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (wide) return
+    const host = frame.current,
+      body = content.current
+    if (!host || !body) return
+    let disposed = false
+    const align = () => {
+      if (disposed) return
+      const email = body.querySelector<HTMLInputElement>(
+        'form input[type="email"]',
+      )
+      const submit = email?.form?.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      )
+      const svg = host.querySelector<SVGSVGElement>('.signin-constellation')
+      if (!svg) return
+      // Recovery views reuse this frame, so restore CSS placement before checking controls.
+      for (const property of ['width', 'height', 'top', 'left', 'right'])
+        svg.style.removeProperty(property)
+      if (
+        !email ||
+        !submit ||
+        !email.form?.querySelector('input[type="password"]')
+      )
+        return
+      // Read the responsive CSS placement before applying a uniform, form-relative scale.
+      const page = host.getBoundingClientRect(),
+        original = svg.getBoundingClientRect()
+      const top = email.getBoundingClientRect().top,
+        bottom = submit.getBoundingClientRect().bottom
+      if (bottom <= top || !original.width) return
+      const scale = (bottom - top) / (bounds.bottom - bounds.top)
+      const previousScale = original.width / 380
+      const shift = new DOMMatrixReadOnly(getComputedStyle(svg).transform).m41
+      const middle = (bounds.left + bounds.right) / 2
+      let left =
+        original.left - page.left + middle * (previousScale - scale) - shift
+      // Preserve the desktop position while keeping all principal stars visible on phones.
+      if ((bounds.right - bounds.left) * scale <= page.width - 24) {
+        left = Math.max(
+          12 - bounds.left * scale - shift,
+          Math.min(left, page.width - 12 - bounds.right * scale - shift),
+        )
+      }
+      svg.style.width = `${380 * scale}px`
+      svg.style.height = 'auto'
+      svg.style.top = `${top - page.top - bounds.top * scale}px`
+      svg.style.left = `${left}px`
+      svg.style.right = 'auto'
+    }
+    align()
+    const observer = new ResizeObserver(align)
+    observer.observe(host)
+    observer.observe(body)
+    const directionObserver = new MutationObserver(align)
+    directionObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir'],
+    })
+    window.addEventListener('resize', align)
+    void document.fonts.ready.then(align)
+    return () => {
+      disposed = true
+      observer.disconnect()
+      directionObserver.disconnect()
+      window.removeEventListener('resize', align)
+    }
+  }, [wide])
   return (
-    <div className={`signin-page ${className}`}>
+    <div ref={frame} className={`signin-page ${className}`}>
       <div className="signin-sky">
         <Constellation />
       </div>
-      <div className={`signin-content${wide ? ' signin-content-wide' : ''}`}>
+      <div
+        ref={content}
+        className={`signin-content${wide ? ' signin-content-wide' : ''}`}
+      >
         <header className="signin-header">
           <Link to="/" aria-label="XpressTend">
             <Logo height={40} />

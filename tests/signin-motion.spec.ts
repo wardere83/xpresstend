@@ -71,7 +71,14 @@ test('the desktop sky loops its connections and sends shooting stars across Orio
   const beltStar = await center(
     constellation.locator('[data-star="alnilam"] circle').first(),
   )
-  for (const meteor of await page.locator('.signin-meteor').all()) {
+  for (const [index, meteor] of (
+    await page.locator('.signin-meteor').all()
+  ).entries()) {
+    expect(
+      await meteor.evaluate((el) =>
+        Number(el.getAnimations()[0].effect!.getTiming().duration),
+      ),
+    ).toBe(index === 0 ? 12000 : 16000)
     const head = meteor.locator('.signin-meteor-head')
     await seek(meteor, 0)
     expect((await center(head)).x).toBeLessThan(0)
@@ -140,5 +147,117 @@ test('system and saved reduced-motion preferences leave a static sky and usable 
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(320)
+  }
+})
+
+test('all sign-in constellations align with the email and submit boxes after resize and form reflow', async ({
+  page,
+}) => {
+  const difference = () =>
+    page.locator('.signin-page').evaluate((frame) => {
+      const email = frame.querySelector<HTMLInputElement>(
+        'form input[type="email"]',
+      )!
+      const submit = email.form!.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      )!
+      const stars = [...frame.querySelectorAll('.signin-star-halo')].map(
+        (star) => star.getBoundingClientRect(),
+      )
+      return Math.max(
+        Math.abs(
+          Math.min(...stars.map((star) => star.top)) -
+            email.getBoundingClientRect().top,
+        ),
+        Math.abs(
+          Math.max(...stars.map((star) => star.bottom)) -
+            submit.getBoundingClientRect().bottom,
+        ),
+      )
+    })
+  for (const path of ['login', 'admin', 'institutional-reviewer']) {
+    await page.goto(`/?alignment=${path}#/${path}`)
+    await expect(page.locator('.signin-page h1')).toBeVisible()
+    for (const [width, height] of [
+      [1440, 900],
+      [768, 1024],
+      [320, 844],
+    ]) {
+      await page.setViewportSize({ width, height })
+      await expect.poll(difference).toBeLessThanOrEqual(1)
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width)
+    }
+    await page.locator('.signin-content form').evaluate((form) => {
+      const alert = document.createElement('p')
+      alert.setAttribute('role', 'alert')
+      alert.textContent = 'Please check your sign-in details and try again.'
+      form.querySelector('button[type="submit"]')!.before(alert)
+    })
+    await expect.poll(difference).toBeLessThanOrEqual(1)
+  }
+})
+
+test('switching text direction realigns the sky without a form resize', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#/login')
+  const sky = page.locator('.signin-constellation')
+  await expect(sky).toHaveAttribute('style', /left:/)
+  const horizontalCenter = () =>
+    sky.evaluate((element) => {
+      const stars = [...element.querySelectorAll('.signin-star-halo')].map(
+        (star) => star.getBoundingClientRect(),
+      )
+      return (
+        (Math.min(...stars.map((star) => star.left)) +
+          Math.max(...stars.map((star) => star.right))) /
+        2
+      )
+    })
+  const initial = await horizontalCenter()
+  expect(initial).toBeGreaterThan(720)
+  const email = page.locator('form input[type="email"]')
+  const size = await email.evaluate((element) => ({
+    width: element.clientWidth,
+    height: element.clientHeight,
+  }))
+  await page.evaluate(() => {
+    document.documentElement.dir = 'rtl'
+  })
+  await expect.poll(horizontalCenter).toBeLessThan(720)
+  expect(
+    await email.evaluate((element) => ({
+      width: element.clientWidth,
+      height: element.clientHeight,
+    })),
+  ).toEqual(size)
+  await page.evaluate(() => {
+    document.documentElement.dir = 'ltr'
+  })
+  await expect
+    .poll(async () => Math.abs((await horizontalCenter()) - initial))
+    .toBeLessThan(1)
+})
+
+test('staff recovery restores responsive sky placement when the sign-in form disappears', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  for (const action of ['Forgot password?', 'Forgot your email?']) {
+    await page.goto('/#/admin')
+    const sky = page.locator('.signin-constellation')
+    await expect(sky).toHaveAttribute('style', /left:/)
+    await page.getByRole('button', { name: action, exact: true }).click()
+    await expect(
+      page.locator('.signin-content input[type="password"]'),
+    ).toHaveCount(0)
+    await expect
+      .poll(() => sky.evaluate((element) => element.style.cssText))
+      .toBe('')
+    await page.getByText('Back to sign in', { exact: true }).click()
+    await expect(sky).toHaveAttribute('style', /left:/)
   }
 })
