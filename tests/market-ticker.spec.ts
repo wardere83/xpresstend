@@ -1,8 +1,18 @@
 import { expect, test } from '@playwright/test'
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, baseURL }) => {
   await page.route('**/api/**', (route) =>
     route.fulfill({ status: 401, json: { error: 'unauthorized' } }),
+  )
+  await page.route(
+    'https://xpresstend.shrill-king-ef4e.workers.dev/market/**',
+    async (route) => {
+      const url = new URL(route.request().url())
+      const response = await page.request.get(
+        new URL(url.pathname + url.search, baseURL).href,
+      )
+      await route.fulfill({ response })
+    },
   )
   // CI verifies our integration deterministically. Production smoke checks the real provider.
   await page.route(
@@ -12,7 +22,7 @@ test.beforeEach(async ({ page }) => {
         contentType: 'application/javascript',
         headers: { 'Access-Control-Allow-Origin': '*' },
         body: `customElements.define('tv-ticker-tape', class extends HTMLElement {
-      connectedCallback() { this.textContent = 'DXY test fixture · TradingView'; }
+      connectedCallback() { this.textContent = 'USDX test fixture · TradingView'; }
     });`,
       }),
   )
@@ -28,11 +38,11 @@ test('the Dollar Index tape stays at the hero bottom and pause controls reach it
   const widget = frame.locator('tv-ticker-tape')
   const symbols = (await widget.getAttribute('symbols'))!.split(',')
   expect(symbols.length).toBeGreaterThanOrEqual(3)
-  expect(new Set(symbols)).toEqual(new Set(['TVC:DXY']))
-  await expect(ticker).toContainText('DXY reference · CFD')
+  expect(new Set(symbols)).toEqual(new Set(['PEPPERSTONE:USDX']))
+  await expect(ticker).toContainText('USDX reference · Pepperstone CFD')
   await expect(page.locator('.market-ticker-frame')).toHaveAttribute(
     'sandbox',
-    'allow-scripts allow-popups allow-popups-to-escape-sandbox',
+    'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
   )
   await page.getByRole('button', { name: 'Pause ticker', exact: true }).click()
   await expect(widget).toHaveAttribute('disable-scroll', '')

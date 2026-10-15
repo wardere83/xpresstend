@@ -51,6 +51,24 @@ test('financial workspace preserves metrics, separate document and record scroll
       .locator('[data-operations-metric]')
       .filter({ hasText: 'Awaiting review' }),
   ).toContainText('4')
+  await page.evaluate(async () => {
+    await document.fonts.ready
+  })
+  const headingFit = () =>
+    page.locator('.operations-brand').evaluate((brand) => {
+      const heading = brand.querySelector('h1')!
+      const text = document.createRange()
+      text.selectNodeContents(heading)
+      const glyphs = text.getBoundingClientRect()
+      const ticker = brand
+        .querySelector('.operations-ticker')!
+        .getBoundingClientRect()
+      return Math.max(
+        Math.abs(glyphs.left - ticker.left),
+        Math.abs(glyphs.right - ticker.right),
+      )
+    })
+  await expect.poll(headingFit).toBeLessThanOrEqual(2)
   const ticker = page.locator('.operations-ticker')
   const track = page.locator('.operations-ticker-track')
   await expect(ticker).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
@@ -86,6 +104,7 @@ test('financial workspace preserves metrics, separate document and record scroll
   )
   for (const width of [1440, 320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 })
+    await expect.poll(headingFit).toBeLessThanOrEqual(2)
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width)

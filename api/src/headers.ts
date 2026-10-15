@@ -20,6 +20,7 @@ const CSP = [
   "img-src 'self' data: blob:",
   "media-src 'self'",
   "connect-src 'self'",
+  "frame-src 'self' https://xpresstend.shrill-king-ef4e.workers.dev",
   "form-action 'self'",
   "base-uri 'self'",
   "object-src 'none'",
@@ -30,9 +31,13 @@ const CSP = [
 // Only the sandboxed public quote frame can load the provider's widget code.
 // The website, all sign-ins and staff pages keep the strict first-party policy.
 const MARKET_WIDGET_CSP = CSP.replace(
-  "script-src 'self'",
-  "script-src 'self' https://widgets.tradingview-widget.com",
+  "frame-src 'self' https://xpresstend.shrill-king-ef4e.workers.dev",
+  'frame-src https://widgets.tradingview-widget.com',
 )
+  .replace(
+    "script-src 'self'",
+    "script-src 'self' https://widgets.tradingview-widget.com",
+  )
   .replace(
     "connect-src 'self'",
     "connect-src 'self' https://*.tradingview.com https://*.tradingview-widget.com wss://*.tradingview.com",
@@ -47,7 +52,7 @@ const MARKET_WIDGET_CSP = CSP.replace(
   )
   .replace(
     "frame-ancestors 'none'",
-    "frame-src https://widgets.tradingview-widget.com; frame-ancestors 'self'",
+    'frame-ancestors https://xpresstend.com https://www.xpresstend.com',
   )
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -73,7 +78,7 @@ export function withSecurityHeaders(
     headers.set(name, value)
   if (marketWidget) {
     headers.set('content-security-policy', MARKET_WIDGET_CSP)
-    headers.set('x-frame-options', 'SAMEORIGIN')
+    headers.delete('x-frame-options')
   }
   return new Response(res.body, {
     status: res.status,

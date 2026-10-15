@@ -254,14 +254,19 @@
   grid-template-columns: minmax(0, 1fr) auto;
 }
 .staff-dashboard .operations-hero h1 {
-  font-size: clamp(20px, 2.1vw, 28px);
+  font-size: 9.55cqw;
   font-weight: 400;
   margin-top: 10px;
   width: 100%;
+  white-space: nowrap;
 }
 .operations-brand {
   width: min(100%, 340px);
   min-width: 0;
+  container-type: inline-size;
+}
+html[data-a11y-text]:not([data-a11y-text='default']) .operations-brand h1 {
+  white-space: normal;
 }
 .operations-ticker {
   display: flex;
@@ -991,9 +996,6 @@ html[data-a11y-motion='reduce'] .operations-ticker {
     font-size: 8px;
     letter-spacing: 0.08em;
   }
-  .staff-dashboard .operations-hero h1 {
-    font-size: 19px;
-  }
   .staff-dashboard .operations-ledger {
     padding-left: 10px;
   }
@@ -1114,9 +1116,6 @@ html[data-a11y-motion='reduce'] .operations-ticker {
   }
   .staff-dashboard .operations-flow small {
     display: none;
-  }
-  .staff-dashboard .operations-hero h1 {
-    font-size: 18px;
   }
   .staff-console [data-operations-metric] > p:first-child {
     font-size: 8px;

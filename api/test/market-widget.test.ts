@@ -20,10 +20,20 @@ test('the quote frame permits the widget provider while retaining other security
     /script-src 'self' https:\/\/widgets\.tradingview-widget\.com;/,
   )
   assert.match(policy, /wss:\/\/\*\.tradingview\.com/)
-  assert.match(policy, /frame-ancestors 'self'/)
+  assert.deepEqual(
+    policy
+      .split(';')
+      .map((item) => item.trim())
+      .filter((item) => item.startsWith('frame-src ')),
+    ['frame-src https://widgets.tradingview-widget.com'],
+  )
+  assert.match(
+    policy,
+    /frame-ancestors https:\/\/xpresstend\.com https:\/\/www\.xpresstend\.com/,
+  )
   assert.doesNotMatch(policy, /script-src[^;]*unsafe-inline/)
   assert.match(policy, /object-src 'none'/)
-  assert.equal(response.headers.get('x-frame-options'), 'SAMEORIGIN')
+  assert.equal(response.headers.get('x-frame-options'), null)
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff')
   assert.ok(response.headers.get('strict-transport-security'))
 })

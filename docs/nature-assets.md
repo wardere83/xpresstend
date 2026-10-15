@@ -3,7 +3,7 @@
 Generated with the built-in image-generation tool; these are illustrative nature assets, not photographs documenting an XpressTend event or project. The original generated PNGs remain outside the repository. Optimized WebP copies are committed with the site:
 
 - `public/media/river-habitat.webp` (640 × 640): clear water, visible current, rocks and planted riverbanks. Circular SVG clipping preserves the existing medallion layout.
-- `public/media/wagtail-poses.webp` (768 × 768, alpha): a naturally proportioned wagtail in flight and perched. The SVG frames select the appropriate pose; offscreen pausing, landing geometry and reduced-motion behavior remain operational.
+- `public/media/wagtail-poses.webp` (768 × 768, alpha): a naturally proportioned wagtail in flight and perched. Retained as an unused historical asset. BirdFlight now draws a white cartoon dove in native SVG with layered feather wings, flapping, landing and tucked feet; offscreen pausing, landing geometry and reduced-motion behavior remain operational.
 
 ## Prompt set
 
@@ -11,4 +11,4 @@ River: “Use case: photorealistic-natural. Asset type: square website philanthr
 
 Bird: “Use case: photorealistic-natural. Asset type: transparent website bird animation sprite sheet. A real small African pied wagtail bird, photographed with a telephoto wildlife lens, natural fine black, white and charcoal feather detail, delicate dark beak, believable slim legs and toes, natural proportions and tiny eye, lit by soft daylight. Create ONE square transparent sprite sheet arranged in TWO EQUAL HORIZONTAL CELLS: upper half shows the whole bird in SIDE PROFILE FACING LEFT flying with wings raised and gracefully spread; lower half shows the same whole bird SIDE PROFILE FACING LEFT calmly perched, folded wings, both feet at the bottom, no branch. Center each pose in its own half, leave transparent margins around each, keep bird anatomy entirely within its half, show the full long tail. True transparent background, isolated cutouts, no scenery, no text, no frame, no illustration, no cartoon, no robot, no glow.”
 
-The selected generated sheet has unequal occupied pose bounds. SVG view boxes use the actual inspected bounds rather than cutting the flight feathers at the nominal midpoint.
+The historical generated bird sheet has unequal occupied pose bounds. It is no longer loaded by BirdFlight. The river remains circular, with subtle flow overlays aligned to the visible water channel.

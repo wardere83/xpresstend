@@ -4,6 +4,7 @@ body {
   background: #eff8f7;
   color: #0b252f;
   font-family: Inter, system-ui, sans-serif;
+  overflow: hidden;
 }
 body {
   --tv-widget-background-color: transparent;
@@ -15,7 +16,9 @@ body {
 }
 tv-ticker-tape {
   display: block;
-  width: 100%;
+  width: 121.95122%;
+  transform: scale(0.82);
+  transform-origin: top left;
 }
 .market-fallback {
   display: inline-block;
