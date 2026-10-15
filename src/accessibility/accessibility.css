@@ -189,9 +189,12 @@ html[data-a11y-contrast='true'] :is(.brand-body, .demo-muted, .institutional-sec
 }
 html[data-a11y-contrast='true']
   :is(.corporate-hero, .corporate-partners, .institutional-hero, .institutional-footer)
-  :is(p, small, a),
+  :is(p, small, a:not(.brand-primary)),
 html[data-a11y-contrast='true'] [class*='text-white/'] {
   color: #fff !important;
+}
+html[data-a11y-contrast='true'] :is(.corporate-hero, .corporate-partners) .brand-primary {
+  color: #0b252f !important;
 }
 html[data-a11y-motion='reduce'] *,
 html[data-a11y-motion='reduce'] *::before,

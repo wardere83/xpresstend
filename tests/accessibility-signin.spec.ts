@@ -44,6 +44,9 @@ test('accessibility controls work, persist across routes and reloads, and reset'
   await expect(page.locator('.xt-globe')).toHaveAttribute('data-paused', 'true')
   await page.keyboard.press('Escape')
   await expect(panel).not.toBeVisible()
+  const primary = page.locator('.corporate-hero .brand-primary')
+  await expect(primary).toHaveCSS('color', 'rgb(11, 37, 47)')
+  await expect(primary).toHaveCSS('background-color', 'rgb(255, 255, 255)')
   await page.goto('/#/company')
   await expect(page.locator('.institutional-hero h1')).toBeVisible()
   expect(
