@@ -221,7 +221,7 @@ test('bank portal verifies the canonical manifest and records the bank-scoped de
     .getByLabel('Review reason')
     .fill('Fixture bank reviewed all sample contributions and recorded its decision.')
   await page.getByRole('button', { name: 'Record bank approval', exact: true }).click()
-  await expect(page.getByRole('status')).toContainText('Bank approval recorded')
+  await expect(page.locator('.bank-notice[role="status"]')).toContainText('Bank approval recorded')
   expect(decisions).toHaveLength(1)
   expect(decisions[0]).toMatchObject({ decision: 'approved', reference: 'FIXTURE-REVIEW-1' })
   expect(
