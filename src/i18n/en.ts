@@ -30,7 +30,7 @@ export const en = {
   'home.greeting': 'Hello, {name}',
   'home.subtitle': 'How can we help you today?',
   'home.voiceTitle': 'Tap the mic to speak',
-  'home.voiceSubtitle': 'Speak in English or Somali',
+  'home.voiceSubtitle': 'Support for your selected language',
   'home.sendMoney': 'Send Money',
   'home.sendMoneySub': 'Fast, secure and reliable',
   'home.recentTransaction': 'Recent Transaction',
@@ -82,10 +82,9 @@ export const en = {
   'chat.confirmDetails': 'Please confirm the details',
   'chat.looksGood': 'Everything looks good. Would you like to continue?',
   'chat.rateQuestion': "What's the exchange rate today?",
-  'chat.rateAnswer':
-    '1 USD = {rate} Somali Shillings. Exchange rates may change. Check live rates before you send.',
+  'chat.rateAnswer': 'Review the amount, currency and fees before confirming a transfer.',
   'chat.fallback':
-    "I can send money, add a recipient, check a rate or track a transfer. Which one would you like?",
+    'I can send money, add a recipient, check a rate or track a transfer. Which one would you like?',
   'chat.suggest.send': 'Send money',
   'chat.suggest.rate': 'Check rate',
   'chat.suggest.track': 'Track transfer',
@@ -184,7 +183,7 @@ export const en = {
 
   // ---- Help ----
   'help.title': 'Help Center',
-  'help.subtitle': 'Answers in English and Somali, 24/7.',
+  'help.subtitle': 'Help for your account and transfers.',
   'help.contact': 'Talk to a human',
   'help.q1': 'How long does a transfer take?',
   'help.a1':
@@ -197,7 +196,7 @@ export const en = {
     'You can cancel while a transfer is still pending. Once the money is collected it can no longer be reversed, so please check the details on the review screen.',
   'help.q4': 'Which countries can I send to?',
   'help.a4':
-    'We send from the USA to 130+ countries, including Somalia, Kenya, Ethiopia, Djibouti, Uganda and the UK.',
+    'Our current market focus includes Kenya, Ethiopia, Brazil and Mexico. Availability depends on licensing, banking and payout arrangements.',
   'help.q5': 'Is my money safe?',
   'help.a5':
     '{brand} is registered in the Nationwide Multistate Licensing System, NMLS ID {nmls}, and is based in {city}, {state}. Every transfer is encrypted in transit, and nothing moves until you confirm it with your password.',
@@ -212,7 +211,7 @@ export const en = {
 
   // ---- Support ----
   'support.title': 'Live Support',
-  'support.subtitle': 'Real people, in English and Somali.',
+  'support.subtitle': 'Contact our support team.',
   'support.chat': 'Start live chat',
   'support.call': 'Call us',
   'support.email': 'Email support',
@@ -227,7 +226,8 @@ export const en = {
   'marketing.getStarted': 'Get started',
   'marketing.openApp': 'Open app',
   'marketing.heroTitle': 'Closer with every transfer!',
-  'marketing.heroBody': 'Clear rates. One flat rate. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
+  'marketing.heroBody':
+    'Clear rates. One flat rate. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
   'marketing.statLanguages': 'Languages, fully translated',
   'marketing.statSupport': 'Support, every day',
   'marketing.statHidden': 'Hidden charges',
@@ -246,9 +246,11 @@ export const en = {
   'marketing.f2Title': 'One flat fee',
   'marketing.f2Body': 'You see the fee and the rate before you confirm. What you are quoted is what you pay.',
   'marketing.f3Title': 'Built to be audited',
-  'marketing.f3Body': 'Every transfer is double-entry booked and every staff action is recorded against a named person, not an AI agent!',
+  'marketing.f3Body':
+    'Every transfer is double-entry booked and every staff action is recorded against a named person, not an AI agent!',
   'marketing.ctaTitle': 'Ready to send?',
-  'marketing.ctaBody': 'Create an account in a couple of minutes. You only verify your identity when you first send.',
+  'marketing.ctaBody':
+    'Create an account in a couple of minutes. You only verify your identity when you first send.',
   'marketing.disclaimer':
     '{brand} Financial Services is registered in the Nationwide Multistate Licensing System, NMLS ID {nmls}, and is based in {city}, {state}. Payments currently run in test mode: no customer funds are moved and no card or bank account is charged.',
   'auth.signInTitle': 'Welcome back',
@@ -276,7 +278,8 @@ export const en = {
   'marketing.statMany': 'Many',
   'join.mediaAlt': 'A family together at home, celebrating money that has just arrived.',
   'join.mediaTitle': 'The moment it lands.',
-  'join.mediaBody': 'Money sent in minutes, not days. Your family sees it arrive while you are still on the call.',
+  'join.mediaBody':
+    'Money sent in minutes, not days. Your family sees it arrive while you are still on the call.',
   'lock.title': 'App locked',
   'lock.reason': 'Confirm it is you before your transfers are shown.',
   'lock.unlock': 'Unlock',
@@ -301,7 +304,8 @@ export const en = {
   'app.iosBetaNote': 'Join the TestFlight beta',
   'nav.downloadApp': 'Download the app',
   'nav.beta': 'Beta',
-  'app.sideloadNote': 'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',
+  'app.sideloadNote':
+    'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',
   'review.authFailed': 'That password was not accepted.',
   'review.enterPassword': 'Enter your account password to authorise this transfer.',
   'review.authorise': 'Authorise transfer',

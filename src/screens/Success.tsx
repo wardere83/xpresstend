@@ -1,33 +1,33 @@
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Clock, Copy, Share2 } from 'lucide-react'
 import { PrimaryButton, SummaryRow, Toast } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { formatDateTime, maskedWallet, usd } from '../lib/format'
-
+import { maskedWallet, useFormats } from '../lib/format'
 export function Success() {
+  const { formatDateTime, usd } = useFormats()
+  const p = useInterfaceCopy()
   const { t } = useI18n()
   const navigate = useNavigate()
   const { lastReceipt, reset } = useTransfer()
   const lastTransaction = lastReceipt?.transaction
   const [toast, setToast] = useState<string | null>(null)
-
   useEffect(() => {
     if (!lastTransaction) navigate('/app', { replace: true })
   }, [lastTransaction, navigate])
-
   useEffect(() => {
     if (!toast) return
     const id = window.setTimeout(() => setToast(null), 1600)
     return () => window.clearTimeout(id)
   }, [toast])
-
   if (!lastTransaction) return null
   const { recipient, quote, status } = lastReceipt!
-  const title = 'Test transfer recorded'
-  const subtitle = `Pending review for ${recipient.name}. No money has been delivered.`
-
+  const title = p('Test transfer recorded')
+  const subtitle = p('Pending review for {recipient}. No money has been delivered.', {
+    recipient: recipient.name,
+  })
   const copy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value)
@@ -36,7 +36,6 @@ export function Success() {
       setToast(value)
     }
   }
-
   const share = async () => {
     const text = `${subtitle} · ${lastTransaction.reference}`
     if (navigator.share) {
@@ -49,7 +48,6 @@ export function Success() {
     }
     void copy(text)
   }
-
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden bg-[radial-gradient(120%_100%_at_50%_0%,#18313B_0%,#0B252F_70%,#0B252F_100%)]">
       <div className="relative flex-1 overflow-y-auto no-scrollbar px-5 pt-6 pb-8">
@@ -58,9 +56,7 @@ export function Success() {
             <Clock size={40} strokeWidth={2} className="text-xt-navy" />
           </span>
           <h1 className="mt-5 text-[26px] font-semibold text-white">{title}</h1>
-          <p className="mt-2 text-[13.5px] text-white/75">
-            {subtitle}
-          </p>
+          <p className="mt-2 text-[13.5px] text-white/75">{subtitle}</p>
           <p className="mt-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/60">
             <bdi>{maskedWallet(recipient.wallet, recipient.last4)}</bdi>
           </p>
@@ -81,11 +77,11 @@ export function Success() {
           </button>
           <SummaryRow label={t('field.dateTime')} value={formatDateTime(lastTransaction.date)} />
           <div className="my-1 border-t border-ink-200/70" />
-          <SummaryRow label="Test amount" value={usd(quote.amountUsd)} />
+          <SummaryRow label={p('Test amount')} value={usd(quote.amountUsd)} />
           <SummaryRow label={t('field.fee')} value={usd(quote.fee)} />
           <SummaryRow label={t('field.total')} value={usd(quote.totalUsd)} strong />
-          <SummaryRow label="Money delivered" value="None — test mode" strong />
-          <SummaryRow label={t('field.delivery')} value={status.replaceAll('_', ' ')} />
+          <SummaryRow label={p('Money delivered')} value={p('None \u2014 test mode')} strong />
+          <SummaryRow label={t('field.delivery')} value={p(status.replaceAll('_', ' '))} />
         </section>
 
         <div className="mt-5 space-y-3">

@@ -5,13 +5,12 @@ import { en, type TranslationKey } from './en'
 import { es } from './es'
 import { isLang, type Lang } from './langs'
 import { ptBR } from './ptBR'
-import { so } from './so'
 
 export type { Lang } from './langs'
 export { LANGUAGES } from './langs'
 export type { TranslationKey } from './en'
 
-export const dictionaries: Record<Lang, Record<string, string>> = { en, so, 'pt-BR': ptBR, es, ar }
+export const dictionaries: Record<Lang, Record<string, string>> = { en, 'pt-BR': ptBR, es, ar }
 
 export const STORAGE_KEY = 'xpresstend.lang'
 
@@ -21,7 +20,7 @@ const globalVars: Record<string, string> = {
   assistant: brand.assistantName,
   city: brand.hq.city,
   state: brand.hq.state,
-  // Regulatory disclosure appears in several places and in five languages, so
+  // Regulatory disclosure appears in several places and in four languages, so
   // it comes from one constant rather than being typed out in each.
   nmls: brand.nmls.id,
 }
@@ -34,11 +33,7 @@ const globalVars: Record<string, string> = {
 const FSI = '\u2068'
 const PDI = '\u2069'
 
-export function interpolate(
-  template: string,
-  vars?: Record<string, string | number>,
-  isolate = false,
-) {
+export function interpolate(template: string, vars?: Record<string, string | number>, isolate = false) {
   return template.replace(/\{(\w+)\}/g, (match, key: string) => {
     const value = vars?.[key] ?? globalVars[key]
     if (value === undefined) return match

@@ -36,7 +36,7 @@ export const es: Record<keyof typeof en, string> = {
   'home.greeting': 'Hola, {name}',
   'home.subtitle': '¿Cómo podemos ayudarle hoy?',
   'home.voiceTitle': 'Toque el micrófono para hablar',
-  'home.voiceSubtitle': 'Hable en español o en inglés',
+  'home.voiceSubtitle': 'Ayuda en el idioma seleccionado',
   'home.sendMoney': 'Enviar dinero',
   'home.sendMoneySub': 'Rápido, seguro y confiable',
   'home.recentTransaction': 'Transferencia reciente',
@@ -88,8 +88,7 @@ export const es: Record<keyof typeof en, string> = {
   'chat.confirmDetails': 'Confirme los datos',
   'chat.looksGood': 'Todo está en orden. ¿Desea continuar?',
   'chat.rateQuestion': '¿Cuál es el tipo de cambio de hoy?',
-  'chat.rateAnswer':
-    '1 USD = {rate} chelines somalíes. Los tipos de cambio pueden variar. Consulte los tipos de cambio en vivo antes de enviar.',
+  'chat.rateAnswer': 'Revise el importe, la moneda y las comisiones antes de confirmar una transferencia.',
   'chat.fallback':
     'Puedo enviar dinero, agregar un destinatario, consultar un tipo de cambio o rastrear una transferencia. ¿Cuál prefiere?',
   'chat.suggest.send': 'Enviar dinero',
@@ -190,7 +189,7 @@ export const es: Record<keyof typeof en, string> = {
 
   // ---- Help ----
   'help.title': 'Centro de ayuda',
-  'help.subtitle': 'Respuestas en español e inglés, 24/7.',
+  'help.subtitle': 'Ayuda con su cuenta y sus transferencias.',
   'help.contact': 'Hablar con una persona',
   'help.q1': '¿Cuánto tarda una transferencia?',
   'help.a1':
@@ -203,15 +202,14 @@ export const es: Record<keyof typeof en, string> = {
     'Puede cancelarla mientras la transferencia siga pendiente. Una vez que el dinero se retira ya no se puede revertir, así que verifique los datos en la pantalla de revisión.',
   'help.q4': '¿A qué países puedo enviar?',
   'help.a4':
-    'Enviamos desde Estados Unidos a más de 130 países, incluidos Somalia, Kenia, Etiopía, Yibuti, Uganda y el Reino Unido.',
+    'Nuestros mercados de interés actuales incluyen Kenia, Etiopía, Brasil y México. La disponibilidad depende de las licencias y de los acuerdos bancarios y de pago.',
   'help.q5': '¿Mi dinero está seguro?',
   'help.a5':
     '{brand} está registrada en el Nationwide Multistate Licensing System, NMLS ID {nmls}, con sede en {city}, {state}. Cada transferencia se cifra en tránsito y nada se mueve hasta que usted lo confirma con su contraseña.',
 
   // ---- Refer ----
   'refer.title': 'Refiera y gane',
-  'refer.subtitle':
-    'Nuestro programa de referidos aún no está disponible.',
+  'refer.subtitle': 'Nuestro programa de referidos aún no está disponible.',
   'refer.yourCode': 'Su código',
   'refer.copy': 'Copiar código',
   'refer.invite': 'Invitar amigos',
@@ -219,7 +217,7 @@ export const es: Record<keyof typeof en, string> = {
 
   // ---- Support ----
   'support.title': 'Soporte en vivo',
-  'support.subtitle': 'Personas reales, en español e inglés.',
+  'support.subtitle': 'Contacte con nuestro equipo de asistencia.',
   'support.chat': 'Iniciar chat en vivo',
   'support.call': 'Llámenos',
   'support.email': 'Soporte por correo electrónico',
@@ -234,7 +232,8 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.getStarted': 'Empezar',
   'marketing.openApp': 'Abrir la app',
   'marketing.heroTitle': '¡Más cerca con cada envío!',
-  'marketing.heroBody': 'Tipos de cambio claros. Una tasa única. Puntos de bonificación para usar después. Hable o escriba en su idioma, y toda la app responde en él.',
+  'marketing.heroBody':
+    'Tipos de cambio claros. Una tasa única. Puntos de bonificación para usar después. Hable o escriba en su idioma, y toda la app responde en él.',
   'marketing.statLanguages': 'Idiomas, totalmente traducidos',
   'marketing.statSupport': 'Soporte, todos los días',
   'marketing.statHidden': 'Cargos ocultos',
@@ -253,9 +252,11 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'Una tarifa fija',
   'marketing.f2Body': 'Ve la comisión y el tipo antes de confirmar. Lo cotizado es lo que paga.',
   'marketing.f3Title': 'Diseñado para ser auditado',
-  'marketing.f3Body': 'Cada transferencia se registra por partida doble y cada acción del personal queda registrada a nombre de una persona, no de un agente de IA!',
+  'marketing.f3Body':
+    'Cada transferencia se registra por partida doble y cada acción del personal queda registrada a nombre de una persona, no de un agente de IA!',
   'marketing.ctaTitle': '¿Listo para enviar?',
-  'marketing.ctaBody': 'Cree una cuenta en un par de minutos. Solo verifica su identidad al enviar por primera vez.',
+  'marketing.ctaBody':
+    'Cree una cuenta en un par de minutos. Solo verifica su identidad al enviar por primera vez.',
   'marketing.disclaimer':
     '{brand} Financial Services está registrada en el Nationwide Multistate Licensing System, NMLS ID {nmls}, con sede en {city}, {state}. Los pagos se ejecutan actualmente en modo de prueba: no se mueven fondos de clientes ni se cobra ninguna tarjeta o cuenta bancaria.',
   'auth.signInTitle': 'Bienvenido de nuevo',
@@ -283,7 +284,8 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.statMany': 'Varios',
   'join.mediaAlt': 'Una familia reunida en casa, celebrando el dinero que acaba de llegar.',
   'join.mediaTitle': 'El momento en que llega.',
-  'join.mediaBody': 'Dinero enviado en minutos, no en días. Su familia lo ve llegar mientras usted sigue en la llamada.',
+  'join.mediaBody':
+    'Dinero enviado en minutos, no en días. Su familia lo ve llegar mientras usted sigue en la llamada.',
   'lock.title': 'Aplicación bloqueada',
   'lock.reason': 'Confirme que es usted antes de mostrar sus transferencias.',
   'lock.unlock': 'Desbloquear',
@@ -308,7 +310,8 @@ export const es: Record<keyof typeof en, string> = {
   'app.iosBetaNote': 'Únete a la beta en TestFlight',
   'nav.downloadApp': 'Descargar la app',
   'nav.beta': 'Beta',
-  'app.sideloadNote': 'La versión de Android es para pruebas, así que su teléfono le pedirá permitir la instalación de un desarrollador desconocido.',
+  'app.sideloadNote':
+    'La versión de Android es para pruebas, así que su teléfono le pedirá permitir la instalación de un desarrollador desconocido.',
   'review.authFailed': 'Esa contraseña no fue aceptada.',
   'review.enterPassword': 'Introduzca la contraseña de su cuenta para autorizar esta transferencia.',
   'review.authorise': 'Autorizar transferencia',

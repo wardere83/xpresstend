@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { geoGraticule10, geoInterpolate, geoOrthographic, geoPath } from 'd3-geo'
 import { useI18n, type Lang } from '../i18n'
@@ -7,23 +8,23 @@ import './globe.css'
 const UI: Record<Lang, { title: string; instructions: string }> = {
   en: {
     title: 'Interactive globe',
-    instructions: 'Drag to explore the globe, or use the left and right arrow keys to rotate. Press Space to pause or resume. Connections illustrate cross-border payments, not current service availability.',
-  },
-  so: {
-    title: 'Duni aad dhaqaajin karto',
-    instructions: 'Jiid si aad dunida u sahamiso, ama isticmaal fallaaraha bidix iyo midig si aad u rogto. Riix Space si aad u hakiso ama u sii waddo. Xiriirradu waxay tusaale u yihiin lacag-bixinta xuduudaha ka gudubta; ma muujinayaan helitaanka adeegga hadda.',
+    instructions:
+      'Drag to explore the globe, or use the left and right arrow keys to rotate. Press Space to pause or resume. Connections illustrate cross-border payments, not current service availability.',
   },
   es: {
     title: 'Globo interactivo',
-    instructions: 'Arrastre para explorar el globo o use las flechas izquierda y derecha para girarlo. Pulse Espacio para pausar o reanudar. Las conexiones ilustran pagos transfronterizos, no la disponibilidad actual del servicio.',
+    instructions:
+      'Arrastre para explorar el globo o use las flechas izquierda y derecha para girarlo. Pulse Espacio para pausar o reanudar. Las conexiones ilustran pagos transfronterizos, no la disponibilidad actual del servicio.',
   },
   'pt-BR': {
     title: 'Globo interativo',
-    instructions: 'Arraste para explorar o globo ou use as setas esquerda e direita para girar. Pressione Espaço para pausar ou retomar. As conexões ilustram pagamentos internacionais, não a disponibilidade atual do serviço.',
+    instructions:
+      'Arraste para explorar o globo ou use as setas esquerda e direita para girar. Pressione Espaço para pausar ou retomar. As conexões ilustram pagamentos internacionais, não a disponibilidade atual do serviço.',
   },
   ar: {
     title: 'كرة أرضية تفاعلية',
-    instructions: 'اسحب لاستكشاف الكرة الأرضية، أو استخدم سهمي اليسار واليمين لتدويرها. اضغط مفتاح المسافة للإيقاف المؤقت أو الاستئناف. توضح الروابط فكرة المدفوعات عبر الحدود ولا تشير إلى توفر الخدمة حالياً.',
+    instructions:
+      'اسحب لاستكشاف الكرة الأرضية، أو استخدم سهمي اليسار واليمين لتدويرها. اضغط مفتاح المسافة للإيقاف المؤقت أو الاستئناف. توضح الروابط فكرة المدفوعات عبر الحدود ولا تشير إلى توفر الخدمة حالياً.',
   },
 }
 
@@ -55,10 +56,14 @@ const routes = connections.map(({ from, to }) => ({
   to,
   interpolate: geoInterpolate(from, to),
 }))
-const nodes = [...new Map(connections.flatMap(({ from, to }) => [from, to]).map((point) => [point.join(','), point])).values()]
+const nodes = [
+  ...new Map(
+    connections.flatMap(({ from, to }) => [from, to]).map((point) => [point.join(','), point]),
+  ).values(),
+]
 
 function wrapLongitude(longitude: number) {
-  return ((longitude + 180) % 360 + 360) % 360 - 180
+  return ((((longitude + 180) % 360) + 360) % 360) - 180
 }
 
 function projectPoint(point: Coordinate, view: View, height = 0): ProjectedPoint {
@@ -67,7 +72,8 @@ function projectPoint(point: Coordinate, view: View, height = 0): ProjectedPoint
   const tilt = view.latitude * radians
   const x = Math.cos(latitude) * Math.sin(longitude)
   const y = Math.cos(tilt) * Math.sin(latitude) - Math.sin(tilt) * Math.cos(latitude) * Math.cos(longitude)
-  const depth = Math.sin(tilt) * Math.sin(latitude) + Math.cos(tilt) * Math.cos(latitude) * Math.cos(longitude)
+  const depth =
+    Math.sin(tilt) * Math.sin(latitude) + Math.cos(tilt) * Math.cos(latitude) * Math.cos(longitude)
   const radius = RADIUS * (1 + height)
   const projectedX = x * radius
   const projectedY = y * radius
@@ -81,11 +87,11 @@ function projectPoint(point: Coordinate, view: View, height = 0): ProjectedPoint
   }
 }
 
-function pointOnRoute(route: typeof routes[number], position: number, view: View) {
+function pointOnRoute(route: (typeof routes)[number], position: number, view: View) {
   return projectPoint(route.interpolate(position), view, 0.19 * Math.sin(Math.PI * position))
 }
 
-function routePath(route: typeof routes[number], view: View) {
+function routePath(route: (typeof routes)[number], view: View) {
   let path = ''
   let segmentOpen = false
   for (let step = 0; step <= 64; step += 1) {
@@ -120,16 +126,26 @@ export function InteractiveGlobe() {
   }
   const root = useRef<HTMLElement>(null)
   const [view, setView] = useState<View>({ longitude: -28, latitude: 17, phase: 0 })
-  const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [reducedMotion, setReducedMotion] = useState(
+    () => typeof window !== 'undefined' && reducedMotionQuery().matches,
+  )
   const [paused, setPaused] = useState(reducedMotion)
   const [inView, setInView] = useState(true)
-  const [visible, setVisible] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden')
+  const [visible, setVisible] = useState(
+    () => typeof document === 'undefined' || document.visibilityState !== 'hidden',
+  )
   const [dragging, setDragging] = useState(false)
-  const drag = useRef<{ pointerId: number; x: number; y: number; longitude: number; latitude: number } | null>(null)
+  const drag = useRef<{
+    pointerId: number
+    x: number
+    y: number
+    longitude: number
+    latitude: number
+  } | null>(null)
   const canAnimate = !paused && inView && visible && !dragging
 
   useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const preference = reducedMotionQuery()
     const onChange = () => {
       setReducedMotion(preference.matches)
       if (preference.matches) setPaused(true)
@@ -141,7 +157,9 @@ export function InteractiveGlobe() {
   useEffect(() => {
     const onVisibility = () => setVisible(document.visibilityState !== 'hidden')
     document.addEventListener('visibilitychange', onVisibility)
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.05 })
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+      threshold: 0.05,
+    })
     if (root.current) observer.observe(root.current)
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
@@ -202,7 +220,13 @@ export function InteractiveGlobe() {
 
   function startDrag(event: PointerEvent<HTMLDivElement>) {
     if (!event.isPrimary || event.button !== 0) return
-    drag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, longitude: view.longitude, latitude: view.latitude }
+    drag.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      longitude: view.longitude,
+      latitude: view.latitude,
+    }
     event.currentTarget.setPointerCapture(event.pointerId)
     event.currentTarget.focus({ preventScroll: true })
     setDragging(true)
@@ -217,18 +241,32 @@ export function InteractiveGlobe() {
     setView((previous) => ({
       ...previous,
       longitude: wrapLongitude(current.longitude - deltaX * 0.3),
-      latitude: event.pointerType === 'touch' ? previous.latitude : Math.max(-45, Math.min(55, current.latitude + deltaY * 0.2)),
+      latitude:
+        event.pointerType === 'touch'
+          ? previous.latitude
+          : Math.max(-45, Math.min(55, current.latitude + deltaY * 0.2)),
     }))
   }
 
   function endDrag(event: PointerEvent<HTMLDivElement>) {
     if (drag.current?.pointerId !== event.pointerId) return
     drag.current = null
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+    if (event.currentTarget.hasPointerCapture(event.pointerId))
+      event.currentTarget.releasePointerCapture(event.pointerId)
     setDragging(false)
   }
 
-  const animationState = paused ? (reducedMotion ? 'reduced-motion' : 'paused') : !visible ? 'hidden' : !inView ? 'offscreen' : dragging ? 'dragging' : 'playing'
+  const animationState = paused
+    ? reducedMotion
+      ? 'reduced-motion'
+      : 'paused'
+    : !visible
+      ? 'hidden'
+      : !inView
+        ? 'offscreen'
+        : dragging
+          ? 'dragging'
+          : 'playing'
 
   return (
     <figure
@@ -288,31 +326,59 @@ export function InteractiveGlobe() {
             ))}
           </g>
           <g className="xt-globe-nodes">
-            {projectedNodes.map((point, index) => point.depth > 0.015 && (
-              <g key={index} opacity={Math.min(1, point.depth * 5)}>
-                <circle cx={point.x} cy={point.y} r="6.5" stroke="#91ffff" strokeOpacity="0.4" />
-                <circle cx={point.x} cy={point.y} r="2.6" fill="#dcffff" />
-              </g>
-            ))}
+            {projectedNodes.map(
+              (point, index) =>
+                point.depth > 0.015 && (
+                  <g key={index} opacity={Math.min(1, point.depth * 5)}>
+                    <circle cx={point.x} cy={point.y} r="6.5" stroke="#91ffff" strokeOpacity="0.4" />
+                    <circle cx={point.x} cy={point.y} r="2.6" fill="#dcffff" />
+                  </g>
+                ),
+            )}
           </g>
           <g className="xt-globe-particles">
-            {projectedRoutes.map(({ particle }, index) => particle.visible && (
-              <g key={index}>
-                <circle cx={particle.x} cy={particle.y} r="5" fill="#7cfcff" opacity="0.4" filter={`url(#${ids.glow})`} />
-                <circle className="xt-globe-particle" cx={particle.x} cy={particle.y} r="2" fill="#f0ffff" />
-              </g>
-            ))}
+            {projectedRoutes.map(
+              ({ particle }, index) =>
+                particle.visible && (
+                  <g key={index}>
+                    <circle
+                      cx={particle.x}
+                      cy={particle.y}
+                      r="5"
+                      fill="#7cfcff"
+                      opacity="0.4"
+                      filter={`url(#${ids.glow})`}
+                    />
+                    <circle
+                      className="xt-globe-particle"
+                      cx={particle.x}
+                      cy={particle.y}
+                      r="2"
+                      fill="#f0ffff"
+                    />
+                  </g>
+                ),
+            )}
           </g>
           <g className="xt-globe-intro">
             <path className="xt-globe-intro-line" d={`M${CENTER},6 V${CENTER - RADIUS}`} pathLength="1" />
             <g className="xt-globe-intro-tip">
-              <circle cx={CENTER} cy={CENTER - RADIUS} r="12" fill="#69cbd1" opacity="0.1" filter={`url(#${ids.glow})`} />
+              <circle
+                cx={CENTER}
+                cy={CENTER - RADIUS}
+                r="12"
+                fill="#69cbd1"
+                opacity="0.1"
+                filter={`url(#${ids.glow})`}
+              />
               <circle cx={CENTER} cy={CENTER - RADIUS} r="1.7" fill="#9adce0" opacity="0.65" />
             </g>
           </g>
         </svg>
       </div>
-      <p className="sr-only" id={ids.instructions}>{copy.instructions}</p>
+      <p className="sr-only" id={ids.instructions}>
+        {copy.instructions}
+      </p>
     </figure>
   )
 }

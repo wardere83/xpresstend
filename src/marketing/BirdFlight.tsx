@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './bird.css'
 
@@ -36,8 +37,11 @@ function flightFrames(flight: Flight, initialTilt = 0, initialOpacity = 0.1): Ke
     const y = u ** 3 * start.y + 3 * u ** 2 * t * first.y + 3 * u * t ** 2 * second.y + t ** 3 * end.y
     // The bird levels out as it approaches its perch.
     const tilt = Math.sin(t * Math.PI) * direction * 10 + initialTilt * u ** 2
-    return { offset: t, transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)`,
-      opacity: Math.min(1, t * 12 + initialOpacity) }
+    return {
+      offset: t,
+      transform: `translate(${x}px, ${y}px) rotate(${tilt}deg)`,
+      opacity: Math.min(1, t * 12 + initialOpacity),
+    }
   })
 }
 
@@ -70,15 +74,25 @@ export function BirdFlight({ title }: { title: string }) {
       if (!box.width || !glyph.width || !source.width) return
       const style = getComputedStyle(heading)
       const context = document.createElement('canvas').getContext('2d')
-      if (context) context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+      if (context)
+        context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
       const metrics = context?.measureText(anchor.letter)
-      const glyphTop = metrics && Number.isFinite(metrics.fontBoundingBoxAscent) && Number.isFinite(metrics.actualBoundingBoxAscent)
-        ? metrics.fontBoundingBoxAscent - metrics.actualBoundingBoxAscent : glyph.height * 0.24
+      const glyphTop =
+        metrics &&
+        Number.isFinite(metrics.fontBoundingBoxAscent) &&
+        Number.isFinite(metrics.actualBoundingBoxAscent)
+          ? metrics.fontBoundingBoxAscent - metrics.actualBoundingBoxAscent
+          : glyph.height * 0.24
       const end = { x: glyph.left - box.left + glyph.width * 0.5, y: glyph.top - box.top + glyphTop }
-      const center = { x: source.left - box.left + source.width / 2, y: source.top - box.top + source.height / 2 }
+      const center = {
+        x: source.left - box.left + source.width / 2,
+        y: source.top - box.top + source.height / 2,
+      }
       const distance = Math.hypot(end.x - center.x, end.y - center.y) || 1
-      const start = { x: center.x + (end.x - center.x) / distance * source.width * 0.41,
-        y: center.y + (end.y - center.y) / distance * source.height * 0.41 }
+      const start = {
+        x: center.x + ((end.x - center.x) / distance) * source.width * 0.41,
+        y: center.y + ((end.y - center.y) / distance) * source.height * 0.41,
+      }
       const next = { width: box.width, height: box.height, start, end, letter: anchor.letter }
       if (JSON.stringify(latestFlight.current) === JSON.stringify(next)) return
       // Preserve the visible point before React changes the overlay viewBox.
@@ -87,7 +101,7 @@ export function BirdFlight({ title }: { title: string }) {
         const point = new DOMPoint(0, 0).matrixTransform(matrix)
         positionBeforeGeometry.current = { x: point.x, y: point.y }
       }
-      setFlight((previous) => JSON.stringify(previous) === JSON.stringify(next) ? previous : next)
+      setFlight((previous) => (JSON.stringify(previous) === JSON.stringify(next) ? previous : next))
     }
     const observer = new ResizeObserver(measure)
     observer.observe(section)
@@ -96,7 +110,11 @@ export function BirdFlight({ title }: { title: string }) {
     measure()
     void document.fonts.ready.then(measure)
     document.fonts.addEventListener('loadingdone', measure)
-    return () => { disposed = true; observer.disconnect(); document.fonts.removeEventListener('loadingdone', measure) }
+    return () => {
+      disposed = true
+      observer.disconnect()
+      document.fonts.removeEventListener('loadingdone', measure)
+    }
   }, [title])
 
   useLayoutEffect(() => {
@@ -109,20 +127,32 @@ export function BirdFlight({ title }: { title: string }) {
     const element = traveller.current
     const section = ref.current?.closest<HTMLElement>('.corporate-partners')
     if (!element || !section || !ready) return
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const motion = reducedMotionQuery()
     let visible = false
     const cancel = () => {
-      if (animation.current) { animation.current.onfinish = null; animation.current.cancel() }
+      if (animation.current) {
+        animation.current.onfinish = null
+        animation.current.cancel()
+      }
       animation.current = null
     }
-    const perch = () => { flown.current = true; cancel(); positionBeforeGeometry.current = null; setPhase('perched') }
+    const perch = () => {
+      flown.current = true
+      cancel()
+      positionBeforeGeometry.current = null
+      setPhase('perched')
+    }
     const fly = (geometry: Flight, duration: number, initialTilt = 0, initialOpacity = 0.1) => {
       cancel()
       const current = element.animate(flightFrames(geometry, initialTilt, initialOpacity), {
-        duration, easing: 'cubic-bezier(.3,.05,.55,1)', fill: 'forwards',
+        duration,
+        easing: 'cubic-bezier(.3,.05,.55,1)',
+        fill: 'forwards',
       })
       animation.current = current
-      current.onfinish = () => { if (animation.current === current) perch() }
+      current.onfinish = () => {
+        if (animation.current === current) perch()
+      }
       if (!visible || document.visibilityState !== 'visible') current.pause()
     }
     retarget.current = () => {
@@ -136,15 +166,21 @@ export function BirdFlight({ title }: { title: string }) {
       const point = new DOMPoint(screen.x, screen.y).matrixTransform(overlayMatrix.inverse())
       const style = getComputedStyle(element)
       const matrix = new DOMMatrix(style.transform)
-      const tilt = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI
+      const tilt = (Math.atan2(matrix.b, matrix.a) * 180) / Math.PI
       const remaining = Number(current.effect?.getTiming().duration) - Number(current.currentTime ?? 0)
-      if (!(remaining > 0)) { perch(); return }
+      if (!(remaining > 0)) {
+        perch()
+        return
+      }
       fly({ ...geometry, start: { x: point.x, y: point.y } }, remaining, tilt, Number(style.opacity))
     }
     const update = () => {
       const running = visible && document.visibilityState === 'visible'
       setActive(running)
-      if (motion.matches) { perch(); return }
+      if (motion.matches) {
+        perch()
+        return
+      }
       const geometry = latestFlight.current
       if (!flown.current && !animation.current && running && geometry) {
         setPhase('flying')
@@ -157,10 +193,13 @@ export function BirdFlight({ title }: { title: string }) {
       }
     }
     if (flown.current || motion.matches) perch()
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting && entry.intersectionRatio >= 0.3
-      update()
-    }, { threshold: [0, 0.3] })
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting && entry.intersectionRatio >= 0.3
+        update()
+      },
+      { threshold: [0, 0.3] },
+    )
     observer.observe(section)
     document.addEventListener('visibilitychange', update)
     motion.addEventListener('change', update)
@@ -176,20 +215,50 @@ export function BirdFlight({ title }: { title: string }) {
   const position = flight && (phase === 'waiting' ? flight.start : flight.end)
   const facing = flight && flight.start.x < flight.end.x ? -1 : 1
   return (
-    <svg ref={ref} className="xt-bird" viewBox={flight ? `0 0 ${flight.width} ${flight.height}` : undefined}
-      aria-hidden="true" focusable="false" data-phase={phase} data-active={active} data-letter={flight?.letter}
-      data-landing-x={flight?.end.x} data-landing-y={flight?.end.y}>
-      {position && <g ref={traveller} className="xt-bird-traveller"
-        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}>
-        <g className="xt-bird-art" style={{ scale: `${facing} 1` }}>
-          <path className="xt-bird-feet" d="M-1 -4 L-1 0 L-4 0 M3 -4 L3 0 L6 0" />
-          <path className="xt-bird-body" d="M-8 -12 C-9 -17 -3 -20 0 -16 C3 -15 6 -12 7 -9 L13 -12 L11 -6 L6 -6 C4 -2 -3 -3 -5 -6 C-7 -8 -8 -9 -8 -12 Z" />
-          <path className="xt-bird-beak" d="M-8 -14 L-13 -12 L-8 -11 Z" />
-          <path className="xt-bird-folded-wing" d="M-1 -12 Q8 -12 7 -7 Q1 -4 -1 -12 Z" />
-          <path className="xt-bird-flight-wing" d="M0 -10 Q4 -24 14 -25 Q12 -13 4 -8 Z" />
-          <circle className="xt-bird-eye" cx="-5.5" cy="-13.5" r="0.9" />
+    <svg
+      ref={ref}
+      className="xt-bird"
+      viewBox={flight ? `0 0 ${flight.width} ${flight.height}` : undefined}
+      aria-hidden="true"
+      focusable="false"
+      data-phase={phase}
+      data-active={active}
+      data-letter={flight?.letter}
+      data-landing-x={flight?.end.x}
+      data-landing-y={flight?.end.y}
+    >
+      {position && (
+        <g
+          ref={traveller}
+          className="xt-bird-traveller"
+          style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+        >
+          <g className="xt-bird-art" style={{ scale: `${facing} 1` }}>
+            <svg
+              className="xt-bird-folded-wing"
+              x="-23"
+              y="-33"
+              width="68"
+              height="36"
+              viewBox="120 450 600 315"
+              overflow="hidden"
+            >
+              <image href={`${import.meta.env.BASE_URL}media/wagtail-poses.webp`} width="768" height="768" />
+            </svg>
+            <svg
+              className="xt-bird-flight-wing"
+              x="-28"
+              y="-52"
+              width="76"
+              height="57"
+              viewBox="120 0 600 450"
+              overflow="hidden"
+            >
+              <image href={`${import.meta.env.BASE_URL}media/wagtail-poses.webp`} width="768" height="768" />
+            </svg>
+          </g>
         </g>
-      </g>}
+      )}
     </svg>
   )
 }

@@ -51,9 +51,15 @@
   animation-play-state: paused;
 }
 @keyframes xt-bird-wing {
-  from { transform: rotate(-28deg) scaleY(0.5); }
-  to { transform: rotate(27deg) scaleY(1); }
+  from {
+    transform: rotate(-3deg) scaleY(0.97);
+  }
+  to {
+    transform: rotate(3deg) scaleY(1);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .xt-bird .xt-bird-flight-wing { animation: none; }
+  .xt-bird .xt-bird-flight-wing {
+    animation: none;
+  }
 }

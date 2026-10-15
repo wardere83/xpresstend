@@ -1,3 +1,4 @@
+import { AppPreview } from './AppPreview'
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useCorporateCopy } from './corporateCopy'
@@ -14,11 +15,7 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
     activity: [copy.activityTitle, copy.activityBody],
   }
   return (
-    <section
-      className="brand-experience brand-width"
-      id="experience"
-      aria-labelledby="experience-title"
-    >
+    <section className="brand-experience brand-width" id="experience" aria-labelledby="experience-title">
       <div className="brand-experience-copy">
         <p className="brand-eyebrow">{copy.personal}</p>
         <h2 className="brand-display" id="experience-title">
@@ -38,8 +35,7 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
               onKeyDown={(event) => {
                 let next: number | undefined
                 if (event.key === 'ArrowRight') next = (index + 1) % tabs.length
-                if (event.key === 'ArrowLeft')
-                  next = (index + tabs.length - 1) % tabs.length
+                if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length
                 if (event.key === 'Home') next = 0
                 if (event.key === 'End') next = tabs.length - 1
                 if (next !== undefined) {
@@ -53,12 +49,7 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
             </button>
           ))}
         </div>
-        <div
-          id="experience-panel"
-          role="tabpanel"
-          aria-labelledby={`tab-${active}`}
-          tabIndex={0}
-        >
+        <div id="experience-panel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0}>
           <h3>{details[active][0]}</h3>
           <p className="brand-body">{details[active][1]}</p>
         </div>
@@ -70,13 +61,7 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
         <div className="brand-device-orbit" />
         <div className="brand-device">
           <div className="brand-device-island" />
-          <img
-            src={`${import.meta.env.BASE_URL}media/app-${active}.webp`}
-            width="390"
-            height="780"
-            loading="lazy"
-            alt=""
-          />
+          <AppPreview screen={active} />
         </div>
         <div className="brand-device-caption">
           XpressTend<span>{copy.connected}</span>

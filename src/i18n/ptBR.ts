@@ -33,7 +33,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'home.greeting': 'Olá, {name}',
   'home.subtitle': 'Como podemos ajudar você hoje?',
   'home.voiceTitle': 'Toque no microfone para falar',
-  'home.voiceSubtitle': 'Fale em português ou inglês',
+  'home.voiceSubtitle': 'Suporte no idioma selecionado',
   'home.sendMoney': 'Enviar dinheiro',
   'home.sendMoneySub': 'Rápido, seguro e confiável',
   'home.recentTransaction': 'Transferência recente',
@@ -85,8 +85,7 @@ export const ptBR: Record<keyof typeof en, string> = {
   'chat.confirmDetails': 'Confirme os dados',
   'chat.looksGood': 'Está tudo certo. Deseja continuar?',
   'chat.rateQuestion': 'Qual é a taxa de câmbio hoje?',
-  'chat.rateAnswer':
-    '1 USD = {rate} xelins somalis. As taxas de câmbio podem mudar. Confira as taxas ao vivo antes de enviar.',
+  'chat.rateAnswer': 'Confira o valor, a moeda e as tarifas antes de confirmar uma transferência.',
   'chat.fallback':
     'Posso enviar dinheiro, adicionar um destinatário, consultar a taxa ou rastrear uma transferência. O que você prefere?',
   'chat.suggest.send': 'Enviar dinheiro',
@@ -187,7 +186,7 @@ export const ptBR: Record<keyof typeof en, string> = {
 
   // ---- Help ----
   'help.title': 'Central de ajuda',
-  'help.subtitle': 'Respostas em português e inglês, 24 horas por dia.',
+  'help.subtitle': 'Ajuda com sua conta e suas transferências.',
   'help.contact': 'Falar com uma pessoa',
   'help.q1': 'Quanto tempo leva uma transferência?',
   'help.a1':
@@ -200,7 +199,7 @@ export const ptBR: Record<keyof typeof en, string> = {
     'Você pode cancelar enquanto a transferência ainda estiver pendente. Depois que o dinheiro é retirado, não é mais possível reverter, então confira os dados na tela de revisão.',
   'help.q4': 'Para quais países posso enviar?',
   'help.a4':
-    'Enviamos dos Estados Unidos para mais de 130 países, incluindo Somália, Quênia, Etiópia, Djibuti, Uganda e Reino Unido.',
+    'Nosso foco atual inclui Quênia, Etiópia, Brasil e México. A disponibilidade depende das licenças e dos acordos bancários e de pagamento.',
   'help.q5': 'Meu dinheiro está seguro?',
   'help.a5':
     'A {brand} está registrada no Nationwide Multistate Licensing System, NMLS ID {nmls}, com sede em {city}, {state}. Toda transferência é criptografada em trânsito e nada se move até você confirmar com a sua senha.',
@@ -215,7 +214,7 @@ export const ptBR: Record<keyof typeof en, string> = {
 
   // ---- Support ----
   'support.title': 'Suporte ao vivo',
-  'support.subtitle': 'Pessoas de verdade, em português e inglês.',
+  'support.subtitle': 'Fale com nossa equipe de suporte.',
   'support.chat': 'Iniciar chat ao vivo',
   'support.call': 'Ligar para nós',
   'support.email': 'Suporte por e-mail',
@@ -230,7 +229,8 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.getStarted': 'Começar',
   'marketing.openApp': 'Abrir app',
   'marketing.heroTitle': 'Mais perto a cada envio!',
-  'marketing.heroBody': 'Taxas claras. Uma taxa única. Pontos de bônus para usar depois. Fale ou digite no seu idioma, e o app inteiro responde nele.',
+  'marketing.heroBody':
+    'Taxas claras. Uma taxa única. Pontos de bônus para usar depois. Fale ou digite no seu idioma, e o app inteiro responde nele.',
   'marketing.statLanguages': 'Idiomas, totalmente traduzidos',
   'marketing.statSupport': 'Suporte, todos os dias',
   'marketing.statHidden': 'Taxas ocultas',
@@ -249,7 +249,8 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'Uma taxa fixa',
   'marketing.f2Body': 'Você vê a taxa e o câmbio antes de confirmar. O que é cotado é o que você paga.',
   'marketing.f3Title': 'Feito para ser auditado',
-  'marketing.f3Body': 'Cada transferência tem lançamento em partidas dobradas e cada ação da equipe fica registrada em nome de uma pessoa, não de um agente de IA!',
+  'marketing.f3Body':
+    'Cada transferência tem lançamento em partidas dobradas e cada ação da equipe fica registrada em nome de uma pessoa, não de um agente de IA!',
   'marketing.ctaTitle': 'Pronto para enviar?',
   'marketing.ctaBody': 'Crie uma conta em poucos minutos. Você só verifica a identidade no primeiro envio.',
   'marketing.disclaimer':
@@ -279,7 +280,8 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.statMany': 'Vários',
   'join.mediaAlt': 'Uma família reunida em casa, comemorando o dinheiro que acabou de chegar.',
   'join.mediaTitle': 'O momento em que chega.',
-  'join.mediaBody': 'Dinheiro enviado em minutos, não em dias. Sua família vê a chegada enquanto você ainda está na chamada.',
+  'join.mediaBody':
+    'Dinheiro enviado em minutos, não em dias. Sua família vê a chegada enquanto você ainda está na chamada.',
   'lock.title': 'App bloqueado',
   'lock.reason': 'Confirme que é você antes de mostrarmos suas transferências.',
   'lock.unlock': 'Desbloquear',
@@ -304,7 +306,8 @@ export const ptBR: Record<keyof typeof en, string> = {
   'app.iosBetaNote': 'Participe do beta no TestFlight',
   'nav.downloadApp': 'Baixar o app',
   'nav.beta': 'Beta',
-  'app.sideloadNote': 'A versão Android é para testes, então seu telefone pedirá permissão para instalar de um desenvolvedor desconhecido.',
+  'app.sideloadNote':
+    'A versão Android é para testes, então seu telefone pedirá permissão para instalar de um desenvolvedor desconhecido.',
   'review.authFailed': 'Essa senha não foi aceita.',
   'review.enterPassword': 'Digite a senha da sua conta para autorizar esta transferência.',
   'review.authorise': 'Autorizar transferência',

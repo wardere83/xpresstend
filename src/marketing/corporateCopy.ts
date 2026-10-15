@@ -22,11 +22,9 @@ const en = {
   principlesEyebrow: 'Our approach',
   principlesTitle: 'Clarity at every step.',
   clarityTitle: 'Transparent experiences',
-  clarityBody:
-    'Clear transfer details and pricing are central to our approach to remittances.',
+  clarityBody: 'Clear transfer details and pricing are central to our approach to remittances.',
   accessTitle: 'Accessible by design',
-  accessBody:
-    'A multilingual digital experience supports the communities and families we aim to serve.',
+  accessBody: 'A multilingual digital experience supports the communities and families we aim to serve.',
   accountabilityTitle: 'Accountable operations',
   accountabilityBody:
     'Identity checks, transaction review, and documented controls guide our operational approach.',
@@ -46,51 +44,6 @@ const en = {
 } as const
 
 type CorporateCopy = { [K in keyof typeof en]: string }
-
-const so: CorporateCopy = {
-  navigation: 'Hagaha shirkadda',
-  demoAction: 'Tijaabi abka',
-  menu: 'Liiska',
-  heroEyebrow: 'Lacag-bixinta xuduudaha ka gudubta',
-  heroFirst: 'Dadka ayaan isku xirnaa.',
-  heroSecond: 'Fursado ayaan suuragelinnaa.',
-  heroIntro:
-    'XpressTend Financial Services waa shirkad lacag-bixineed oo fadhigeedu yahay Seattle, kana shaqaysa lacag-bixinta xuduudaha ka gudubta. Waxaan diiradda saarnaa adeegyo xawaaladeed oo cad oo la heli karo iyo maalgashi waara oo aan ku samayno bulshooyinka aan u adeegno.',
-  companyAction: 'Baro XpressTend',
-  companyEyebrow: 'XpressTend Financial Services',
-  companyTitle: 'Ujeeddo cad. Hab mas’uuliyad leh.',
-  companyBody:
-    'Waxaan diiradda saarnaa sidii dadka loogu caawin lahaa inay xiriir la yeeshaan qoysaskooda dalalka kale, annagoo adeegsanayna qiimayn daahfuran, tignoolajiyad la heli karo iyo hawlgal lala xisaabtami karo.',
-  companyLink: 'Ku saabsan shirkadda',
-  factsLocation: 'Xarunta dhexe',
-  factsRegistration: 'Diiwaangelinta NMLS',
-  factsFocus: 'Waxa aan diiradda saarno',
-  factsFocusValue: 'Xawaaladaha xuduudaha ka gudba',
-  principlesEyebrow: 'Habkayaga',
-  principlesTitle: 'Caddayn tallaabo kasta.',
-  clarityTitle: 'Adeegyo daahfuran',
-  clarityBody:
-    'Faahfaahinta xawaaladaha iyo qiimaha oo cad ayaa udub-dhexaad u ah habkayaga xawaaladaha.',
-  accessTitle: 'Helitaan sahlan oo qorshaysan',
-  accessBody:
-    'Adeeg dijitaal ah oo luqado badan leh ayaa taageera bulshooyinka iyo qoysaska aan hiigsanayno inaan u adeegno.',
-  accountabilityTitle: 'Hawlgal lala xisaabtami karo',
-  accountabilityBody:
-    'Hubinta aqoonsiga, dib-u-eegista macaamilada iyo habraacyo la diiwaangeliyay ayaa hagaya habkayaga hawlgalka.',
-  partnerEyebrow: 'Samafal',
-  partnerTitle: 'Aan sidoo kale aqoonta maaliyadda ka dhigno wax xiiso leh.',
-  partnerBody:
-    'Waxaan bulshooyinka aan helin adeeg ku filan ee ku nool gobolka Washington, Nairobi, São Paulo iyo meelo kale ka dhisnaa xirfado lacag-maamul oo dhab ah iyo horumar nololeed oo waara.',
-  partnerLink: 'Baro XpressTend Financial Literacy',
-  trustEyebrow: 'Macluumaadka shirkadda',
-  trustTitle: 'Kalsoonidu waxay ka bilaabataa caddayn.',
-  trustBody:
-    'Eeg xogta shirkaddayada, habkayaga u hoggaansanaanta sharciga iyo dhaqamadayada amniga, ama arag sida aan u maalgashanno bulshooyinka aan u adeegno.',
-  footerContact: 'Xiriir',
-  footerPrivacy: 'Asturnaanta',
-  inquiryAction: 'La xiriir XpressTend',
-  inquirySubject: 'Weydiin ku saabsan aqoonta maaliyadda',
-}
 
 const es: CorporateCopy = {
   navigation: 'Navegación de la empresa',
@@ -162,8 +115,7 @@ const pt: CorporateCopy = {
   clarityBody:
     'Detalhes e preços claros das transferências são fundamentais para nossa abordagem de remessas.',
   accessTitle: 'Acessibilidade desde o início',
-  accessBody:
-    'Uma experiência digital multilíngue apoia as comunidades e famílias que buscamos atender.',
+  accessBody: 'Uma experiência digital multilíngue apoia as comunidades e famílias que buscamos atender.',
   accountabilityTitle: 'Operações responsáveis',
   accountabilityBody:
     'Verificações de identidade, análise de transações e controles documentados orientam nossa abordagem operacional.',
@@ -204,14 +156,11 @@ const ar: CorporateCopy = {
   principlesEyebrow: 'نهجنا',
   principlesTitle: 'وضوح في كل خطوة.',
   clarityTitle: 'تجارب شفافة',
-  clarityBody:
-    'وضوح تفاصيل التحويل وتسعيره ركيزة أساسية في نهجنا لتحويل الأموال.',
+  clarityBody: 'وضوح تفاصيل التحويل وتسعيره ركيزة أساسية في نهجنا لتحويل الأموال.',
   accessTitle: 'سهولة الوصول من أساس التصميم',
-  accessBody:
-    'تدعم تجربة رقمية متعددة اللغات المجتمعات والعائلات التي نسعى إلى خدمتها.',
+  accessBody: 'تدعم تجربة رقمية متعددة اللغات المجتمعات والعائلات التي نسعى إلى خدمتها.',
   accountabilityTitle: 'عمليات تخضع للمساءلة',
-  accountabilityBody:
-    'توجّه عمليات التحقق من الهوية ومراجعة المعاملات والضوابط الموثّقة نهجنا التشغيلي.',
+  accountabilityBody: 'توجّه عمليات التحقق من الهوية ومراجعة المعاملات والضوابط الموثّقة نهجنا التشغيلي.',
   partnerEyebrow: 'العطاء المجتمعي',
   partnerTitle: 'لنجعل الثقافة المالية ممتعة أيضاً.',
   partnerBody:
@@ -229,7 +178,6 @@ const ar: CorporateCopy = {
 
 const dictionaries: Record<Lang, CorporateCopy> = {
   en,
-  so,
   es,
   'pt-BR': pt,
   ar,

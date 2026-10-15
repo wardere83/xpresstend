@@ -11,7 +11,9 @@ test('a visitor can create an account before entering the customer app', async (
   await expect(page.getByLabel('Password', { exact: true })).toBeVisible()
 })
 
-test('a pending real account profile reports its actual verification state and membership', async ({ page }) => {
+test('a pending real account profile reports its actual verification state and membership', async ({
+  page,
+}) => {
   await mockAccount(page, { user: { ...customer, kycStatus: 'unverified', kycTier: 0 } })
   await page.setViewportSize({ width: 320, height: 844 })
   await page.goto('/#/profile')
@@ -22,8 +24,13 @@ test('a pending real account profile reports its actual verification state and m
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
 })
 
-test('a real transfer records pending server amounts and keeps the chosen recipient on its receipt', async ({ page }) => {
-  const requests = await mockAccount(page, { recipientAfterPayment: 'Changed after payment', createdFeeMinor: 199 })
+test('a real transfer records pending server amounts and keeps the chosen recipient on its receipt', async ({
+  page,
+}) => {
+  const requests = await mockAccount(page, {
+    recipientAfterPayment: 'Changed after payment',
+    createdFeeMinor: 199,
+  })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#/send')
   await page.getByRole('button', { name: /Choose a recipient/ }).click()
@@ -37,14 +44,24 @@ test('a real transfer records pending server amounts and keeps the chosen recipi
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
   await expect(page).toHaveURL(/#\/success$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Test transfer recorded')
-  await expect(page.locator('.product-phone')).toContainText('Pending review for Test Recipient. No money has been delivered.')
+  await expect(page.locator('.product-phone')).toContainText(
+    'Pending review for Test Recipient. No money has been delivered.',
+  )
   await expect(page.locator('.product-phone')).toContainText('Test Recipient')
   await expect(page.getByText('Changed after payment', { exact: true })).toHaveCount(0)
   await expect(page.locator('.product-phone')).toContainText('$125.44')
-  expect(requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'))
-    .toEqual([{ path: '/api/transfers', method: 'POST', body: { corridorId: 'cor_us_so', recipientId: 'recipient-test', sendAmountMinor: 12345 } }])
-  expect(requests.filter((request) => request.path.endsWith('/pay')).map((request) => request.body))
-    .toEqual([{ password: 'FixturePassword123!' }])
+  expect(
+    requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'),
+  ).toEqual([
+    {
+      path: '/api/transfers',
+      method: 'POST',
+      body: { corridorId: 'cor_us_ke', recipientId: 'recipient-test', sendAmountMinor: 12345 },
+    },
+  ])
+  expect(requests.filter((request) => request.path.endsWith('/pay')).map((request) => request.body)).toEqual([
+    { password: 'FixturePassword123!' },
+  ])
 })
 
 test('unavailable server quotes cannot create or complete a real transfer', async ({ page }) => {
@@ -58,7 +75,9 @@ test('unavailable server quotes cannot create or complete a real transfer', asyn
   await page.goto('/#/review')
   await expect(page.locator('.product-phone')).toContainText('A current exchange rate is unavailable.')
   await expect(page.getByRole('button', { name: 'Create test transfer', exact: true })).toBeDisabled()
-  expect(requests.filter((request) => request.method === 'POST' && request.path.startsWith('/api/transfers'))).toEqual([])
+  expect(
+    requests.filter((request) => request.method === 'POST' && request.path.startsWith('/api/transfers')),
+  ).toEqual([])
   expect(page.url()).not.toMatch(/#\/success$/)
 })
 
@@ -76,7 +95,9 @@ async function reviewTheSameInputsAgain(page: Page) {
   await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
 }
 
-test('an expired unpaid transfer is rechecked and replaced only after the customer reviews a fresh quote', async ({ page }) => {
+test('an expired unpaid transfer is rechecked and replaced only after the customer reviews a fresh quote', async ({
+  page,
+}) => {
   let now = Date.now()
   const password = 'FixturePassword123!'
   const requests = await mockAccount(page, { now: () => now, paymentPassword: password })
@@ -90,29 +111,45 @@ test('an expired unpaid transfer is rechecked and replaced only after the custom
   await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
   await page.locator('input[type=password]').fill('WrongPassword123!')
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
-  await expect(page.getByRole('alert').filter({ hasText: 'That password was not accepted.' }).last()).toBeVisible()
-  expect(requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST')).toHaveLength(1)
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'That password was not accepted.' }).last(),
+  ).toBeVisible()
+  expect(
+    requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'),
+  ).toHaveLength(1)
 
   now += 16 * 60_000
   await page.clock.setFixedTime(now)
   await reviewTheSameInputsAgain(page)
   await page.locator('input[type=password]').fill(password)
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
-  await expect(page.getByRole('alert').filter({ hasText: 'The earlier test quote expired.' }).last()).toBeVisible()
-  expect(requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST')).toHaveLength(1)
-  expect(requests.filter((request) => request.path === '/api/transfers/transfer-test' && request.method === 'GET')).toHaveLength(1)
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'The earlier test quote expired.' }).last(),
+  ).toBeVisible()
+  expect(
+    requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'),
+  ).toHaveLength(1)
+  expect(
+    requests.filter((request) => request.path === '/api/transfers/transfer-test' && request.method === 'GET'),
+  ).toHaveLength(1)
   expect(requests.filter((request) => request.path === '/api/transfers/transfer-test/pay')).toHaveLength(1)
 
   await expect(page.getByText('$500.99', { exact: true }).first()).toBeVisible()
   await page.locator('input[type=password]').fill(password)
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Test transfer recorded')
-  expect(requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST')).toHaveLength(2)
-  expect(requests.filter((request) => request.path.endsWith('/pay')).map((request) => request.path))
-    .toEqual(['/api/transfers/transfer-test/pay', '/api/transfers/transfer-test-2/pay'])
+  expect(
+    requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'),
+  ).toHaveLength(2)
+  expect(requests.filter((request) => request.path.endsWith('/pay')).map((request) => request.path)).toEqual([
+    '/api/transfers/transfer-test/pay',
+    '/api/transfers/transfer-test-2/pay',
+  ])
 })
 
-test('an uncertain payment outcome cannot create a replacement even when its old quote expires', async ({ page }) => {
+test('an uncertain payment outcome cannot create a replacement even when its old quote expires', async ({
+  page,
+}) => {
   let now = Date.now()
   const requests = await mockAccount(page, { now: () => now, paymentUnavailable: true })
   await page.clock.setFixedTime(now)
@@ -125,15 +162,23 @@ test('an uncertain payment outcome cannot create a replacement even when its old
   await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
   await page.locator('input[type=password]').fill('FixturePassword123!')
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
-  await expect(page.getByRole('alert').filter({ hasText: 'The payment result could not be confirmed.' }).last()).toBeVisible()
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'The payment result could not be confirmed.' }).last(),
+  ).toBeVisible()
   now += 16 * 60_000
   await page.clock.setFixedTime(now)
   await reviewTheSameInputsAgain(page)
   await page.locator('input[type=password]').fill('FixturePassword123!')
   await page.getByRole('button', { name: 'Authorise transfer', exact: true }).click()
-  await expect(page.getByRole('alert').filter({ hasText: 'The earlier payment result could not be confirmed.' }).last()).toBeVisible()
-  expect(requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST')).toHaveLength(1)
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'The earlier payment result could not be confirmed.' }).last(),
+  ).toBeVisible()
+  expect(
+    requests.filter((request) => request.path === '/api/transfers' && request.method === 'POST'),
+  ).toHaveLength(1)
   expect(requests.filter((request) => request.path.endsWith('/pay'))).toHaveLength(1)
-  expect(requests.filter((request) => request.path === '/api/transfers/transfer-test' && request.method === 'GET')).toHaveLength(1)
+  expect(
+    requests.filter((request) => request.path === '/api/transfers/transfer-test' && request.method === 'GET'),
+  ).toHaveLength(1)
   expect(page.url()).not.toMatch(/#\/success$/)
 })

@@ -1,3 +1,5 @@
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
+import { SignInFrame } from '../auth/SignInFrame'
 import { CompliancePanel, type ComplianceSection } from './CompliancePanel'
 /**
  * Staff console.
@@ -13,11 +15,21 @@ import { StaffPanel } from './StaffPanel'
 import './staff-console.css'
 
 interface TransferRow {
-  id: string; reference: string; status: string
-  send_amount_minor: number; send_currency: string; fee_minor: number
-  receive_amount_minor: number; receive_currency: string
-  created_at: string; user_email: string; first_name: string; last_name: string
-  kyc_status: string; recipient_name: string; recipient_country: string
+  id: string
+  reference: string
+  status: string
+  send_amount_minor: number
+  send_currency: string
+  fee_minor: number
+  receive_amount_minor: number
+  receive_currency: string
+  created_at: string
+  user_email: string
+  first_name: string
+  last_name: string
+  kyc_status: string
+  recipient_name: string
+  recipient_country: string
 }
 
 interface TrialBalance {
@@ -95,9 +107,12 @@ function screeningError(error: unknown): string {
     reason_minimum_20_chars: 'Enter a review reason of at least 20 characters.',
     screening_not_reviewable: 'This screening is not available for a false-positive decision.',
     screening_outdated: 'The official dataset or matches have changed. Refresh screening before reviewing.',
-    screening_subject_changed: 'The sender or recipient name has changed. Refresh screening before reviewing.',
-    sanctions_unavailable: 'Current official sanctions data is unavailable. Screening and transfer release are blocked.',
-    sanctions_review_required: 'Unresolved sanctions matches require a separate review decision before release.',
+    screening_subject_changed:
+      'The sender or recipient name has changed. Refresh screening before reviewing.',
+    sanctions_unavailable:
+      'Current official sanctions data is unavailable. Screening and transfer release are blocked.',
+    sanctions_review_required:
+      'Unresolved sanctions matches require a separate review decision before release.',
     not_funded: 'This transfer cannot be released because payment has not been confirmed.',
   }
   return messages[error.code] ?? `The screening request could not be completed (${error.code}).`
@@ -105,31 +120,58 @@ function screeningError(error: unknown): string {
 
 function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
   const metadata = screening.match_json
-  const clearance = screening.effective_clearance ?? (screening.cleared_at ? {
-    screening_id: screening.id,
-    cleared_by: screening.cleared_by,
-    cleared_by_name: screening.cleared_by_name,
-    cleared_by_email: screening.cleared_by_email,
-    cleared_at: screening.cleared_at,
-    reason: screening.review_reason,
-  } : null)
+  const clearance =
+    screening.effective_clearance ??
+    (screening.cleared_at
+      ? {
+          screening_id: screening.id,
+          cleared_by: screening.cleared_by,
+          cleared_by_name: screening.cleared_by_name,
+          cleared_by_email: screening.cleared_by_email,
+          cleared_at: screening.cleared_at,
+          reason: screening.review_reason,
+        }
+      : null)
   const reviewed = screening.is_current ? screening.effective_cleared : !!screening.cleared_at
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <h3 className="font-semibold">{screening.subject_type.replace(/_/g, ' ')} · {metadata.subjectName}</h3>
+        <h3 className="font-semibold">
+          {screening.subject_type.replace(/_/g, ' ')} · {metadata.subjectName}
+        </h3>
         <Pill status={reviewed ? 'reviewed_false_positive' : screening.status} />
         {!screening.is_current ? <span className="text-[11px] text-ink-500">Historical record</span> : null}
       </div>
       <dl className="mt-3 grid gap-2 text-[12px] sm:grid-cols-2">
-        <div><dt className="text-ink-500">Screening provider</dt><dd>{screening.provider}</dd></div>
-        <div><dt className="text-ink-500">Screened at / stage</dt><dd>{screening.created_at} · {metadata.stage}</dd></div>
-        <div><dt className="text-ink-500">Official dataset version</dt><dd className="break-all">{metadata.datasetVersion ?? 'Unavailable'}</dd></div>
-        <div><dt className="text-ink-500">Last successful source check</dt><dd>{metadata.checkedAt ?? 'Unavailable'}</dd></div>
-        {metadata.datasetHash ? <div className="sm:col-span-2"><dt className="text-ink-500">Dataset SHA-256</dt><dd className="break-all font-mono text-[11px]">{metadata.datasetHash}</dd></div> : null}
+        <div>
+          <dt className="text-ink-500">Screening provider</dt>
+          <dd>{screening.provider}</dd>
+        </div>
+        <div>
+          <dt className="text-ink-500">Screened at / stage</dt>
+          <dd>
+            {screening.created_at} · {metadata.stage}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-ink-500">Official dataset version</dt>
+          <dd className="break-all">{metadata.datasetVersion ?? 'Unavailable'}</dd>
+        </div>
+        <div>
+          <dt className="text-ink-500">Last successful source check</dt>
+          <dd>{metadata.checkedAt ?? 'Unavailable'}</dd>
+        </div>
+        {metadata.datasetHash ? (
+          <div className="sm:col-span-2">
+            <dt className="text-ink-500">Dataset SHA-256</dt>
+            <dd className="break-all font-mono text-[11px]">{metadata.datasetHash}</dd>
+          </div>
+        ) : null}
       </dl>
       {metadata.reason ? (
-        <p className="mt-3 text-[12px] text-alert">Screening requires attention: {metadata.reason.replace(/_/g, ' ')}</p>
+        <p className="mt-3 text-[12px] text-alert">
+          Screening requires attention: {metadata.reason.replace(/_/g, ' ')}
+        </p>
       ) : null}
       {metadata.matches?.length ? (
         <div className="mt-4 space-y-3">
@@ -138,22 +180,47 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
               <p className="font-semibold">{match.primaryName}</p>
               <p className="mt-1 text-ink-600">Matched name or alias: {match.name}</p>
               <dl className="mt-2 grid gap-2 sm:grid-cols-2">
-                <div><dt className="text-ink-500">Official entity ID</dt><dd>{match.officialId} ({match.entityId})</dd></div>
-                <div><dt className="text-ink-500">OFAC list</dt><dd>{match.list === 'sdn' ? 'SDN' : 'Consolidated non-SDN'}</dd></div>
-                <div><dt className="text-ink-500">Programs</dt><dd>{match.programs.join(', ') || 'Not specified in source'}</dd></div>
-                <div><dt className="text-ink-500">Name similarity</dt><dd>{match.score} · {match.matchType}</dd></div>
+                <div>
+                  <dt className="text-ink-500">Official entity ID</dt>
+                  <dd>
+                    {match.officialId} ({match.entityId})
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-ink-500">OFAC list</dt>
+                  <dd>{match.list === 'sdn' ? 'SDN' : 'Consolidated non-SDN'}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-500">Programs</dt>
+                  <dd>{match.programs.join(', ') || 'Not specified in source'}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-500">Name similarity</dt>
+                  <dd>
+                    {match.score} · {match.matchType}
+                  </dd>
+                </div>
               </dl>
             </div>
           ))}
         </div>
-      ) : <p className="mt-3 text-[12px] text-ink-600">No name matches recorded in this screening.</p>}
+      ) : (
+        <p className="mt-3 text-[12px] text-ink-600">No name matches recorded in this screening.</p>
+      )}
       {clearance ? (
         <div className="mt-4 rounded-xl bg-ok-soft p-3 text-[12px]">
-          <p className="font-semibold">{screening.is_current ? 'False-positive decision recorded' : 'Historical false-positive decision'}</p>
-          <p className="mt-1">Reviewer: {clearance.cleared_by_name ?? clearance.cleared_by_email ?? clearance.cleared_by} · {clearance.cleared_at}</p>
+          <p className="font-semibold">
+            {screening.is_current ? 'False-positive decision recorded' : 'Historical false-positive decision'}
+          </p>
+          <p className="mt-1">
+            Reviewer: {clearance.cleared_by_name ?? clearance.cleared_by_email ?? clearance.cleared_by} ·{' '}
+            {clearance.cleared_at}
+          </p>
           <p className="mt-1 whitespace-pre-wrap">{clearance.reason}</p>
           {screening.is_current && clearance.screening_id !== screening.id ? (
-            <p className="mt-2">Prior decision applies to the same screened name, official dataset and matched entities.</p>
+            <p className="mt-2">
+              Prior decision applies to the same screened name, official dataset and matched entities.
+            </p>
           ) : null}
         </div>
       ) : null}
@@ -170,7 +237,9 @@ const STATUS_TONE: Record<string, string> = {
 
 function Pill({ status }: { status: string }) {
   return (
-    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_TONE[status] ?? 'bg-ink-200 text-ink-700'}`}>
+    <span
+      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_TONE[status] ?? 'bg-ink-200 text-ink-700'}`}
+    >
       {status.replace(/_/g, ' ')}
     </span>
   )
@@ -201,10 +270,16 @@ export function AdminConsole() {
     }
   }, [])
 
-  useEffect(() => { void refresh() }, [refresh])
+  useEffect(() => {
+    void refresh()
+  }, [refresh])
 
   if (checking) {
-    return <div className="grid min-h-dvh place-items-center bg-ink-900 text-[13px] text-white/60">Checking session…</div>
+    return (
+      <div className="grid min-h-dvh place-items-center bg-ink-900 text-[13px] text-white/60">
+        Checking session…
+      </div>
+    )
   }
   if (admin?.role === 'reviewer') return <Navigate to="/institutional-reviewer" replace />
   if (!admin) return needsSetup ? <AdminSetup onCreated={refresh} /> : <AdminLogin onSignedIn={refresh} />
@@ -234,7 +309,8 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
       setError('Staff passwords must be at least 16 characters.')
       return
     }
-    setBusy(true); setError(null)
+    setBusy(true)
+    setError(null)
     try {
       await fetch(`${API_BASE}/bootstrap/admin`, {
         method: 'POST',
@@ -247,7 +323,7 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
           throw new Error(
             body.error === 'not_found'
               ? 'That setup key was not accepted.'
-              : body.message ?? body.error ?? 'Could not create the account.',
+              : (body.message ?? body.error ?? 'Could not create the account.'),
           )
         }
       })
@@ -269,8 +345,10 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 text-[12px]">ADMIN_BOOTSTRAP_SECRET</code>
             so this screen can never appear again.
           </p>
-          <button onClick={onCreated}
-            className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white">
+          <button
+            onClick={onCreated}
+            className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white"
+          >
             Go to sign in
           </button>
         </div>
@@ -278,7 +356,8 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
     )
   }
 
-  const field = 'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+  const field =
+    'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
     <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
@@ -288,22 +367,55 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
           This runs once. Nobody else can create it after you.
         </p>
         <div className="mt-6 space-y-3">
-          <input required type="email" placeholder="you@xpresstend.com" autoComplete="username"
-            value={form.email} onChange={set('email')} className={field} />
-          <input required placeholder="Your full name" autoComplete="name"
-            value={form.name} onChange={set('name')} className={field} />
-          <input required type="password" placeholder="Password, 16+ characters"
-            autoComplete="new-password" value={form.password} onChange={set('password')} className={field} />
-          <input required type="password" placeholder="Setup key"
-            value={form.secret} onChange={set('secret')} className={field} />
+          <input
+            required
+            type="email"
+            placeholder="you@xpresstend.com"
+            autoComplete="username"
+            value={form.email}
+            onChange={set('email')}
+            className={field}
+          />
+          <input
+            required
+            placeholder="Your full name"
+            autoComplete="name"
+            value={form.name}
+            onChange={set('name')}
+            className={field}
+          />
+          <input
+            required
+            type="password"
+            placeholder="Password, 16+ characters"
+            autoComplete="new-password"
+            value={form.password}
+            onChange={set('password')}
+            className={field}
+          />
+          <input
+            required
+            type="password"
+            placeholder="Setup key"
+            value={form.secret}
+            onChange={set('secret')}
+            className={field}
+          />
           <p className="text-[11px] leading-snug text-ink-500">
-            The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It stops a
-            stranger claiming this account before you do.
+            The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It stops a stranger claiming this
+            account before you do.
           </p>
         </div>
-        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
-        <button type="submit" disabled={busy}
-          className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
+        {error ? (
+          <p role="alert" className="mt-3 text-[12px] font-medium text-alert">
+            {error}
+          </p>
+        ) : null}
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
+        >
           {busy ? 'Creating…' : 'Create account'}
         </button>
       </form>
@@ -359,13 +471,13 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
       <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <h1 className="text-[19px] font-semibold tracking-tight">Check your inbox</h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          If <span className="font-semibold text-ink-700">{email}</span> has a staff account,
-          we have sent it an email. Look in spam too.
+          If <span className="font-semibold text-ink-700">{email}</span> has a staff account, we have sent it
+          an email. Look in spam too.
         </p>
         {password ? (
           <p className="mt-3 text-[12px] leading-relaxed text-ink-500">
-            The link lasts one hour and works once. If it does not arrive, an owner can
-            generate one for you from the Staff tab.
+            The link lasts one hour and works once. If it does not arrive, an owner can generate one for you
+            from the Staff tab.
           </p>
         ) : null}
         <button
@@ -417,6 +529,7 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
 }
 
 function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
+  const p = useInterfaceCopy()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -425,7 +538,8 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    setBusy(true); setError(null)
+    setBusy(true)
+    setError(null)
     try {
       await api.post('/admin/auth/login', { email, password })
       onSignedIn()
@@ -442,29 +556,54 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 
   if (recover) {
     return (
-      <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+      <SignInFrame className="staff-console staff-auth">
         <AdminRecover mode={recover} onBack={() => setRecover(null)} />
-      </div>
+      </SignInFrame>
     )
   }
 
   return (
-    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <SignInFrame className="staff-console staff-auth">
       <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <h1 className="text-[19px] font-semibold tracking-tight">Staff sign in</h1>
-        <p className="mt-1.5 text-[12px] text-ink-500">Authorised personnel only. Sessions last 8 hours.</p>
+        <h1 className="text-[19px] font-semibold tracking-tight">{p('Staff sign in')}</h1>
+        <p className="mt-1.5 text-[12px] text-ink-500">
+          {p('Authorised personnel only. Sessions last 8 hours.')}
+        </p>
         <div className="mt-6 space-y-3">
-          <input type="email" required placeholder="you@xpresstend.com" autoComplete="username"
-            value={email} onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
-          <input type="password" required placeholder="Password" autoComplete="current-password"
-            value={password} onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
+          <label htmlFor="staff-login-email">{p('Email')}</label>
+          <input
+            id="staff-login-email"
+            type="email"
+            required
+            placeholder="you@xpresstend.com"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+          />
+          <label htmlFor="staff-login-password">{p('Password')}</label>
+          <input
+            id="staff-login-password"
+            type="password"
+            required
+            placeholder="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+          />
         </div>
-        {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
-        <button type="submit" disabled={busy}
-          className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
-          {busy ? 'Signing in…' : 'Sign in'}
+        {error ? (
+          <p role="alert" className="mt-3 text-[12px] font-medium text-alert">
+            {p(error)}
+          </p>
+        ) : null}
+        <button
+          type="submit"
+          disabled={busy}
+          className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
+        >
+          {p(busy ? 'Signing in…' : 'Sign in')}
         </button>
         {/* Both recovery paths sit here rather than behind one "trouble signing
             in?" link, because they answer different questions and someone who
@@ -476,18 +615,18 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
             onClick={() => setRecover('password')}
             className="text-[12px] font-semibold text-ink-600 transition-colors hover:text-brand-600"
           >
-            Forgot password?
+            {p('Forgot password?')}
           </button>
           <button
             type="button"
             onClick={() => setRecover('address')}
             className="text-[12px] font-semibold text-ink-600 transition-colors hover:text-brand-600"
           >
-            Forgot your email?
+            {p('Forgot your email?')}
           </button>
         </div>
       </form>
-    </div>
+    </SignInFrame>
   )
 }
 
@@ -511,54 +650,91 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   const [refreshing, setRefreshing] = useState(false)
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
   const [inviteRequest, setInviteRequest] = useState(0)
-  const [sectionRequest, setSectionRequest] = useState<{ section: ComplianceSection; request: number }>({ section: 'readiness', request: 0 })
+  const [sectionRequest, setSectionRequest] = useState<{ section: ComplianceSection; request: number }>({
+    section: 'readiness',
+    request: 0,
+  })
 
   const canDecide = admin.role === 'compliance' || admin.role === 'owner'
 
-  const load = useCallback(async (status = filter) => {
-    const request = ++loadRequest.current
-    setRefreshing(true)
-    try {
-    const [t, b, o] = await Promise.all([
-      api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(status)}`),
-      api.get<TrialBalance>('/admin/ledger/trial-balance'),
-      api.get<OperationsOverview>('/admin/overview'),
-    ])
-    if (request !== loadRequest.current) return t.transfers
-    setRows(t.transfers)
-    setBalance(b)
-    setOverview(o)
-    setUpdatedAt(new Date().toLocaleTimeString())
-    return t.transfers
-    } finally { if (request === loadRequest.current) setRefreshing(false) }
-  }, [filter])
+  const load = useCallback(
+    async (status = filter) => {
+      const request = ++loadRequest.current
+      setRefreshing(true)
+      try {
+        const [t, b, o] = await Promise.all([
+          api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(status)}`),
+          api.get<TrialBalance>('/admin/ledger/trial-balance'),
+          api.get<OperationsOverview>('/admin/overview'),
+        ])
+        if (request !== loadRequest.current) return t.transfers
+        setRows(t.transfers)
+        setBalance(b)
+        setOverview(o)
+        setUpdatedAt(new Date().toLocaleTimeString())
+        return t.transfers
+      } finally {
+        if (request === loadRequest.current) setRefreshing(false)
+      }
+    },
+    [filter],
+  )
 
-  const invalidateLoad = useCallback(() => { loadRequest.current++ }, [])
+  const invalidateLoad = useCallback(() => {
+    loadRequest.current++
+  }, [])
   useEffect(() => {
-    const refresh = () => { if (!document.hidden) void load().catch(() => setNote('Could not load the queue. Retry with Refresh workspace.')) }
+    const refresh = () => {
+      if (!document.hidden)
+        void load().catch(() => setNote('Could not load the queue. Retry with Refresh workspace.'))
+    }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
-    return () => { window.clearInterval(timer); invalidateLoad() }
+    return () => {
+      window.clearInterval(timer)
+      invalidateLoad()
+    }
   }, [load, invalidateLoad])
 
   async function runWorkflow(key: 'queue' | 'compliance' | 'staff') {
-    setNote(null); setTab(key)
-    if (key === 'staff') { if (admin.role === 'owner') setInviteRequest(value => value + 1); return }
-    if (key === 'compliance') { setSectionRequest(value => ({ section: 'readiness', request: value.request + 1 })); return }
-    ++reviewRequest.current; setSelectedTransfer(null); setReview(null); setReviewBusy(false)
-    setReviewReasons({}); setReviewError(null); setReviewMessage(null)
+    setNote(null)
+    setTab(key)
+    if (key === 'staff') {
+      if (admin.role === 'owner') setInviteRequest((value) => value + 1)
+      return
+    }
+    if (key === 'compliance') {
+      setSectionRequest((value) => ({ section: 'readiness', request: value.request + 1 }))
+      return
+    }
+    ++reviewRequest.current
+    setSelectedTransfer(null)
+    setReview(null)
+    setReviewBusy(false)
+    setReviewReasons({})
+    setReviewError(null)
+    setReviewMessage(null)
     try {
       setFilter('compliance_hold')
       const next = await load('compliance_hold')
-      if (!next.length) { setNote('Queue refreshed. No transfers are awaiting review.'); return }
-      setSelectedTransfer(next[0]); setReview(null); setReviewReasons({})
+      if (!next.length) {
+        setNote('Queue refreshed. No transfers are awaiting review.')
+        return
+      }
+      setSelectedTransfer(next[0])
+      setReview(null)
+      setReviewReasons({})
       await refreshReview(next[0].id)
-    } catch { setNote('Could not open the next review. Please refresh and retry.') }
+    } catch {
+      setNote('Could not open the next review. Please refresh and retry.')
+    }
   }
 
   async function refreshReview(id: string, rescreen = false) {
     const request = ++reviewRequest.current
-    setReviewBusy(true); setReviewError(null); setReviewMessage(null)
+    setReviewBusy(true)
+    setReviewError(null)
+    setReviewMessage(null)
     try {
       if (rescreen) await api.post(`/admin/transfers/${id}/screen`)
       const result = await api.get<ScreeningReview>(`/admin/transfers/${id}/screenings`)
@@ -574,20 +750,26 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   }
 
   function openReview(transfer: TransferRow) {
-    setSelectedTransfer(transfer); setReview(null); setReviewReasons({})
+    setSelectedTransfer(transfer)
+    setReview(null)
+    setReviewReasons({})
     void refreshReview(transfer.id, canDecide)
   }
 
   async function clearScreening(screening: ScreeningRecord) {
     const reason = reviewReasons[screening.id]?.trim() ?? ''
     if (!selectedTransfer || !canDecide || reason.length < 20) return
-    setClearingId(screening.id); setReviewError(null); setReviewMessage(null)
+    setClearingId(screening.id)
+    setReviewError(null)
+    setReviewMessage(null)
     try {
       await api.post(`/admin/screenings/${screening.id}/clear`, { reason })
       await refreshReview(selectedTransfer.id)
       await load()
       setReviewReasons((reasons) => ({ ...reasons, [screening.id]: '' }))
-      setReviewMessage('The false-positive decision was recorded. Transfer release remains a separate action.')
+      setReviewMessage(
+        'The false-positive decision was recorded. Transfer release remains a separate action.',
+      )
     } catch (err) {
       setReviewError(screeningError(err))
     } finally {
@@ -595,25 +777,39 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     }
   }
 
-  const canRelease = canDecide && !reviewBusy && !clearingId && review?.screening_ready === true && review.review_required === false
+  const canRelease =
+    canDecide &&
+    !reviewBusy &&
+    !clearingId &&
+    review?.screening_ready === true &&
+    review.review_required === false
 
   async function decide(id: string, action: 'approve' | 'reject') {
     if (action === 'approve' && (!canRelease || selectedTransfer?.id !== id)) {
       setNote('Load current screening results and resolve sanctions matches before release.')
       return
     }
-    const reason = action === 'reject' ? window.prompt('Reason for rejecting this transfer:')?.trim() : undefined
+    const reason =
+      action === 'reject' ? window.prompt('Reason for rejecting this transfer:')?.trim() : undefined
     if (action === 'reject' && !reason) return
-    setBusyId(id); setNote(null)
+    setBusyId(id)
+    setNote(null)
     try {
       await api.post(`/admin/transfers/${id}/${action}`, action === 'reject' ? { reason } : undefined)
       await load()
       if (selectedTransfer?.id === id) {
         ++reviewRequest.current
-        setSelectedTransfer(null); setReview(null)
+        setSelectedTransfer(null)
+        setReview(null)
       }
     } catch (err) {
-      setNote(action === 'approve' ? screeningError(err) : err instanceof ApiError ? `Could not reject: ${err.code}` : 'Could not reject.')
+      setNote(
+        action === 'approve'
+          ? screeningError(err)
+          : err instanceof ApiError
+            ? `Could not reject: ${err.code}`
+            : 'Could not reject.',
+      )
     } finally {
       setBusyId(null)
     }
@@ -629,8 +825,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           </span>
           <div className="ml-auto flex items-center gap-3 text-[12px]">
             <span className="text-white/60">{admin.email}</span>
-            <button onClick={() => api.post('/admin/auth/logout').then(onSignedOut)}
-              className="rounded-full bg-white/10 px-3 py-1.5 font-semibold hover:bg-white/20">
+            <button
+              onClick={() => api.post('/admin/auth/logout').then(onSignedOut)}
+              className="rounded-full bg-white/10 px-3 py-1.5 font-semibold hover:bg-white/20"
+            >
               Sign out
             </button>
           </div>
@@ -642,47 +840,106 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           <div>
             <p className="operations-eyebrow">XpressTend / Financial operations</p>
             <h1 id="operations-title">Your operations. In view.</h1>
-            <p className="operations-intro">A connected view of transfers, financial controls and the people who keep money moving.</p>
+            <p className="operations-intro">
+              A connected view of transfers, financial controls and the people who keep money moving.
+            </p>
           </div>
           <div className="operations-ledger">
             <span className="operations-eyebrow">Ledger control</span>
-            <strong>{balance ? balance.balanced ? 'Balanced' : 'Needs attention' : 'Awaiting data'}</strong>
-            <span>{balance ? balance.balanced ? 'Every currency reconciles to zero' : 'Review currency imbalances below' : 'Loading ledger reconciliation'}</span>
+            <strong>{balance ? (balance.balanced ? 'Balanced' : 'Needs attention') : 'Awaiting data'}</strong>
+            <span>
+              {balance
+                ? balance.balanced
+                  ? 'Every currency reconciles to zero'
+                  : 'Review currency imbalances below'
+                : 'Loading ledger reconciliation'}
+            </span>
           </div>
           <nav className="operations-flow" aria-label="Financial operations workflow">
-            {([
-              ['queue', '01', 'Transfer queue', `${overview?.awaitingReview ?? '—'} awaiting · Review next`],
-              ['compliance', '02', 'Financial controls', 'Check connections & readiness'],
-              ['staff', '03', 'Access governance', admin.role === 'owner' ? 'Invite a teammate' : 'View staff access'],
-            ] as const).map(([key, number, title, detail]) => (
-              <button key={key} disabled={refreshing || (key === 'compliance' && !canDecide)} onClick={() => void runWorkflow(key)} aria-current={tab === key ? 'page' : undefined}>
+            {(
+              [
+                [
+                  'queue',
+                  '01',
+                  'Transfer queue',
+                  `${overview?.awaitingReview ?? '—'} awaiting · Review next`,
+                ],
+                ['compliance', '02', 'Financial controls', 'Check connections & readiness'],
+                [
+                  'staff',
+                  '03',
+                  'Access governance',
+                  admin.role === 'owner' ? 'Invite a teammate' : 'View staff access',
+                ],
+              ] as const
+            ).map(([key, number, title, detail]) => (
+              <button
+                key={key}
+                disabled={refreshing || (key === 'compliance' && !canDecide)}
+                onClick={() => void runWorkflow(key)}
+                aria-current={tab === key ? 'page' : undefined}
+              >
                 <span className="operations-step">{number}</span>
-                <span><strong>{title}</strong><small>{detail}</small></span>
-                <span className="operations-flow-arrow" aria-hidden="true">↗</span>
+                <span>
+                  <strong>{title}</strong>
+                  <small>{detail}</small>
+                </span>
+                <span className="operations-flow-arrow" aria-hidden="true">
+                  ↗
+                </span>
               </button>
             ))}
           </nav>
         </section>
         {overview ? (
-          <section aria-label="Operations key performance indicators" className="operations-metrics mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <section
+            aria-label="Operations key performance indicators"
+            className="operations-metrics mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {[
-              { label: 'Customers', value: overview.customers.total.toLocaleString(), detail: `${overview.customers.active.toLocaleString()} active` },
-              { label: 'KYC verified', value: overview.customers.verified.toLocaleString(), detail: `of ${overview.customers.total.toLocaleString()} customers` },
-              { label: 'Awaiting review', value: overview.awaitingReview.toLocaleString(), detail: 'Transfers on compliance hold' },
-              { label: 'Active staff', value: overview.staff.active.toLocaleString(), detail: `of ${overview.staff.total.toLocaleString()} accounts` },
+              {
+                label: 'Customers',
+                value: overview.customers.total.toLocaleString(),
+                detail: `${overview.customers.active.toLocaleString()} active`,
+              },
+              {
+                label: 'KYC verified',
+                value: overview.customers.verified.toLocaleString(),
+                detail: `of ${overview.customers.total.toLocaleString()} customers`,
+              },
+              {
+                label: 'Awaiting review',
+                value: overview.awaitingReview.toLocaleString(),
+                detail: 'Transfers on compliance hold',
+              },
+              {
+                label: 'Active staff',
+                value: overview.staff.active.toLocaleString(),
+                detail: `of ${overview.staff.total.toLocaleString()} accounts`,
+              },
             ].map((metric) => (
-              <article key={metric.label} data-operations-metric className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">{metric.label}</p>
+              <article
+                key={metric.label}
+                data-operations-metric
+                className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">
+                  {metric.label}
+                </p>
                 <p className="mt-2 text-[25px] font-semibold tabular-nums">{metric.value}</p>
                 <p className="mt-1 text-[11px] text-ink-500">{metric.detail}</p>
               </article>
             ))}
             <div className="operations-volume sm:col-span-2 lg:col-span-4">
               <div className="rounded-xl bg-white px-4 py-3 ring-1 ring-ink-200/70">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">Transfer volume · paid, completed, sending, or held</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">
+                  Transfer volume · paid, completed, sending, or held
+                </p>
                 <p className="mt-1 text-[13px] font-semibold tabular-nums">
                   {overview.volume.length
-                    ? overview.volume.map(({ currency, sent }) => money(Number(sent ?? 0), currency)).join(' · ')
+                    ? overview.volume
+                        .map(({ currency, sent }) => money(Number(sent ?? 0), currency))
+                        .join(' · ')
                     : 'No processed volume yet'}
                 </p>
               </div>
@@ -690,7 +947,13 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           </section>
         ) : null}
         <div className="operations-tabs mb-6 flex gap-2 overflow-x-auto border-b border-ink-200/70">
-          {([['queue', 'Transfers'], ['staff', 'Staff'], ['compliance', 'Compliance & banks']] as const).map(([key, label]) => (
+          {(
+            [
+              ['queue', 'Transfers'],
+              ['staff', 'Staff'],
+              ['compliance', 'Compliance & banks'],
+            ] as const
+          ).map(([key, label]) => (
             <button
               key={key}
               onClick={() => setTab(key)}
@@ -706,163 +969,287 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           ))}
         </div>
 
-        <div className="operations-toolbar"><span role="status">{refreshing ? 'Refreshing workspace…' : updatedAt ? `Updated ${updatedAt}` : 'Waiting for data'}</span><button disabled={refreshing} onClick={() => { setNote(null); void load().catch(() => setNote('Unable to refresh. Please retry.')) }}>Refresh workspace</button></div>
-        <div className="operations-panel" tabIndex={0} aria-label="Operations workspace">
-        {note ? <p role="alert" className="bank-notice">{note}</p> : null}
-        {tab === 'staff' ? <StaffPanel me={admin} inviteRequest={inviteRequest} /> : null}
-        {tab === 'compliance' ? <CompliancePanel admin={admin} sectionRequest={sectionRequest} /> : null}
-
-        {tab === 'queue' ? (
-        <>
-        {balance ? (
-          <div className={`mb-6 rounded-xl px-4 py-3 text-[13px] font-semibold ${
-            balance.balanced ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'}`}>
-            {balance.balanced
-              ? 'Ledger balanced — every currency nets to zero.'
-              : `LEDGER OUT OF BALANCE: ${balance.imbalances.map((i) => `${i.currency} off by ${i.off}`).join(', ')}`}
-          </div>
-        ) : null}
-
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          {['compliance_hold', 'awaiting_payment', 'completed', 'failed', 'all'].map((s) => (
-            <button key={s} onClick={() => setFilter(s)}
-              className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
-                filter === s ? 'bg-brand-600 text-white' : 'bg-white text-ink-600 ring-1 ring-ink-200'}`}>
-              {s.replace(/_/g, ' ')}
-            </button>
-          ))}
+        <div className="operations-toolbar">
+          <span role="status">
+            {refreshing ? 'Refreshing workspace…' : updatedAt ? `Updated ${updatedAt}` : 'Waiting for data'}
+          </span>
+          <button
+            disabled={refreshing}
+            onClick={() => {
+              setNote(null)
+              void load().catch(() => setNote('Unable to refresh. Please retry.'))
+            }}
+          >
+            Refresh workspace
+          </button>
         </div>
+        <div className="operations-panel" tabIndex={0} aria-label="Operations workspace">
+          {note ? (
+            <p role="alert" className="bank-notice">
+              {note}
+            </p>
+          ) : null}
+          {tab === 'staff' ? <StaffPanel me={admin} inviteRequest={inviteRequest} /> : null}
+          {tab === 'compliance' ? <CompliancePanel admin={admin} sectionRequest={sectionRequest} /> : null}
 
+          {tab === 'queue' ? (
+            <>
+              {balance ? (
+                <div
+                  className={`mb-6 rounded-xl px-4 py-3 text-[13px] font-semibold ${
+                    balance.balanced ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'
+                  }`}
+                >
+                  {balance.balanced
+                    ? 'Ledger balanced — every currency nets to zero.'
+                    : `LEDGER OUT OF BALANCE: ${balance.imbalances.map((i) => `${i.currency} off by ${i.off}`).join(', ')}`}
+                </div>
+              ) : null}
 
-        <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
-          <table className="w-full min-w-[860px] text-left text-[13px]">
-            <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-500">
-              <tr>
-                <th className="px-4 py-3">Reference</th>
-                <th className="px-4 py-3">Sender</th>
-                <th className="px-4 py-3">Recipient</th>
-                <th className="px-4 py-3 text-right">Sends</th>
-                <th className="px-4 py-3 text-right">Receives</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-ink-500">Nothing in this queue.</td></tr>
-              ) : rows.map((r) => (
-                <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
-                  <td className="px-4 py-3 font-semibold tabular-nums">{r.reference}</td>
-                  <td className="px-4 py-3">
-                    <div>{r.first_name} {r.last_name}</div>
-                    <div className="text-[11px] text-ink-500">{r.user_email} · KYC {r.kyc_status}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>{r.recipient_name}</div>
-                    <div className="text-[11px] text-ink-500">{r.recipient_country}</div>
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {money(r.send_amount_minor, r.send_currency)}
-                    <div className="text-[11px] text-ink-500">+{money(r.fee_minor, r.send_currency)} fee</div>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold tabular-nums">
-                    {money(r.receive_amount_minor, r.receive_currency)}
-                  </td>
-                  <td className="px-4 py-3"><Pill status={r.status} /></td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button disabled={!!busyId || !!clearingId} onClick={() => openReview(r)}
-                        className="rounded-full bg-brand-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50">
-                        Review screenings
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                {['compliance_hold', 'awaiting_payment', 'completed', 'failed', 'all'].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setFilter(s)}
+                    className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
+                      filter === s ? 'bg-brand-600 text-white' : 'bg-white text-ink-600 ring-1 ring-ink-200'
+                    }`}
+                  >
+                    {s.replace(/_/g, ' ')}
+                  </button>
+                ))}
+              </div>
+
+              <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
+                <table className="w-full min-w-[860px] text-left text-[13px]">
+                  <thead className="border-b border-ink-200/70 text-[11px] uppercase tracking-wide text-ink-500">
+                    <tr>
+                      <th className="px-4 py-3">Reference</th>
+                      <th className="px-4 py-3">Sender</th>
+                      <th className="px-4 py-3">Recipient</th>
+                      <th className="px-4 py-3 text-right">Sends</th>
+                      <th className="px-4 py-3 text-right">Receives</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-10 text-center text-ink-500">
+                          Nothing in this queue.
+                        </td>
+                      </tr>
+                    ) : (
+                      rows.map((r) => (
+                        <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
+                          <td className="px-4 py-3 font-semibold tabular-nums">{r.reference}</td>
+                          <td className="px-4 py-3">
+                            <div>
+                              {r.first_name} {r.last_name}
+                            </div>
+                            <div className="text-[11px] text-ink-500">
+                              {r.user_email} · KYC {r.kyc_status}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div>{r.recipient_name}</div>
+                            <div className="text-[11px] text-ink-500">{r.recipient_country}</div>
+                          </td>
+                          <td className="px-4 py-3 text-right tabular-nums">
+                            {money(r.send_amount_minor, r.send_currency)}
+                            <div className="text-[11px] text-ink-500">
+                              +{money(r.fee_minor, r.send_currency)} fee
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold tabular-nums">
+                            {money(r.receive_amount_minor, r.receive_currency)}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Pill status={r.status} />
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                disabled={!!busyId || !!clearingId}
+                                onClick={() => openReview(r)}
+                                className="rounded-full bg-brand-600 px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-50"
+                              >
+                                Review screenings
+                              </button>
+                              {r.status === 'compliance_hold' && canDecide ? (
+                                <button
+                                  disabled={!!busyId || !!clearingId || reviewBusy}
+                                  onClick={() => decide(r.id, 'reject')}
+                                  className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-alert ring-1 ring-ink-200 disabled:opacity-50"
+                                >
+                                  Reject
+                                </button>
+                              ) : null}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {selectedTransfer ? (
+                <section
+                  aria-label="Sanctions review"
+                  className="mt-6 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="text-[16px] font-semibold">
+                      Sanctions review · {selectedTransfer.reference}
+                    </h2>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={reviewBusy || !!clearingId || !!busyId}
+                        onClick={() => refreshReview(selectedTransfer.id, canDecide)}
+                        className="rounded-full px-3 py-1.5 text-[12px] font-semibold ring-1 ring-ink-200 disabled:opacity-50"
+                      >
+                        {canDecide ? 'Refresh screening' : 'Reload results'}
                       </button>
-                      {r.status === 'compliance_hold' && canDecide ? (
-                        <button disabled={!!busyId || !!clearingId || reviewBusy} onClick={() => decide(r.id, 'reject')}
-                          className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-alert ring-1 ring-ink-200 disabled:opacity-50">
-                          Reject
+                      <button
+                        disabled={!!clearingId || !!busyId}
+                        onClick={() => {
+                          ++reviewRequest.current
+                          setSelectedTransfer(null)
+                          setReview(null)
+                          setReviewBusy(false)
+                        }}
+                        className="rounded-full px-3 py-1.5 text-[12px] font-semibold ring-1 ring-ink-200 disabled:opacity-50"
+                      >
+                        Close review
+                      </button>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-[12px] leading-relaxed text-ink-500">
+                    Review official entity identifiers, listed names and aliases, programs and the dataset
+                    version. A name similarity score is a screening signal. Record a false-positive decision
+                    only after verifying the parties are distinct.
+                  </p>
+                  {reviewBusy ? (
+                    <p role="status" className="mt-4 text-[13px] text-ink-500">
+                      Loading current screening results…
+                    </p>
+                  ) : null}
+                  {reviewError ? (
+                    <p role="alert" className="mt-4 text-[13px] text-alert">
+                      {reviewError}
+                    </p>
+                  ) : null}
+                  {reviewMessage ? (
+                    <p role="status" className="mt-4 text-[13px] text-brand-700">
+                      {reviewMessage}
+                    </p>
+                  ) : null}
+                  {review ? (
+                    <>
+                      <p
+                        className={`mt-4 rounded-xl p-3 text-[13px] font-semibold ${review.screening_ready && !review.review_required ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'}`}
+                      >
+                        {!review.screening_ready
+                          ? 'Current screening is not ready. Refresh screening before considering release.'
+                          : review.review_required
+                            ? 'Unresolved sanctions matches block release.'
+                            : 'Current sender and recipient screening records have no unresolved sanctions matches.'}
+                      </p>
+                      <div className="mt-4 space-y-4">
+                        {review.screenings.length ? (
+                          review.screenings.map((screening) => {
+                            const reviewable =
+                              canDecide &&
+                              screening.is_current &&
+                              !screening.effective_cleared &&
+                              !screening.cleared_at &&
+                              screening.status === 'potential_match' &&
+                              !['unusable_name', 'candidate_limit'].includes(
+                                screening.match_json.reason ?? '',
+                              )
+                            return (
+                              <article
+                                key={screening.id}
+                                className="rounded-2xl border border-ink-200 p-4 text-[13px]"
+                              >
+                                <ScreeningDetails screening={screening} />
+                                {reviewable ? (
+                                  <form
+                                    className="mt-4 border-t border-ink-200 pt-4"
+                                    onSubmit={(event) => {
+                                      event.preventDefault()
+                                      void clearScreening(screening)
+                                    }}
+                                  >
+                                    <label
+                                      htmlFor={`review-reason-${screening.id}`}
+                                      className="block text-[12px] font-semibold"
+                                    >
+                                      False-positive review reason
+                                    </label>
+                                    <textarea
+                                      id={`review-reason-${screening.id}`}
+                                      required
+                                      minLength={20}
+                                      value={reviewReasons[screening.id] ?? ''}
+                                      onChange={(event) =>
+                                        setReviewReasons((reasons) => ({
+                                          ...reasons,
+                                          [screening.id]: event.target.value,
+                                        }))
+                                      }
+                                      placeholder="Explain the evidence distinguishing this party from the listed entity (at least 20 characters)."
+                                      className="mt-2 min-h-24 w-full rounded-xl bg-canvas p-3 text-[13px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
+                                    />
+                                    <button
+                                      type="submit"
+                                      disabled={
+                                        reviewBusy ||
+                                        !!clearingId ||
+                                        (reviewReasons[screening.id]?.trim().length ?? 0) < 20
+                                      }
+                                      className="mt-3 rounded-full bg-ink-900 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50"
+                                    >
+                                      {clearingId === screening.id
+                                        ? 'Recording decision…'
+                                        : 'Record false-positive decision'}
+                                    </button>
+                                  </form>
+                                ) : null}
+                              </article>
+                            )
+                          })
+                        ) : (
+                          <p className="text-[13px] text-ink-500">
+                            No screening records are available for this transfer.
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : null}
+                  {selectedTransfer.status === 'compliance_hold' ? (
+                    <div className="mt-5 border-t border-ink-200 pt-4">
+                      <p className="mb-3 text-[12px] text-ink-500">
+                        {canDecide
+                          ? 'Release checks current sanctions data, unresolved matches and confirmed funding again on the server.'
+                          : 'A compliance or owner role is required to record review decisions and release transfers.'}
+                      </p>
+                      {canDecide ? (
+                        <button
+                          disabled={!canRelease || busyId === selectedTransfer.id}
+                          onClick={() => decide(selectedTransfer.id, 'approve')}
+                          className="rounded-full bg-brand-600 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50"
+                        >
+                          Release
                         </button>
                       ) : null}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {selectedTransfer ? (
-          <section aria-label="Sanctions review" className="mt-6 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-[16px] font-semibold">Sanctions review · {selectedTransfer.reference}</h2>
-              <div className="flex gap-2">
-                <button disabled={reviewBusy || !!clearingId || !!busyId} onClick={() => refreshReview(selectedTransfer.id, canDecide)}
-                  className="rounded-full px-3 py-1.5 text-[12px] font-semibold ring-1 ring-ink-200 disabled:opacity-50">
-                  {canDecide ? 'Refresh screening' : 'Reload results'}
-                </button>
-                <button disabled={!!clearingId || !!busyId} onClick={() => {
-                  ++reviewRequest.current
-                  setSelectedTransfer(null); setReview(null); setReviewBusy(false)
-                }} className="rounded-full px-3 py-1.5 text-[12px] font-semibold ring-1 ring-ink-200 disabled:opacity-50">
-                  Close review
-                </button>
-              </div>
-            </div>
-            <p className="mt-2 text-[12px] leading-relaxed text-ink-500">
-              Review official entity identifiers, listed names and aliases, programs and the dataset version.
-              A name similarity score is a screening signal. Record a false-positive decision only after verifying the parties are distinct.
-            </p>
-            {reviewBusy ? <p role="status" className="mt-4 text-[13px] text-ink-500">Loading current screening results…</p> : null}
-            {reviewError ? <p role="alert" className="mt-4 text-[13px] text-alert">{reviewError}</p> : null}
-            {reviewMessage ? <p role="status" className="mt-4 text-[13px] text-brand-700">{reviewMessage}</p> : null}
-            {review ? (
-              <>
-                <p className={`mt-4 rounded-xl p-3 text-[13px] font-semibold ${review.screening_ready && !review.review_required ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'}`}>
-                  {!review.screening_ready
-                    ? 'Current screening is not ready. Refresh screening before considering release.'
-                    : review.review_required
-                      ? 'Unresolved sanctions matches block release.'
-                      : 'Current sender and recipient screening records have no unresolved sanctions matches.'}
-                </p>
-                <div className="mt-4 space-y-4">
-                  {review.screenings.length ? review.screenings.map((screening) => {
-                    const reviewable = canDecide && screening.is_current && !screening.effective_cleared && !screening.cleared_at
-                      && screening.status === 'potential_match'
-                      && !['unusable_name', 'candidate_limit'].includes(screening.match_json.reason ?? '')
-                    return (
-                      <article key={screening.id} className="rounded-2xl border border-ink-200 p-4 text-[13px]">
-                        <ScreeningDetails screening={screening} />
-                        {reviewable ? (
-                          <form className="mt-4 border-t border-ink-200 pt-4" onSubmit={(event) => { event.preventDefault(); void clearScreening(screening) }}>
-                            <label htmlFor={`review-reason-${screening.id}`} className="block text-[12px] font-semibold">False-positive review reason</label>
-                            <textarea id={`review-reason-${screening.id}`} required minLength={20}
-                              value={reviewReasons[screening.id] ?? ''} onChange={(event) => setReviewReasons((reasons) => ({ ...reasons, [screening.id]: event.target.value }))}
-                              placeholder="Explain the evidence distinguishing this party from the listed entity (at least 20 characters)."
-                              className="mt-2 min-h-24 w-full rounded-xl bg-canvas p-3 text-[13px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500" />
-                            <button type="submit" disabled={reviewBusy || !!clearingId || (reviewReasons[screening.id]?.trim().length ?? 0) < 20}
-                              className="mt-3 rounded-full bg-ink-900 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50">
-                              {clearingId === screening.id ? 'Recording decision…' : 'Record false-positive decision'}
-                            </button>
-                          </form>
-                        ) : null}
-                      </article>
-                    )
-                  }) : <p className="text-[13px] text-ink-500">No screening records are available for this transfer.</p>}
-                </div>
-              </>
-            ) : null}
-            {selectedTransfer.status === 'compliance_hold' ? (
-              <div className="mt-5 border-t border-ink-200 pt-4">
-                <p className="mb-3 text-[12px] text-ink-500">
-                  {canDecide
-                    ? 'Release checks current sanctions data, unresolved matches and confirmed funding again on the server.'
-                    : 'A compliance or owner role is required to record review decisions and release transfers.'}
-                </p>
-                {canDecide ? <button disabled={!canRelease || busyId === selectedTransfer.id} onClick={() => decide(selectedTransfer.id, 'approve')}
-                  className="rounded-full bg-brand-600 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50">Release</button> : null}
-              </div>
-            ) : null}
-          </section>
-        ) : null}
-        </>
-        ) : null}
+                  ) : null}
+                </section>
+              ) : null}
+            </>
+          ) : null}
         </div>
       </main>
     </div>
