@@ -32,6 +32,13 @@ const edges = [
 ]
 export function Constellation() {
   const id = useId().replace(/:/g, '')
+  const belt = point(stars[3])
+  const route = [0, 1, 2, 3, 4, 5, 6, 2, 3, 4, 0]
+    .map((index, step) => {
+      const p = point(stars[index])
+      return `${step ? 'L' : 'M'}${p.x} ${p.y}`
+    })
+    .join(' ')
   return (
     <svg
       className="signin-constellation"
@@ -42,14 +49,44 @@ export function Constellation() {
     >
       <defs>
         <radialGradient id={`${id}-glow`}>
-          <stop stopColor="#358f83" stopOpacity=".55" />
-          <stop offset="1" stopColor="#358f83" stopOpacity="0" />
+          <stop stopColor="#eafff8" stopOpacity=".95" />
+          <stop offset=".14" stopColor="#3c9c89" stopOpacity=".72" />
+          <stop offset=".4" stopColor="#2d8878" stopOpacity=".16" />
+          <stop offset="1" stopColor="#2d8878" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id={`${id}-meteor`}>
-          <stop stopColor="#368d80" stopOpacity="0" />
-          <stop offset="1" stopColor="#267e70" />
+        <linearGradient id={`${id}-meteor`} x1="0" x2="1" y1="0" y2="0">
+          <stop stopColor="#4bd1d3" stopOpacity="0" />
+          <stop offset=".6" stopColor="#3c9c89" stopOpacity=".35" />
+          <stop offset="1" stopColor="#146c5b" />
         </linearGradient>
+        <filter id={`${id}-soft`} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="1.1" />
+        </filter>
       </defs>
+      <g className="signin-starfield" fill="#4d8c80">
+        {[
+          [54, 49],
+          [89, 108],
+          [144, 37],
+          [180, 80],
+          [231, 58],
+          [247, 141],
+          [193, 191],
+          [79, 227],
+          [228, 253],
+          [128, 269],
+          [268, 212],
+          [59, 166],
+        ].map(([x, y], index) => (
+          <circle
+            key={`${x}-${y}`}
+            cx={x}
+            cy={y}
+            r={index % 3 === 0 ? '.65' : '.4'}
+            opacity={index % 2 === 0 ? '.42' : '.26'}
+          />
+        ))}
+      </g>
       {edges.map(([a, b]) => {
         const p = point(stars[a]),
           q = point(stars[b])
@@ -61,33 +98,81 @@ export function Constellation() {
             x2={q.x}
             y2={q.y}
             stroke="#7baea4"
-            strokeWidth=".6"
-            opacity=".5"
+            strokeWidth=".55"
+            opacity=".48"
           />
         )
       })}
-      {stars.map((star) => {
+      <path
+        className="signin-connection-loop signin-connection-glow"
+        d={route}
+        pathLength="1"
+        fill="none"
+        stroke="#3d9b86"
+        strokeWidth="2.2"
+        filter={`url(#${id}-soft)`}
+      />
+      <path
+        className="signin-connection-loop"
+        d={route}
+        pathLength="1"
+        fill="none"
+        stroke="#236f5f"
+        strokeWidth=".85"
+      />
+      {stars.map((star, index) => {
         const p = point(star)
         return (
           <g key={star.id} data-star={star.id}>
-            <circle cx={p.x} cy={p.y} r={star.r * 4} fill={`url(#${id}-glow)`} />
-            <circle cx={p.x} cy={p.y} r={star.r * 0.45} fill="#267d70" />
-            <path
-              d={`M${p.x - star.r * 1.5} ${p.y}h${star.r * 3} M${p.x} ${p.y - star.r * 1.5}v${star.r * 3}`}
-              stroke="#398c7d"
-              strokeWidth=".55"
+            <circle
+              className="signin-star-halo"
+              style={{ animationDelay: `${index * -0.7}s` }}
+              cx={p.x}
+              cy={p.y}
+              r={star.r * 2.5}
+              fill={`url(#${id}-glow)`}
+            />
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={star.r * 0.44}
+              fill="#237662"
+              opacity=".9"
+            />
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={star.r * 0.19}
+              fill={star.id === 'betelgeuse' ? '#fff4dc' : '#f1fffb'}
             />
           </g>
         )
       })}
-      <g className="signin-meteor signin-meteor-one">
-        <path d="M10 15 L95 65" stroke={`url(#${id}-meteor)`} strokeWidth="1.4" />
-        <circle cx="95" cy="65" r="1.5" fill="#277d70" />
-      </g>
-      <g className="signin-meteor signin-meteor-two">
-        <path d="M190 10 L265 55" stroke={`url(#${id}-meteor)`} strokeWidth="1.2" />
-        <circle cx="265" cy="55" r="1.3" fill="#277d70" />
-      </g>
+      {['one', 'two'].map((meteor) => (
+        <g key={meteor} className={`signin-meteor signin-meteor-${meteor}`}>
+          <path
+            d={`M${belt.x - 140} ${belt.y - 11} L${belt.x} ${belt.y}`}
+            stroke={`url(#${id}-meteor)`}
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+          <path
+            d={`M${belt.x - 72} ${belt.y - 5.7} L${belt.x} ${belt.y}`}
+            stroke="#4cae94"
+            strokeWidth="2.4"
+            opacity=".36"
+            filter={`url(#${id}-soft)`}
+          />
+          <circle
+            className="signin-meteor-head"
+            cx={belt.x}
+            cy={belt.y}
+            r="1.7"
+            fill="#146c5b"
+          />
+          <circle cx={belt.x} cy={belt.y} r=".65" fill="#eafff7" />
+        </g>
+      ))}
     </svg>
   )
 }

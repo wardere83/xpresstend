@@ -23,7 +23,9 @@
   top: 9%;
   width: min(43vw, 600px);
   height: auto;
-  opacity: 0.85;
+  opacity: 0.95;
+  overflow: visible;
+  transform: translateX(2in);
 }
 .signin-content {
   width: 100%;
@@ -85,34 +87,64 @@
   gap: 80px;
   align-items: center;
 }
+.signin-connection-loop {
+  stroke-dasharray: 0.14 0.86;
+  animation: signin-connect 6s linear infinite;
+  stroke-linecap: round;
+}
+.signin-connection-glow {
+  opacity: 0.45;
+}
+.signin-star-halo {
+  animation: signin-twinkle 5s ease-in-out infinite;
+}
 .signin-meteor {
   opacity: 0;
-  animation: signin-shoot 8s linear infinite;
+  animation: signin-shoot 9s linear infinite;
+  will-change: transform, opacity;
 }
 .signin-meteor-two {
-  animation-delay: 3.7s;
-  animation-duration: 11s;
+  animation-delay: 4.5s;
+  animation-duration: 12s;
+}
+@keyframes signin-connect {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes signin-twinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @keyframes signin-shoot {
-  0%,
-  72% {
+  0% {
     opacity: 0;
-    transform: translate(-35px, -21px);
+    transform: translate(-110vw, -90px);
   }
-  76% {
-    opacity: 0.9;
+  3% {
+    opacity: 0.8;
   }
-  88% {
-    opacity: 0;
-    transform: translate(140px, 84px);
+  35% {
+    opacity: 0.8;
+    transform: translate(110vw, 90px);
   }
+  36%,
   100% {
     opacity: 0;
-    transform: translate(140px, 84px);
+    transform: translate(110vw, 90px);
   }
 }
 @media (max-width: 1000px) {
   .signin-constellation {
+    transform: none;
     width: 390px;
     inset-inline-end: -120px;
     top: 5%;
@@ -147,6 +179,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .signin-connection-loop {
+    animation: none;
+    stroke-dasharray: none;
+  }
+  .signin-star-halo {
+    animation: none;
+  }
   .signin-meteor {
     animation: none;
     display: none;
@@ -180,4 +219,16 @@
 .signin-content button[type='submit'] {
   background: #0b252f;
   color: #fff;
+}
+
+html[data-a11y-motion='reduce'] .signin-connection-loop {
+  animation: none;
+  stroke-dasharray: none;
+}
+html[data-a11y-motion='reduce'] .signin-star-halo {
+  animation: none;
+}
+html[data-a11y-motion='reduce'] .signin-meteor {
+  animation: none;
+  display: none;
 }
