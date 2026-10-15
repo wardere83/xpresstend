@@ -39,7 +39,7 @@
   inset: auto 18px 74px auto;
   margin: 0;
   box-sizing: border-box;
-  width: min(360px, calc(100vw - 36px));
+  width: min(280px, calc(100vw - 24px));
   max-height: calc(100dvh - 96px);
   overflow: auto;
   overscroll-behavior: contain;
@@ -145,7 +145,7 @@
 }
 .a11y-toggle-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 .a11y-toggle {
@@ -154,8 +154,8 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  min-height: 64px;
-  padding: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
   border: 1px solid #cadbd7;
   border-radius: 12px;
   background: #f7faf9;
@@ -418,7 +418,7 @@ html[data-a11y-motion='reduce'] .signin-meteor {
   .a11y-dialog {
     inset-inline-end: 12px;
     bottom: 70px;
-    width: min(360px, calc(100vw - 24px));
+    width: min(280px, calc(100vw - 24px));
     max-height: calc(100dvh - 88px);
   }
 }
@@ -478,4 +478,27 @@ html[data-a11y-text]:not([data-a11y-text='default']) .a11y-toggle-label {
 }
 html[data-a11y-text]:not([data-a11y-text='default']) .a11y-toggle input {
   grid-column: 2;
+}
+
+/* A small, consistently placed entry point keeps photos and copy in view. */
+.a11y-launcher {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  justify-content: center;
+  gap: 0;
+}
+.a11y-launcher > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.a11y-dialog footer {
+  gap: 6px;
+}
+.a11y-dialog footer button {
+  padding-inline: 8px;
 }

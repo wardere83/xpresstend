@@ -55,6 +55,7 @@ const copy = {
     'Adapte a experiência às suas necessidades. As preferências ficam neste aparelho.',
     'عدّل التجربة بما يناسبك. تُحفظ تفضيلاتك على هذا الجهاز.',
   ],
+  resetShort: ['Reset', 'Restablecer', 'Redefinir', 'إعادة الضبط'],
   close: [
     'Close accessibility settings',
     'Cerrar ajustes de accesibilidad',
@@ -290,13 +291,14 @@ export function Accessibility() {
         <footer>
           <button
             type="button"
+            aria-label={readPassage(copy.reset, lang)}
             onClick={() => {
               setSettings({ ...defaults })
               setChanged(true)
             }}
           >
             <RotateCcw size={15} />
-            {readPassage(copy.reset, lang)}
+            {readPassage(copy.resetShort, lang)}
           </button>
           <a href="mailto:support@xpresstend.com?subject=Accessibility%20help">
             {readPassage(copy.support, lang)}

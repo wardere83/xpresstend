@@ -1,0 +1,210 @@
+import { useI18n } from '../i18n'
+import { readPassage, type Passage } from './siteContent'
+const text = {
+  demo: ['Demo', 'Demo', 'Demonstração', 'تجربة'],
+  label: [
+    'App walkthrough',
+    'Recorrido de la aplicación',
+    'Tour do aplicativo',
+    'جولة في التطبيق',
+  ],
+  watch: [
+    'Watch app walkthrough',
+    'Ver el recorrido',
+    'Assistir ao tour',
+    'مشاهدة جولة التطبيق',
+  ],
+  pause: [
+    'Pause walkthrough',
+    'Pausar recorrido',
+    'Pausar tour',
+    'إيقاف الجولة مؤقتاً',
+  ],
+  play: [
+    'Play walkthrough',
+    'Reproducir recorrido',
+    'Reproduzir tour',
+    'تشغيل الجولة',
+  ],
+  next: [
+    'Next walkthrough step',
+    'Siguiente paso del recorrido',
+    'Próxima etapa do tour',
+    'الخطوة التالية في الجولة',
+  ],
+  restart: [
+    'Restart walkthrough',
+    'Reiniciar recorrido',
+    'Reiniciar tour',
+    'إعادة الجولة',
+  ],
+  sample: [
+    'Simulated journey · No ID collected or money sent',
+    'Recorrido simulado · No se recopilan documentos ni se envía dinero',
+    'Tour simulado · Nenhum documento coletado ou dinheiro enviado',
+    'جولة محاكاة · لا تُجمع مستندات ولا تُرسل أموال',
+  ],
+  signin: ['Sign in', 'Iniciar sesión', 'Entrar', 'تسجيل الدخول'],
+  signinBody: [
+    'A secure start to your journey.',
+    'Un inicio seguro para su recorrido.',
+    'Um início seguro para sua jornada.',
+    'بداية آمنة لرحلتك.',
+  ],
+  email: ['Email', 'Correo electrónico', 'E-mail', 'البريد الإلكتروني'],
+  password: ['Password', 'Contraseña', 'Senha', 'كلمة المرور'],
+  document: [
+    'Verify your identity',
+    'Verifique su identidad',
+    'Verifique sua identidade',
+    'تحقّق من هويتك',
+  ],
+  documentBody: [
+    'Position your ID inside the frame.',
+    'Coloque su documento dentro del marco.',
+    'Posicione seu documento dentro da moldura.',
+    'ضع مستند هويتك داخل الإطار.',
+  ],
+  sampleId: [
+    'Sample identity document',
+    'Documento de identidad de ejemplo',
+    'Documento de identidade de exemplo',
+    'مستند هوية تجريبي',
+  ],
+  capture: [
+    'Capture ID',
+    'Capturar documento',
+    'Capturar documento',
+    'التقاط مستند الهوية',
+  ],
+  selfie: [
+    'Take a selfie',
+    'Tómese una selfie',
+    'Tire uma selfie',
+    'التقط صورة شخصية',
+  ],
+  selfieBody: [
+    'Center your face for the liveness check.',
+    'Centre su rostro para la prueba de vida.',
+    'Centralize seu rosto para a prova de vida.',
+    'ضع وجهك في المنتصف للتحقق من الحيوية.',
+  ],
+  checks: [
+    'Compliance review',
+    'Revisión de cumplimiento',
+    'Análise de conformidade',
+    'مراجعة الامتثال',
+  ],
+  checksBody: [
+    'Sample checks bring the verification steps together.',
+    'Las comprobaciones de ejemplo reúnen los pasos de verificación.',
+    'As verificações de exemplo reúnem as etapas de validação.',
+    'تجمع الفحوصات التجريبية خطوات التحقق.',
+  ],
+  identity: ['Identity', 'Identidad', 'Identidade', 'الهوية'],
+  liveness: [
+    'Selfie & liveness',
+    'Selfie y prueba de vida',
+    'Selfie e prova de vida',
+    'الصورة الشخصية والحيوية',
+  ],
+  sanctions: [
+    'Sanctions screening',
+    'Control de sanciones',
+    'Triagem de sanções',
+    'فحص قوائم العقوبات',
+  ],
+  passed: [
+    'Sample check passed',
+    'Comprobación de ejemplo superada',
+    'Verificação de exemplo aprovada',
+    'اجتاز الفحص التجريبي',
+  ],
+  ready: [
+    'Demo verification complete',
+    'Verificación de ejemplo completada',
+    'Verificação de exemplo concluída',
+    'اكتمل التحقق التجريبي',
+  ],
+  readyBody: [
+    'You’re ready to explore the app.',
+    'Ya puede explorar la aplicación.',
+    'Tudo pronto para explorar o aplicativo.',
+    'أنت جاهز لاستكشاف التطبيق.',
+  ],
+  continue: [
+    'Continue to app',
+    'Continuar a la aplicación',
+    'Continuar para o aplicativo',
+    'المتابعة إلى التطبيق',
+  ],
+  home: ['Welcome, Sam', 'Bienvenido, Sam', 'Boas-vindas, Sam', 'مرحباً، سام'],
+  homeBody: [
+    'Your people and transfers, in one place.',
+    'Sus contactos y transferencias en un solo lugar.',
+    'Seus contatos e transferências em um só lugar.',
+    'جهات اتصالك وتحويلاتك في مكان واحد.',
+  ],
+  send: ['Send money', 'Enviar dinero', 'Enviar dinheiro', 'إرسال الأموال'],
+  recipient: ['Recipient', 'Destinatario', 'Destinatário', 'المستلم'],
+  amount: [
+    'Sample amount',
+    'Importe de ejemplo',
+    'Valor de exemplo',
+    'مبلغ تجريبي',
+  ],
+  fee: [
+    'Sample fee',
+    'Comisión de ejemplo',
+    'Tarifa de exemplo',
+    'رسوم تجريبية',
+  ],
+  total: [
+    'Illustrative total',
+    'Total ilustrativo',
+    'Total ilustrativo',
+    'الإجمالي التوضيحي',
+  ],
+  review: [
+    'Review transfer',
+    'Revisar transferencia',
+    'Revisar transferência',
+    'مراجعة التحويل',
+  ],
+  reviewBody: [
+    'Check the recipient, amount and fee.',
+    'Compruebe el destinatario, el importe y la comisión.',
+    'Confira o destinatário, o valor e a tarifa.',
+    'راجع المستلم والمبلغ والرسوم.',
+  ],
+  confirm: [
+    'Complete demo transfer',
+    'Completar transferencia de ejemplo',
+    'Concluir transferência de exemplo',
+    'إكمال التحويل التجريبي',
+  ],
+  complete: [
+    'Demo transfer complete',
+    'Transferencia de ejemplo completada',
+    'Transferência de exemplo concluída',
+    'اكتمل التحويل التجريبي',
+  ],
+  completeBody: [
+    'Your sample journey is complete. No money was sent.',
+    'El recorrido de ejemplo ha terminado. No se envió dinero.',
+    'Seu tour de exemplo terminou. Nenhum dinheiro foi enviado.',
+    'اكتملت جولتك التجريبية. لم تُرسل أي أموال.',
+  ],
+  motion: [
+    'Automatic playback is off for reduced motion.',
+    'La reproducción automática está desactivada para reducir el movimiento.',
+    'A reprodução automática está desativada para reduzir o movimento.',
+    'التشغيل التلقائي متوقف لتقليل الحركة.',
+  ],
+} satisfies Record<string, Passage>
+export function useAppTourCopy() {
+  const { lang } = useI18n()
+  return Object.fromEntries(
+    Object.entries(text).map(([key, value]) => [key, readPassage(value, lang)]),
+  ) as Record<keyof typeof text, string>
+}
