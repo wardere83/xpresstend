@@ -211,6 +211,12 @@ export const sitePages = {
             'Contas não verificadas não podem criar transferências. O fluxo de identidade permite verificar documento oficial, selfie e prova de vida por meio de um provedor configurado. A ativação do provedor é um requisito para verificações reais.',
             'لا تستطيع الحسابات غير المتحقق منها إنشاء تحويلات. يدعم مسار الهوية فحص الوثيقة الرسمية والصورة الذاتية والتحقق من الحضور الفعلي عبر مزود تتم تهيئته. ويظل تفعيل المزود شرطاً لإجراء تحقق فعلي.',
           ],
+          [
+            "Verification results are recorded against each account, with transaction limits linked to the account's verification tier.",
+            'Los resultados de verificación se registran en cada cuenta, con límites de transacción vinculados a su nivel de verificación.',
+            'Os resultados de verificação são registrados em cada conta, com limites de transação vinculados ao seu nível de verificação.',
+            'تُسجّل نتائج التحقق لكل حساب، وترتبط حدود المعاملات بمستوى التحقق الخاص بالحساب.',
+          ],
         ],
       },
       {

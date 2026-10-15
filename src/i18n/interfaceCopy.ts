@@ -629,7 +629,7 @@ export function useInterfaceCopy() {
     (source: string, vars?: Record<string, string | number>) => {
       const text = lang === 'en' ? source : (interfaceMessages[source]?.[index] ?? source)
       return text.replace(/\{(\w+)\}/g, (match, key: string) =>
-        vars?.[key] === undefined ? match : `\u2068${vars[key]}\u2069`,
+        vars?.[key] === undefined ? match : lang === 'ar' ? `\u2068${vars[key]}\u2069` : String(vars[key]),
       )
     },
     [lang, index],
