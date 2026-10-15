@@ -6,13 +6,12 @@ import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
 import { toRecipientView, type RecipientView } from '../lib/view'
-import { CORRIDORS } from '../marketing/pricing'
 
 export function Recipients() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const { setRecipientId } = useTransfer()
-  const { live, loading, error, recipients: mine, addRecipient } = useAccountData()
+  const { live, loading, error, recipients: mine, corridors, addRecipient } = useAccountData()
   const [query, setQuery] = useState('')
   const [adding, setAdding] = useState(false)
 
@@ -65,7 +64,8 @@ export function Recipients() {
           <button
             type="button"
             aria-label={t('recipients.add')}
-            onClick={() => (live ? setAdding((v) => !v) : navigate('/send'))}
+            disabled={loading || !!error || corridors.length === 0}
+            onClick={() => setAdding((v) => !v)}
             className="grid h-9 w-9 place-items-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700"
           >
             <Plus size={18} strokeWidth={2.6} />
@@ -89,6 +89,7 @@ export function Recipients() {
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         {adding && live ? (
           <AddRecipient
+            countries={[...new Set(corridors.map((c) => c.receive_country))]}
             onCancel={() => setAdding(false)}
             onSave={async (input) => {
               await addRecipient(input)
@@ -140,15 +141,18 @@ const PAYOUT_METHODS = [
 function AddRecipient({
   onCancel,
   onSave,
+  countries,
 }: {
   onCancel: () => void
+  countries: string[]
   onSave: (input: {
     fullName: string; country: string; payoutMethod: string; phone?: string; relationship?: string
   }) => Promise<void>
 }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
+  const countryNames = new Intl.DisplayNames([lang], { type: 'region' })
   const [form, setForm] = useState({
-    fullName: '', country: CORRIDORS[0].receive_country, payoutMethod: 'mobile_wallet',
+    fullName: '', country: countries[0] ?? '', payoutMethod: 'mobile_wallet',
     phone: '', relationship: '',
   })
   const [busy, setBusy] = useState(false)
@@ -175,11 +179,12 @@ function AddRecipient({
   return (
     <form onSubmit={submit} className="card mb-4 space-y-3 p-4">
       <h2 className="text-[14px] font-bold">{t('recipients.add')}</h2>
+      <p className="text-[12px] text-ink-500">Saved details are for test records. Delivery services are not connected.</p>
       <input required placeholder={t('recipients.fullName')} value={form.fullName}
              onChange={set('fullName')} className={field} />
       <select value={form.country} onChange={set('country')} className={field} aria-label={t('marketing.destination')}>
-        {CORRIDORS.map((c) => (
-          <option key={c.id} value={c.receive_country}>{c.label}</option>
+        {countries.map((country) => (
+          <option key={country} value={country}>{countryNames.of(country) ?? country}</option>
         ))}
       </select>
       <select value={form.payoutMethod} onChange={set('payoutMethod')} className={field}
@@ -190,7 +195,7 @@ function AddRecipient({
              className={field} inputMode="tel" />
       {error ? <p role="alert" className="text-[13px] font-medium text-alert">{error}</p> : null}
       <div className="flex gap-2 pt-1">
-        <button type="submit" disabled={busy}
+        <button type="submit" disabled={busy || !form.country}
           className="flex-1 rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
           {busy ? t('common.saving') : t('common.save')}
         </button>

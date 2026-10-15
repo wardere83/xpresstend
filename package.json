@@ -15,7 +15,8 @@
     "android": "npm run build:mobile && npx cap open android",
     "native:icons": "./scripts/generate-native-assets.sh",
     "build:mobile": "npm run build && npx cap sync",
-    "deploy": "npm run build && npm --prefix api run deploy"
+    "deploy": "npm run build && npm --prefix api run deploy",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
@@ -31,6 +32,7 @@
     "@capacitor/push-notifications": "^8.1.2",
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
+    "d3-geo": "^3.1.1",
     "lucide-react": "^1.31.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -38,7 +40,9 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

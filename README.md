@@ -109,7 +109,10 @@ nothing. Going live needs, in this order:
 
 1. FinCEN MSB registration and money transmitter licences in every state served
 2. A licensed banking or payment partner, and payout partners per corridor
-3. A real KYC/sanctions provider wired into `kyc_checks` and `sanctions_screenings`
+3. Production customer identity verification, a validated sanctions-review process,
+   and the remaining AML programme controls. Official OFAC SDN and consolidated
+   non-SDN name and alias data are integrated into `sanctions_screenings`; see
+   [sanctions operations](docs/sanctions.md) for refresh, freshness and review controls.
 4. Replacing the test handler in `api/src/routes-transfers.ts`
 
 Until then the marketing footer says so plainly, and it should stay that way.
@@ -135,12 +138,12 @@ develop the web app.
   device confirms who is holding it, and it re-locks after a minute in the
   background. It fails *open*: a handset with no enrolled biometry is left
   unlocked rather than stranding someone outside their own money.
-- **Biometric transfer confirmation.** On a device, confirming a transfer is a
-  real Face ID or fingerprint prompt. Cancel it and the flow falls back to a
-  PIN rather than dead-ending. In the browser a short pause stands in, because
-  there is nothing to ask.
-- **Haptics** on the primary action and a distinct success buzz at the moment
-  the money moves.
+- **Transfer authorization.** Customer test transfers require the account
+  password, verified on the server. Biometry unlocks the native app; it does
+  not substitute for server-side payment authorization. The local demo needs
+  no password and never submits a payment.
+- **Haptics** on the primary action and feedback when a test record succeeds
+  or fails. Customer funds are not moved by the current build.
 - Native splash and status bar, Android back-button handling, and an offline
   notice driven by the real network state.
 
@@ -195,6 +198,18 @@ absolute origin. Override it for a build aimed elsewhere:
 ```bash
 VITE_API_URL=https://staging.example.com/api npm run build:mobile
 ```
+
+Native API requests use Capacitor HTTP and the platform cookie jar so iOS
+WebView third-party-cookie restrictions do not silently discard sign-in.
+Bridge logging is disabled in production. Restart, expiration and sign-out
+still require physical-device verification before public store release.
+
+Android requires a WebView based on Chrome 111 or later; iOS requires 16.4 or
+later to match the production bundle's browser and CSS requirements. Release
+signing is mandatory in CI, APK integrity and signer identity are verified,
+and the Android artifact includes the signed `.aab` required by Google Play.
+See [app release readiness](docs/app-release-readiness.md) and
+[customer account lifecycle](docs/customer-lifecycle.md) for remaining gates.
 
 ### Icons
 

@@ -1,248 +1,99 @@
 import { useNavigate } from 'react-router-dom'
-import {
-  Banknote,
-  Bell,
-  ChevronRight,
-  Headphones,
-  Landmark,
-  Menu,
-  MessageCircleMore,
-  ShieldCheck,
-  Signal,
-  Smartphone,
-  TrendingUp,
-} from 'lucide-react'
+import { ArrowUpRight, ChevronRight, Headphones, MessageCircleMore, User } from 'lucide-react'
 import { Logo } from '../components/AppLayout'
-import { Avatar, IconTile, SectionTitle } from '../components/ui'
+import { Avatar, SectionTitle } from '../components/ui'
 import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
 import { hueFor } from '../lib/view'
 import { useAuth } from '../auth/AuthContext'
-import { formatDate, rate, usd } from '../lib/format'
-import type { TranslationKey } from '../i18n/en'
-import type { DeliveryMethod } from '../state/TransferContext'
-
-const services: {
-  key: TranslationKey
-  icon: typeof Smartphone
-  hue: number
-  method: DeliveryMethod
-}[] = [
-  { key: 'service.mobileMoney', icon: Smartphone, hue: 262, method: 'mobile' },
-  { key: 'service.bankTransfer', icon: Landmark, hue: 152, method: 'bank' },
-  { key: 'service.cashPickup', icon: Banknote, hue: 28, method: 'cash' },
-  { key: 'service.airtime', icon: Signal, hue: 205, method: 'airtime' },
-]
-
-const quickActions: {
-  titleKey: TranslationKey
-  subKey: TranslationKey
-  icon: typeof Smartphone
-  hue: number
-  to: string
-}[] = [
-  { titleKey: 'quick.help', subKey: 'quick.helpSub', icon: MessageCircleMore, hue: 262, to: '/help' },
-  { titleKey: 'quick.rates', subKey: 'quick.ratesSub', icon: TrendingUp, hue: 152, to: '/rates' },
-  { titleKey: 'quick.refer', subKey: 'quick.referSub', icon: ShieldCheck, hue: 250, to: '/refer' },
-  { titleKey: 'quick.support', subKey: 'quick.supportSub', icon: Headphones, hue: 205, to: '/support' },
-]
+import { formatDate, usd } from '../lib/format'
 
 export function Home() {
   const { user: account } = useAuth()
+  const { recipients, transfers, loading, error } = useAccountData()
+  const { setRecipientId } = useTransfer()
   const t = useT()
   const mirror = useMirrorClass()
   const navigate = useNavigate()
-  const { corridor, setDeliveryMethod, setRecipientId } = useTransfer()
-  const { recipients, transfers } = useAccountData()
   const latest = transfers[0]
-  const favourites = recipients.slice(0, 3).map((r) => ({
-    id: r.id,
-    name: r.full_name,
-    phone: r.phone ?? r.bank_name ?? r.country,
-    hue: hueFor(r.full_name),
+  const favourites = recipients.slice(0, 3).map((recipient) => ({
+    id: recipient.id,
+    name: recipient.full_name,
+    detail: recipient.phone ?? recipient.bank_name ?? recipient.country,
+    hue: hueFor(recipient.full_name),
   }))
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2">
-        <button
-          type="button"
-          onClick={() => navigate('/profile')}
-          aria-label={t('nav.profile')}
-          className="grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
-        >
-          <Menu size={22} strokeWidth={2.2} />
-        </button>
+      <div className="product-home-top">
         <Logo />
-        <button
-          type="button"
-          onClick={() => navigate('/activity')}
-          aria-label="Notifications"
-          className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
-        >
-          <Bell size={21} strokeWidth={2.1} />
+        <button type="button" onClick={() => navigate('/profile')} aria-label={t('nav.profile')}>
+          <User size={18} strokeWidth={1.6} />
         </button>
       </div>
-
-      <div className="px-4 pb-8">
-        {/* Greeting */}
-        <div className="mt-2 mb-4">
-          <h1 className="text-[22px] leading-tight font-semibold text-ink-900">
-            {t('home.greeting', { name: account?.firstName ?? '' })} <span aria-hidden="true">👋</span>
-          </h1>
-          <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
+      <div className="product-home-content">
+        {error && <p role="alert" className="mb-3 text-sm text-alert">{error}</p>}
+        <div className="product-home-greeting">
+          <h1>{t('home.greeting', { name: account?.firstName ?? '' })} <span aria-hidden="true">👋</span></h1>
+          <p>{t('home.subtitle')}</p>
         </div>
-
-        {/*
-          Voice used to open this screen with a full-bleed hero, which put a
-          secondary input method above the thing people actually come here to
-          do. It now lives beside the assistant's text field, where someone
-          reaches for it only if they want it, so sending money is the first
-          action on the page.
-        */}
-
-        {/* Send money */}
-        <section className="card mt-4 p-4">
-          <button
-            type="button"
-            onClick={() => navigate('/send')}
-            className="mb-4 flex w-full items-center justify-between text-start"
-          >
-            <span>
-              <span className="block text-[15px] font-bold text-ink-900">{t('home.sendMoney')}</span>
-              <span className="block text-[12px] text-ink-500">{t('home.sendMoneySub')}</span>
-            </span>
-            <ChevronRight size={18} className={`text-ink-500 ${mirror}`} />
+        <section className="product-send-card">
+          <button type="button" onClick={() => navigate('/send')}>
+            <span><strong>{t('home.sendMoney')}</strong><small>{t('home.sendMoneySub')}</small></span>
+            <span className="product-send-arrow"><ArrowUpRight size={21} /></span>
           </button>
-
-          <div className="grid grid-cols-4 gap-2">
-            {services.map(({ key, icon: Icon, hue, method }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => {
-                  setDeliveryMethod(method)
-                  navigate('/send')
-                }}
-                className="flex flex-col items-center gap-1.5 rounded-xl py-1 transition active:scale-95"
-              >
-                <IconTile hue={hue}>
-                  <Icon size={22} strokeWidth={2} />
-                </IconTile>
-                <span className="text-center text-[10.5px] leading-tight font-semibold text-ink-700">
-                  {t(key)}
-                </span>
-              </button>
-            ))}
-          </div>
+          <p className="px-4 pb-4 text-[12px] text-ink-500">Test transfers only. Bank, wallet, cash pickup, and airtime delivery are unavailable.</p>
         </section>
 
-        {/* Recent transaction */}
-        <section className="card mt-4 p-4">
-          <SectionTitle
-            title={t('home.recentTransaction')}
-            action={t('common.viewAll')}
-            onAction={() => navigate('/activity')}
-          />
+        <section className="product-home-section card p-4">
+          <SectionTitle title={t('home.recentTransaction')} action={t('common.viewAll')} onAction={() => navigate('/activity')} />
           {latest ? (
-            <button
-              type="button"
-              onClick={() => navigate('/activity')}
-              className="flex w-full items-center gap-3 text-start"
-            >
+            <button type="button" onClick={() => navigate('/activity')} className="flex w-full items-center gap-3 text-start">
               <Avatar name={latest.recipient_name} hue={hueFor(latest.recipient_name)} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[14px] font-bold text-ink-900">
-                  {latest.recipient_name}
-                </span>
+                <span className="block truncate text-[14px] font-bold text-ink-900">{latest.recipient_name}</span>
                 <span className="block text-[12px] text-ink-500">{formatDate(latest.created_at)}</span>
               </span>
               <span className="text-end">
-                <span className="block text-[14px] font-semibold text-ink-900">
-                  <bdi>{usd(latest.send_amount_minor / 100)}</bdi>
-                </span>
-                <span
-                  className={`flex items-center justify-end gap-1.5 text-[12px] font-semibold ${
-                    latest.status === 'completed' ? 'text-brand-700' : 'text-ink-500'
-                  }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      latest.status === 'completed' ? 'bg-ok' : 'bg-wait'
-                    }`}
-                    aria-hidden="true"
-                  />
-                  {t(latest.status === 'completed' ? 'common.completed' : 'common.pending')}
+                <span className="block text-[14px] font-semibold text-ink-900"><bdi>{usd(latest.send_amount_minor / 100)}</bdi></span>
+                <span className="flex items-center justify-end gap-1.5 text-[12px] font-semibold text-ink-500">
+                  <span className={`h-1.5 w-1.5 rounded-full ${latest.status === 'completed' ? 'bg-ok' : 'bg-wait'}`} aria-hidden="true" />
+                  {latest.status.replaceAll('_', ' ')}
                 </span>
               </span>
             </button>
-          ) : (
-            <p className="text-[13px] text-ink-500">{t('home.noTransactions')}</p>
-          )}
+          ) : <p className="text-[13px] text-ink-500">{loading ? 'Loading your account…' : t('home.noTransactions')}</p>}
         </section>
 
-        {/* Recipients */}
-        <section className="card mt-4 p-4">
-          <SectionTitle
-            title={t('home.recipients')}
-            action={t('common.viewAll')}
-            onAction={() => navigate('/recipients')}
-          />
-          <ul className="space-y-1">
-            {favourites.length === 0 ? (
-              <li className="py-2 text-[13px] text-ink-500">{t('recipients.empty')}</li>
-            ) : favourites.map((r) => (
-              <li key={r.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRecipientId(r.id)
-                    navigate('/send')
-                  }}
-                  className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-xl px-2 py-1.5 text-start transition hover:bg-brand-50/70"
-                >
-                  <Avatar name={r.name} hue={r.hue} size={40} />
+        <section className="product-home-section card p-4">
+          <SectionTitle title={t('home.recipients')} action={t('common.viewAll')} onAction={() => navigate('/recipients')} />
+          {favourites.length === 0 ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[13px] text-ink-500">{loading ? 'Loading your recipients…' : t('recipients.empty')}</p>
+              <button className="text-sm font-semibold text-brand-600" onClick={() => navigate('/recipients')}>{t('recipients.add')}</button>
+            </div>
+          ) : <ul className="space-y-1">
+            {favourites.map((recipient) => (
+              <li key={recipient.id}>
+                <button type="button" onClick={() => { setRecipientId(recipient.id); navigate('/send') }}
+                  className="-mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-xl px-2 py-1.5 text-start transition hover:bg-brand-50/70">
+                  <Avatar name={recipient.name} hue={recipient.hue} size={40} />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-bold text-ink-900">{r.name}</span>
-                    <span className="block text-[12px] text-ink-500">
-                      <bdi>{r.phone}</bdi>
-                    </span>
+                    <span className="block truncate text-[14px] font-bold text-ink-900">{recipient.name}</span>
+                    <span className="block text-[12px] text-ink-500"><bdi>{recipient.detail}</bdi></span>
                   </span>
                   <ChevronRight size={17} className={`text-ink-500 ${mirror}`} />
                 </button>
               </li>
             ))}
-          </ul>
+          </ul>}
         </section>
 
-        {/* Quick actions */}
-        <section className="mt-6">
-          <h2 className="mb-3 text-[15px] font-bold text-ink-900">{t('home.quickActions')}</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {quickActions.map(({ titleKey, subKey, icon: Icon, hue, to }) => (
-              <button
-                key={titleKey}
-                type="button"
-                onClick={() => navigate(to)}
-                className="card flex flex-col items-center gap-2 p-4 text-center transition active:scale-[0.98]"
-              >
-                <IconTile hue={hue} size={46}>
-                  <Icon size={21} strokeWidth={2} />
-                </IconTile>
-                <span className="text-[13px] font-bold text-ink-900">{t(titleKey)}</span>
-                <span className="text-[11px] leading-snug text-ink-500">{t(subKey)}</span>
-              </button>
-            ))}
-          </div>
+        <section className="product-home-tools" aria-label={t('home.quickActions')}>
+          <button type="button" onClick={() => navigate('/help')}><MessageCircleMore size={17} strokeWidth={1.6} /><span>{t('quick.help')}</span></button>
+          <button type="button" onClick={() => navigate('/support')}><Headphones size={17} strokeWidth={1.6} /><span>{t('quick.support')}</span></button>
         </section>
-
-        {recipients.length > 0 ? (
-          <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-500">
-            <bdi>1 USD = {rate(corridor.rate)} {corridor.currency}</bdi>
-          </p>
-        ) : null}
       </div>
     </div>
   )

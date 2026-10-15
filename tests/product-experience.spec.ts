@@ -1,0 +1,308 @@
+import { expect, test } from '@playwright/test'
+import { customer, mockAccount } from './fixtures/account'
+
+// Deterministic, offline API fixtures: these checks never touch customer data.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/**', (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: '{"error":"unauthorized"}',
+    }),
+  )
+})
+
+const corporateHeadline = /Connecting people\.\s*Enabling possibility\./
+
+test('the public homepage leads to company information and a working philanthropy enquiry', async ({
+  page,
+}) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  page.on('console', (message) => {
+    // A signed-out session deliberately receives the 401 fixture above.
+    if (
+      message.type() === 'error' &&
+      !message.text().includes('the server responded with a status of 401')
+    ) errors.push(message.text())
+  })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
+  for (const name of ['Company', 'Compliance', 'Security', 'Philanthropy']) {
+    await expect(page.locator('header').getByRole('link', { name, exact: true })).toBeVisible()
+  }
+
+  await expect(
+    page.locator('.corporate-hero').getByRole('button', { name: /Explore the app|Download the app|Watch the film/i }),
+  ).toHaveCount(0)
+  await expect(
+    page.locator('.corporate-hero').getByRole('link', { name: /Explore the app|Download the app|Watch the film/i }),
+  ).toHaveCount(0)
+  await expect(page.getByText(/Coming soon|Concept preview|Private creative preview|\bbeta\b/i)).toHaveCount(0)
+  await expect(page.locator('a[href*=".apk"], a[href*="testflight.apple.com"]')).toHaveCount(0)
+
+  await expect(page.locator('.corporate-hero').getByRole('link', { name: /Discuss a partnership|Discover XpressTend/ })).toHaveCount(0)
+  await page.locator('header').getByRole('link', { name: 'Company', exact: true }).click()
+  await expect(page).toHaveURL(/#\/company$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('About XpressTend')
+  await page.goto('/')
+  await page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true }).click()
+  await expect(page).toHaveURL(/#\/philanthropy$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
+  await expect(
+    page.locator('main a[href^="mailto:"][href*="subject="]').first(),
+  ).toHaveAttribute('href', /^mailto:support@xpresstend\.com\?subject=Financial%20Literacy%20enquiry$/)
+  expect(errors).toEqual([])
+})
+
+test('the former partnerships address opens XpressTend Financial Literacy', async ({ page }) => {
+  await page.goto('/#/partners')
+  await expect(page).toHaveURL(/#\/philanthropy$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
+  await expect(page.locator('main')).toContainText('culturally congruent strengths-based strategies')
+  await expect(page.getByText(/philanthropic efforts that are deficit-based/)).toBeVisible()
+  await expect(page.getByText(/investing in the great minds of today and tomorrow/)).toBeVisible()
+  await expect(page.locator('body')).not.toContainText(/partnership/i)
+})
+
+test('the homepage philanthropy section carries the agreed words and leads to the page', async ({ page }) => {
+  await page.goto('/')
+  const section = page.locator('.corporate-partners')
+  await expect(section.locator('.brand-eyebrow')).toHaveText('Philanthropy')
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Let’s also make financial literacy cool.')
+  await expect(section.locator('.brand-body')).toHaveText(
+    'We build real money skills and lasting upward mobility in underserved communities across Washington state, Nairobi, São Paulo, and beyond.',
+  )
+  await expect(page.locator('body')).not.toContainText(/partnership/i)
+  await section.getByRole('link', { name: 'Explore XpressTend Financial Literacy' }).click()
+  await expect(page).toHaveURL(/#\/philanthropy$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
+})
+
+test('the philanthropy banner stays a still until a real film is published', async ({ page }) => {
+  // Production answers a missing file with the site shell: 200, text/html.
+  await page.route('**/media/community-literacy.mp4', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: '',
+    }),
+  )
+  const probe = page.waitForResponse((response) => response.url().includes('/media/community-literacy.mp4'))
+  await page.goto('/#/philanthropy')
+  await probe
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
+  await expect(page.locator('main video')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /the film/ })).toHaveCount(0)
+})
+
+test('keyboard users can skip the homepage navigation', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('link', { name: 'Skip to content', exact: true })).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('main')).toBeFocused()
+})
+
+test('app feature tabs support keyboard and pointer selection and load the selected app image', async ({ page }) => {
+  await page.goto('/')
+  const showcase = page.locator('#experience')
+  await showcase.getByRole('tab', { name: 'Send', exact: true }).focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(showcase.getByRole('tab', { name: 'People', exact: true })).toBeFocused()
+  await expect(showcase.getByRole('tabpanel')).toContainText('Start with someone.')
+  await page.keyboard.press('End')
+  await expect(showcase.getByRole('tab', { name: 'Activity', exact: true })).toBeFocused()
+  await expect(showcase.getByRole('tabpanel')).toContainText('Follow every step.')
+
+  const image = showcase.locator('.brand-device img')
+  await image.scrollIntoViewIfNeeded()
+  await expect.poll(() => image.evaluate((element) => {
+    const screenshot = element as HTMLImageElement
+    return screenshot.complete && screenshot.naturalWidth > 0
+  })).toBe(true)
+  const activityImage = await image.evaluate((element) => (element as HTMLImageElement).currentSrc)
+
+  await showcase.getByRole('tab', { name: 'Send', exact: true }).click()
+  await expect(showcase.getByRole('tabpanel')).toContainText('A thoughtful way to send.')
+  await expect.poll(() => image.evaluate((element, previous) => {
+    const screenshot = element as HTMLImageElement
+    return screenshot.complete && screenshot.naturalWidth > 0 && screenshot.currentSrc !== previous
+  }, activityImage)).toBe(true)
+})
+
+test('the app call to action requires account creation and sign-in offers three roles', async ({ page }) => {
+  const writes: string[] = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && /\/api\//.test(request.url()))
+      writes.push(request.url())
+  })
+  await page.goto('/')
+  await page.locator('#experience').getByRole('button', { name: 'Get started', exact: true }).click()
+  await expect(page).toHaveURL(/#\/register$/)
+  await expect(page.getByLabel('First name', { exact: true })).toBeVisible()
+  await page.goto('/')
+  await page.locator('header').getByText('Sign in', { exact: true }).click()
+  for (const [label, href] of [
+    ['Customer sign in', '#/login'],
+    ['Staff sign in', '#/admin'],
+    ['Institutional reviewer sign in', '#/institutional-reviewer'],
+  ]) {
+    await expect(page.locator(`a[href="${href}"]`)).toHaveText(label)
+  }
+  expect(writes).toEqual([])
+})
+
+test('signed-out customers cannot open the product or create a transfer', async ({ page }) => {
+  const writes: string[] = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && /\/api\//.test(request.url()))
+      writes.push(request.url())
+  })
+  await page.goto('/#/send')
+  await expect(page).toHaveURL(/#\/login$/)
+  await expect(page.getByLabel('Email', { exact: true })).toBeVisible()
+  expect(writes).toEqual([])
+})
+
+test('a signed-in empty account never sees the tour recipients or history on Home', async ({
+  page,
+}) => {
+  const requests = await mockAccount(page, { user: { ...customer, kycStatus: 'unverified', kycTier: 0 }, recipients: [] })
+  await page.goto('/#/app')
+  await expect(page.locator('.product-home-greeting')).toContainText('Taylor')
+  await expect(page.getByText('Explore mode · Sample data')).toHaveCount(0)
+  await expect(
+    page.getByText('Add new recipient', { exact: true }),
+  ).toBeVisible()
+  await expect(page.locator('.product-home-section ul li')).toHaveCount(0)
+  await page.goto('/#/send')
+  await expect(page.getByRole('button', { name: 'Add new recipient', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Continue', exact: true })).toHaveCount(0)
+  await expect(page.getByText(/Hooyo|Chase|Visa|Available Balance/)).toHaveCount(0)
+  expect(requests.filter((request) => request.method === 'POST' && request.path.startsWith('/api/transfers'))).toEqual([])
+})
+
+for (const width of [320, 390, 768, 1440]) {
+  test(`public pages, navigation and app fit a ${width}px viewport`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
+    await expect(page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+
+    for (const [name, path] of [['Company', 'company'], ['Philanthropy', 'philanthropy']]) {
+      await page.locator('header').getByRole('link', { name, exact: true }).click()
+      await expect(page).toHaveURL(new RegExp(`#/${path}$`))
+      await expect(page.locator('header').getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+    }
+
+    await page.goto('/#/login')
+    await expect(page.locator('a[href="#/register"]')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+  })
+}
+
+for (const language of ['so', 'es', 'pt-BR', 'ar']) {
+  test(`corporate homepage and app work in ${language}`, async ({ page }) => {
+    await page.addInitScript(
+      (language) => localStorage.setItem('xpresstend.lang', language),
+      language,
+    )
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await expect(page.locator('html')).toHaveAttribute('lang', language)
+    await expect(page.locator('html')).toHaveAttribute('dir', language === 'ar' ? 'rtl' : 'ltr')
+    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(corporateHeadline)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+
+    await page.locator('header a[href="#/philanthropy"]').click()
+    await expect(page).toHaveURL(/#\/philanthropy$/)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
+    // Company, philanthropy and legal pages are published in English, including when
+    // reached from an Arabic homepage.
+    await expect(page.locator('main').locator('..')).toHaveAttribute('lang', 'en')
+    await expect(page.locator('main')).toHaveCSS('direction', 'ltr')
+    await page.goto('/#/login')
+    await expect(page.locator('a[href="#/register"]')).toBeVisible()
+    await expect(page.locator('.product-explore-bar')).toHaveCount(0)
+  })
+}
+
+test('real accounts still require a password before any transfer submission', async ({
+  page,
+}) => {
+  const writes: string[] = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && /\/api\/transfers(?:\/|$)/.test(request.url()))
+      writes.push(request.url())
+  })
+  await mockAccount(page)
+  await page.goto('/#/send')
+  await page.getByRole('button', { name: /Choose a recipient/ }).click()
+  await page.getByRole('button', { name: /Test Recipient/ }).click()
+  await page.getByRole('button', { name: /Continue/i }).click()
+  await expect(page).toHaveURL(/#\/review$/)
+  await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
+  await expect(page.locator('input[type=password]')).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Authorise transfer', exact: true }),
+  ).toBeDisabled()
+  // Screening is deliberately performed before authorization; it cannot create or pay a transfer.
+  expect(writes.filter(url => new URL(url).pathname !== '/api/transfers/preflight')).toEqual([])
+  expect(writes.some(url => new URL(url).pathname === '/api/transfers/preflight')).toBe(true)
+})
+
+test('company pages show a plain NMLS ID and accurate service availability', async ({ page }) => {
+  await page.goto('/')
+  await page.locator('header').getByRole('link', { name: 'Compliance', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Compliance')
+  await expect(page.getByText('NMLS ID 2900672').first()).toBeVisible()
+  await expect(page.locator('a[href*="nmls" i]')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /2900672/ })).toHaveCount(0)
+  await expect(page.getByText(/Consumer Access|Verify NMLS ID|Verify at NMLS/)).toHaveCount(0)
+  await expect(page.getByText(/Unverified accounts cannot create transfers/)).toBeVisible()
+  await expect(page.getByText(/transaction limits linked to the account's verification tier/)).toBeVisible()
+  await expect(page.getByText(/does not hold or move customer funds/).first()).toBeVisible()
+
+  for (const [path, heading] of [
+    ['company', 'About XpressTend'],
+    ['security', 'Security and platform'],
+    ['philanthropy', 'XpressTend Financial Literacy'],
+  ]) {
+    await page.goto(`/#/${path}`)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
+    await expect(page.getByText(/NMLS ID 2900672/).first()).toBeVisible()
+    await expect(page.locator('a[href*="nmls" i]')).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /2900672/ })).toHaveCount(0)
+    await expect(page.getByText(/Consumer Access|Verify NMLS ID|Verify at NMLS/)).toHaveCount(0)
+  }
+})
+
+test('footer company, support and privacy links reach their intended pages', async ({ page }) => {
+  for (const [name, heading] of [
+    ['Company', 'About XpressTend'],
+    ['Compliance', 'Compliance'],
+    ['Security', 'Security and platform'],
+    ['Philanthropy', 'XpressTend Financial Literacy'],
+    ['Contact', 'Contact and support'],
+    ['Privacy', 'Privacy Policy'],
+  ]) {
+    await page.goto('/')
+    await page.locator('footer').getByRole('link', { name, exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
+  }
+})
+
+test('company contents navigate within the document without replacing the page route', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#/company')
+  await page.getByRole('navigation', { name: 'On this page', exact: true })
+    .getByRole('button', { name: 'Contact the company', exact: true }).click()
+  await expect(page).toHaveURL(/#\/company$/)
+  await expect(page.locator('#contact')).toBeFocused()
+  await expect(page.locator('#contact')).toBeInViewport()
+  await expect(page.locator('header').getByRole('link', { name: 'Company', exact: true })).toHaveAttribute('aria-current', 'page')
+})

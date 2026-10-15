@@ -32,6 +32,19 @@ export interface ApiTransfer {
   recipient_country: string
 }
 
+export interface ApiCorridor {
+  id: string
+  send_country: string
+  receive_country: string
+  send_currency: string
+  receive_currency: string
+  fee_flat_minor: number
+  fee_percent_bps: number
+  min_send_minor: number
+  max_send_minor: number
+  fx_margin_bps: number
+}
+
 export interface AccountDataValue {
   /** True for an authenticated account, including while its data is loading. */
   live: boolean
@@ -39,6 +52,7 @@ export interface AccountDataValue {
   error: string | null
   recipients: ApiRecipient[]
   transfers: ApiTransfer[]
+  corridors: ApiCorridor[]
   refresh: () => Promise<void>
   addRecipient: (input: {
     fullName: string; country: string; payoutMethod: string

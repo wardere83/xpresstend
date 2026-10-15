@@ -206,7 +206,7 @@ export const es: Record<keyof typeof en, string> = {
     'Enviamos desde Estados Unidos a más de 130 países, incluidos Somalia, Kenia, Etiopía, Yibuti, Uganda y el Reino Unido.',
   'help.q5': '¿Mi dinero está seguro?',
   'help.a5':
-    '{brand} es una empresa de transferencia de dinero autorizada con sede en {city}, {state}. Cada transferencia se cifra de extremo a extremo y está cubierta por nuestra garantía de reembolso.',
+    '{brand} está registrada en el Nationwide Multistate Licensing System, NMLS ID {nmls}, con sede en {city}, {state}. Cada transferencia se cifra en tránsito y nada se mueve hasta que usted lo confirma con su contraseña.',
 
   // ---- Refer ----
   'refer.title': 'Refiera y gane',
@@ -256,7 +256,8 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.f3Body': 'Cada transferencia se registra por partida doble y cada acción del personal queda registrada a nombre de una persona, no de un agente de IA!',
   'marketing.ctaTitle': '¿Listo para enviar?',
   'marketing.ctaBody': 'Cree una cuenta en un par de minutos. Solo verifica su identidad al enviar por primera vez.',
-  'marketing.disclaimer': 'XpressTend está en beta privada. Los pagos se ejecutan en modo de prueba y no se mueven fondos de clientes hasta contar con licencia y socio de pagos.',
+  'marketing.disclaimer':
+    '{brand} Financial Services está registrada en el Nationwide Multistate Licensing System, NMLS ID {nmls}, con sede en {city}, {state}. Los pagos se ejecutan actualmente en modo de prueba: no se mueven fondos de clientes ni se cobra ninguna tarjeta o cuenta bancaria.',
   'auth.signInTitle': 'Bienvenido de nuevo',
   'auth.signInSubtitle': 'Inicie sesión para enviar dinero y seguir sus envíos.',
   'auth.registerTitle': 'Cree su cuenta',

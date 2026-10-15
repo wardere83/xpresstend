@@ -15,13 +15,13 @@ type Row = {
   hue: number
   amountUsd: number
   date: string
-  status: 'completed' | 'pending'
+  status: string
 }
 
 export function Activity() {
   const { t } = useI18n()
   const mirror = useMirrorClass()
-  const { loading, error, transfers } = useAccountData()
+  const { live, loading, error, transfers } = useAccountData()
   const [filter, setFilter] = useState<Filter>('all')
 
   /**
@@ -31,12 +31,12 @@ export function Activity() {
 
   const filters: { id: Filter; label: string }[] = [
     { id: 'all', label: t('activity.filterAll') },
-    { id: 'completed', label: t('activity.filterSent') },
-    { id: 'pending', label: t('activity.filterPending') },
+    { id: 'completed', label: live ? 'Completed tests' : t('activity.filterSent') },
+    { id: 'pending', label: live ? 'Pending tests' : t('activity.filterPending') },
   ]
 
   const visible = useMemo(
-    () => (filter === 'all' ? rows : rows.filter((r) => r.status === filter)),
+    () => (filter === 'all' ? rows : rows.filter((r) => filter === 'completed' ? r.status === 'completed' : !['completed', 'failed', 'cancelled', 'refunded'].includes(r.status))),
     [filter, rows],
   )
 
@@ -56,7 +56,7 @@ export function Activity() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         <section className="rounded-[var(--radius-card)] bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-[var(--shadow-float)]">
-          <p className="text-[12px] font-semibold text-white/70">{t('activity.sentThisMonth')}</p>
+          <p className="text-[12px] font-semibold text-white/70">{live ? 'Test transfer amounts this month' : t('activity.sentThisMonth')}</p>
           <p className="mt-1 text-[30px] leading-none font-semibold">
             <bdi>{usd(monthTotal)}</bdi>
           </p>
@@ -114,7 +114,7 @@ export function Activity() {
                       }`}
                     >
                       {done ? <ArrowUpRight size={13} className={mirror} /> : <Clock size={13} />}
-                      {done ? t('activity.filterSent') : t('activity.filterPending')}
+                      {live ? row.status.replaceAll('_', ' ') : done ? t('activity.filterSent') : t('activity.filterPending')}
                     </p>
                   </div>
                 </li>

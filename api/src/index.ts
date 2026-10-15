@@ -1,3 +1,5 @@
+import { identity } from './routes-identity'
+import { bankApi } from './routes-bank'
 import { Hono } from 'hono'
 import type { Env, Vars } from './env'
 import { withSecurityHeaders } from './headers'
@@ -6,8 +8,10 @@ import { admin } from './routes-admin'
 import { reviewer } from './routes-reviewer'
 import { bootstrap } from './routes-bootstrap'
 import { invite } from './routes-invite'
+import { recovery } from './routes-recovery'
 import { transfers } from './routes-transfers'
 import { refreshRates } from './rates'
+import { getSanctionsStatus } from './sanctions.ts'
 
 /**
  * One Worker serves both the site and its API.
@@ -22,17 +26,38 @@ import { refreshRates } from './rates'
  */
 const api = new Hono<{ Bindings: Env; Variables: Vars }>()
 
+api.use('*', async (c, next) => {
+  c.header('Cache-Control', 'no-store')
+  await next()
+})
+
 api.get('/health', async (c) => {
   const row = await c.env.DB.prepare(`SELECT COUNT(*) AS n FROM corridors WHERE enabled = 1`)
     .first<{ n: number }>()
   return c.json({ ok: true, environment: c.env.ENVIRONMENT, corridors: row?.n ?? 0 })
 })
 
+/** Dataset readiness only: no customer names or individual screening results. */
+api.get('/compliance/sanctions-status', async (c) => {
+  c.header('Cache-Control', 'no-store')
+  return c.json(await getSanctionsStatus(c.env))
+})
+
+api.route('/identity', identity)
+api.route('/bank/v1', bankApi)
 api.route('/auth', auth)
 api.route('/bootstrap', bootstrap)
 api.route('/invite', invite)
 api.route('/admin/auth', adminAuth)
 api.route('/admin/reviewer', reviewer)
+
+/*
+ * Recovery sits on the same prefix but is mounted separately, and before the
+ * guarded `/admin` router, because it has to stay public: someone who cannot
+ * sign in has no session to authenticate with. Paths do not overlap with
+ * adminAuth's, so the two coexist on /admin/auth.
+ */
+api.route('/admin/auth', recovery)
 api.route('/admin', admin)
 api.route('/', transfers)
 
@@ -175,6 +200,12 @@ export default {
       '/app': '/#/app',
       '/login': '/#/login',
       '/register': '/#/register',
+      '/forgot-password': '/#/forgot-password',
+      '/delete-account': '/#/delete-account',
+      // Addresses people type or print, and the retired partnerships page.
+      '/philanthropy': '/#/philanthropy',
+      '/financial-literacy': '/#/philanthropy',
+      '/partners': '/#/philanthropy',
     }
     const target = CLEAN_ROUTES[pathname.replace(/\/$/, '')]
     if (target) {

@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { brand } from '../config/brand'
-import { Logo } from '../components/Logo'
+import { Contents, H, Q, Shell } from './PageShell'
 
 /**
  * Privacy policy and support pages.
@@ -17,60 +16,19 @@ import { Logo } from '../components/Logo'
  * consequence, so it should be translated by someone qualified rather than by
  * the same process as the interface copy.
  */
-const UPDATED = '2 September 2026'
-
-function Shell({ title, children }: { title: string; children: React.ReactNode }) {
-  // Arriving from the landing-page footer carries its scroll position along,
-  // so a policy would open at its own bottom. A legal page starts at the top.
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
-
-  return (
-    <div className="min-h-dvh bg-white text-ink-900">
-      {/* Same safe-area treatment as the marketing header: the native webview
-          draws under the status bar, and the lockup must clear it. */}
-      <header className="border-b border-ink-200/70 pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex max-w-3xl items-center gap-4 px-5 py-4">
-          {/* Legal pages carry the full lockup: here the company is being
-              presented formally rather than the product worn casually. */}
-          <Link to="/" aria-label={brand.name}><Logo variant="full" height={40} /></Link>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-5 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-2 text-[13px] text-ink-500">Last updated {UPDATED}</p>
-        <div className="mt-8 space-y-6 text-[14px] leading-relaxed text-ink-700">{children}</div>
-      </main>
-      <footer className="border-t border-ink-200/70">
-        <div className="mx-auto max-w-3xl px-5 py-8 text-[12px] leading-relaxed text-ink-500">
-          <p className="font-semibold text-ink-700">{brand.name}</p>
-          <p className="mt-1">{brand.hq.city}, {brand.hq.state}</p>
-          <p className="mt-2">
-            <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
-          </p>
-          <p className="mt-3">{brand.legal.licence}</p>
-        </div>
-      </footer>
-    </div>
-  )
-}
-
-function H({ children }: { children: React.ReactNode }) {
-  return <h2 className="pt-2 text-[17px] font-bold text-ink-900">{children}</h2>
-}
+const UPDATED = '3 October 2026'
 
 export function Privacy() {
   return (
-    <Shell title="Privacy Policy">
+    <Shell title="Privacy Policy" updated={UPDATED}>
       <p>
         This policy explains what XpressTend collects, why, and what we do with it. It
         describes the service as it actually works today.
       </p>
 
-      <div className="rounded-xl bg-canvas p-4 text-[13px]">
-        <strong>XpressTend is currently in private beta.</strong> Payments run in test mode.
-        No customer funds are transmitted, and no card or bank account is charged.
+      <div className="rounded-2xl border border-ink-200 bg-canvas p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">Service availability</p>
+        <p className="mt-2">{brand.legal.operatingStatus}</p>
       </div>
 
       <H>What we collect</H>
@@ -85,15 +43,18 @@ export function Privacy() {
       with sign-ins and with actions that change money or access. We keep this to detect fraud
       and to reconstruct what happened if a transfer is disputed.</p>
 
-      <H>What never reaches us</H>
+      <H>Biometric unlock and identity verification</H>
       <p>
-        <strong>Your fingerprint or face.</strong> Biometric unlock is handled entirely by your
+        <strong>Device unlock.</strong> Biometric unlock is handled entirely by your
         phone. iOS and Android tell the app only whether the check passed. The biometric data
-        itself never leaves your device and we never receive, store, or see it.
+        used for device unlock stays on your device.
       </p>
+      <p><strong>Identity verification.</strong> This is a separate check: our verification provider, Persona, receives your government ID and selfie to check identity and liveness. XpressTend stores verification results and evidence references, rather than ID or biometric images. These compliance records may be retained after account closure.</p>
+      <H>Password protection</H>
       <p>
-        <strong>Your password.</strong> We store only a slow one-way hash, combined with a secret
-        held separately from the database. We cannot read your password or recover it for you.
+        We do not store your password in readable form. We store a slow one-way hash, combined
+        with a secret held separately from the database. Your password is submitted securely
+        when you create an account or sign in, and cannot be recovered from its stored hash.
       </p>
 
       <H>Why we keep it</H>
@@ -135,36 +96,142 @@ export function Privacy() {
   )
 }
 
-export function Support() {
-  return (
-    <Shell title="Support">
-      <p>Questions about a transfer, your account, or the app.</p>
+const CONTACT_ROUTES = [
+  { label: 'Institutional enquiries', subject: 'Institutional enquiry', description: 'Banking, fintech and payment infrastructure enquiries.' },
+  { label: 'Financial Literacy enquiries', subject: 'Financial Literacy enquiry', description: 'XpressTend Financial Literacy, our philanthropy and community programs.' },
+  { label: 'Compliance enquiries', subject: 'Compliance enquiry', description: 'Institutional review, registration and compliance information.' },
+  { label: 'Customer support', subject: 'Customer support', description: 'Account access, product questions and general assistance.' },
+  { label: 'Security reports', subject: 'Security report', description: 'Potential vulnerabilities or suspicious account activity.' },
+  { label: 'Privacy requests', subject: 'Privacy request', description: 'Access, correction and other questions about personal data.' },
+  { label: 'Complaints', subject: 'Complaint', description: 'Concerns about your experience with XpressTend.' },
+]
 
-      <H>Email</H>
+export function Support() {
+  const email = (
+    <a className="underline" href={`mailto:${brand.support.email}`}>
+      {brand.support.email}
+    </a>
+  )
+  const phone = (
+    <a className="underline" href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
+      {brand.support.phone}
+    </a>
+  )
+
+  return (
+    <Shell
+      title="Contact and support"
+      intro="Contact XpressTend for company enquiries, community programs, account assistance and institutional review."
+      updated={UPDATED}
+    >
+      <Contents
+        items={[
+          { id: 'contact', label: 'Company contact' },
+          { id: 'enquiries', label: 'Enquiry options' },
+          { id: 'availability', label: 'Service availability' },
+          { id: 'questions', label: 'Common questions' },
+          { id: 'safety', label: 'Protecting your account' },
+          { id: 'complaints', label: 'Consumer resources' },
+        ]}
+      />
+
+      <H id="contact">Company contact</H>
+      <div className="rounded-2xl border border-ink-200 bg-canvas p-5">
+        <p className="font-semibold text-ink-900">{brand.legalName}</p>
+        <p className="mt-2">
+          Headquarters: {brand.hq.city}, {brand.hq.state}, {brand.hq.country}<br />
+          Email: {email}<br />
+          Phone: {phone}
+        </p>
+      </div>
       <p>
-        <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a><br />
-        We answer within one business day.
+        Include a brief description of your enquiry and, where relevant, the organisation you
+        represent. For account assistance, include the email address associated with your account.
+        Please do not email passwords, verification codes or full payment account details.
       </p>
 
-      <H>Post</H>
-      <p>{brand.name}<br />{brand.hq.city}, {brand.hq.state}<br />
-      {brand.hq.country}</p>
+      <H id="enquiries">Enquiry options</H>
+      <p>Select an enquiry type to include the appropriate subject in your email.</p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {CONTACT_ROUTES.map((route) => (
+          <div key={route.subject} className="rounded-2xl border border-ink-200 p-5">
+            <a
+              className="font-semibold text-brand-700 underline underline-offset-4"
+              href={`mailto:${brand.support.email}?subject=${encodeURIComponent(route.subject)}`}
+            >
+              {route.label}
+            </a>
+            <p className="mt-2 text-sm leading-relaxed">{route.description}</p>
+          </div>
+        ))}
+      </div>
 
-      <H>Common questions</H>
-      <p><strong>Why can I not send money yet?</strong> New accounts start unverified. You need to
-      pass identity verification before a transfer can be sent, and XpressTend is in private beta
-      with payments in test mode, so no funds move at present.</p>
-      <p><strong>I forgot my password.</strong> Email us and we will help you regain access. Self
-      service password reset is not yet available.</p>
-      <p><strong>How do I remove my account?</strong> Email us and we will close it. Records we are
-      required by law to retain will be kept.</p>
-      <p><strong>The app asks for Face ID.</strong> It is used to unlock the app and to confirm a
-      transfer. Your biometric data stays on your phone and is never sent to us.</p>
+      <H id="availability">Service availability</H>
+      <p>{brand.legal.operatingStatus}</p>
+      <p>
+        For information about service requirements and institutional onboarding, review our{' '}
+        <Link className="underline" to="/compliance">compliance overview</Link>.
+      </p>
 
-      <H>Reporting a security issue</H>
-      <p>Email <a className="underline" href={`mailto:${brand.support.email}`}>{brand.support.email}</a> with
-      "Security" in the subject line. Please give us a reasonable chance to fix an issue before
-      disclosing it publicly.</p>
+      <H id="questions">Common questions</H>
+      <Q q="What is XpressTend’s NMLS number?">
+        NMLS ID {brand.nmls.id}.
+      </Q>
+      <Q q="How can I get help with account access?">
+        Use the <Link className="underline" to="/login">sign in page</Link> to access your
+        account. If you have forgotten your credentials or need assistance, contact {email}.
+      </Q>
+      <Q q="Which languages does the product support?">
+        The product interface supports English, Somali, Spanish, Portuguese and Arabic.
+        Company, philanthropy and legal information is published in English.
+      </Q>
+      <Q q="How do I ask about my personal data?">
+        Our <Link className="underline" to="/privacy">privacy policy</Link> explains what we
+        collect, why we retain it and the choices available to you. Email{' '}
+        <a className="underline" href={`mailto:${brand.support.email}?subject=Privacy%20request`}>
+          {brand.support.email}
+        </a>{' '}
+        for access, correction or account closure requests.
+      </Q>
+
+      <H id="safety">Protecting your account</H>
+      <p>
+        XpressTend will never ask you to share your password or a verification code by email,
+        phone or text, or ask you to send money to resolve an account problem. Contact us directly
+        using the details on this page if a message appears suspicious.
+      </p>
+      <p>
+        Be cautious of unexpected requests for money, guaranteed investment returns, prizes
+        requiring an upfront payment, or pressure to act immediately and keep a payment secret.
+        Verify the person and the request through a channel you trust.
+      </p>
+      <p>
+        To report a potential platform vulnerability, use the security report option above and
+        include the steps needed to reproduce the issue. Our{' '}
+        <Link className="underline" to="/security">security overview</Link> provides further
+        information about responsible disclosure.
+      </p>
+
+      <H id="complaints">Complaints and consumer resources</H>
+      <p>
+        To raise a concern with XpressTend, email{' '}
+        <a className="underline" href={`mailto:${brand.support.email}?subject=Complaint`}>
+          {brand.support.email}
+        </a>{' '}
+        with a description of the issue and the outcome you are seeking. Include any relevant
+        account or reference information, without sending sensitive credentials.
+      </p>
+      <p>
+        Independent consumer information and complaint resources are available from the{' '}
+        <a className="underline" href="https://dfi.wa.gov/consumers/complaint" target="_blank" rel="noopener noreferrer">
+          Washington State Department of Financial Institutions
+        </a>{' '}
+        and the{' '}
+        <a className="underline" href="https://www.consumerfinance.gov/complaint/" target="_blank" rel="noopener noreferrer">
+          Consumer Financial Protection Bureau
+        </a>.
+        You may contact these organisations directly.
+      </p>
     </Shell>
   )
 }

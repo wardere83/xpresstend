@@ -23,6 +23,13 @@ export type Quote = {
   currency: string
 }
 
+export type TransferReceipt = {
+  transaction: Transaction
+  recipient: Recipient
+  quote: Quote
+  status: string
+}
+
 export type TransferValue = {
   recipientId: string
   setRecipientId: (id: string) => void
@@ -36,6 +43,7 @@ export type TransferValue = {
   corridor: ReturnType<typeof getCorridor>
   quote: Quote
   lastTransaction: Transaction | null
+  lastReceipt: TransferReceipt | null
   /** Creates a transfer through the authenticated API and requires the account password. */
   commit: (password: string) => Promise<Transaction>
   reset: () => void
@@ -43,6 +51,9 @@ export type TransferValue = {
   live: boolean
   /** Set when a real transfer could not be created. */
   commitError: string | null
+  availableError: string | null
+  quoteReady: boolean
+  quoteLoading: boolean
 }
 
 export const TransferContext = createContext<TransferValue | null>(null)

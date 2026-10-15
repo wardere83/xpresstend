@@ -1,3 +1,11 @@
+# Brand film and app showcase
+
+`closer.mp4` is the 26-second XpressTend brand film (H.264/AAC, 1920×1080).
+`closer-poster.webp` is its opening card and `closer.en.vtt` supplies captions.
+The three `app-*.webp` images are captured from the real application's local
+explore mode. See `scripts/brand-film/README.md` for regeneration instructions.
+The film loads only when played and has no automatic playback.
+
 # Sign-up panel video
 
 Drop an MP4 here named `join-family.mp4` and the sign-up page will play it in

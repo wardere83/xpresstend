@@ -200,7 +200,7 @@ export const en = {
     'We send from the USA to 130+ countries, including Somalia, Kenya, Ethiopia, Djibouti, Uganda and the UK.',
   'help.q5': 'Is my money safe?',
   'help.a5':
-    '{brand} is a licensed money transmitter based in {city}, {state}. Every transfer is encrypted end to end and covered by our refund guarantee.',
+    '{brand} is registered in the Nationwide Multistate Licensing System, NMLS ID {nmls}, and is based in {city}, {state}. Every transfer is encrypted in transit, and nothing moves until you confirm it with your password.',
 
   // ---- Refer ----
   'refer.title': 'Refer & Earn',
@@ -249,7 +249,8 @@ export const en = {
   'marketing.f3Body': 'Every transfer is double-entry booked and every staff action is recorded against a named person, not an AI agent!',
   'marketing.ctaTitle': 'Ready to send?',
   'marketing.ctaBody': 'Create an account in a couple of minutes. You only verify your identity when you first send.',
-  'marketing.disclaimer': 'XpressTend is in private beta. Payments run in test mode and no customer funds are moved until licensing and a payment partner are in place.',
+  'marketing.disclaimer':
+    '{brand} Financial Services is registered in the Nationwide Multistate Licensing System, NMLS ID {nmls}, and is based in {city}, {state}. Payments currently run in test mode: no customer funds are moved and no card or bank account is charged.',
   'auth.signInTitle': 'Welcome back',
   'auth.signInSubtitle': 'Sign in to send money and track your transfers.',
   'auth.registerTitle': 'Create your account',
@@ -298,7 +299,7 @@ export const en = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Coming to the App Store',
   'app.iosBetaNote': 'Join the TestFlight beta',
-  'nav.downloadApp': 'Download App',
+  'nav.downloadApp': 'Download the app',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',
   'review.authFailed': 'That password was not accepted.',

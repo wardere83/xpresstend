@@ -22,12 +22,27 @@ export const REGISTER_IP_LIMIT: Limit = { max: 10, windowSeconds: 3600 }
 export const PAY_IP_LIMIT: Limit = { max: 30, windowSeconds: 600 }
 
 /**
+ * Staff account recovery, limited on two axes at once.
+ *
+ * Per caller, to stop one source walking a list of addresses looking for which
+ * ones have console access. Per address, because that is the limit a botnet
+ * cannot dodge by spreading out: without it, many IPs could bury someone's
+ * inbox in reset mail, which is harassment and also a way to hide a genuine
+ * security notice among the noise.
+ *
+ * Deliberately tight. A real person needs one or two of these a year, so five
+ * an hour is generous and anything above it is not a person.
+ */
+export const FORGOT_IP_LIMIT: Limit = { max: 10, windowSeconds: 3600 }
+export const FORGOT_ACCOUNT_LIMIT: Limit = { max: 5, windowSeconds: 3600 }
+
+/**
  * Records one hit and reports whether the caller is over the limit.
  *
  * Fails open on a storage error: a rate limiter that takes the whole service
  * down when its own table misbehaves is worse than the abuse it prevents.
  */
-export async function overLimit(env: Env, bucket: string, key: string, limit: Limit): Promise<boolean> {
+export async function overLimit(env: Env, bucket: string, key: string, limit: Limit, failClosed = false): Promise<boolean> {
   const now = Date.now()
   const windowStart = new Date(now - limit.windowSeconds * 1000).toISOString()
   const id = `${bucket}:${key}`
@@ -50,7 +65,7 @@ export async function overLimit(env: Env, bucket: string, key: string, limit: Li
     return (row?.n ?? 0) > limit.max
   } catch (err) {
     console.error('rate limit check failed', err)
-    return false
+    return failClosed
   }
 }
 

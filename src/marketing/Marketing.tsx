@@ -1,219 +1,194 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight, Lock, ShieldCheck, UserRound, Zap } from 'lucide-react'
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ArrowUpRight, Languages, ScanLine, ShieldCheck, UserRound } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
-import { DownloadAppMenu } from './DownloadAppMenu'
-import { HeroRotator } from './HeroRotator'
-import { GetTheApp } from './GetTheApp'
-import { RateQuote } from './RateQuote'
+import { useBrandCopy } from './brandCopy'
+import { useCorporateCopy } from './corporateCopy'
+import { InteractiveGlobe } from './InteractiveGlobe'
+import { AppShowcase } from './AppShowcase'
+import { RiverFlow } from './RiverFlow'
+import { BirdFlight } from './BirdFlight'
+import './marketing.css'
 
-/**
- * Public shopfront. Everything here is readable without an account.
- *
- * The visual register is deliberately restrained. Competitors in this market
- * lean on saturated colour, heavy type and large soft shadows, which reads
- * consumer and, for a company asking a regulator for a money transmitter
- * licence, slightly unserious. This page instead uses one dark navy surface,
- * turquoise only where the eye should actually go, hairline rules, and type
- * that is large but light. Restraint is the whole idea: it is what a bank's
- * site looks like, and it costs nothing to do properly.
- */
 export function Marketing() {
   const t = useT()
   const { user } = useAuth()
+  const labels = useBrandCopy()
+  const copy = useCorporateCopy()
+  const navigate = useNavigate()
+  const explore = () => navigate(user ? '/app' : '/register')
+  const companyLinks = [
+    { to: '/company', label: labels.trustCompany },
+    { to: '/compliance', label: labels.trustCompliance },
+    { to: '/security', label: labels.trustSecurity },
+    { to: '/philanthropy', label: labels.trustPartners },
+  ]
 
-  /* Buttons are defined once. Every call to action on the page is one of these
-     two, which is what keeps the hierarchy legible: a visitor should never have
-     to work out which control matters. */
-  const primaryButton =
-    'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 ' +
-    'text-[14px] font-semibold text-white transition-colors hover:bg-brand-700 ' +
-    'focus-visible:outline-brand-400'
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
-    <div className="min-h-dvh bg-white text-ink-900">
-      {/* In the native shell the webview draws under the status bar, so the
-          header pads itself down by the safe-area inset; on the web it is 0. */}
-      <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/85 pt-[env(safe-area-inset-top)] backdrop-blur-md">
-        {/*
-          Tight on a 375px screen: the mark, the switcher and two actions do not
-          fit at desktop padding, and the row was overflowing rather than
-          wrapping. Padding and the gap step up with the viewport, and the two
-          secondary links appear only once there is room for them. Get started
-          is always present, and sign in is reachable from it, so nothing is
-          stranded on a phone.
-        */}
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-4">
-          <Link to="/" className="flex min-w-0 items-center" aria-label={brand.name}>
-            {/* Wrapped, because the lockup sets its own display and a bare
-                `hidden` on it loses the cascade: both sizes were drawn at once
-                on phones, so the header read "XpressTendXpressTend". */}
-            <span className="sm:hidden">
-              <Logo height={26} />
-            </span>
-            <span className="hidden sm:block">
-              <Logo height={30} />
-            </span>
+    <div className="brand-site corporate-site">
+      <a
+        className="brand-skip"
+        href="#main"
+        onClick={(event) => {
+          event.preventDefault()
+          document.getElementById('main')?.focus()
+        }}
+      >
+        {labels.skip}
+      </a>
+      <header className="brand-header">
+        <div className="brand-header-inner brand-width">
+          <Link to="/" aria-label={brand.name} className="brand-wordmark">
+            <Logo variant="full" height={42} />
           </Link>
-          <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
-            <DownloadAppMenu />
-            <LanguageSwitcher />
-            {user ? (
-              <Link
-                to="/app"
-                className="rounded-lg bg-brand-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
-              >
-                {t('marketing.openApp')}
-              </Link>
-            ) : (
-              <>
-                <Link
-                  to="/register"
-                  className="whitespace-nowrap rounded-lg bg-brand-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
-                >
-                  {t('marketing.getStarted')}
-                </Link>
-                <details className="group relative">
-                  <summary aria-label="Sign in" className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-2 text-[12px] font-medium text-ink-600 transition-colors hover:text-ink-900 focus-visible:outline-brand-400 sm:px-3.5 sm:text-[13px]">
-                    <UserRound size={16} className="sm:hidden" />
-                    <span className="hidden sm:inline">{t('marketing.signIn')}</span>
-                  </summary>
-                  <nav aria-label="Sign-in options" className="absolute right-0 top-full z-50 mt-2 w-60 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200">
-                    <Link to="/login" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
-                      Customer sign in
-                    </Link>
-                    <Link to="/admin" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
-                      Staff sign in
-                    </Link>
-                    <Link to="/institutional-reviewer" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
-                      Institutional reviewer sign in
-                    </Link>
-                  </nav>
-                </details>
-              </>
-            )}
-          </div>
+          <nav aria-label={copy.navigation} className="brand-nav corporate-nav">
+            {companyLinks.map((link) => (
+              <Link key={link.to} to={link.to}>{link.label}</Link>
+            ))}
+          </nav>
+          <LanguageSwitcher />
+          <Link className="brand-primary" to={user ? '/app' : '/register'}>
+            {user ? t('marketing.openApp') : t('marketing.getStarted')}
+          </Link>
+          <details className="group relative">
+            <summary aria-label="Sign in" className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-700 hover:bg-white/60">
+              <UserRound size={17} className="sm:hidden" />
+              <span className="hidden sm:inline">{t('marketing.signIn')}</span>
+            </summary>
+            <nav aria-label="Sign-in options" className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200">
+              <Link to="/login" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Customer sign in</Link>
+              <Link to="/admin" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Staff sign in</Link>
+              <Link to="/institutional-reviewer" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Institutional reviewer sign in</Link>
+            </nav>
+          </details>
         </div>
       </header>
-
-      <main>
-        <section className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-16 md:py-24">
-          <div>
-            {/*
-              Large but not heavy. The previous heading capped at about 34px in
-              extrabold, which is the reverse of how confident type works: size
-              carries the emphasis, weight only adds noise once the size is
-              there.
-            */}
-            <h1 className="text-balance text-[clamp(2.25rem,5.4vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.02em] text-brand-600">
-              {t('marketing.heroTitle')}
-            </h1>
-            <div className="mt-6">
-              <HeroRotator />
+      <main id="main" tabIndex={-1}>
+        <section className="corporate-hero">
+          <div className="corporate-hero-inner brand-width">
+            <div className="corporate-hero-copy">
+              <p className="brand-eyebrow">{copy.heroEyebrow}</p>
+              <h1>{copy.heroFirst}<br /><span>{copy.heroSecond}</span></h1>
+              <p className="corporate-intro">{copy.heroIntro}</p>
             </div>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link to="/register" className={primaryButton}>
-                {t('marketing.getStarted')} <ArrowRight size={16} />
+            <InteractiveGlobe />
+          </div>
+        </section>
+
+        <AppShowcase onExplore={explore} />
+
+        <section className="corporate-company brand-width" aria-labelledby="company-heading">
+          <div className="corporate-company-intro">
+            <div>
+              <p className="brand-eyebrow">{copy.companyEyebrow}</p>
+              <h2 className="brand-display" id="company-heading">{copy.companyTitle}</h2>
+            </div>
+            <div>
+              <p className="brand-body">{copy.companyBody}</p>
+              <Link className="brand-text-link" to="/company">
+                {copy.companyLink} <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             </div>
-            {!user ? (
-              <p className="mt-4 text-[13px] text-ink-500">
-                {t('auth.haveAccount')}{' '}
-                <Link to="/login" className="font-semibold text-brand-600">
-                  {t('auth.signIn')}
-                </Link>
-              </p>
-            ) : null}
-            <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-ink-200 pt-7">
-              {(
-                [
-                  [t('marketing.statMany'), 'marketing.statLanguages'],
-                  ['24/7', 'marketing.statSupport'],
-                  ['0', 'marketing.statHidden'],
-                ] as const
-              ).map(([value, key]) => (
-                <div key={key}>
-                  <dt className="text-[26px] font-semibold tabular-nums tracking-tight text-brand-600">
-                    {value}
-                  </dt>
-                  <dd className="mt-1.5 text-[12px] leading-snug text-ink-500">{t(key)}</dd>
-                </div>
+          </div>
+          <dl className="corporate-facts">
+            <div><dt>{copy.factsLocation}</dt><dd>{brand.hq.city}, {brand.hq.state}</dd></div>
+            <div><dt>{copy.factsRegistration}</dt><dd>NMLS ID {brand.nmls.id}</dd></div>
+            <div><dt>{copy.factsFocus}</dt><dd>{copy.factsFocusValue}</dd></div>
+          </dl>
+        </section>
+
+        <section className="corporate-principles" aria-labelledby="approach-heading">
+          <div className="brand-width">
+            <p className="brand-eyebrow">{copy.principlesEyebrow}</p>
+            <h2 className="brand-display" id="approach-heading">{copy.principlesTitle}</h2>
+            <div className="corporate-cards">
+              {[
+                { Icon: ScanLine, title: copy.clarityTitle, body: copy.clarityBody },
+                { Icon: Languages, title: copy.accessTitle, body: copy.accessBody },
+                { Icon: ShieldCheck, title: copy.accountabilityTitle, body: copy.accountabilityBody },
+              ].map(({ Icon, title, body }) => (
+                <article key={title} className="corporate-card">
+                  <Icon size={27} strokeWidth={1.4} aria-hidden="true" />
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </article>
+
               ))}
-            </dl>
-          </div>
-
-          <RateQuote />
-        </section>
-
-        <section className="border-t border-ink-200">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3 md:gap-12 md:py-20">
-            {(
-              [
-                [Zap, 'marketing.f1Title', 'marketing.f1Body'],
-                [ShieldCheck, 'marketing.f2Title', 'marketing.f2Body'],
-                [Lock, 'marketing.f3Title', 'marketing.f3Body'],
-              ] as const
-            ).map(([Icon, title, body]) => (
-              <div key={title}>
-                {/* The one place turquoise appears on a light ground. Used on
-                    all three, it stays a system rather than a decoration. */}
-                <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-brand-600 ring-1 ring-brand-200/60">
-                  <Icon size={17} strokeWidth={2} />
-                </span>
-                <h3 className="mt-5 text-[15px] font-semibold tracking-tight text-brand-600">
-                  {t(title)}
-                </h3>
-                <p className="mt-2.5 text-[13.5px] leading-relaxed text-ink-500">{t(body)}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </section>
 
-        <GetTheApp />
+        <section className="corporate-partners brand-width" aria-labelledby="partners-heading">
+          <div>
+            <p className="brand-eyebrow">{copy.partnerEyebrow}</p>
+            <h2 className="brand-display" id="partners-heading">{copy.partnerTitle}</h2>
+            <p className="brand-body">{copy.partnerBody}</p>
+            <div className="brand-actions">
+              <a className="brand-primary" href={`mailto:${brand.support.email}?subject=${encodeURIComponent(copy.inquirySubject)}`}>
+                {copy.inquiryAction} <ArrowUpRight size={17} aria-hidden="true" />
+              </a>
+              <Link className="brand-text-link" to="/philanthropy">{copy.partnerLink} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+            </div>
+          </div>
+          <RiverFlow />
+          <BirdFlight title={copy.partnerTitle} />
+        </section>
 
-        {/*
-          The navy surface. The palette pairs navy with turquoise, and a brand
-          that never actually shows its primary colour at full strength does not
-          look like a brand. One band, once, at the point of decision.
-        */}
-        <section className="bg-brand-600">
-          <div className="mx-auto max-w-3xl px-6 py-20 text-center md:py-24">
-            <h2 className="text-balance text-[clamp(1.75rem,4vw,2.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-white">
-              {t('marketing.ctaTitle')}
-            </h2>
-            <p className="mx-auto mt-4 max-w-prose text-[15px] leading-relaxed text-brand-200">
-              {t('marketing.ctaBody')}
-            </p>
-            <Link
-              to="/register"
-              className="mt-9 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-7 py-3.5 text-[14px] font-semibold text-brand-600 transition-colors hover:bg-white"
-            >
-              {t('marketing.getStarted')} <ArrowRight size={16} />
-            </Link>
+        <section className="brand-trust" aria-labelledby="trust-heading">
+          <div className="brand-trust-inner brand-width">
+            <div>
+              <p className="brand-eyebrow">{copy.trustEyebrow}</p>
+              <h2 className="brand-display" id="trust-heading">{copy.trustTitle}</h2>
+              <p className="brand-body">{copy.trustBody}</p>
+            </div>
+            <ul className="brand-trust-links">
+              {companyLinks.map((link) => (
+                <li key={link.to}><Link to={link.to}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></Link></li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-ink-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-12 text-[12px] leading-relaxed text-ink-500">
-          <Logo height={26} className="mb-1" />
-          <p className="mt-1.5 text-ink-500">
-            {brand.hq.city}, {brand.hq.state}
-          </p>
-          <p className="mt-4 max-w-prose">{t('marketing.disclaimer')}</p>
-          <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1">
-            <Link to="/privacy" className="transition-colors hover:text-brand-600">
-              Privacy Policy
-            </Link>
-            <Link to="/support" className="transition-colors hover:text-brand-600">
-              Support
-            </Link>
-          </p>
-          <p className="mt-4 text-ink-500">
-            © {new Date().getFullYear()} {brand.name}
-          </p>
+      <footer className="brand-footer brand-width">
+        <div className="brand-footer-top">
+          <div className="brand-footer-brand">
+            <Link to="/" aria-label={brand.name}><Logo variant="full" height={44} /></Link>
+            <p>{brand.hq.city}, {brand.hq.state}, {brand.hq.country}</p>
+            <p>
+              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a><br />
+              <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>{brand.support.phone}</a>
+            </p>
+          </div>
+          <nav className="brand-footer-columns" aria-label={labels.footerCompany}>
+            <div>
+              <h2>{labels.footerCompany}</h2>
+              {companyLinks.map((link) => <Link key={link.to} to={link.to}>{link.label}</Link>)}
+            </div>
+            <div>
+              <h2>{copy.footerContact}</h2>
+              <Link to="/support">{copy.footerContact}</Link>
+              <Link to="/login">{t('marketing.signIn')}</Link>
+            </div>
+            <div>
+              <h2>{labels.footerLegal}</h2>
+              <Link to="/privacy">{copy.footerPrivacy}</Link>
+              <span>NMLS ID {brand.nmls.id}</span>
+            </div>
+          </nav>
+        </div>
+        <div className="brand-footer-bottom" lang="en" dir="ltr">
+          <p className="brand-footer-legal">{brand.legal.licence}</p>
+          <p className="brand-footer-legal">{brand.legal.operatingStatus}</p>
+          <p className="brand-footer-copyright">© {new Date().getFullYear()} {brand.legalName}. All rights reserved.</p>
         </div>
       </footer>
     </div>
