@@ -20,12 +20,12 @@
 .xt-river-outer-ring {
   stroke: #4bd1d3;
   stroke-width: 0.6;
-  opacity: 0.16;
+  opacity: 0.4;
 }
 .xt-river-rim {
   stroke: #4bd1d3;
-  stroke-width: 1;
-  opacity: 0.5;
+  stroke-width: 0.8;
+  opacity: 0.7;
 }
 .xt-river-banks {
   stroke: #79d6d4;
@@ -36,21 +36,36 @@
   stroke-width: 6;
 }
 .xt-river-currents {
-  stroke: #b2eee7;
-  stroke-width: 1.1;
-  opacity: 0.22;
+  stroke: #f0fffb;
+  stroke-width: 0.8;
+  opacity: 0.34;
 }
 .xt-river-current {
-  stroke-dasharray: 2 14;
-  animation: xt-river-current 7s linear infinite;
+  stroke-dasharray: 0.8 7 1.6 12;
+  animation: xt-river-current 11s linear infinite;
 }
 .xt-river-current:nth-child(2) {
-  animation-duration: 9s;
-  animation-delay: -4s;
+  animation-duration: 14s;
+  animation-delay: -6s;
 }
-.xt-river-current:nth-child(3) {
-  animation-duration: 15s;
-  animation-delay: -7s;
+.xt-river-shimmer {
+  stroke-width: 1.25;
+  stroke-dasharray: 0.5 13 1.2 17;
+  animation: xt-river-current 17s linear infinite;
+  animation-delay: -8s;
+  opacity: 0.6;
+}
+.philanthropy-habitat {
+  display: grid;
+  place-items: center;
+  width: min(100%, 260px);
+  aspect-ratio: 1;
+  justify-self: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(75 209 211 / 0.12), transparent 70%);
+}
+.philanthropy-habitat .xt-river {
+  width: 100%;
 }
 .xt-river[data-active='false'] .xt-river-motion {
   animation-play-state: paused;
@@ -77,4 +92,8 @@
     transform: none;
     stroke-dashoffset: 0;
   }
+}
+html[data-a11y-motion='reduce'] .xt-river .xt-river-motion {
+  animation: none;
+  stroke-dashoffset: 0;
 }

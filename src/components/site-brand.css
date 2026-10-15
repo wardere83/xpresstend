@@ -1,0 +1,34 @@
+:root {
+  --site-header-gutter: max(24px, calc((100vw - 1180px) / 2));
+  --site-header-height: 72px;
+  --public-page-heading: clamp(32px, 3.2vw, 46px);
+}
+.site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-height: 44px;
+  color: #0b252f;
+}
+/* A logotype is an image in the accessibility tree. Keep both lines in its
+   established proportions when text-size preferences enlarge page copy. */
+.site-header-brand > [role='img'] {
+  height: 36px !important;
+}
+.site-header-brand > [role='img'] > span:first-child {
+  font-size: 20.88px !important;
+}
+.site-header-brand > [role='img'] > span:last-child {
+  font-size: 12.24px !important;
+}
+.site-header-brand:focus-visible {
+  outline: 2px solid #267d70;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+@media (max-width: 600px) {
+  :root {
+    --site-header-gutter: 20px;
+    --site-header-height: 68px;
+  }
+}

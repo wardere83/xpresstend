@@ -1,7 +1,4 @@
 /* Company presentation, shared with the public institutional pages. */
-.corporate-site .brand-header-inner {
-  height: 94px;
-}
 .corporate-nav a {
   display: inline-flex;
   align-items: center;
@@ -226,15 +223,6 @@
   }
   .corporate-nav a {
     font-size: 12px;
-  }
-  .corporate-site .brand-wordmark [role='img'] {
-    height: 36px !important;
-  }
-  .corporate-site .brand-wordmark [aria-hidden='true']:first-child {
-    font-size: 23px !important;
-  }
-  .corporate-site .brand-wordmark [aria-hidden='true']:last-child {
-    font-size: 13px !important;
   }
   .corporate-hero-inner {
     grid-template-columns: minmax(0, 1fr);
@@ -1033,12 +1021,6 @@ summary {
     flex-wrap: wrap;
     align-content: center;
   }
-  .brand-wordmark [role='img'] {
-    height: 27px !important;
-  }
-  .brand-wordmark [aria-hidden='true'] {
-    font-size: 23px !important;
-  }
   .brand-nav {
     gap: 7px;
     font-size: 10px;
@@ -1196,7 +1178,10 @@ summary {
 
 /* Compact navigation stays on one line; the mobile menu is an explicit popover. */
 .corporate-site .brand-header-inner {
-  height: 76px;
+  height: calc(var(--site-header-height) + 1px);
+  width: auto;
+  margin-inline: var(--site-header-gutter);
+  padding-block: 0;
   flex-wrap: nowrap;
   gap: 12px;
   position: relative;
@@ -1295,7 +1280,7 @@ summary {
     margin-inline-start: auto;
   }
   .corporate-site .brand-header-inner {
-    height: 72px;
+    height: calc(var(--site-header-height) + 1px);
   }
   .corporate-site .brand-header-inner > details:last-child {
     flex: none;
@@ -1306,7 +1291,7 @@ summary {
 }
 @media (max-width: 480px) {
   .corporate-site .brand-header-inner {
-    height: 66px;
+    height: calc(var(--site-header-height) + 1px);
     gap: 4px;
   }
   .brand-mobile-menu summary {
@@ -1317,12 +1302,6 @@ summary {
   }
   .brand-mobile-menu nav {
     inset-inline-end: -70px;
-  }
-  .corporate-site .brand-wordmark [role='img'] {
-    height: 29px !important;
-  }
-  .corporate-site .brand-wordmark [aria-hidden='true']:last-child {
-    font-size: 11px !important;
   }
   .corporate-hero-actions {
     gap: 8px;
@@ -1505,11 +1484,18 @@ summary {
 /* Keep the translated language name and all header actions within a narrow
    phone. The full name remains the button's accessible text. */
 @media (max-width: 360px) {
-  .corporate-site .brand-header-inner > .relative > button[aria-haspopup='listbox'] {
+  .corporate-site
+    .brand-header-inner
+    > .relative
+    > button[aria-haspopup='listbox'] {
     min-height: 44px;
     padding-inline: 8px;
   }
-  .corporate-site .brand-header-inner > .relative > button[aria-haspopup='listbox'] > span {
+  .corporate-site
+    .brand-header-inner
+    > .relative
+    > button[aria-haspopup='listbox']
+    > span {
     max-width: 55px;
     overflow: hidden;
     text-overflow: ellipsis;

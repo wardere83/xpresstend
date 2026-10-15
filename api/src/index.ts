@@ -32,9 +32,14 @@ api.use('*', async (c, next) => {
 })
 
 api.get('/health', async (c) => {
-  const row = await c.env.DB.prepare(`SELECT COUNT(*) AS n FROM corridors WHERE enabled = 1`)
-    .first<{ n: number }>()
-  return c.json({ ok: true, environment: c.env.ENVIRONMENT, corridors: row?.n ?? 0 })
+  const row = await c.env.DB.prepare(
+    `SELECT COUNT(*) AS n FROM corridors WHERE enabled = 1`,
+  ).first<{ n: number }>()
+  return c.json({
+    ok: true,
+    environment: c.env.ENVIRONMENT,
+    corridors: row?.n ?? 0,
+  })
 })
 
 /** Dataset readiness only: no customer names or individual screening results. */
@@ -72,7 +77,11 @@ const app = new Hono<{ Bindings: Env; Variables: Vars }>()
 app.route('/api', api)
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     const url = new URL(request.url)
 
     /*
@@ -124,10 +133,10 @@ export default {
      */
     if (env.ENVIRONMENT === 'production' && !env.SESSION_PEPPER) {
       console.error('SESSION_PEPPER is not set; refusing to serve')
-      return new Response(
-        JSON.stringify({ error: 'misconfigured' }),
-        { status: 503, headers: { 'content-type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ error: 'misconfigured' }), {
+        status: 503,
+        headers: { 'content-type': 'application/json' },
+      })
     }
 
     if (pathname === '/api' || pathname.startsWith('/api/')) {
@@ -151,7 +160,8 @@ export default {
         'https://localhost',
         'http://localhost',
       ])
-      if (env.ENVIRONMENT === 'development') allowed.add('http://localhost:5173')
+      if (env.ENVIRONMENT === 'development')
+        allowed.add('http://localhost:5173')
 
       const corsHeaders: Record<string, string> = {}
       if (origin && allowed.has(origin)) {
@@ -167,7 +177,8 @@ export default {
             headers: {
               ...corsHeaders,
               'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
-              'access-control-allow-headers': 'Content-Type, Authorization, x-bootstrap-secret',
+              'access-control-allow-headers':
+                'Content-Type, Authorization, x-bootstrap-secret',
               'access-control-max-age': '86400',
             },
           }),
@@ -178,7 +189,11 @@ export default {
       const merged = new Headers(res.headers)
       for (const [k, v] of Object.entries(corsHeaders)) merged.set(k, v)
       return withSecurityHeaders(
-        new Response(res.body, { status: res.status, statusText: res.statusText, headers: merged }),
+        new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: merged,
+        }),
       )
     }
 
@@ -216,7 +231,10 @@ export default {
 
     // Everything else is the site. The assets binding falls back to index.html
     // for unknown paths, which is what a client-routed app needs on a cold URL.
-    return withSecurityHeaders(await env.ASSETS.fetch(request))
+    return withSecurityHeaders(
+      await env.ASSETS.fetch(request),
+      pathname === '/market/dollar-index.html',
+    )
   },
 
   /*
@@ -224,7 +242,11 @@ export default {
    * scheduled write every corridor stops quoting once the seeded rows age out
    * — which is exactly what had happened. The cron lives in wrangler.toml.
    */
-  async scheduled(_event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
+  async scheduled(
+    _event: ScheduledController,
+    env: Env,
+    _ctx: ExecutionContext,
+  ): Promise<void> {
     await refreshRates(env)
   },
 }

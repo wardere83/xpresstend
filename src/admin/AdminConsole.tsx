@@ -35,7 +35,12 @@ interface TransferRow {
 interface TrialBalance {
   balanced: boolean
   imbalances: { currency: string; off: number }[]
-  accounts: { currency: string; account_code: string; balance_minor: number; entries: number }[]
+  accounts: {
+    currency: string
+    account_code: string
+    balance_minor: number
+    entries: number
+  }[]
 }
 
 interface OperationsOverview {
@@ -102,20 +107,27 @@ interface ScreeningReview {
 }
 
 function screeningError(error: unknown): string {
-  if (!(error instanceof ApiError)) return 'The screening request could not be completed. Please retry.'
+  if (!(error instanceof ApiError))
+    return 'The screening request could not be completed. Please retry.'
   const messages: Record<string, string> = {
     reason_minimum_20_chars: 'Enter a review reason of at least 20 characters.',
-    screening_not_reviewable: 'This screening is not available for a false-positive decision.',
-    screening_outdated: 'The official dataset or matches have changed. Refresh screening before reviewing.',
+    screening_not_reviewable:
+      'This screening is not available for a false-positive decision.',
+    screening_outdated:
+      'The official dataset or matches have changed. Refresh screening before reviewing.',
     screening_subject_changed:
       'The sender or recipient name has changed. Refresh screening before reviewing.',
     sanctions_unavailable:
       'Current official sanctions data is unavailable. Screening and transfer release are blocked.',
     sanctions_review_required:
       'Unresolved sanctions matches require a separate review decision before release.',
-    not_funded: 'This transfer cannot be released because payment has not been confirmed.',
+    not_funded:
+      'This transfer cannot be released because payment has not been confirmed.',
   }
-  return messages[error.code] ?? `The screening request could not be completed (${error.code}).`
+  return (
+    messages[error.code] ??
+    `The screening request could not be completed (${error.code}).`
+  )
 }
 
 function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
@@ -132,15 +144,21 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
           reason: screening.review_reason,
         }
       : null)
-  const reviewed = screening.is_current ? screening.effective_cleared : !!screening.cleared_at
+  const reviewed = screening.is_current
+    ? screening.effective_cleared
+    : !!screening.cleared_at
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">
           {screening.subject_type.replace(/_/g, ' ')} · {metadata.subjectName}
         </h3>
-        <Pill status={reviewed ? 'reviewed_false_positive' : screening.status} />
-        {!screening.is_current ? <span className="text-[11px] text-ink-500">Historical record</span> : null}
+        <Pill
+          status={reviewed ? 'reviewed_false_positive' : screening.status}
+        />
+        {!screening.is_current ? (
+          <span className="text-[11px] text-ink-500">Historical record</span>
+        ) : null}
       </div>
       <dl className="mt-3 grid gap-2 text-[12px] sm:grid-cols-2">
         <div>
@@ -155,7 +173,9 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
         </div>
         <div>
           <dt className="text-ink-500">Official dataset version</dt>
-          <dd className="break-all">{metadata.datasetVersion ?? 'Unavailable'}</dd>
+          <dd className="break-all">
+            {metadata.datasetVersion ?? 'Unavailable'}
+          </dd>
         </div>
         <div>
           <dt className="text-ink-500">Last successful source check</dt>
@@ -164,7 +184,9 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
         {metadata.datasetHash ? (
           <div className="sm:col-span-2">
             <dt className="text-ink-500">Dataset SHA-256</dt>
-            <dd className="break-all font-mono text-[11px]">{metadata.datasetHash}</dd>
+            <dd className="break-all font-mono text-[11px]">
+              {metadata.datasetHash}
+            </dd>
           </div>
         ) : null}
       </dl>
@@ -176,9 +198,14 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
       {metadata.matches?.length ? (
         <div className="mt-4 space-y-3">
           {metadata.matches.map((match) => (
-            <div key={`${match.entityId}:${match.nameId}`} className="rounded-xl bg-canvas p-3 text-[12px]">
+            <div
+              key={`${match.entityId}:${match.nameId}`}
+              className="rounded-xl bg-canvas p-3 text-[12px]"
+            >
               <p className="font-semibold">{match.primaryName}</p>
-              <p className="mt-1 text-ink-600">Matched name or alias: {match.name}</p>
+              <p className="mt-1 text-ink-600">
+                Matched name or alias: {match.name}
+              </p>
               <dl className="mt-2 grid gap-2 sm:grid-cols-2">
                 <div>
                   <dt className="text-ink-500">Official entity ID</dt>
@@ -188,11 +215,15 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
                 </div>
                 <div>
                   <dt className="text-ink-500">OFAC list</dt>
-                  <dd>{match.list === 'sdn' ? 'SDN' : 'Consolidated non-SDN'}</dd>
+                  <dd>
+                    {match.list === 'sdn' ? 'SDN' : 'Consolidated non-SDN'}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-ink-500">Programs</dt>
-                  <dd>{match.programs.join(', ') || 'Not specified in source'}</dd>
+                  <dd>
+                    {match.programs.join(', ') || 'Not specified in source'}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-ink-500">Name similarity</dt>
@@ -205,21 +236,29 @@ function ScreeningDetails({ screening }: { screening: ScreeningRecord }) {
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-[12px] text-ink-600">No name matches recorded in this screening.</p>
+        <p className="mt-3 text-[12px] text-ink-600">
+          No name matches recorded in this screening.
+        </p>
       )}
       {clearance ? (
         <div className="mt-4 rounded-xl bg-ok-soft p-3 text-[12px]">
           <p className="font-semibold">
-            {screening.is_current ? 'False-positive decision recorded' : 'Historical false-positive decision'}
+            {screening.is_current
+              ? 'False-positive decision recorded'
+              : 'Historical false-positive decision'}
           </p>
           <p className="mt-1">
-            Reviewer: {clearance.cleared_by_name ?? clearance.cleared_by_email ?? clearance.cleared_by} ·{' '}
-            {clearance.cleared_at}
+            Reviewer:{' '}
+            {clearance.cleared_by_name ??
+              clearance.cleared_by_email ??
+              clearance.cleared_by}{' '}
+            · {clearance.cleared_at}
           </p>
           <p className="mt-1 whitespace-pre-wrap">{clearance.reason}</p>
           {screening.is_current && clearance.screening_id !== screening.id ? (
             <p className="mt-2">
-              Prior decision applies to the same screened name, official dataset and matched entities.
+              Prior decision applies to the same screened name, official dataset
+              and matched entities.
             </p>
           ) : null}
         </div>
@@ -260,7 +299,9 @@ export function AdminConsole() {
       // No session. Offer the setup screen only while the backend says the
       // bootstrap is genuinely open.
       try {
-        const { available } = await api.get<{ available: boolean }>('/bootstrap/status')
+        const { available } = await api.get<{ available: boolean }>(
+          '/bootstrap/status',
+        )
         setNeedsSetup(available)
       } catch {
         setNeedsSetup(false)
@@ -281,8 +322,14 @@ export function AdminConsole() {
       </div>
     )
   }
-  if (admin?.role === 'reviewer') return <Navigate to="/institutional-reviewer" replace />
-  if (!admin) return needsSetup ? <AdminSetup onCreated={refresh} /> : <AdminLogin onSignedIn={refresh} />
+  if (admin?.role === 'reviewer')
+    return <Navigate to="/institutional-reviewer" replace />
+  if (!admin)
+    return needsSetup ? (
+      <AdminSetup onCreated={refresh} />
+    ) : (
+      <AdminLogin onSignedIn={refresh} />
+    )
   return <Dashboard admin={admin} onSignedOut={() => setAdmin(null)} />
 }
 
@@ -295,13 +342,19 @@ export function AdminConsole() {
  * exists.
  */
 function AdminSetup({ onCreated }: { onCreated: () => void }) {
-  const [form, setForm] = useState({ email: '', name: '', password: '', secret: '' })
+  const [form, setForm] = useState({
+    email: '',
+    name: '',
+    password: '',
+    secret: '',
+  })
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }))
+  const set =
+    (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }))
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -315,11 +368,21 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
       await fetch(`${API_BASE}/bootstrap/admin`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json', 'x-bootstrap-secret': form.secret },
-        body: JSON.stringify({ email: form.email, name: form.name, password: form.password }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-bootstrap-secret': form.secret,
+        },
+        body: JSON.stringify({
+          email: form.email,
+          name: form.name,
+          password: form.password,
+        }),
       }).then(async (res) => {
         if (!res.ok) {
-          const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string }
+          const body = (await res.json().catch(() => ({}))) as {
+            error?: string
+            message?: string
+          }
           throw new Error(
             body.error === 'not_found'
               ? 'That setup key was not accepted.'
@@ -329,7 +392,9 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
       })
       setDone(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not create the account.')
+      setError(
+        err instanceof Error ? err.message : 'Could not create the account.',
+      )
     } finally {
       setBusy(false)
     }
@@ -339,10 +404,14 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
     return (
       <div className="grid min-h-dvh place-items-center bg-ink-900 px-5">
         <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7 text-center">
-          <h1 className="text-[19px] font-semibold tracking-tight">Account created</h1>
+          <h1 className="text-[19px] font-semibold tracking-tight">
+            Account created
+          </h1>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
             Sign in with the email and password you just chose. Then remove the
-            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 text-[12px]">ADMIN_BOOTSTRAP_SECRET</code>
+            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5 text-[12px]">
+              ADMIN_BOOTSTRAP_SECRET
+            </code>
             so this screen can never appear again.
           </p>
           <button
@@ -361,8 +430,13 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
 
   return (
     <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <h1 className="text-[19px] font-semibold tracking-tight">Create the owner account</h1>
+      <form
+        onSubmit={submit}
+        className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7"
+      >
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          Create the owner account
+        </h1>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
           This runs once. Nobody else can create it after you.
         </p>
@@ -402,8 +476,8 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
             className={field}
           />
           <p className="text-[11px] leading-snug text-ink-500">
-            The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It stops a stranger claiming this
-            account before you do.
+            The setup key is the ADMIN_BOOTSTRAP_SECRET set on the Worker. It
+            stops a stranger claiming this account before you do.
           </p>
         </div>
         {error ? (
@@ -441,7 +515,13 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
  * Both replies are identical whether or not the address has an account, which
  * is why the confirmation below is worded as a conditional.
  */
-function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: () => void }) {
+function AdminRecover({
+  mode,
+  onBack,
+}: {
+  mode: 'password' | 'address'
+  onBack: () => void
+}) {
   const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
@@ -452,7 +532,10 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
     e.preventDefault()
     setBusy(true)
     try {
-      await api.post(password ? '/admin/auth/forgot-password' : '/admin/auth/forgot-email', { email })
+      await api.post(
+        password ? '/admin/auth/forgot-password' : '/admin/auth/forgot-email',
+        { email },
+      )
     } catch {
       /*
        * Swallowed on purpose. The server answers the same way for an unknown
@@ -469,15 +552,17 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
   if (sent) {
     return (
       <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <h1 className="text-[19px] font-semibold tracking-tight">Check your inbox</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          Check your inbox
+        </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          If <span className="font-semibold text-ink-700">{email}</span> has a staff account, we have sent it
-          an email. Look in spam too.
+          If <span className="font-semibold text-ink-700">{email}</span> has a
+          staff account, we have sent it an email. Look in spam too.
         </p>
         {password ? (
           <p className="mt-3 text-[12px] leading-relaxed text-ink-500">
-            The link lasts one hour and works once. If it does not arrive, an owner can generate one for you
-            from the Staff tab.
+            The link lasts one hour and works once. If it does not arrive, an
+            owner can generate one for you from the Staff tab.
           </p>
         ) : null}
         <button
@@ -491,7 +576,10 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
   }
 
   return (
-    <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
+    <form
+      onSubmit={submit}
+      className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7"
+    >
       <h1 className="text-[19px] font-semibold tracking-tight">
         {password ? 'Reset your password' : 'Which address do I use?'}
       </h1>
@@ -515,7 +603,11 @@ function AdminRecover({ mode, onBack }: { mode: 'password' | 'address'; onBack: 
         disabled={busy}
         className="mt-4 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
       >
-        {busy ? 'Sending…' : password ? 'Email me a reset link' : 'Confirm this address'}
+        {busy
+          ? 'Sending…'
+          : password
+            ? 'Email me a reset link'
+            : 'Confirm this address'}
       </button>
       <button
         type="button"
@@ -564,8 +656,13 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 
   return (
     <SignInFrame className="staff-console staff-auth">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <h1 className="text-[19px] font-semibold tracking-tight">{p('Staff sign in')}</h1>
+      <form
+        onSubmit={submit}
+        className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7"
+      >
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          {p('Staff sign in')}
+        </h1>
         <p className="mt-1.5 text-[12px] text-ink-500">
           {p('Authorised personnel only. Sessions last 8 hours.')}
         </p>
@@ -630,15 +727,24 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
   )
 }
 
-function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () => void }) {
+function Dashboard({
+  admin,
+  onSignedOut,
+}: {
+  admin: AdminUser
+  onSignedOut: () => void
+}) {
   const [tab, setTab] = useState<'queue' | 'staff' | 'compliance'>('queue')
+  const [tickerPaused, setTickerPaused] = useState(false)
   const [rows, setRows] = useState<TransferRow[]>([])
   const [filter, setFilter] = useState('compliance_hold')
   const [balance, setBalance] = useState<TrialBalance | null>(null)
   const [overview, setOverview] = useState<OperationsOverview | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
-  const [selectedTransfer, setSelectedTransfer] = useState<TransferRow | null>(null)
+  const [selectedTransfer, setSelectedTransfer] = useState<TransferRow | null>(
+    null,
+  )
   const [review, setReview] = useState<ScreeningReview | null>(null)
   const [reviewBusy, setReviewBusy] = useState(false)
   const [reviewError, setReviewError] = useState<string | null>(null)
@@ -650,7 +756,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   const [refreshing, setRefreshing] = useState(false)
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
   const [inviteRequest, setInviteRequest] = useState(0)
-  const [sectionRequest, setSectionRequest] = useState<{ section: ComplianceSection; request: number }>({
+  const [sectionRequest, setSectionRequest] = useState<{
+    section: ComplianceSection
+    request: number
+  }>({
     section: 'readiness',
     request: 0,
   })
@@ -663,7 +772,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       setRefreshing(true)
       try {
         const [t, b, o] = await Promise.all([
-          api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(status)}`),
+          api.get<{ transfers: TransferRow[] }>(
+            `/admin/transfers?status=${encodeURIComponent(status)}`,
+          ),
           api.get<TrialBalance>('/admin/ledger/trial-balance'),
           api.get<OperationsOverview>('/admin/overview'),
         ])
@@ -686,7 +797,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   useEffect(() => {
     const refresh = () => {
       if (!document.hidden)
-        void load().catch(() => setNote('Could not load the queue. Retry with Refresh workspace.'))
+        void load().catch(() =>
+          setNote('Could not load the queue. Retry with Refresh workspace.'),
+        )
     }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
@@ -704,7 +817,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       return
     }
     if (key === 'compliance') {
-      setSectionRequest((value) => ({ section: 'readiness', request: value.request + 1 }))
+      setSectionRequest((value) => ({
+        section: 'readiness',
+        request: value.request + 1,
+      }))
       return
     }
     ++reviewRequest.current
@@ -737,7 +853,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     setReviewMessage(null)
     try {
       if (rescreen) await api.post(`/admin/transfers/${id}/screen`)
-      const result = await api.get<ScreeningReview>(`/admin/transfers/${id}/screenings`)
+      const result = await api.get<ScreeningReview>(
+        `/admin/transfers/${id}/screenings`,
+      )
       if (request === reviewRequest.current) setReview(result)
     } catch (err) {
       if (request === reviewRequest.current) {
@@ -786,16 +904,23 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
 
   async function decide(id: string, action: 'approve' | 'reject') {
     if (action === 'approve' && (!canRelease || selectedTransfer?.id !== id)) {
-      setNote('Load current screening results and resolve sanctions matches before release.')
+      setNote(
+        'Load current screening results and resolve sanctions matches before release.',
+      )
       return
     }
     const reason =
-      action === 'reject' ? window.prompt('Reason for rejecting this transfer:')?.trim() : undefined
+      action === 'reject'
+        ? window.prompt('Reason for rejecting this transfer:')?.trim()
+        : undefined
     if (action === 'reject' && !reason) return
     setBusyId(id)
     setNote(null)
     try {
-      await api.post(`/admin/transfers/${id}/${action}`, action === 'reject' ? { reason } : undefined)
+      await api.post(
+        `/admin/transfers/${id}/${action}`,
+        action === 'reject' ? { reason } : undefined,
+      )
       await load()
       if (selectedTransfer?.id === id) {
         ++reviewRequest.current
@@ -819,7 +944,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     <div className="staff-console staff-dashboard min-h-dvh bg-canvas">
       <header className="border-b border-ink-200/70 bg-ink-900 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
-          <span className="text-[15px] font-semibold tracking-tight">XpressTend Operations</span>
+          <span className="text-[15px] font-semibold tracking-tight">
+            XpressTend Operations
+          </span>
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide">
             {admin.role}
           </span>
@@ -837,16 +964,55 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
 
       <main className="mx-auto max-w-6xl px-5 py-8">
         <section className="operations-hero" aria-labelledby="operations-title">
-          <div>
-            <p className="operations-eyebrow">XpressTend / Financial operations</p>
+          <div className="operations-brand">
+            <div className="operations-ticker" data-paused={tickerPaused}>
+              <p className="sr-only">XpressTend / Financial operations</p>
+              <div className="operations-ticker-window" aria-hidden="true">
+                <div className="operations-ticker-track">
+                  {[0, 1].map((copy) => (
+                    <span key={copy}>XpressTend / Financial operations</span>
+                  ))}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="operations-ticker-toggle"
+                onClick={() => setTickerPaused((paused) => !paused)}
+                aria-label={
+                  tickerPaused
+                    ? 'Resume heading motion'
+                    : 'Pause heading motion'
+                }
+                aria-pressed={tickerPaused}
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                  {tickerPaused ? (
+                    <path d="m5 3 7 5-7 5Z" fill="currentColor" />
+                  ) : (
+                    <path
+                      d="M5 3v10M11 3v10"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  )}
+                </svg>
+              </button>
+            </div>
             <h1 id="operations-title">Your operations. In view.</h1>
             <p className="operations-intro">
-              A connected view of transfers, financial controls and the people who keep money moving.
+              A connected view of transfers, financial controls and the people
+              who keep money moving.
             </p>
           </div>
           <div className="operations-ledger">
             <span className="operations-eyebrow">Ledger control</span>
-            <strong>{balance ? (balance.balanced ? 'Balanced' : 'Needs attention') : 'Awaiting data'}</strong>
+            <strong>
+              {balance
+                ? balance.balanced
+                  ? 'Balanced'
+                  : 'Needs attention'
+                : 'Awaiting data'}
+            </strong>
             <span>
               {balance
                 ? balance.balanced
@@ -855,7 +1021,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                 : 'Loading ledger reconciliation'}
             </span>
           </div>
-          <nav className="operations-flow" aria-label="Financial operations workflow">
+          <nav
+            className="operations-flow"
+            aria-label="Financial operations workflow"
+          >
             {(
               [
                 [
@@ -864,12 +1033,19 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                   'Transfer queue',
                   `${overview?.awaitingReview ?? '—'} awaiting · Review next`,
                 ],
-                ['compliance', '02', 'Financial controls', 'Check connections & readiness'],
+                [
+                  'compliance',
+                  '02',
+                  'Financial controls',
+                  'Check connections & readiness',
+                ],
                 [
                   'staff',
                   '03',
                   'Access governance',
-                  admin.role === 'owner' ? 'Invite a teammate' : 'View staff access',
+                  admin.role === 'owner'
+                    ? 'Invite a teammate'
+                    : 'View staff access',
                 ],
               ] as const
             ).map(([key, number, title, detail]) => (
@@ -926,7 +1102,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">
                   {metric.label}
                 </p>
-                <p className="mt-2 text-[25px] font-semibold tabular-nums">{metric.value}</p>
+                <p className="mt-2 text-[25px] font-semibold tabular-nums">
+                  {metric.value}
+                </p>
                 <p className="mt-1 text-[11px] text-ink-500">{metric.detail}</p>
               </article>
             ))}
@@ -938,7 +1116,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                 <p className="mt-1 text-[13px] font-semibold tabular-nums">
                   {overview.volume.length
                     ? overview.volume
-                        .map(({ currency, sent }) => money(Number(sent ?? 0), currency))
+                        .map(({ currency, sent }) =>
+                          money(Number(sent ?? 0), currency),
+                        )
                         .join(' · ')
                     : 'No processed volume yet'}
                 </p>
@@ -971,33 +1151,49 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
 
         <div className="operations-toolbar">
           <span role="status">
-            {refreshing ? 'Refreshing workspace…' : updatedAt ? `Updated ${updatedAt}` : 'Waiting for data'}
+            {refreshing
+              ? 'Refreshing workspace…'
+              : updatedAt
+                ? `Updated ${updatedAt}`
+                : 'Waiting for data'}
           </span>
           <button
             disabled={refreshing}
             onClick={() => {
               setNote(null)
-              void load().catch(() => setNote('Unable to refresh. Please retry.'))
+              void load().catch(() =>
+                setNote('Unable to refresh. Please retry.'),
+              )
             }}
           >
             Refresh workspace
           </button>
         </div>
-        <div className="operations-panel" tabIndex={0} aria-label="Operations workspace">
+        <div
+          className="operations-panel"
+          tabIndex={0}
+          aria-label="Operations workspace"
+        >
           {note ? (
             <p role="alert" className="bank-notice">
               {note}
             </p>
           ) : null}
-          {tab === 'staff' ? <StaffPanel me={admin} inviteRequest={inviteRequest} /> : null}
-          {tab === 'compliance' ? <CompliancePanel admin={admin} sectionRequest={sectionRequest} /> : null}
+          {tab === 'staff' ? (
+            <StaffPanel me={admin} inviteRequest={inviteRequest} />
+          ) : null}
+          {tab === 'compliance' ? (
+            <CompliancePanel admin={admin} sectionRequest={sectionRequest} />
+          ) : null}
 
           {tab === 'queue' ? (
             <>
               {balance ? (
                 <div
                   className={`mb-6 rounded-xl px-4 py-3 text-[13px] font-semibold ${
-                    balance.balanced ? 'bg-ok-soft text-brand-700' : 'bg-alert-soft text-alert'
+                    balance.balanced
+                      ? 'bg-ok-soft text-brand-700'
+                      : 'bg-alert-soft text-alert'
                   }`}
                 >
                   {balance.balanced
@@ -1007,12 +1203,20 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
               ) : null}
 
               <div className="mb-4 flex flex-wrap items-center gap-2">
-                {['compliance_hold', 'awaiting_payment', 'completed', 'failed', 'all'].map((s) => (
+                {[
+                  'compliance_hold',
+                  'awaiting_payment',
+                  'completed',
+                  'failed',
+                  'all',
+                ].map((s) => (
                   <button
                     key={s}
                     onClick={() => setFilter(s)}
                     className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
-                      filter === s ? 'bg-brand-600 text-white' : 'bg-white text-ink-600 ring-1 ring-ink-200'
+                      filter === s
+                        ? 'bg-brand-600 text-white'
+                        : 'bg-white text-ink-600 ring-1 ring-ink-200'
                     }`}
                   >
                     {s.replace(/_/g, ' ')}
@@ -1036,14 +1240,22 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                   <tbody>
                     {rows.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-10 text-center text-ink-500">
+                        <td
+                          colSpan={7}
+                          className="px-4 py-10 text-center text-ink-500"
+                        >
                           Nothing in this queue.
                         </td>
                       </tr>
                     ) : (
                       rows.map((r) => (
-                        <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
-                          <td className="px-4 py-3 font-semibold tabular-nums">{r.reference}</td>
+                        <tr
+                          key={r.id}
+                          className="border-b border-ink-200/50 last:border-0"
+                        >
+                          <td className="px-4 py-3 font-semibold tabular-nums">
+                            {r.reference}
+                          </td>
                           <td className="px-4 py-3">
                             <div>
                               {r.first_name} {r.last_name}
@@ -1054,7 +1266,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                           </td>
                           <td className="px-4 py-3">
                             <div>{r.recipient_name}</div>
-                            <div className="text-[11px] text-ink-500">{r.recipient_country}</div>
+                            <div className="text-[11px] text-ink-500">
+                              {r.recipient_country}
+                            </div>
                           </td>
                           <td className="px-4 py-3 text-right tabular-nums">
                             {money(r.send_amount_minor, r.send_currency)}
@@ -1079,7 +1293,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                               </button>
                               {r.status === 'compliance_hold' && canDecide ? (
                                 <button
-                                  disabled={!!busyId || !!clearingId || reviewBusy}
+                                  disabled={
+                                    !!busyId || !!clearingId || reviewBusy
+                                  }
                                   onClick={() => decide(r.id, 'reject')}
                                   className="rounded-full bg-white px-3 py-1.5 text-[12px] font-semibold text-alert ring-1 ring-ink-200 disabled:opacity-50"
                                 >
@@ -1106,7 +1322,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                     <div className="flex gap-2">
                       <button
                         disabled={reviewBusy || !!clearingId || !!busyId}
-                        onClick={() => refreshReview(selectedTransfer.id, canDecide)}
+                        onClick={() =>
+                          refreshReview(selectedTransfer.id, canDecide)
+                        }
                         className="rounded-full px-3 py-1.5 text-[12px] font-semibold ring-1 ring-ink-200 disabled:opacity-50"
                       >
                         {canDecide ? 'Refresh screening' : 'Reload results'}
@@ -1126,9 +1344,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                     </div>
                   </div>
                   <p className="mt-2 text-[12px] leading-relaxed text-ink-500">
-                    Review official entity identifiers, listed names and aliases, programs and the dataset
-                    version. A name similarity score is a screening signal. Record a false-positive decision
-                    only after verifying the parties are distinct.
+                    Review official entity identifiers, listed names and
+                    aliases, programs and the dataset version. A name similarity
+                    score is a screening signal. Record a false-positive
+                    decision only after verifying the parties are distinct.
                   </p>
                   {reviewBusy ? (
                     <p role="status" className="mt-4 text-[13px] text-ink-500">
@@ -1141,7 +1360,10 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                     </p>
                   ) : null}
                   {reviewMessage ? (
-                    <p role="status" className="mt-4 text-[13px] text-brand-700">
+                    <p
+                      role="status"
+                      className="mt-4 text-[13px] text-brand-700"
+                    >
                       {reviewMessage}
                     </p>
                   ) : null}
@@ -1207,7 +1429,8 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                                       disabled={
                                         reviewBusy ||
                                         !!clearingId ||
-                                        (reviewReasons[screening.id]?.trim().length ?? 0) < 20
+                                        (reviewReasons[screening.id]?.trim()
+                                          .length ?? 0) < 20
                                       }
                                       className="mt-3 rounded-full bg-ink-900 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50"
                                     >
@@ -1222,7 +1445,8 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                           })
                         ) : (
                           <p className="text-[13px] text-ink-500">
-                            No screening records are available for this transfer.
+                            No screening records are available for this
+                            transfer.
                           </p>
                         )}
                       </div>
@@ -1237,7 +1461,9 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                       </p>
                       {canDecide ? (
                         <button
-                          disabled={!canRelease || busyId === selectedTransfer.id}
+                          disabled={
+                            !canRelease || busyId === selectedTransfer.id
+                          }
                           onClick={() => decide(selectedTransfer.id, 'approve')}
                           className="rounded-full bg-brand-600 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-50"
                         >

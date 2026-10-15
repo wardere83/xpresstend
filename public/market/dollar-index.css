@@ -1,0 +1,25 @@
+html,
+body {
+  margin: 0;
+  background: #eff8f7;
+  color: #0b252f;
+  font-family: Inter, system-ui, sans-serif;
+}
+body {
+  --tv-widget-background-color: transparent;
+  --tv-widget-text-color: #173b43;
+  --tv-widget-price-text-color: #0b252f;
+  --tv-widget-positive-color: #16744e;
+  --tv-widget-negative-color: #bd3344;
+  --tv-widget-font-family: Inter, system-ui, sans-serif;
+}
+tv-ticker-tape {
+  display: block;
+  width: 100%;
+}
+.market-fallback {
+  display: inline-block;
+  padding: 14px 12px;
+  color: #245663;
+  font-size: 13px;
+}

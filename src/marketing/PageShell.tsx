@@ -2,9 +2,16 @@ import { AccessibilityLink } from '../accessibility/Accessibility'
 import { reducedMotionQuery } from '../accessibility/motion'
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { ArrowUpRight, ChevronDown, Mail, ShieldCheck, Layers3, Globe2 } from 'lucide-react'
+import {
+  ArrowUpRight,
+  ChevronDown,
+  Mail,
+  ShieldCheck,
+  Layers3,
+  Globe2,
+} from 'lucide-react'
 import { brand } from '../config/brand'
-import { Logo } from '../components/Logo'
+import { SiteBrand } from '../components/SiteBrand'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { useBrandCopy } from './brandCopy'
@@ -44,9 +51,7 @@ export function PageHeader() {
         {readPassage(siteLabels.skip, lang)}
       </a>
       <header className="institutional-header" dir={dir}>
-        <Link to="/" aria-label={brand.name}>
-          <Logo variant="full" height={36} />
-        </Link>
+        <SiteBrand />
         <nav aria-label={copy.footerCompany}>
           {nav.map((item) => (
             <NavLink key={item.to} to={item.to}>
@@ -95,7 +100,8 @@ export function PageFooter() {
         </p>
         <p>{readPassage(siteLabels.operating, lang)}</p>
         <p>
-          © {new Date().getFullYear()} {brand.legalName}. {readPassage(siteLabels.rights, lang)}
+          © {new Date().getFullYear()} {brand.legalName}.{' '}
+          {readPassage(siteLabels.rights, lang)}
         </p>
       </div>
     </footer>
@@ -105,11 +111,13 @@ export function Shell({
   title,
   intro,
   updated,
+  visual,
   children,
 }: {
   title: string
   intro?: string
   updated?: string
+  visual?: ReactNode
   children: ReactNode
 }) {
   const { lang, dir } = useI18n()
@@ -129,12 +137,14 @@ export function Shell({
               </small>
             )}
           </div>
-          <div className="institutional-orbits" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <Globe2 />
-          </div>
+          {visual ?? (
+            <div className="institutional-orbits" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <Globe2 />
+            </div>
+          )}
         </section>
         <div className="institutional-body">{children}</div>
       </main>
@@ -142,11 +152,18 @@ export function Shell({
     </div>
   )
 }
-export function Contents({ items }: { items: { id: string; label: string }[] }) {
+export function Contents({
+  items,
+}: {
+  items: { id: string; label: string }[]
+}) {
   const { lang } = useI18n()
   const [selected, setSelected] = useState(items[0]?.id)
   return (
-    <nav className="institutional-contents" aria-label={readPassage(siteLabels.contents, lang)}>
+    <nav
+      className="institutional-contents"
+      aria-label={readPassage(siteLabels.contents, lang)}
+    >
       <p>{readPassage(siteLabels.contents, lang)}</p>
       <div>
         {items.map((item) => (
@@ -173,7 +190,15 @@ export function H({ children, id }: { children: ReactNode; id?: string }) {
     </h2>
   )
 }
-export function Q({ q, id, children }: { q: string; id?: string; children: ReactNode }) {
+export function Q({
+  q,
+  id,
+  children,
+}: {
+  q: string
+  id?: string
+  children: ReactNode
+}) {
   return (
     <details id={id} className="institutional-details">
       <summary>
@@ -196,11 +221,22 @@ export function Facts({ rows }: { rows: { k: string; v: ReactNode }[] }) {
     </dl>
   )
 }
-export function ContentSections({ page, extra }: { page: SitePage; extra?: (id: string) => ReactNode }) {
+export function ContentSections({
+  page,
+  extra,
+}: {
+  page: SitePage
+  extra?: (id: string) => ReactNode
+}) {
   const { lang } = useI18n()
   return (
     <>
-      <Contents items={page.sections.map((s) => ({ id: s.id, label: readPassage(s.title, lang) }))} />
+      <Contents
+        items={page.sections.map((s) => ({
+          id: s.id,
+          label: readPassage(s.title, lang),
+        }))}
+      />
       <div className="institutional-sections">
         {page.sections.map((section, index) => (
           <section className="institutional-section" key={section.id}>

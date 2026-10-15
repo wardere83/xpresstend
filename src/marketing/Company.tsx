@@ -3,18 +3,23 @@ import { api } from '../lib/api'
 import { useI18n } from '../i18n'
 import { ContentSections, InstitutionalActions, Shell } from './PageShell'
 import { readPassage, siteLabels, sitePages } from './siteContent'
+import { ComplianceOrbit } from './ComplianceOrbit'
 
 function SanctionsStatus() {
   const { lang } = useI18n()
-  const [status, setStatus] = useState<{ ready: boolean; checkedAt: string | null } | null>(null)
+  const [status, setStatus] = useState<{
+    ready: boolean
+    checkedAt: string | null
+  } | null>(null)
   const [busy, setBusy] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
   const load = useCallback(async (signal?: AbortSignal) => {
     setBusy(true)
     try {
-      const response = await api.get<{ ready: boolean; checkedAt: string | null }>(
-        '/compliance/sanctions-status',
-      )
+      const response = await api.get<{
+        ready: boolean
+        checkedAt: string | null
+      }>('/compliance/sanctions-status')
       if (signal?.aborted) return
       setStatus(response)
       setUnavailable(false)
@@ -72,11 +77,19 @@ function CompanyPage({ name }: { name: keyof typeof sitePages }) {
   const { lang } = useI18n()
   const page = sitePages[name]
   return (
-    <Shell title={readPassage(page.title, lang)} intro={readPassage(page.intro, lang)}>
+    <Shell
+      title={readPassage(page.title, lang)}
+      intro={readPassage(page.intro, lang)}
+      visual={name === 'compliance' ? <ComplianceOrbit /> : undefined}
+    >
       <InstitutionalActions />
       <ContentSections
         page={page}
-        extra={(id) => (name === 'compliance' && id === 'screening' ? <SanctionsStatus /> : null)}
+        extra={(id) =>
+          name === 'compliance' && id === 'screening' ? (
+            <SanctionsStatus />
+          ) : null
+        }
       />
     </Shell>
   )

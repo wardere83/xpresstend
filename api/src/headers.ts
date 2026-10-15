@@ -27,6 +27,29 @@ const CSP = [
   'upgrade-insecure-requests',
 ].join('; ')
 
+// Only the sandboxed public quote frame can load the provider's widget code.
+// The website, all sign-ins and staff pages keep the strict first-party policy.
+const MARKET_WIDGET_CSP = CSP.replace(
+  "script-src 'self'",
+  "script-src 'self' https://widgets.tradingview-widget.com",
+)
+  .replace(
+    "connect-src 'self'",
+    "connect-src 'self' https://*.tradingview.com https://*.tradingview-widget.com wss://*.tradingview.com",
+  )
+  .replace(
+    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://*.tradingview.com https://*.tradingview-widget.com",
+  )
+  .replace(
+    "font-src 'self' data:",
+    "font-src 'self' data: https://*.tradingview.com https://*.tradingview-widget.com",
+  )
+  .replace(
+    "frame-ancestors 'none'",
+    "frame-src https://widgets.tradingview-widget.com; frame-ancestors 'self'",
+  )
+
 const SECURITY_HEADERS: Record<string, string> = {
   'content-security-policy': CSP,
   // Belt and braces alongside frame-ancestors, for engines predating CSP 2.
@@ -34,14 +57,27 @@ const SECURITY_HEADERS: Record<string, string> = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'strict-origin-when-cross-origin',
   // Microphone stays available to us: the product has a voice assistant.
-  'permissions-policy': 'camera=(), microphone=(self), geolocation=(), payment=()',
+  'permissions-policy':
+    'camera=(), microphone=(self), geolocation=(), payment=()',
   'cross-origin-opener-policy': 'same-origin',
   'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
 }
 
 /** Returns a copy of the response carrying the security headers. */
-export function withSecurityHeaders(res: Response): Response {
+export function withSecurityHeaders(
+  res: Response,
+  marketWidget = false,
+): Response {
   const headers = new Headers(res.headers)
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value)
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers })
+  for (const [name, value] of Object.entries(SECURITY_HEADERS))
+    headers.set(name, value)
+  if (marketWidget) {
+    headers.set('content-security-policy', MARKET_WIDGET_CSP)
+    headers.set('x-frame-options', 'SAMEORIGIN')
+  }
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers,
+  })
 }

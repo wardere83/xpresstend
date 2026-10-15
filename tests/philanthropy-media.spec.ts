@@ -1,19 +1,25 @@
 import { expect, test } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
-  await page.route('**/api/**', (route) => route.fulfill({
-    status: 401,
-    contentType: 'application/json',
-    body: '{"error":"unauthorized"}',
-  }))
-  await page.route('**/media/community-literacy-poster.webp', (route) => route.fulfill({
-    contentType: 'image/webp',
-    path: 'public/media/closer-poster.webp',
-  }))
+  await page.route('**/api/**', (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: '{"error":"unauthorized"}',
+    }),
+  )
+  await page.route('**/media/community-literacy-poster.webp', (route) =>
+    route.fulfill({
+      contentType: 'image/webp',
+      path: 'public/media/closer-poster.webp',
+    }),
+  )
 })
 
 for (const failure of ['decode', 'network'] as const) {
-  test(`the philanthropy banner restores its still fallback after a ${failure} failure`, async ({ page }) => {
+  test(`the philanthropy banner restores its still fallback after a ${failure} failure`, async ({
+    page,
+  }) => {
     let requestedFilm = false
     await page.route('**/media/community-literacy.mp4', async (route) => {
       if (route.request().method() === 'HEAD') {
@@ -22,34 +28,121 @@ for (const failure of ['decode', 'network'] as const) {
       }
       requestedFilm = true
       if (failure === 'network') await route.abort('failed')
-      else await route.fulfill({ status: 200, contentType: 'video/mp4', body: 'invalid-video' })
+      else
+        await route.fulfill({
+          status: 200,
+          contentType: 'video/mp4',
+          body: 'invalid-video',
+        })
     })
     await page.goto('/#/philanthropy')
-    const banner = page.getByRole('region', { name: 'XpressTend Financial Literacy', exact: true })
+    const banner = page.getByRole('region', {
+      name: 'XpressTend Financial Literacy',
+      exact: true,
+    })
     await expect(banner.getByRole('heading', { level: 1 })).toBeVisible()
     await expect.poll(() => requestedFilm).toBe(true)
     await expect(banner.locator('video')).toHaveCount(0)
-    await expect(banner.getByRole('button', { name: /the film/ })).toHaveCount(0)
-    await expect(banner.locator('div[aria-hidden="true"]').first()).toHaveCSS('background-image', /radial-gradient/)
-    await expect(page.getByRole('link', { name: 'Contact XpressTend Financial Literacy', exact: true })).toBeVisible()
+    await expect(banner.getByRole('button', { name: /the film/ })).toHaveCount(
+      0,
+    )
+    await expect(banner.locator('div[aria-hidden="true"]').first()).toHaveCSS(
+      'background-image',
+      /radial-gradient/,
+    )
+    await expect(
+      page.getByRole('link', {
+        name: 'Contact XpressTend Financial Literacy',
+        exact: true,
+      }),
+    ).toBeVisible()
   })
 }
 
-test('an available banner film plays silently and stops when reduced motion is enabled', async ({ page }) => {
+test('an available banner film plays silently and stops when reduced motion is enabled', async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.route('**/media/community-literacy.mp4', async (route) => {
     if (route.request().method() === 'HEAD') {
       await route.fulfill({ status: 200, contentType: 'video/mp4', body: '' })
     } else {
-      await route.fulfill({ contentType: 'video/mp4', path: 'public/media/closer.mp4' })
+      await route.fulfill({
+        contentType: 'video/mp4',
+        path: 'public/media/closer.mp4',
+      })
     }
   })
   await page.goto('/#/philanthropy')
   const film = page.locator('video')
-  await expect.poll(() => film.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0)
+  await expect
+    .poll(() =>
+      film.evaluate((element: HTMLVideoElement) => element.currentTime),
+    )
+    .toBeGreaterThan(0)
   await expect(film).toHaveJSProperty('muted', true)
-  await expect(page.getByRole('button', { name: 'Pause the film', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Pause the film', exact: true }),
+  ).toBeVisible()
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await expect(film).toHaveJSProperty('paused', true)
-  await expect(page.getByRole('button', { name: 'Play the film', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Play the film', exact: true }),
+  ).toBeVisible()
+})
+
+test('the philanthropy river stays circular, flows only while visible and respects reduced motion', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/#/philanthropy')
+  const river = page.locator('.philanthropy-habitat .xt-river')
+  await river.scrollIntoViewIfNeeded()
+  await expect(river).toHaveAttribute('data-scene', 'river-habitat')
+  await expect(river.locator('clipPath circle')).toHaveCount(1)
+  await expect(river.locator('image')).toHaveAttribute(
+    'href',
+    /river-habitat\.webp$/,
+  )
+  await expect(river).toHaveAttribute('data-active', 'true')
+  const current = river.locator('.xt-river-current').first()
+  const offset = await current.evaluate(
+    (element) => getComputedStyle(element).strokeDashoffset,
+  )
+  await expect
+    .poll(() =>
+      current.evaluate((element) => getComputedStyle(element).strokeDashoffset),
+    )
+    .not.toBe(offset)
+  await page.evaluate(() =>
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'instant',
+    }),
+  )
+  await expect(river).toHaveAttribute('data-active', 'false')
+  const paused = await current.evaluate(
+    (element) => getComputedStyle(element).strokeDashoffset,
+  )
+  await page.evaluate(async () => {
+    for (let frame = 0; frame < 6; frame++)
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      )
+  })
+  expect(
+    await current.evaluate(
+      (element) => getComputedStyle(element).strokeDashoffset,
+    ),
+  ).toBe(paused)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 320, height: 844 })
+  await river.scrollIntoViewIfNeeded()
+  await expect(river).toHaveAttribute('data-active', 'false')
+  await expect(current).toHaveCSS('animation-name', 'none')
+  const bounds = await river.boundingBox()
+  expect(bounds!.width).toBeCloseTo(bounds!.height, 1)
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(320)
 })
