@@ -502,3 +502,8 @@ html[data-a11y-text]:not([data-a11y-text='default']) .a11y-toggle input {
 .a11y-dialog footer button {
   padding-inline: 8px;
 }
+
+.a11y-select:last-child {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}

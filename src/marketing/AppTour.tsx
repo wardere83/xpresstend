@@ -63,7 +63,16 @@ export function AppTour() {
       () => setStep((s) => (s + 1) % stages.length),
       duration[step],
     )
-    return () => window.clearTimeout(timer)
+    const scrollTimer = window.setTimeout(() => {
+      const screen = root.current?.querySelector<HTMLElement>('.tour-screen')
+      if (screen && screen.scrollHeight > screen.clientHeight + 1) {
+        screen.scrollTo({ top: screen.scrollHeight, behavior: 'smooth' })
+      }
+    }, duration[step] / 2)
+    return () => {
+      window.clearTimeout(timer)
+      window.clearTimeout(scrollTimer)
+    }
   }, [playing, step])
   const stage = stages[step]
   const usd = (n: number) =>
