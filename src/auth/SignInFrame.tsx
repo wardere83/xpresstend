@@ -216,16 +216,17 @@ export function SignInFrame({
         'button[type="submit"]',
       )
       const svg = host.querySelector<SVGSVGElement>('.signin-constellation')
+      if (!svg) return
+      // Recovery views reuse this frame, so restore CSS placement before checking controls.
+      for (const property of ['width', 'height', 'top', 'left', 'right'])
+        svg.style.removeProperty(property)
       if (
         !email ||
         !submit ||
-        !svg ||
         !email.form?.querySelector('input[type="password"]')
       )
         return
       // Read the responsive CSS placement before applying a uniform, form-relative scale.
-      for (const property of ['width', 'height', 'top', 'left', 'right'])
-        svg.style.removeProperty(property)
       const page = host.getBoundingClientRect(),
         original = svg.getBoundingClientRect()
       const top = email.getBoundingClientRect().top,

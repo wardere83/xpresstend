@@ -241,3 +241,23 @@ test('switching text direction realigns the sky without a form resize', async ({
     .poll(async () => Math.abs((await horizontalCenter()) - initial))
     .toBeLessThan(1)
 })
+
+test('staff recovery restores responsive sky placement when the sign-in form disappears', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  for (const action of ['Forgot password?', 'Forgot your email?']) {
+    await page.goto('/#/admin')
+    const sky = page.locator('.signin-constellation')
+    await expect(sky).toHaveAttribute('style', /left:/)
+    await page.getByRole('button', { name: action, exact: true }).click()
+    await expect(
+      page.locator('.signin-content input[type="password"]'),
+    ).toHaveCount(0)
+    await expect
+      .poll(() => sky.evaluate((element) => element.style.cssText))
+      .toBe('')
+    await page.getByText('Back to sign in', { exact: true }).click()
+    await expect(sky).toHaveAttribute('style', /left:/)
+  }
+})
