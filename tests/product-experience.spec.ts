@@ -149,7 +149,8 @@ test('the app call to action requires account creation and sign-in offers three 
     ['Staff sign in', '#/admin'],
     ['Institutional reviewer sign in', '#/institutional-reviewer'],
   ]) {
-    await expect(page.locator(`a[href="${href}"]`)).toHaveText(label)
+    const signInLink = page.getByRole('link', { name: label, exact: true })
+    await expect(signInLink).toHaveAttribute('href', href)
   }
   expect(writes).toEqual([])
 })
@@ -243,6 +244,7 @@ test('real accounts still require a password before any transfer submission', as
   await page.goto('/#/send')
   await page.getByRole('button', { name: /Choose a recipient/ }).click()
   await page.getByRole('button', { name: /Test Recipient/ }).click()
+  await page.getByLabel('You Send', { exact: true }).fill('500')
   await page.getByRole('button', { name: /Continue/i }).click()
   await expect(page).toHaveURL(/#\/review$/)
   await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
