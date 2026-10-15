@@ -187,14 +187,16 @@ export function Philanthropy() {
           <div>
             <p className="institutional-eyebrow">{readPassage(philanthropyLabels.title, lang)}</p>
             <h2 id="partners-heading">{title}</h2>
-            <p>{readPassage(philanthropyPage.sections[0].paragraphs[0], lang)}</p>
+            {philanthropyPage.sections[0].paragraphs.map((paragraph, i) => (
+              <p key={i}>{readPassage(paragraph, lang)}</p>
+            ))}
           </div>
           <RiverFlow />
           <BirdFlight title={title} />
         </section>
         <div className="institutional-body">
           <ContentSections
-            page={philanthropyPage}
+            page={{ ...philanthropyPage, sections: philanthropyPage.sections.slice(1) }}
             extra={(id) =>
               id === 'skills-heading' ? (
                 <div className="learning-topics">

@@ -161,3 +161,19 @@
   direction: ltr;
   text-align: start;
 }
+.signin-page.staff-auth > .signin-content,
+.signin-page.staff-auth > .signin-sky {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.signin-page {
+  grid-template-columns: minmax(0, 1fr);
+}
+.signin-content {
+  min-width: 0;
+}
+.signin-header {
+  flex-wrap: wrap;
+  row-gap: 14px;
+}

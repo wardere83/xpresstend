@@ -178,9 +178,10 @@ export function Accessibility() {
           </button>
         </header>
         <p id={`${id}-intro`}>{readPassage(copy.intro, lang)}</p>
-        <label className="a11y-select">
-          {readPassage(copy.text, lang)}
+        <div className="a11y-select">
+          <label htmlFor={`${id}-text`}>{readPassage(copy.text, lang)}</label>
           <select
+            id={`${id}-text`}
             value={settings.text}
             onChange={(e) => update({ text: e.target.value as Settings['text'] })}
           >
@@ -188,7 +189,7 @@ export function Accessibility() {
             <option value="large">{readPassage(copy.large, lang)}</option>
             <option value="largest">{readPassage(copy.largest, lang)}</option>
           </select>
-        </label>
+        </div>
         {(['contrast', 'links', 'spacing', 'font'] as const).map((setting) => (
           <label className="a11y-toggle" key={setting}>
             <span>{readPassage(copy[setting], lang)}</span>
@@ -199,16 +200,17 @@ export function Accessibility() {
             />
           </label>
         ))}
-        <label className="a11y-select">
-          {readPassage(copy.motion, lang)}
+        <div className="a11y-select">
+          <label htmlFor={`${id}-motion`}>{readPassage(copy.motion, lang)}</label>
           <select
+            id={`${id}-motion`}
             value={settings.motion}
             onChange={(e) => update({ motion: e.target.value as Settings['motion'] })}
           >
             <option value="system">{readPassage(copy.system, lang)}</option>
             <option value="reduce">{readPassage(copy.reduce, lang)}</option>
           </select>
-        </label>
+        </div>
         <p className="a11y-help">{readPassage(copy.keyboard, lang)}</p>
         <p role="status" className="a11y-saved">
           {changed ? readPassage(copy.saved, lang) : ''}

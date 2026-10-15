@@ -244,3 +244,18 @@ html[data-a11y-text]:not([data-a11y-text='default']) .brand-header-inner {
 html[data-a11y-text]:not([data-a11y-text='default']) .corporate-nav {
   flex-wrap: wrap;
 }
+html[data-a11y-text='largest'] .signin-content :is(input, select) {
+  font-size: 19px !important;
+}
+html[data-a11y-text]:not([data-a11y-text='default']) .brand-experience {
+  grid-template-columns: minmax(0, 1fr);
+}
+html[data-a11y-text]:not([data-a11y-text='default']) .brand-experience > * {
+  min-width: 0;
+  max-width: 100%;
+}
+html[data-a11y-text]:not([data-a11y-text='default']) .brand-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
