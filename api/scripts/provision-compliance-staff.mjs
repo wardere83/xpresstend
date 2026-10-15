@@ -30,8 +30,8 @@ const { staff } = await request('/admin/staff')
 const targets = [
   { email: 'abdikarim@xpresstend.com', name: 'Abdikarim', role: 'compliance' },
   {
-    email: 'hassan@bulleconsulting.com',
-    name: 'Hassan Wardere',
+    email: 'support@xpresstend.com',
+    name: 'XpressTend Support',
     role: 'owner',
   },
 ]
@@ -53,12 +53,13 @@ for (const target of targets) {
   } else {
     const result = await request('/admin/staff/invite', {
       ...target,
-      deliverEmail: false,
+      deliverEmail: true,
     })
     results.push({
       email: target.email,
       role: target.role,
       status: 'invited',
+      emailed: result.emailed,
       link: result.link,
       expiresAt: result.expiresAt,
     })
@@ -68,5 +69,5 @@ for (const target of targets) {
   })
 }
 console.log(
-  `Staff provisioning results saved privately to ${output}. Activation links expire in 48 hours. No email was sent.`,
+  `Staff provisioning results saved privately to ${output}. Email delivery is recorded per account; undelivered activation links expire in 48 hours.`,
 )

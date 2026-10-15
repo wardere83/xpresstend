@@ -19,7 +19,7 @@ before(async () => {
 })
 after(async () => { if (directory) await rm(directory, { recursive: true, force: true }) })
 
-async function setup(t: TestContext) {
+async function setup(t: TestContext, options: { emailEnabled?: boolean } = {}) {
   const db = new SqliteD1()
   t.after(() => db.close())
   const sessions = await seedParties(db)
@@ -35,11 +35,12 @@ async function setup(t: TestContext) {
     sessions.staffCookies[role] = `xt_admin=${token}`
   }
   seedTransfer(db)
+  const env = { ...fixtureEnv(db), ...(options.emailEnabled ? { RESEND_API_KEY: 'isolated-test-key' } : {}) }
   const request = async (path: string, cookie = '', method = 'GET', body?: unknown) => {
     const response = await worker.fetch(new Request(`https://test.invalid/api${path}`, {
       method, headers: { cookie, origin: 'https://test.invalid', 'content-type': 'application/json' },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    }), fixtureEnv(db), { waitUntil() {} })
+    }), env, { waitUntil() {} })
     return { status: response.status, body: await response.json() }
   }
   return { db, sessions, request }
@@ -91,4 +92,37 @@ test('only owners issue invitations and invited reviewers cannot sign in before 
   assert.equal(invited.status, 'invited')
   assert.equal(invited.role, 'reviewer')
   assert.equal((await request('/admin/auth/login', '', 'POST', { email: body.email, password: sessions.password })).status, 401)
+})
+
+test('owner-issued staff setup is emailed privately to Support and Abdikarim through Resend', async (t) => {
+  const { db, sessions, request } = await setup(t, { emailEnabled: true })
+  const messages: { from: string; to: string[]; text: string }[] = []
+  t.mock.method(globalThis, 'fetch', async (input: string | URL | Request, init?: RequestInit) => {
+    assert.equal(String(input), 'https://api.resend.com/emails', 'no real external request is allowed')
+    messages.push(JSON.parse(String(init?.body)))
+    return new Response(JSON.stringify({ id: `isolated-email-${messages.length}` }), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })
+  })
+  const targets = [
+    { email: 'support@xpresstend.com', name: 'XpressTend Support', role: 'owner' },
+    { email: 'abdikarim@xpresstend.com', name: 'Abdikarim', role: 'compliance' },
+  ]
+  for (const target of targets) {
+    const result = await request('/admin/staff/invite', sessions.staffCookies.owner, 'POST', {
+      ...target, deliverEmail: true,
+    })
+    assert.equal(result.status, 200)
+    assert.equal(result.body.emailed, true)
+    assert.equal(result.body.link, undefined, 'delivered setup capabilities stay out of the response')
+    const staff = db.sqlite.prepare('SELECT role,status FROM admins WHERE email=?').get(target.email)!
+    assert.equal(staff.role, target.role)
+    assert.equal(staff.status, 'invited')
+  }
+  assert.deepEqual(messages.map(message => message.to), targets.map(target => [target.email]))
+  for (const message of messages) {
+    assert.equal(message.from, 'support@xpresstend.com')
+    assert.match(message.text, /https:\/\/test\.invalid\/#\/invite\/[a-f0-9]{64}/)
+  }
+  assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admins WHERE email='hassan@bulleconsulting.com'").get()!.n, 0)
 })

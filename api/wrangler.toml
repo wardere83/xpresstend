@@ -48,6 +48,7 @@ database_id = "5e2f3987-7795-4c4e-8acd-6ac78038f1dc"
 [vars]
 ENVIRONMENT = "production"
 APP_ORIGIN = "https://xpresstend.com"
+EMAIL_FROM = "support@xpresstend.com"
 
 # Secrets are set with `wrangler secret put NAME` and never live in this file:
 #   SESSION_PEPPER      extra secret mixed into every password hash

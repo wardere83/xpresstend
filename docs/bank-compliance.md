@@ -61,9 +61,9 @@ Compliance staff select 1–100 funded, unassigned transfers in one send currenc
 | Email | Intended role | Activation |
 |---|---|---|
 | abdikarim@xpresstend.com | Compliance | Owner-issued, single-use password setup link |
-| hassan@bulleconsulting.com | Owner | Owner-issued, single-use password setup link |
+| support@xpresstend.com | Owner | Owner-issued, single-use password setup link |
 
-`api/scripts/provision-compliance-staff.mjs` provisions these two accounts using an existing authenticated owner session supplied in `XPT_OWNER_SESSION`. It preserves existing accounts, does not alter existing roles, sends no email, and writes activation links to a private 0600 file outside the repository. Invited accounts cannot log in until they set a password. Do not put the cookie or activation links in commits or logs. Production accounts have **not** been provisioned by merely adding this script.
+`api/scripts/provision-compliance-staff.mjs` provisions these two accounts using an existing authenticated owner session supplied in `XPT_OWNER_SESSION`. It preserves existing accounts and does not alter existing roles. It requests email delivery and records each result, including any undelivered activation link, in a private 0600 file outside the repository. Invited accounts cannot log in until they set a password. Do not put the cookie or activation links in commits or logs. Production accounts have **not** been provisioned by merely adding this script.
 
 ## Outstanding live-operation gates
 
