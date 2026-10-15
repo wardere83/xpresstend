@@ -50,7 +50,13 @@ jobs:
       # so the H.264 product film cannot play and the playback checks fail on a
       # film that works everywhere it actually ships.
       - name: Install browser for product checks
-        run: npx playwright install --with-deps chrome
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chrome
+          fi
 
       - name: Website and app journey checks
         run: npm run test:e2e
