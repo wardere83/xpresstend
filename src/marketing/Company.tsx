@@ -42,7 +42,7 @@ function SanctionsStatus() {
               ? siteLabels.checking
               : status?.ready
                 ? siteLabels.ready
-                : unavailable
+                : unavailable || status
                   ? siteLabels.unavailable
                   : siteLabels.checking,
             lang,

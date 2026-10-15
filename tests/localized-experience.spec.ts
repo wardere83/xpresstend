@@ -128,3 +128,26 @@ test('support routes enquiries to the selected team and learning topics expand',
   await expect(page.locator('.xt-river-photo')).toHaveAttribute('href', /river-habitat.webp$/)
   await expect(page.locator('.xt-bird-folded-wing image')).toHaveAttribute('href', /wagtail-poses.webp$/)
 })
+
+test('a non-ready sanctions dataset is reported accurately and recovers on refresh', async ({ page }) => {
+  let checks = 0
+  await page.route('**/api/**', (route) => {
+    if (new URL(route.request().url()).pathname === '/api/compliance/sanctions-status') {
+      checks++
+      return route.fulfill({
+        json: { ready: checks > 1, checkedAt: checks > 1 ? '2026-10-15T00:00:00Z' : null },
+      })
+    }
+    return route.fulfill({ status: 401, json: { error: 'unauthorized' } })
+  })
+  await page.goto('/#/compliance')
+  const panel = page.locator('.institutional-status')
+  await expect(panel.getByRole('status')).toContainText(
+    'Current sanctions data availability could not be verified.',
+  )
+  await expect(panel.getByRole('status')).not.toContainText('Checking')
+  await panel.getByRole('button', { name: 'Refresh status', exact: true }).click()
+  await expect(panel.getByRole('status')).toContainText('A current official OFAC dataset is loaded')
+  await expect(panel.getByRole('status')).not.toContainText('could not be verified')
+  expect(checks).toBe(2)
+})
