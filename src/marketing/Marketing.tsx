@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowUpRight, Languages, ScanLine, ShieldCheck, UserRound } from 'lucide-react'
+import { ArrowUpRight, Languages, ScanLine, ShieldCheck, UserRound, Menu } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
@@ -20,7 +20,7 @@ export function Marketing() {
   const labels = useBrandCopy()
   const copy = useCorporateCopy()
   const navigate = useNavigate()
-  const explore = () => navigate(user ? '/app' : '/register')
+  const explore = () => navigate('/demo')
   const companyLinks = [
     { to: '/company', label: labels.trustCompany },
     { to: '/compliance', label: labels.trustCompliance },
@@ -54,10 +54,11 @@ export function Marketing() {
               <Link key={link.to} to={link.to}>{link.label}</Link>
             ))}
           </nav>
+          <details className="brand-mobile-menu">
+            <summary aria-label={copy.menu}><Menu size={20} /><span>{copy.menu}</span></summary>
+            <nav aria-label={copy.navigation}>{companyLinks.map(link => <Link key={link.to} to={link.to}>{link.label}</Link>)}<Link to="/demo">{copy.demoAction}</Link></nav>
+          </details>
           <LanguageSwitcher />
-          <Link className="brand-primary" to={user ? '/app' : '/register'}>
-            {user ? t('marketing.openApp') : t('marketing.getStarted')}
-          </Link>
           <details className="group relative">
             <summary aria-label="Sign in" className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-700 hover:bg-white/60">
               <UserRound size={17} className="sm:hidden" />
@@ -78,6 +79,10 @@ export function Marketing() {
               <p className="brand-eyebrow">{copy.heroEyebrow}</p>
               <h1>{copy.heroFirst}<br /><span>{copy.heroSecond}</span></h1>
               <p className="corporate-intro">{copy.heroIntro}</p>
+              <div className="corporate-hero-actions">
+                <Link className="brand-primary" to={user ? '/app' : '/register'}>{user ? t('marketing.openApp') : t('marketing.getStarted')} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+                <Link className="brand-text-link" to="/demo">{copy.demoAction} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+              </div>
             </div>
             <InteractiveGlobe />
           </div>
@@ -176,7 +181,6 @@ export function Marketing() {
             <div>
               <h2>{copy.footerContact}</h2>
               <Link to="/support">{copy.footerContact}</Link>
-              <Link to="/login">{t('marketing.signIn')}</Link>
             </div>
             <div>
               <h2>{labels.footerLegal}</h2>

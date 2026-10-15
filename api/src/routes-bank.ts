@@ -3,6 +3,7 @@ import type { Env, Vars } from './env'
 import { requireRole } from './sessions'
 import { hashToken, newId, randomHex } from './crypto'
 import { audit } from './audit'
+import { getSanctionsStatus } from './sanctions.ts'
 import { overLimit } from './ratelimit'
 import { providersRequired } from './provider-compliance'
 import { screenTransferSubjects, screeningFailure } from './compliance'
@@ -34,6 +35,21 @@ bankAdmin.get('/overview', async (c) => {
     identity: identity.results,
     screenings: screenings.results,
     keys: keys.results,
+  })
+})
+/** Configuration presence and database readiness, not a provider certification claim. */
+bankAdmin.get('/readiness', async (c) => {
+  const [ofac, connection] = await Promise.all([
+    getSanctionsStatus(c.env),
+    c.env.DB.prepare('SELECT COUNT(*) AS n FROM bank_api_keys WHERE revoked_at IS NULL AND expires_at>?')
+      .bind(new Date().toISOString()).first<{ n: number }>(),
+  ])
+  return c.json({
+    checkedAt: new Date().toISOString(),
+    bankApi: { available: true, activeConnections: connection?.n ?? 0, mode: 'review-only', basePath: '/api/bank/v1' },
+    identity: { provider: 'persona', configured: !!(c.env.PERSONA_API_KEY && c.env.PERSONA_TEMPLATE_ID) },
+    globalSanctions: { provider: 'complyadvantage', configured: !!c.env.COMPLYADVANTAGE_API_KEY },
+    ofac,
   })
 })
 bankAdmin.post('/keys', requireRole('owner'), async (c) => {

@@ -1,4 +1,5 @@
 import { Identity } from './screens/Identity'
+import { FieldActivity } from './components/FieldActivity'
 import { lazy, Suspense } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/AppLayout'
@@ -11,6 +12,9 @@ import { TransferProvider } from './state/TransferProvider'
 import { AuthProvider } from './auth/AuthProvider'
 import { Login, RequireAuth, Register, ForgotPassword, ResetPassword, DeleteAccount } from './auth/AuthScreens'
 import { Privacy, Support as LegalSupport } from './marketing/Legal'
+
+const AppDemo = lazy(() => import('./marketing/AppDemo').then(module => ({ default: module.AppDemo })))
+const BankReview = lazy(() => import('./admin/BankReview').then(module => ({ default: module.BankReview })))
 
 const AdminConsole = lazy(() => import('./admin/AdminConsole').then(module => ({ default: module.AdminConsole })))
 const ReviewerConsole = lazy(() => import('./admin/ReviewerConsole').then(module => ({ default: module.ReviewerConsole })))
@@ -57,10 +61,13 @@ export default function App() {
         <TransferProvider>
           <HashRouter>
             <NativeShell />
+            <FieldActivity />
             <Suspense fallback={<div role="status" className="grid min-h-dvh place-items-center bg-canvas">Loading XpressTend…</div>}>
             <Routes>
               {/* Public shopfront and the way in. */}
               <Route path="/" element={isNative ? <Navigate to="/app" replace /> : <Marketing />} />
+              <Route path="/demo" element={<AppDemo />} />
+              <Route path="/bank-review" element={<BankReview />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

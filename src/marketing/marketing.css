@@ -1191,3 +1191,12 @@ summary {
     transform: rotate(-4deg);
   }
 }
+
+/* Compact navigation stays on one line; the mobile menu is an explicit popover. */
+.corporate-site .brand-header-inner{height:76px;flex-wrap:nowrap;gap:12px;position:relative}
+.corporate-site .corporate-nav{order:initial;flex-basis:auto;gap:4px;justify-content:center}
+.corporate-site .corporate-nav a{padding:8px 12px;border-radius:24px;transition:background .2s,color .2s}
+.corporate-site .corporate-nav a:is(:hover,:focus-visible,:active){background:#0b252f;color:white}
+.brand-mobile-menu{display:none;position:relative}.brand-mobile-menu summary{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 10px;border-radius:22px;list-style:none;font-size:12px}.brand-mobile-menu summary::-webkit-details-marker{display:none}.brand-mobile-menu[open]>summary,.brand-mobile-menu summary:hover{background:#0b252f;color:white}.brand-mobile-menu nav{position:absolute;top:calc(100% + 12px);inset-inline-end:0;display:grid;width:250px;max-width:calc(100vw - 36px);padding:8px;border:1px solid #d7e2e6;border-radius:18px;background:white;box-shadow:0 18px 45px #0b252f26;z-index:50}.brand-mobile-menu nav a{display:block;padding:13px 14px;border-radius:12px;font-size:13px}.brand-mobile-menu nav a:is(:hover,:focus-visible,:active){background:#0b252f;color:white}.corporate-hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:28px}.corporate-hero .corporate-hero-actions .brand-primary{background:white;color:#0b252f}.corporate-hero .corporate-hero-actions .brand-primary:hover{background:#e9f3f4}.corporate-hero-actions .brand-text-link{padding:8px 10px;border-radius:24px}.corporate-hero-actions .brand-text-link:hover{background:#ffffff14}
+@media(max-width:1100px){.corporate-site .corporate-nav{display:none}.brand-mobile-menu{display:block;margin-inline-start:auto}.corporate-site .brand-header-inner{height:72px}.corporate-site .brand-header-inner>details:last-child{flex:none}.corporate-site .brand-wordmark{margin-inline-end:auto}}
+@media(max-width:480px){.corporate-site .brand-header-inner{height:66px;gap:4px}.brand-mobile-menu summary{padding:8px}.brand-mobile-menu summary span{display:none}.brand-mobile-menu nav{inset-inline-end:-70px}.corporate-site .brand-wordmark [role=img]{height:29px!important}.corporate-site .brand-wordmark [aria-hidden=true]:last-child{font-size:11px!important}.corporate-hero-actions{gap:8px;margin-top:24px}}

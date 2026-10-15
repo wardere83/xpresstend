@@ -33,11 +33,12 @@ const ROLE_TONE: Record<string, string> = {
   reviewer: 'bg-ink-200 text-ink-700',
 }
 
-export function StaffPanel({ me }: { me: AdminUser }) {
+export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteRequest?: number }) {
   const [rows, setRows] = useState<StaffRow[]>([])
   const [note, setNote] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  useEffect(() => { if (inviteRequest > 0 && me.role === 'owner') setAdding(true) }, [inviteRequest, me.role])
   const [resetLink, setResetLink] = useState<{
     email: string
     link: string
