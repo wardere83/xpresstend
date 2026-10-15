@@ -35,6 +35,7 @@ export function AppTour() {
   const root = useRef<HTMLDivElement>(null)
   const [step, setStep] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [focused, setFocused] = useState(false)
   const [reduced, setReduced] = useState(() => reducedMotionQuery().matches)
   const [visible, setVisible] = useState(false)
   const [foreground, setForeground] = useState(!document.hidden)
@@ -55,7 +56,7 @@ export function AppTour() {
       document.removeEventListener('visibilitychange', visibility)
     }
   }, [])
-  const playing = !paused && !reduced && visible && foreground
+  const playing = !paused && !focused && !reduced && visible && foreground
   useEffect(() => {
     if (!playing) return
     const timer = window.setTimeout(
@@ -116,6 +117,11 @@ export function AppTour() {
       dir={dir}
       data-tour-step={stage}
       data-playing={playing}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setFocused(false)
+      }}
       role="group"
       aria-label={copy.label}
     >
