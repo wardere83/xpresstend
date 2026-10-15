@@ -259,3 +259,6 @@ html[data-a11y-text]:not([data-a11y-text='default']) .brand-tabs {
   flex-wrap: wrap;
   max-width: 100%;
 }
+html[data-a11y-text]:not([data-a11y-text='default']) .institutional-actions {
+  grid-template-columns: minmax(0, 1fr);
+}

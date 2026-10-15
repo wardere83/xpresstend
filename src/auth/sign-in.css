@@ -177,3 +177,7 @@
   flex-wrap: wrap;
   row-gap: 14px;
 }
+.signin-content button[type='submit'] {
+  background: #0b252f;
+  color: #fff;
+}
