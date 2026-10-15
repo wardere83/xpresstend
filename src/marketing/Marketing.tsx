@@ -1,3 +1,4 @@
+import { AccessibilityLink } from '../accessibility/Accessibility'
 import { readPassage, siteLabels } from './siteContent'
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -266,6 +267,7 @@ export function Marketing() {
             <div>
               <h2>{labels.footerLegal}</h2>
               <Link to="/privacy">{copy.footerPrivacy}</Link>
+              <AccessibilityLink />
               <span>NMLS ID {brand.nmls.id}</span>
             </div>
           </nav>

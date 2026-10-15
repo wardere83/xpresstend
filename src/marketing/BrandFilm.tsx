@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
 import { useBrandCopy } from './brandCopy'
@@ -27,12 +28,12 @@ export function BrandFilm() {
    * than in CSS because it decides whether to autoplay, not how to style.
    */
   const [reduceMotion, setReduceMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () => typeof window !== 'undefined' && reducedMotionQuery().matches,
   )
   const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
-    const q = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const q = reducedMotionQuery()
     const onChange = (e: MediaQueryListEvent) => {
       setReduceMotion(e.matches)
       if (e.matches) video.current?.pause()
@@ -91,14 +92,15 @@ export function BrandFilm() {
               if (playing) {
                 intentionallyPaused.current = true
                 video.current?.pause()
-              }
-              else void play()
+              } else void play()
             }}
             aria-label={playing ? copy.pause : copy.play}
           >
-            {playing
-              ? <Pause size={26} fill="currentColor" aria-hidden="true" />
-              : <Play size={26} fill="currentColor" aria-hidden="true" />}
+            {playing ? (
+              <Pause size={26} fill="currentColor" aria-hidden="true" />
+            ) : (
+              <Play size={26} fill="currentColor" aria-hidden="true" />
+            )}
           </button>
         )}
         {failed && (

@@ -1,3 +1,4 @@
+import { Accessibility } from './accessibility/Accessibility'
 import { Identity } from './screens/Identity'
 import { FieldActivity } from './components/FieldActivity'
 import { lazy, Suspense } from 'react'
@@ -147,6 +148,7 @@ function LiveApplication() {
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <Accessibility />
           </Suspense>
         </TransferProvider>
       </AccountDataProvider>
@@ -183,6 +185,7 @@ export default function App() {
           />
           <Route path="/*" element={<LiveApplication />} />
         </Routes>
+        <Accessibility />
       </HashRouter>
     </I18nProvider>
   )

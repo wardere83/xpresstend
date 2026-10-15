@@ -671,6 +671,53 @@ export const interfaceMessages: Record<string, readonly [string, string, string]
     'É necessária uma cotação atual de transferência antes de continuar.',
     'يلزم عرض سعر تحويل سارٍ قبل المتابعة.',
   ],
+  Email: ['Correo electrónico', 'E-mail', 'البريد الإلكتروني'],
+  Password: ['Contraseña', 'Senha', 'كلمة المرور'],
+  'Staff sign in': ['Acceso del personal', 'Acesso da equipe', 'دخول الموظفين'],
+  'Authorised personnel only. Sessions last 8 hours.': [
+    'Solo personal autorizado. Las sesiones duran 8 horas.',
+    'Apenas pessoal autorizado. As sessões duram 8 horas.',
+    'للموظفين المخوّلين فقط. تستمر الجلسات 8 ساعات.',
+  ],
+  'Signing in…': ['Iniciando sesión…', 'Entrando…', 'جارٍ تسجيل الدخول…'],
+  'Forgot password?': ['¿Olvidó su contraseña?', 'Esqueceu a senha?', 'هل نسيت كلمة المرور؟'],
+  'Forgot your email?': ['¿Olvidó su correo?', 'Esqueceu seu e-mail?', 'هل نسيت بريدك الإلكتروني؟'],
+  'Institutional reviewer sign in': [
+    'Acceso de revisores institucionales',
+    'Acesso de revisores institucionais',
+    'دخول المراجعين المؤسسيين',
+  ],
+  'XpressTend · independent access': [
+    'XpressTend · acceso independiente',
+    'XpressTend · acesso independente',
+    'XpressTend · وصول مستقل',
+  ],
+  'Read-only access to consumer, transaction, sub-ledger and audit records. Every review session and data access is logged.':
+    [
+      'Acceso de solo lectura a registros de clientes, transacciones, subcuentas y auditoría. Se registran todas las sesiones y accesos.',
+      'Acesso somente para leitura a registros de clientes, transações, subcontas e auditoria. Todas as sessões e acessos são registrados.',
+      'وصول للقراءة فقط إلى سجلات العملاء والمعاملات ودفاتر الأستاذ الفرعية والتدقيق. تُسجّل كل جلسة مراجعة وكل وصول إلى البيانات.',
+    ],
+  'Too many attempts. This account is locked for 30 minutes.': [
+    'Demasiados intentos. La cuenta está bloqueada durante 30 minutos.',
+    'Muitas tentativas. Esta conta está bloqueada por 30 minutos.',
+    'محاولات كثيرة جداً. هذا الحساب مقفل لمدة 30 دقيقة.',
+  ],
+  'Those credentials were not accepted.': [
+    'No se aceptaron esas credenciales.',
+    'Essas credenciais não foram aceitas.',
+    'لم تُقبل بيانات الدخول.',
+  ],
+  'Could not reach the sign-in service. Check your connection and try again.': [
+    'No se pudo acceder al servicio de inicio de sesión. Compruebe su conexión e inténtelo de nuevo.',
+    'Não foi possível acessar o serviço de entrada. Confira sua conexão e tente novamente.',
+    'تعذر الوصول إلى خدمة تسجيل الدخول. تحقق من اتصالك وحاول مجدداً.',
+  ],
+  'Those reviewer credentials were not accepted.': [
+    'No se aceptaron las credenciales del revisor.',
+    'As credenciais do revisor não foram aceitas.',
+    'لم تُقبل بيانات دخول المراجع.',
+  ],
 }
 export function useInterfaceCopy() {
   const { lang } = useI18n()

@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { geoGraticule10, geoInterpolate, geoOrthographic, geoPath } from 'd3-geo'
 import { useI18n, type Lang } from '../i18n'
@@ -126,7 +127,7 @@ export function InteractiveGlobe() {
   const root = useRef<HTMLElement>(null)
   const [view, setView] = useState<View>({ longitude: -28, latitude: 17, phase: 0 })
   const [reducedMotion, setReducedMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () => typeof window !== 'undefined' && reducedMotionQuery().matches,
   )
   const [paused, setPaused] = useState(reducedMotion)
   const [inView, setInView] = useState(true)
@@ -144,7 +145,7 @@ export function InteractiveGlobe() {
   const canAnimate = !paused && inView && visible && !dragging
 
   useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const preference = reducedMotionQuery()
     const onChange = () => {
       setReducedMotion(preference.matches)
       if (preference.matches) setPaused(true)

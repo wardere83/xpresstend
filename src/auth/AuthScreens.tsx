@@ -1,11 +1,9 @@
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { SignInFrame } from './SignInFrame'
 import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { api, ApiError } from '../lib/api'
-import { Logo } from '../components/Logo'
 import { AppLock } from '../native/AppLock'
 import { JoinMedia } from './JoinMedia'
 import { useAuth } from './AuthContext'
@@ -23,35 +21,25 @@ function Shell({
 }) {
   const column = (
     <div className="flex w-full max-w-md flex-col justify-center">
-      <Link to="/" className="mb-8 flex items-center self-start" aria-label={brand.name}>
-        <Logo height={40} />
-      </Link>
-      <div className="mb-5 self-start">
-        <LanguageSwitcher />
-      </div>
       <h1 className="text-balance text-2xl font-semibold tracking-tight">{title}</h1>
       <p className="mt-2 text-[13px] leading-relaxed text-ink-500">{subtitle}</p>
       <div className="mt-7">{children}</div>
     </div>
   )
-  if (!media) {
-    return (
-      <div className="min-h-dvh bg-canvas">
-        <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-5 py-10 pt-[max(env(safe-area-inset-top),2.5rem)] pb-[max(env(safe-area-inset-bottom),2.5rem)]">
-          {column}
-        </div>
-      </div>
-    )
-  }
   return (
-    <div className="min-h-dvh bg-canvas">
-      <div className="mx-auto grid min-h-dvh max-w-6xl items-center gap-12 px-5 py-10 pt-[max(env(safe-area-inset-top),2.5rem)] pb-[max(env(safe-area-inset-bottom),2.5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="flex justify-center lg:justify-start">{column}</div>
-        <div className="h-full min-h-[34rem] py-4">{media}</div>
-      </div>
-    </div>
+    <SignInFrame wide={!!media}>
+      {media ? (
+        <div className="signin-layout">
+          {column}
+          <div>{media}</div>
+        </div>
+      ) : (
+        column
+      )}
+    </SignInFrame>
   )
 }
+
 function Field({
   label,
   ...props

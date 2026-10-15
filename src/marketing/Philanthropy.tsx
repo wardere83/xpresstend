@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Pause, Play } from 'lucide-react'
 import { brand } from '../config/brand'
@@ -54,11 +55,11 @@ function Banner() {
   const [failed, setFailed] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [reduceMotion, setReduceMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () => typeof window !== 'undefined' && reducedMotionQuery().matches,
   )
 
   useEffect(() => {
-    const q = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const q = reducedMotionQuery()
     const onChange = (e: MediaQueryListEvent) => {
       setReduceMotion(e.matches)
       if (e.matches) video.current?.pause()

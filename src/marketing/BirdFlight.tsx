@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import './bird.css'
 
@@ -126,7 +127,7 @@ export function BirdFlight({ title }: { title: string }) {
     const element = traveller.current
     const section = ref.current?.closest<HTMLElement>('.corporate-partners')
     if (!element || !section || !ready) return
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const motion = reducedMotionQuery()
     let visible = false
     const cancel = () => {
       if (animation.current) {

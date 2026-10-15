@@ -1,3 +1,4 @@
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useEffect, useState } from 'react'
 import { HERO_LOCALES } from './heroLocales'
 
@@ -17,7 +18,16 @@ export function HeroRotator() {
   const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const q = reducedMotionQuery()
+    const update = () => {
+      if (q.matches) setPaused(true)
+    }
+    q.addEventListener('change', update)
+    return () => q.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    const reduced = reducedMotionQuery().matches
     if (reduced || paused) return
 
     const hold = setTimeout(() => {
@@ -57,7 +67,10 @@ export function HeroRotator() {
           <button
             key={l.code}
             type="button"
-            onClick={() => { setIndex(i); setVisible(true) }}
+            onClick={() => {
+              setIndex(i)
+              setVisible(true)
+            }}
             title={l.label}
             className={`h-1.5 rounded-full transition-all ${
               i === index ? 'w-6 bg-brand-600' : 'w-1.5 bg-ink-200 hover:bg-ink-400'

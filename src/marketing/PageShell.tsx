@@ -1,3 +1,5 @@
+import { AccessibilityLink } from '../accessibility/Accessibility'
+import { reducedMotionQuery } from '../accessibility/motion'
 import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown, Mail, ShieldCheck, Layers3, Globe2 } from 'lucide-react'
@@ -16,7 +18,7 @@ function scrollToSection(id: string) {
   target.tabIndex = -1
   target.focus({ preventScroll: true })
   target.scrollIntoView({
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    behavior: reducedMotionQuery().matches ? 'instant' : 'smooth',
     block: 'start',
   })
 }
@@ -78,6 +80,7 @@ export function PageFooter() {
           </a>
         </p>
         <nav aria-label={readPassage(siteLabels.resources, lang)}>
+          <AccessibilityLink />
           <Link to="/company">{copy.trustCompany}</Link>
           <Link to="/philanthropy">{copy.trustPartners}</Link>
           <Link to="/compliance">{copy.trustCompliance}</Link>
