@@ -149,7 +149,7 @@ test('the compact accessibility panel keeps settings visible and reveals keyboar
   await page.getByRole('button', { name: 'Accessibility', exact: true }).click()
   const panel = page.getByRole('dialog', { name: 'Accessibility', exact: true })
   const bounds = await panel.boundingBox()
-  expect(bounds?.width).toBeLessThanOrEqual(360)
+  expect(bounds?.width).toBeLessThanOrEqual(280)
   expect(bounds?.height).toBeLessThanOrEqual(600)
   expect(await panel.evaluate((el) => el.scrollWidth)).toBeLessThanOrEqual(
     await panel.evaluate((el) => el.clientWidth),
