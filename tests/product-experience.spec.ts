@@ -21,10 +21,8 @@ test('the public homepage leads to company information and a working philanthrop
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('console', (message) => {
     // A signed-out session deliberately receives the 401 fixture above.
-    if (
-      message.type() === 'error' &&
-      !message.text().includes('the server responded with a status of 401')
-    ) errors.push(message.text())
+    if (message.type() === 'error' && !message.text().includes('the server responded with a status of 401'))
+      errors.push(message.text())
   })
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
@@ -33,15 +31,23 @@ test('the public homepage leads to company information and a working philanthrop
   }
 
   await expect(
-    page.locator('.corporate-hero').getByRole('button', { name: /Explore the app|Download the app|Watch the film/i }),
+    page
+      .locator('.corporate-hero')
+      .getByRole('button', { name: /Explore the app|Download the app|Watch the film/i }),
   ).toHaveCount(0)
   await expect(
-    page.locator('.corporate-hero').getByRole('link', { name: /Explore the app|Download the app|Watch the film/i }),
+    page
+      .locator('.corporate-hero')
+      .getByRole('link', { name: /Explore the app|Download the app|Watch the film/i }),
   ).toHaveCount(0)
-  await expect(page.getByText(/Coming soon|Concept preview|Private creative preview|\bbeta\b/i)).toHaveCount(0)
+  await expect(page.getByText(/Coming soon|Concept preview|Private creative preview|\bbeta\b/i)).toHaveCount(
+    0,
+  )
   await expect(page.locator('a[href*=".apk"], a[href*="testflight.apple.com"]')).toHaveCount(0)
 
-  await expect(page.locator('.corporate-hero').getByRole('link', { name: /Discuss a partnership|Discover XpressTend/ })).toHaveCount(0)
+  await expect(
+    page.locator('.corporate-hero').getByRole('link', { name: /Discuss a partnership|Discover XpressTend/ }),
+  ).toHaveCount(0)
   await page.locator('header').getByRole('link', { name: 'Company', exact: true }).click()
   await expect(page).toHaveURL(/#\/company$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('About XpressTend')
@@ -49,9 +55,10 @@ test('the public homepage leads to company information and a working philanthrop
   await page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true }).click()
   await expect(page).toHaveURL(/#\/philanthropy$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
-  await expect(
-    page.locator('main a[href^="mailto:"][href*="subject="]').first(),
-  ).toHaveAttribute('href', /^mailto:support@xpresstend\.com\?subject=Financial%20Literacy%20enquiry$/)
+  await expect(page.locator('main a[href^="mailto:"][href*="subject="]').first()).toHaveAttribute(
+    'href',
+    /^mailto:support@xpresstend\.com\?subject=Financial%20Literacy%20enquiry$/,
+  )
   expect(errors).toEqual([])
 })
 
@@ -69,7 +76,9 @@ test('the homepage philanthropy section carries the agreed words and leads to th
   await page.goto('/')
   const section = page.locator('.corporate-partners')
   await expect(section.locator('.brand-eyebrow')).toHaveText('Philanthropy')
-  await expect(section.getByRole('heading', { level: 2 })).toHaveText('Let’s also make financial literacy cool.')
+  await expect(section.getByRole('heading', { level: 2 })).toHaveText(
+    'Let’s also make financial literacy cool.',
+  )
   await expect(section.locator('.brand-body')).toHaveText(
     'We build real money skills and lasting upward mobility in underserved communities across Washington state, Nairobi, São Paulo, and beyond.',
   )
@@ -105,7 +114,9 @@ test('keyboard users can skip the homepage navigation', async ({ page }) => {
   await expect(page.locator('main')).toBeFocused()
 })
 
-test('app feature tabs support keyboard and pointer selection and load the selected app image', async ({ page }) => {
+test('app feature tabs support keyboard and pointer selection and load the selected app image', async ({
+  page,
+}) => {
   await page.goto('/')
   const showcase = page.locator('#experience')
   await showcase.getByRole('tab', { name: 'Send', exact: true }).focus()
@@ -116,27 +127,21 @@ test('app feature tabs support keyboard and pointer selection and load the selec
   await expect(showcase.getByRole('tab', { name: 'Activity', exact: true })).toBeFocused()
   await expect(showcase.getByRole('tabpanel')).toContainText('Follow every step.')
 
-  const image = showcase.locator('.brand-device img')
-  await image.scrollIntoViewIfNeeded()
-  await expect.poll(() => image.evaluate((element) => {
-    const screenshot = element as HTMLImageElement
-    return screenshot.complete && screenshot.naturalWidth > 0
-  })).toBe(true)
-  const activityImage = await image.evaluate((element) => (element as HTMLImageElement).currentSrc)
-
+  const preview = showcase.locator('.app-preview')
+  await expect(preview).toHaveAttribute('data-screen', 'activity')
+  await expect(preview).toContainText('Grace Wanjiku')
+  await expect(preview).toContainText('No money sent')
   await showcase.getByRole('tab', { name: 'Send', exact: true }).click()
   await expect(showcase.getByRole('tabpanel')).toContainText('A thoughtful way to send.')
-  await expect.poll(() => image.evaluate((element, previous) => {
-    const screenshot = element as HTMLImageElement
-    return screenshot.complete && screenshot.naturalWidth > 0 && screenshot.currentSrc !== previous
-  }, activityImage)).toBe(true)
+  await expect(preview).toHaveAttribute('data-screen', 'send')
+  await expect(preview).toContainText('Grace Wanjiku')
+  await expect(preview).toContainText('$126.49')
 })
 
 test('the public demo is separate from account creation and sign-in offers three roles', async ({ page }) => {
   const writes: string[] = []
   page.on('request', (request) => {
-    if (request.method() === 'POST' && /\/api\//.test(request.url()))
-      writes.push(request.url())
+    if (request.method() === 'POST' && /\/api\//.test(request.url())) writes.push(request.url())
   })
   await page.goto('/')
   await page.locator('#experience').getByRole('button', { name: 'Explore app demo', exact: true }).click()
@@ -162,8 +167,7 @@ test('the public demo is separate from account creation and sign-in offers three
 test('signed-out customers cannot open the product or create a transfer', async ({ page }) => {
   const writes: string[] = []
   page.on('request', (request) => {
-    if (request.method() === 'POST' && /\/api\//.test(request.url()))
-      writes.push(request.url())
+    if (request.method() === 'POST' && /\/api\//.test(request.url())) writes.push(request.url())
   })
   await page.goto('/#/send')
   await expect(page).toHaveURL(/#\/login$/)
@@ -171,22 +175,23 @@ test('signed-out customers cannot open the product or create a transfer', async 
   expect(writes).toEqual([])
 })
 
-test('a signed-in empty account never sees the tour recipients or history on Home', async ({
-  page,
-}) => {
-  const requests = await mockAccount(page, { user: { ...customer, kycStatus: 'unverified', kycTier: 0 }, recipients: [] })
+test('a signed-in empty account never sees the tour recipients or history on Home', async ({ page }) => {
+  const requests = await mockAccount(page, {
+    user: { ...customer, kycStatus: 'unverified', kycTier: 0 },
+    recipients: [],
+  })
   await page.goto('/#/app')
   await expect(page.locator('.product-home-greeting')).toContainText('Taylor')
   await expect(page.getByText('Explore mode · Sample data')).toHaveCount(0)
-  await expect(
-    page.getByText('Add new recipient', { exact: true }),
-  ).toBeVisible()
+  await expect(page.getByText('Add new recipient', { exact: true })).toBeVisible()
   await expect(page.locator('.product-home-section ul li')).toHaveCount(0)
   await page.goto('/#/send')
   await expect(page.getByRole('button', { name: 'Add new recipient', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Continue', exact: true })).toHaveCount(0)
   await expect(page.getByText(/Hooyo|Chase|Visa|Available Balance/)).toHaveCount(0)
-  expect(requests.filter((request) => request.method === 'POST' && request.path.startsWith('/api/transfers'))).toEqual([])
+  expect(
+    requests.filter((request) => request.method === 'POST' && request.path.startsWith('/api/transfers')),
+  ).toEqual([])
 })
 
 for (const width of [320, 390, 768, 1440]) {
@@ -195,13 +200,21 @@ for (const width of [320, 390, 768, 1440]) {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
     if (width <= 1100) await page.locator('.brand-mobile-menu summary').click()
-    await expect(page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true })).toBeVisible()
+    await expect(
+      page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true }),
+    ).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
 
-    for (const [name, path] of [['Company', 'company'], ['Philanthropy', 'philanthropy']]) {
+    for (const [name, path] of [
+      ['Company', 'company'],
+      ['Philanthropy', 'philanthropy'],
+    ]) {
       await page.locator('header').getByRole('link', { name, exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`#/${path}$`))
-      await expect(page.locator('header').getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page')
+      await expect(page.locator('header').getByRole('link', { name, exact: true })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
     }
 
@@ -211,12 +224,9 @@ for (const width of [320, 390, 768, 1440]) {
   })
 }
 
-for (const language of ['so', 'es', 'pt-BR', 'ar']) {
+for (const language of ['es', 'pt-BR', 'ar']) {
   test(`corporate homepage and app work in ${language}`, async ({ page }) => {
-    await page.addInitScript(
-      (language) => localStorage.setItem('xpresstend.lang', language),
-      language,
-    )
+    await page.addInitScript((language) => localStorage.setItem('xpresstend.lang', language), language)
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     await expect(page.locator('html')).toHaveAttribute('lang', language)
@@ -228,19 +238,16 @@ for (const language of ['so', 'es', 'pt-BR', 'ar']) {
     await page.locator('.brand-mobile-menu a[href="#/philanthropy"]').click()
     await expect(page).toHaveURL(/#\/philanthropy$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
-    // Company, philanthropy and legal pages are published in English, including when
-    // reached from an Arabic homepage.
-    await expect(page.locator('main').locator('..')).toHaveAttribute('lang', 'en')
-    await expect(page.locator('main')).toHaveCSS('direction', 'ltr')
+    // Public pages retain the selected language and writing direction.
+    await expect(page.locator('main').locator('..')).toHaveAttribute('lang', language)
+    await expect(page.locator('main')).toHaveCSS('direction', language === 'ar' ? 'rtl' : 'ltr')
     await page.goto('/#/login')
     await expect(page.locator('a[href="#/register"]')).toBeVisible()
     await expect(page.locator('.product-explore-bar')).toHaveCount(0)
   })
 }
 
-test('real accounts still require a password before any transfer submission', async ({
-  page,
-}) => {
+test('real accounts still require a password before any transfer submission', async ({ page }) => {
   const writes: string[] = []
   page.on('request', (request) => {
     if (request.method() === 'POST' && /\/api\/transfers(?:\/|$)/.test(request.url()))
@@ -255,12 +262,10 @@ test('real accounts still require a password before any transfer submission', as
   await expect(page).toHaveURL(/#\/review$/)
   await page.getByRole('button', { name: 'Create test transfer', exact: true }).click()
   await expect(page.locator('input[type=password]')).toBeVisible()
-  await expect(
-    page.getByRole('button', { name: 'Authorise transfer', exact: true }),
-  ).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Authorise transfer', exact: true })).toBeDisabled()
   // Screening is deliberately performed before authorization; it cannot create or pay a transfer.
-  expect(writes.filter(url => new URL(url).pathname !== '/api/transfers/preflight')).toEqual([])
-  expect(writes.some(url => new URL(url).pathname === '/api/transfers/preflight')).toBe(true)
+  expect(writes.filter((url) => new URL(url).pathname !== '/api/transfers/preflight')).toEqual([])
+  expect(writes.some((url) => new URL(url).pathname === '/api/transfers/preflight')).toBe(true)
 })
 
 test('company pages show a plain NMLS ID and accurate service availability', async ({ page }) => {
@@ -307,10 +312,15 @@ test('footer company, support and privacy links reach their intended pages', asy
 test('company contents navigate within the document without replacing the page route', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#/company')
-  await page.getByRole('navigation', { name: 'On this page', exact: true })
-    .getByRole('button', { name: 'Contact the company', exact: true }).click()
+  await page
+    .getByRole('navigation', { name: 'On this page', exact: true })
+    .getByRole('button', { name: 'Contact the company', exact: true })
+    .click()
   await expect(page).toHaveURL(/#\/company$/)
   await expect(page.locator('#contact')).toBeFocused()
   await expect(page.locator('#contact')).toBeInViewport()
-  await expect(page.locator('header').getByRole('link', { name: 'Company', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(page.locator('header').getByRole('link', { name: 'Company', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
 })

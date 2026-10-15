@@ -1,8 +1,9 @@
+import { readPassage, siteLabels } from './siteContent'
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowUpRight, Languages, ScanLine, ShieldCheck, UserRound, Menu } from 'lucide-react'
 import { brand } from '../config/brand'
-import { useT } from '../i18n'
+import { useT, useI18n } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
 import { useAuth } from '../auth/AuthContext'
@@ -16,6 +17,7 @@ import './marketing.css'
 
 export function Marketing() {
   const t = useT()
+  const { lang } = useI18n()
   const { user } = useAuth()
   const labels = useBrandCopy()
   const copy = useCorporateCopy()
@@ -51,23 +53,56 @@ export function Marketing() {
           </Link>
           <nav aria-label={copy.navigation} className="brand-nav corporate-nav">
             {companyLinks.map((link) => (
-              <Link key={link.to} to={link.to}>{link.label}</Link>
+              <Link key={link.to} to={link.to}>
+                {link.label}
+              </Link>
             ))}
           </nav>
           <details className="brand-mobile-menu">
-            <summary aria-label={copy.menu}><Menu size={20} /><span>{copy.menu}</span></summary>
-            <nav aria-label={copy.navigation}>{companyLinks.map(link => <Link key={link.to} to={link.to}>{link.label}</Link>)}<Link to="/demo">{copy.demoAction}</Link></nav>
+            <summary aria-label={copy.menu}>
+              <Menu size={20} />
+              <span>{copy.menu}</span>
+            </summary>
+            <nav aria-label={copy.navigation}>
+              {companyLinks.map((link) => (
+                <Link key={link.to} to={link.to}>
+                  {link.label}
+                </Link>
+              ))}
+              <Link to="/demo">{copy.demoAction}</Link>
+            </nav>
           </details>
           <LanguageSwitcher />
           <details className="group relative">
-            <summary aria-label="Sign in" className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-700 hover:bg-white/60">
+            <summary
+              aria-label="Sign in"
+              className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-700 hover:bg-white/60"
+            >
               <UserRound size={17} className="sm:hidden" />
               <span className="hidden sm:inline">{t('marketing.signIn')}</span>
             </summary>
-            <nav aria-label="Sign-in options" className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200">
-              <Link to="/login" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Customer sign in</Link>
-              <Link to="/admin" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Staff sign in</Link>
-              <Link to="/institutional-reviewer" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">Institutional reviewer sign in</Link>
+            <nav
+              aria-label="Sign-in options"
+              className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200"
+            >
+              <Link
+                to="/login"
+                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
+              >
+                Customer sign in
+              </Link>
+              <Link
+                to="/admin"
+                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
+              >
+                Staff sign in
+              </Link>
+              <Link
+                to="/institutional-reviewer"
+                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
+              >
+                Institutional reviewer sign in
+              </Link>
             </nav>
           </details>
         </div>
@@ -77,11 +112,20 @@ export function Marketing() {
           <div className="corporate-hero-inner brand-width">
             <div className="corporate-hero-copy">
               <p className="brand-eyebrow">{copy.heroEyebrow}</p>
-              <h1>{copy.heroFirst}<br /><span>{copy.heroSecond}</span></h1>
+              <h1>
+                {copy.heroFirst}
+                <br />
+                <span>{copy.heroSecond}</span>
+              </h1>
               <p className="corporate-intro">{copy.heroIntro}</p>
               <div className="corporate-hero-actions">
-                <Link className="brand-primary" to={user ? '/app' : '/register'}>{user ? t('marketing.openApp') : t('marketing.getStarted')} <ArrowUpRight size={17} aria-hidden="true" /></Link>
-                <Link className="brand-text-link" to="/demo">{copy.demoAction} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+                <Link className="brand-primary" to={user ? '/app' : '/register'}>
+                  {user ? t('marketing.openApp') : t('marketing.getStarted')}{' '}
+                  <ArrowUpRight size={17} aria-hidden="true" />
+                </Link>
+                <Link className="brand-text-link" to="/demo">
+                  {copy.demoAction} <ArrowUpRight size={17} aria-hidden="true" />
+                </Link>
               </div>
             </div>
             <InteractiveGlobe />
@@ -94,7 +138,9 @@ export function Marketing() {
           <div className="corporate-company-intro">
             <div>
               <p className="brand-eyebrow">{copy.companyEyebrow}</p>
-              <h2 className="brand-display" id="company-heading">{copy.companyTitle}</h2>
+              <h2 className="brand-display" id="company-heading">
+                {copy.companyTitle}
+              </h2>
             </div>
             <div>
               <p className="brand-body">{copy.companyBody}</p>
@@ -104,16 +150,29 @@ export function Marketing() {
             </div>
           </div>
           <dl className="corporate-facts">
-            <div><dt>{copy.factsLocation}</dt><dd>{brand.hq.city}, {brand.hq.state}</dd></div>
-            <div><dt>{copy.factsRegistration}</dt><dd>NMLS ID {brand.nmls.id}</dd></div>
-            <div><dt>{copy.factsFocus}</dt><dd>{copy.factsFocusValue}</dd></div>
+            <div>
+              <dt>{copy.factsLocation}</dt>
+              <dd>
+                {brand.hq.city}, {brand.hq.state}
+              </dd>
+            </div>
+            <div>
+              <dt>{copy.factsRegistration}</dt>
+              <dd>NMLS ID {brand.nmls.id}</dd>
+            </div>
+            <div>
+              <dt>{copy.factsFocus}</dt>
+              <dd>{copy.factsFocusValue}</dd>
+            </div>
           </dl>
         </section>
 
         <section className="corporate-principles" aria-labelledby="approach-heading">
           <div className="brand-width">
             <p className="brand-eyebrow">{copy.principlesEyebrow}</p>
-            <h2 className="brand-display" id="approach-heading">{copy.principlesTitle}</h2>
+            <h2 className="brand-display" id="approach-heading">
+              {copy.principlesTitle}
+            </h2>
             <div className="corporate-cards">
               {[
                 { Icon: ScanLine, title: copy.clarityTitle, body: copy.clarityBody },
@@ -125,7 +184,6 @@ export function Marketing() {
                   <h3>{title}</h3>
                   <p>{body}</p>
                 </article>
-
               ))}
             </div>
           </div>
@@ -134,13 +192,20 @@ export function Marketing() {
         <section className="corporate-partners brand-width" aria-labelledby="partners-heading">
           <div>
             <p className="brand-eyebrow">{copy.partnerEyebrow}</p>
-            <h2 className="brand-display" id="partners-heading">{copy.partnerTitle}</h2>
+            <h2 className="brand-display" id="partners-heading">
+              {copy.partnerTitle}
+            </h2>
             <p className="brand-body">{copy.partnerBody}</p>
             <div className="brand-actions">
-              <a className="brand-primary" href={`mailto:${brand.support.email}?subject=${encodeURIComponent(copy.inquirySubject)}`}>
+              <a
+                className="brand-primary"
+                href={`mailto:${brand.support.email}?subject=${encodeURIComponent(copy.inquirySubject)}`}
+              >
                 {copy.inquiryAction} <ArrowUpRight size={17} aria-hidden="true" />
               </a>
-              <Link className="brand-text-link" to="/philanthropy">{copy.partnerLink} <ArrowUpRight size={17} aria-hidden="true" /></Link>
+              <Link className="brand-text-link" to="/philanthropy">
+                {copy.partnerLink} <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
             </div>
           </div>
           <RiverFlow />
@@ -151,12 +216,19 @@ export function Marketing() {
           <div className="brand-trust-inner brand-width">
             <div>
               <p className="brand-eyebrow">{copy.trustEyebrow}</p>
-              <h2 className="brand-display" id="trust-heading">{copy.trustTitle}</h2>
+              <h2 className="brand-display" id="trust-heading">
+                {copy.trustTitle}
+              </h2>
               <p className="brand-body">{copy.trustBody}</p>
             </div>
             <ul className="brand-trust-links">
               {companyLinks.map((link) => (
-                <li key={link.to}><Link to={link.to}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></Link></li>
+                <li key={link.to}>
+                  <Link to={link.to}>
+                    {link.label}
+                    <ArrowUpRight size={16} aria-hidden="true" />
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
@@ -166,17 +238,26 @@ export function Marketing() {
       <footer className="brand-footer brand-width">
         <div className="brand-footer-top">
           <div className="brand-footer-brand">
-            <Link to="/" aria-label={brand.name}><Logo variant="full" height={44} /></Link>
-            <p>{brand.hq.city}, {brand.hq.state}, {brand.hq.country}</p>
+            <Link to="/" aria-label={brand.name}>
+              <Logo variant="full" height={44} />
+            </Link>
             <p>
-              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a><br />
+              {brand.hq.city}, {brand.hq.state}, {brand.hq.country}
+            </p>
+            <p>
+              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
+              <br />
               <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>{brand.support.phone}</a>
             </p>
           </div>
           <nav className="brand-footer-columns" aria-label={labels.footerCompany}>
             <div>
               <h2>{labels.footerCompany}</h2>
-              {companyLinks.map((link) => <Link key={link.to} to={link.to}>{link.label}</Link>)}
+              {companyLinks.map((link) => (
+                <Link key={link.to} to={link.to}>
+                  {link.label}
+                </Link>
+              ))}
             </div>
             <div>
               <h2>{copy.footerContact}</h2>
@@ -189,10 +270,12 @@ export function Marketing() {
             </div>
           </nav>
         </div>
-        <div className="brand-footer-bottom" lang="en" dir="ltr">
+        <div className="brand-footer-bottom">
           <p className="brand-footer-legal">{brand.legal.licence}</p>
-          <p className="brand-footer-legal">{brand.legal.operatingStatus}</p>
-          <p className="brand-footer-copyright">© {new Date().getFullYear()} {brand.legalName}. All rights reserved.</p>
+          <p className="brand-footer-legal">{readPassage(siteLabels.operating, lang)}</p>
+          <p className="brand-footer-copyright">
+            © {new Date().getFullYear()} {brand.legalName}. {readPassage(siteLabels.rights, lang)}
+          </p>
         </div>
       </footer>
     </div>

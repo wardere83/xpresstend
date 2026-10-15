@@ -1,3 +1,4 @@
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search, Star } from 'lucide-react'
@@ -6,7 +7,6 @@ import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
 import { toRecipientView, type RecipientView } from '../lib/view'
-
 export function Recipients() {
   const { t } = useI18n()
   const navigate = useNavigate()
@@ -14,9 +14,7 @@ export function Recipients() {
   const { live, loading, error, recipients: mine, corridors, addRecipient } = useAccountData()
   const [query, setQuery] = useState('')
   const [adding, setAdding] = useState(false)
-
   const rows: RecipientView[] = useMemo(() => mine.map(toRecipientView), [mine])
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return rows
@@ -26,15 +24,12 @@ export function Recipients() {
         r.detail.replace(/\s/g, '').toLowerCase().includes(q.replace(/\s/g, '')),
     )
   }, [query, rows])
-
   const favourites = filtered.filter((r) => r.favourite)
   const others = filtered.filter((r) => !r.favourite)
-
   const open = (id: string) => {
     setRecipientId(id)
     navigate('/send')
   }
-
   const renderRow = (r: RecipientView) => (
     <li key={r.id}>
       <button
@@ -55,7 +50,6 @@ export function Recipients() {
       </button>
     </li>
   )
-
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <ScreenHeader
@@ -99,7 +93,9 @@ export function Recipients() {
         ) : null}
 
         {error ? (
-          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">{error}</p>
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">
+            {p(error)}
+          </p>
         ) : loading && rows.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : filtered.length === 0 ? (
@@ -108,12 +104,8 @@ export function Recipients() {
 
         {favourites.length > 0 && (
           <>
-            <h2 className="mt-2 mb-2 text-[13px] font-bold text-ink-700">
-              {t('recipients.favourites')}
-            </h2>
-            <ul className="card overflow-hidden divide-y divide-ink-200/60">
-              {favourites.map(renderRow)}
-            </ul>
+            <h2 className="mt-2 mb-2 text-[13px] font-bold text-ink-700">{t('recipients.favourites')}</h2>
+            <ul className="card overflow-hidden divide-y divide-ink-200/60">{favourites.map(renderRow)}</ul>
           </>
         )}
 
@@ -122,22 +114,18 @@ export function Recipients() {
             {favourites.length > 0 ? (
               <h2 className="mt-5 mb-2 text-[13px] font-bold text-ink-700">{t('recipients.all')}</h2>
             ) : null}
-            <ul className="card mt-2 overflow-hidden divide-y divide-ink-200/60">
-              {others.map(renderRow)}
-            </ul>
+            <ul className="card mt-2 overflow-hidden divide-y divide-ink-200/60">{others.map(renderRow)}</ul>
           </>
         )}
       </div>
     </div>
   )
 }
-
 const PAYOUT_METHODS = [
   { value: 'mobile_wallet', label: 'Mobile wallet' },
   { value: 'bank_account', label: 'Bank account' },
   { value: 'cash_pickup', label: 'Cash pickup' },
 ]
-
 function AddRecipient({
   onCancel,
   onSave,
@@ -146,24 +134,31 @@ function AddRecipient({
   onCancel: () => void
   countries: string[]
   onSave: (input: {
-    fullName: string; country: string; payoutMethod: string; phone?: string; relationship?: string
+    fullName: string
+    country: string
+    payoutMethod: string
+    phone?: string
+    relationship?: string
   }) => Promise<void>
 }) {
+  const p = useInterfaceCopy()
   const { t, lang } = useI18n()
   const countryNames = new Intl.DisplayNames([lang], { type: 'region' })
   const [form, setForm] = useState({
-    fullName: '', country: countries[0] ?? '', payoutMethod: 'mobile_wallet',
-    phone: '', relationship: '',
+    fullName: '',
+    country: countries[0] ?? '',
+    payoutMethod: 'mobile_wallet',
+    phone: '',
+    relationship: '',
   })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
-
   async function submit(e: FormEvent) {
     e.preventDefault()
-    setBusy(true); setError(null)
+    setBusy(true)
+    setError(null)
     try {
       await onSave(form)
     } catch {
@@ -172,35 +167,70 @@ function AddRecipient({
       setBusy(false)
     }
   }
-
   const field =
     'w-full rounded-xl bg-white px-4 py-3 text-[14px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
-
   return (
     <form onSubmit={submit} className="card mb-4 space-y-3 p-4">
       <h2 className="text-[14px] font-bold">{t('recipients.add')}</h2>
-      <p className="text-[12px] text-ink-500">Saved details are for test records. Delivery services are not connected.</p>
-      <input required placeholder={t('recipients.fullName')} value={form.fullName}
-             onChange={set('fullName')} className={field} />
-      <select value={form.country} onChange={set('country')} className={field} aria-label={t('marketing.destination')}>
+      <p className="text-[12px] text-ink-500">
+        {p('Saved details are for test records. Delivery services are not connected.')}
+      </p>
+      <input
+        required
+        placeholder={t('recipients.fullName')}
+        value={form.fullName}
+        onChange={set('fullName')}
+        className={field}
+      />
+      <select
+        value={form.country}
+        onChange={set('country')}
+        className={field}
+        aria-label={t('marketing.destination')}
+      >
         {countries.map((country) => (
-          <option key={country} value={country}>{countryNames.of(country) ?? country}</option>
+          <option key={country} value={country}>
+            {countryNames.of(country) ?? country}
+          </option>
         ))}
       </select>
-      <select value={form.payoutMethod} onChange={set('payoutMethod')} className={field}
-              aria-label={t('recipients.payoutMethod')}>
-        {PAYOUT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+      <select
+        value={form.payoutMethod}
+        onChange={set('payoutMethod')}
+        className={field}
+        aria-label={t('recipients.payoutMethod')}
+      >
+        {PAYOUT_METHODS.map((m) => (
+          <option key={m.value} value={m.value}>
+            {p(m.label)}
+          </option>
+        ))}
       </select>
-      <input placeholder={t('recipients.phoneOptional')} value={form.phone} onChange={set('phone')}
-             className={field} inputMode="tel" />
-      {error ? <p role="alert" className="text-[13px] font-medium text-alert">{error}</p> : null}
+      <input
+        placeholder={t('recipients.phoneOptional')}
+        value={form.phone}
+        onChange={set('phone')}
+        className={field}
+        inputMode="tel"
+      />
+      {error ? (
+        <p role="alert" className="text-[13px] font-medium text-alert">
+          {p(error)}
+        </p>
+      ) : null}
       <div className="flex gap-2 pt-1">
-        <button type="submit" disabled={busy || !form.country}
-          className="flex-1 rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={busy || !form.country}
+          className="flex-1 rounded-full bg-brand-600 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
+        >
           {busy ? t('common.saving') : t('common.save')}
         </button>
-        <button type="button" onClick={onCancel}
-          className="rounded-full border border-ink-200 px-5 py-3 text-[14px] font-semibold text-ink-700">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full border border-ink-200 px-5 py-3 text-[14px] font-semibold text-ink-700"
+        >
           {t('common.cancel')}
         </button>
       </div>

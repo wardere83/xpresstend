@@ -914,7 +914,9 @@ summary {
   font-weight: 500;
   color: #0b252f;
   text-decoration: none;
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 .brand-trust-links a:hover {
   border-color: #4bd1d3;
@@ -1326,4 +1328,173 @@ summary {
     gap: 8px;
     margin-top: 24px;
   }
+}
+.app-preview {
+  min-height: 560px;
+  width: 100%;
+  background: #f5f9fa;
+  color: #0b252f;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, 'Noto Sans Arabic', sans-serif;
+}
+.app-preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 40px 18px 18px;
+  font-size: 13px;
+  border-bottom: 1px solid #d8e5e8;
+}
+.app-preview-top > span {
+  border: 1px solid #afc8ce;
+  border-radius: 18px;
+  padding: 5px 9px;
+  font-size: 9px;
+}
+.app-preview-content {
+  padding: 22px 18px;
+  flex: 1;
+}
+.app-preview-content > p:first-child {
+  color: #617e87;
+  font-size: 10px;
+}
+.app-preview h3 {
+  font-size: 27px;
+  margin: 8px 0 24px;
+  font-weight: 500;
+}
+.app-preview label {
+  display: block;
+  color: #64818b;
+  font-size: 10px;
+  margin: 18px 0 9px;
+}
+.app-preview-person {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  background: white;
+  padding: 14px 10px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+.app-preview-person > span {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #def0ec;
+  font-size: 10px;
+}
+.app-preview-person strong {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+}
+.app-preview small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  font-weight: 400;
+  color: #63808a;
+}
+.app-preview-amount {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #bfd6da;
+  background: white;
+  border-radius: 14px;
+  padding: 16px 12px;
+}
+.app-preview-amount strong {
+  font-size: 27px;
+  font-weight: 500;
+}
+.app-preview-amount span {
+  font-size: 10px;
+  align-self: center;
+}
+.app-preview dl {
+  margin-top: 24px;
+  font-size: 10px;
+}
+.app-preview dl > div {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.app-preview dt {
+  color: #64818b;
+}
+.app-preview-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0b252f;
+  color: white;
+  border-radius: 24px;
+  padding: 14px 16px;
+  font-size: 11px;
+  margin-top: 26px;
+}
+.app-preview-bottom {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #d5e5e9;
+  background: white;
+  padding: 15px 12px;
+}
+.app-preview-bottom span {
+  padding: 7px 20px;
+  border-radius: 18px;
+  color: #6a838b;
+}
+.app-preview-bottom .active {
+  background: #e4f7f5;
+  color: #0b252f;
+}
+.app-preview-note {
+  margin-top: 24px;
+  background: #e9f3f3;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.app-preview-activity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #d6e4e8;
+  padding: 26px 12px;
+  background: white;
+  border-radius: 20px;
+}
+.app-preview-activity svg {
+  background: #daf2e9;
+  border-radius: 50%;
+  padding: 5px;
+  box-sizing: content-box;
+}
+.app-preview-activity strong {
+  font-size: 14px;
+}
+.app-preview-activity p {
+  font-size: 12px;
+}
+.app-preview-activity b {
+  font-size: 27px;
+  font-weight: 500;
+}
+.demo-site[dir='rtl'] .demo-back svg,
+.demo-site[dir='rtl'] .demo-top > a svg {
+  transform: scaleX(-1);
+}
+.demo-site[dir='rtl'] .demo-person {
+  text-align: right;
 }

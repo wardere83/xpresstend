@@ -1,0 +1,479 @@
+.institutional-site {
+  min-height: 100dvh;
+  background: #f5f9fa;
+  color: #0b252f;
+}
+.institutional-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px max(24px, calc((100vw - 1180px) / 2));
+  background: white;
+  border-bottom: 1px solid #d6e4e8;
+}
+.institutional-header nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.institutional-header nav a {
+  padding: 9px 12px;
+  border-radius: 22px;
+  font-size: 13px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.institutional-header nav a:hover,
+.institutional-header nav a[aria-current='page'] {
+  background: #0b252f;
+  color: white;
+}
+.institutional-skip {
+  position: fixed;
+  inset-block-start: 8px;
+  inset-inline-start: 12px;
+  z-index: 100;
+  transform: translateY(-160%);
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+}
+.institutional-skip:focus {
+  transform: none;
+}
+.institutional-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #0b252f;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  padding: 72px max(24px, calc((100vw - 1100px) / 2));
+}
+.institutional-hero > div:first-child {
+  max-width: 760px;
+}
+.institutional-hero h1 {
+  font-size: clamp(32px, 5vw, 62px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 20px 0;
+}
+.institutional-hero p:not(.institutional-eyebrow) {
+  color: #c9dcdf;
+  line-height: 1.8;
+  font-size: 17px;
+  max-width: 660px;
+}
+.institutional-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 11px;
+  color: #75d9d6;
+}
+.institutional-hero small {
+  display: block;
+  margin-top: 20px;
+  color: #b1c8cf;
+}
+.institutional-orbits {
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: #91ded9;
+}
+.institutional-orbits span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid #3d747b;
+  border-radius: 50%;
+}
+.institutional-orbits span:nth-child(2) {
+  inset: 18px;
+  transform: rotate(-35deg) scaleX(0.5);
+  border-color: #71b6b5;
+}
+.institutional-orbits span:nth-child(3) {
+  inset: 38px;
+}
+.institutional-orbits svg {
+  width: 40px;
+  height: 40px;
+  stroke-width: 1;
+}
+.institutional-body {
+  max-width: 1160px;
+  margin: auto;
+  padding: 40px 24px 80px;
+}
+.institutional-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 34px;
+}
+.institutional-actions a {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: white;
+  border: 1px solid #d6e4e8;
+  border-radius: 18px;
+  padding: 22px 16px;
+  font-size: 13px;
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.institutional-actions a > svg:first-child {
+  color: #347777;
+  flex-shrink: 0;
+}
+.institutional-actions a > svg:last-child {
+  width: 15px;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+.institutional-actions a:hover {
+  border-color: #69bab7;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px #0b252f0a;
+}
+.institutional-contents {
+  padding: 22px;
+  background: #e5f2f2;
+  border: 1px solid #c4dfe0;
+  border-radius: 22px;
+  margin-bottom: 30px;
+}
+.institutional-contents > p {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 15px;
+}
+.institutional-contents > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.institutional-contents button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-radius: 24px;
+  border: 1px solid #bed6d8;
+  background: white;
+  padding: 10px 15px;
+  font-size: 12px;
+  text-align: start;
+  cursor: pointer;
+}
+.institutional-contents button:hover,
+.institutional-contents button[aria-current] {
+  background: #0b252f;
+  color: white;
+  border-color: #0b252f;
+}
+.institutional-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.institutional-section {
+  position: relative;
+  background: white;
+  border: 1px solid #dae6e9;
+  padding: 30px;
+  border-radius: 24px;
+  min-width: 0;
+}
+.institutional-section h2 {
+  scroll-margin-top: 24px;
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  outline: none;
+  margin: 20px 0 18px;
+}
+.institutional-section h2:focus {
+  text-decoration: underline;
+  text-decoration-color: #4bd1d3;
+  text-underline-offset: 6px;
+}
+.institutional-number {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: #50747b;
+  display: inline-block;
+  padding: 7px 10px;
+  border-radius: 20px;
+  background: #e9f4f4;
+}
+.institutional-section p {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #48616a;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.institutional-section:has(.institutional-status),
+.institutional-section:has(.enquiry-picker) {
+  grid-column: 1/-1;
+}
+.institutional-status {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #edf7f6;
+  border: 1px solid #c6dedc;
+  border-radius: 18px;
+  padding: 22px;
+  margin-top: 24px;
+}
+.institutional-status small {
+  color: #547179;
+}
+.institutional-status button,
+.enquiry-picker a {
+  background: #0b252f;
+  color: white;
+  border: 0;
+  border-radius: 24px;
+  padding: 12px 20px;
+  white-space: nowrap;
+  font-size: 12px;
+  cursor: pointer;
+}
+.institutional-status button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.institutional-status > div {
+  flex: 1;
+}
+.institutional-details {
+  border-top: 1px solid #d6e4e8;
+  padding: 16px 0;
+}
+.institutional-details summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-weight: 500;
+  list-style: none;
+}
+.institutional-details[open] summary svg {
+  transform: rotate(180deg);
+}
+.institutional-details > div {
+  padding-top: 18px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.institutional-facts > div {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  padding: 16px;
+  border-bottom: 1px solid #d6e4e8;
+}
+.enquiry-picker {
+  display: grid;
+  gap: 14px;
+  max-width: 620px;
+  padding-top: 18px;
+}
+.enquiry-picker label {
+  font-size: 12px;
+  font-weight: 600;
+}
+.enquiry-picker select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #a9c5cb;
+  border-radius: 12px;
+  background: white;
+  color: #0b252f;
+}
+.enquiry-picker a {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.institutional-footer {
+  background: #0b252f;
+  color: #d4e5e7;
+  padding: 44px max(24px, calc((100vw - 1100px) / 2));
+  font-size: 13px;
+  line-height: 1.8;
+}
+.institutional-footer > div:first-child {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+}
+.institutional-footer nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+.institutional-footer a:hover {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.institutional-disclosure {
+  border-top: 1px solid #38525b;
+  margin-top: 36px;
+  padding-top: 22px;
+  font-size: 11px;
+  color: #aac3c9;
+}
+.institutional-disclosure p {
+  margin-top: 10px;
+}
+.institutional-site :focus-visible {
+  outline: 2px solid #218886;
+  outline-offset: 4px;
+}
+@media (max-width: 850px) {
+  .institutional-header {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .institutional-header nav {
+    order: 3;
+    width: 100%;
+  }
+  .institutional-orbits {
+    width: 110px;
+    height: 110px;
+  }
+  .institutional-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .institutional-section {
+    padding: 24px;
+  }
+  .institutional-hero {
+    padding-block: 48px;
+  }
+}
+@media (max-width: 600px) {
+  .institutional-header {
+    padding: 16px 20px;
+  }
+  .institutional-header nav a {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .institutional-hero {
+    padding-inline: 24px;
+  }
+  .institutional-orbits {
+    position: absolute;
+    inset-inline-end: -30px;
+    inset-block-start: 10px;
+    opacity: 0.2;
+    z-index: -1;
+    width: 200px;
+    height: 200px;
+  }
+  .institutional-body {
+    padding: 24px 18px 48px;
+  }
+  .institutional-sections {
+    grid-template-columns: 1fr;
+  }
+  .institutional-actions a {
+    padding: 16px 12px;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .institutional-actions a > svg:first-child {
+    width: 19px;
+  }
+  .institutional-contents {
+    padding: 18px;
+  }
+  .institutional-status {
+    flex-direction: column;
+    align-items: start;
+  }
+  .institutional-footer > div:first-child {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .institutional-site * {
+    transition: none !important;
+  }
+  .institutional-actions a:hover {
+    transform: none;
+  }
+}
+.philanthropy-nature {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 60px;
+  align-items: center;
+  padding: 60px max(24px, calc((100vw - 1100px) / 2));
+  background: #0b252f;
+  color: white;
+}
+.philanthropy-nature h2 {
+  font-size: clamp(27px, 3vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 20px 0;
+  max-width: 650px;
+}
+.philanthropy-nature p:not(.institutional-eyebrow) {
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #c1d9dc;
+}
+.philanthropy-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: #0b252f;
+  border-radius: 28px;
+  color: white;
+  padding: 14px 20px;
+  font-size: 13px;
+  margin-top: 16px;
+}
+.philanthropy-contact:hover {
+  background: #24515a;
+}
+.learning-topics {
+  margin-top: 24px;
+}
+@media (max-width: 600px) {
+  .philanthropy-nature {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .philanthropy-nature .xt-river {
+    width: 240px;
+  }
+}

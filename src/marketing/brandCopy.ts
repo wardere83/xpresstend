@@ -17,18 +17,14 @@ const en = {
   people: 'People',
   activity: 'Activity',
   sendTitle: 'A thoughtful way to send.',
-  sendBody:
-    'Choose an amount, see the details, and take the next step with confidence.',
+  sendBody: 'Choose an amount, see the details, and take the next step with confidence.',
   peopleTitle: 'Start with someone.',
-  peopleBody:
-    'Keep the people you send to close. Find a familiar name and pick up where you left off.',
+  peopleBody: 'Keep the people you send to close. Find a familiar name and pick up where you left off.',
   activityTitle: 'Follow every step.',
-  activityBody:
-    'Keep your transfers in view, with the details there when you need them.',
+  activityBody: 'Keep your transfers in view, with the details there when you need them.',
   ratesEyebrow: 'Every detail, in view',
   ratesTitle: 'A little clarity.\nA lot of confidence.',
-  ratesBody:
-    'Explore the amount, destination, and fee before you take the next step.',
+  ratesBody: 'Explore the amount, destination, and fee before you take the next step.',
   downloadTitle: 'Your world.\nIn your pocket.',
   downloadBody: 'The same thoughtful experience, wherever life takes you.',
   android: 'XpressTend for Android',
@@ -46,8 +42,7 @@ const en = {
   skip: 'Skip to content',
   trustEyebrow: 'The company behind it',
   trustTitle: 'Built to be checked.',
-  trustBody:
-    'Who we are, how we are registered, how the money is handled, and how to reach us.',
+  trustBody: 'Who we are, how we are registered, how the money is handled, and how to reach us.',
   trustCompany: 'Company',
   trustCompliance: 'Compliance',
   trustSecurity: 'Security',
@@ -60,63 +55,6 @@ const en = {
 } as const
 
 type Copy = { [K in keyof typeof en]: string }
-const so: Copy = {
-  connected: 'Dunidaada. Isku xiran.',
-  heroFirst: 'Lacagtu way gudubtaa.',
-  heroSecond: 'Xiriirku wuu joogaa.',
-  intro: 'Hab kuu dhow oo aad lacag ugu dirto dunida oo dhan.',
-  watch: 'Daawo muuqaalka',
-  filmTitle: 'Wax yar isu soo dhowaada.',
-  filmLabel: 'MUUQAALKA XPRESSTEND',
-  play: 'Daar muuqaalka XpressTend',
-  pause: 'Hakii muuqaalka XpressTend',
-  experience: 'Khibradda',
-  personal: 'Noloshaada loogu talagalay',
-  experienceTitle: 'Dadkaaga.\nMar walba kuu dhow.',
-  send: 'Dir',
-  people: 'Dadka',
-  activity: 'Dhaqdhaqaaqa',
-  sendTitle: 'Hab fudud oo wax lagu diro.',
-  sendBody:
-    'Dooro lacagta, eeg faahfaahinta, oo tallaabada xigta qaad adigoo hubinaya.',
-  peopleTitle: 'Ka bilow qofkaaga.',
-  peopleBody:
-    'Dadka aad lacagta u dirto kuu dhowee. Magac aad taqaan raadi oo sii wad.',
-  activityTitle: 'La soco tallaabo kasta.',
-  activityBody: 'Xawaaladahaaga iyo faahfaahintooda eeg marka aad u baahato.',
-  ratesEyebrow: 'Faahfaahin kasta waa muuqataa',
-  ratesTitle: 'Wax walba ha kuu caddaadaan.',
-  ratesBody:
-    'Eeg lacagta, meesha loo dirayo iyo khidmadda ka hor tallaabada xigta.',
-  downloadTitle: 'Dunidaada.\nJeebkaaga ku jirta.',
-  downloadBody: 'Khibrad kuu dhow, meel kasta oo aad joogto.',
-  android: 'XpressTend ee Android',
-  androidNote: 'Dhawaan',
-  ios: 'XpressTend ee iPhone',
-  iosNote: 'Dhawaan',
-  notifyMe: 'I email marka ay diyaar noqoto',
-  web: 'Ama ku tijaabi biraawsarkaaga',
-  installHelp: 'Ku rakibidda Android',
-  installBody:
-    'Fur APK-ga aad soo dejisay. Haddii lagu weydiiyo, oggolow rakibidda ishan ee dejimaha taleefanka.',
-  back: 'Ku noqo bogga',
-  shellTitle: 'Isu soo dhowaada.\nTaabasho kasta.',
-  shellBody: 'Dadkaaga, xawaaladahaaga, dunidaada. Hal meel.',
-  skip: 'U gudub nuxurka',
-  trustEyebrow: 'Shirkadda ka dambaysa',
-  trustTitle: 'Loo dhisay in la hubiyo.',
-  trustBody:
-    'Cidda aan nahay, sida aan u diiwaangashan nahay, sida lacagta loo maareeyo, iyo sida nalagu soo gaari karo.',
-  trustCompany: 'Shirkadda',
-  trustCompliance: 'Sharci-raacid',
-  trustSecurity: 'Ammaanka',
-  trustPartners: 'Samafal',
-  footerCompany: 'Shirkadda',
-  footerProduct: 'Adeegga',
-  footerLegal: 'Sharciga',
-  filmDescription:
-    'Dunidu waxay isku xiraysaa dad kala fog. Qof ayaa doorta qaate, geliya lacagta, kadibna arka xaqiijinta xawaaladda.',
-}
 const es: Copy = {
   connected: 'Su mundo. Conectado.',
   heroFirst: 'El dinero se mueve.',
@@ -134,18 +72,14 @@ const es: Copy = {
   people: 'Personas',
   activity: 'Actividad',
   sendTitle: 'Una forma de enviar con confianza.',
-  sendBody:
-    'Elija el importe, revise los detalles y dé el siguiente paso con confianza.',
+  sendBody: 'Elija el importe, revise los detalles y dé el siguiente paso con confianza.',
   peopleTitle: 'Empiece por alguien.',
-  peopleBody:
-    'Tenga cerca a quienes envía dinero. Encuentre un nombre conocido y continúe.',
+  peopleBody: 'Tenga cerca a quienes envía dinero. Encuentre un nombre conocido y continúe.',
   activityTitle: 'Siga cada paso.',
-  activityBody:
-    'Consulte sus transferencias y sus detalles cuando los necesite.',
+  activityBody: 'Consulte sus transferencias y sus detalles cuando los necesite.',
   ratesEyebrow: 'Cada detalle, a la vista',
   ratesTitle: 'Más claridad.\nMás confianza.',
-  ratesBody:
-    'Consulte el importe, el destino y la comisión antes de continuar.',
+  ratesBody: 'Consulte el importe, el destino y la comisión antes de continuar.',
   downloadTitle: 'Su mundo.\nEn su bolsillo.',
   downloadBody: 'La misma experiencia cuidada, vaya donde vaya.',
   android: 'XpressTend para Android',
@@ -163,8 +97,7 @@ const es: Copy = {
   skip: 'Ir al contenido',
   trustEyebrow: 'La empresa detrás',
   trustTitle: 'Hecha para verificarse.',
-  trustBody:
-    'Quiénes somos, cómo estamos registrados, cómo se maneja el dinero y cómo contactarnos.',
+  trustBody: 'Quiénes somos, cómo estamos registrados, cómo se maneja el dinero y cómo contactarnos.',
   trustCompany: 'Empresa',
   trustCompliance: 'Cumplimiento',
   trustSecurity: 'Seguridad',
@@ -192,11 +125,9 @@ const pt: Copy = {
   people: 'Pessoas',
   activity: 'Atividade',
   sendTitle: 'Uma forma cuidadosa de enviar.',
-  sendBody:
-    'Escolha o valor, confira os detalhes e dê o próximo passo com confiança.',
+  sendBody: 'Escolha o valor, confira os detalhes e dê o próximo passo com confiança.',
   peopleTitle: 'Comece por alguém.',
-  peopleBody:
-    'Mantenha por perto as pessoas para quem você envia. Encontre um nome conhecido e continue.',
+  peopleBody: 'Mantenha por perto as pessoas para quem você envia. Encontre um nome conhecido e continue.',
   activityTitle: 'Acompanhe cada passo.',
   activityBody: 'Veja suas transferências e os detalhes sempre que precisar.',
   ratesEyebrow: 'Cada detalhe à vista',
@@ -215,13 +146,11 @@ const pt: Copy = {
     'Abra o APK baixado no seu Android. Se solicitado, permita a instalação dessa fonte nas configurações do aparelho.',
   back: 'Voltar ao site',
   shellTitle: 'Um pouco mais perto.\nA cada toque.',
-  shellBody:
-    'Suas pessoas, suas transferências, seu mundo. Tudo em um só lugar.',
+  shellBody: 'Suas pessoas, suas transferências, seu mundo. Tudo em um só lugar.',
   skip: 'Ir para o conteúdo',
   trustEyebrow: 'A empresa por trás',
   trustTitle: 'Feita para ser verificada.',
-  trustBody:
-    'Quem somos, como estamos registrados, como o dinheiro é tratado e como falar conosco.',
+  trustBody: 'Quem somos, como estamos registrados, como o dinheiro é tratado e como falar conosco.',
   trustCompany: 'Empresa',
   trustCompliance: 'Conformidade',
   trustSecurity: 'Segurança',
@@ -266,16 +195,14 @@ const ar: Copy = {
   notifyMe: 'أبلغوني عند الجهوزية',
   web: 'أو استكشفه في متصفحك',
   installHelp: 'التثبيت على أندرويد',
-  installBody:
-    'افتح ملف APK الذي نزّلته. اسمح بالتثبيت من هذا المصدر في إعدادات جهازك إذا طُلب منك ذلك.',
+  installBody: 'افتح ملف APK الذي نزّلته. اسمح بالتثبيت من هذا المصدر في إعدادات جهازك إذا طُلب منك ذلك.',
   back: 'العودة إلى الموقع',
   shellTitle: 'أقرب بقليل.\nمع كل لمسة.',
   shellBody: 'أحباؤك وتحويلاتك وعالمك. كل ذلك في مكان واحد.',
   skip: 'الانتقال إلى المحتوى',
   trustEyebrow: 'الشركة وراء الخدمة',
   trustTitle: 'مبنية لتكون موضع تحقق.',
-  trustBody:
-    'من نحن، وكيف نحن مسجلون، وكيف تُدار الأموال، وكيف يمكن التواصل معنا.',
+  trustBody: 'من نحن، وكيف نحن مسجلون، وكيف تُدار الأموال، وكيف يمكن التواصل معنا.',
   trustCompany: 'الشركة',
   trustCompliance: 'الامتثال',
   trustSecurity: 'الأمان',
@@ -288,5 +215,5 @@ const ar: Copy = {
 }
 export function useBrandCopy(): Copy {
   const { lang } = useI18n()
-  return { en, so, es, 'pt-BR': pt, ar }[lang]
+  return { en, es, 'pt-BR': pt, ar }[lang]
 }

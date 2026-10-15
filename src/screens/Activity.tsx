@@ -1,9 +1,10 @@
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { useMemo, useState } from 'react'
 import { ArrowUpRight, Clock } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
 import { useAccountData } from '../state/AccountData'
-import { formatDate, usd } from '../lib/format'
+import { useFormats } from '../lib/format'
 import { toTransferView } from '../lib/view'
 
 type Filter = 'all' | 'completed' | 'pending'
@@ -19,6 +20,8 @@ type Row = {
 }
 
 export function Activity() {
+  const p = useInterfaceCopy()
+  const { formatDate, usd } = useFormats()
   const { t } = useI18n()
   const mirror = useMirrorClass()
   const { live, loading, error, transfers } = useAccountData()
@@ -36,7 +39,14 @@ export function Activity() {
   ]
 
   const visible = useMemo(
-    () => (filter === 'all' ? rows : rows.filter((r) => filter === 'completed' ? r.status === 'completed' : !['completed', 'failed', 'cancelled', 'refunded'].includes(r.status))),
+    () =>
+      filter === 'all'
+        ? rows
+        : rows.filter((r) =>
+            filter === 'completed'
+              ? r.status === 'completed'
+              : !['completed', 'failed', 'cancelled', 'refunded'].includes(r.status),
+          ),
     [filter, rows],
   )
 
@@ -56,7 +66,9 @@ export function Activity() {
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
         <section className="rounded-[var(--radius-card)] bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-[var(--shadow-float)]">
-          <p className="text-[12px] font-semibold text-white/70">{live ? 'Test transfer amounts this month' : t('activity.sentThisMonth')}</p>
+          <p className="text-[12px] font-semibold text-white/70">
+            {live ? 'Test transfer amounts this month' : t('activity.sentThisMonth')}
+          </p>
           <p className="mt-1 text-[30px] leading-none font-semibold">
             <bdi>{usd(monthTotal)}</bdi>
           </p>
@@ -86,7 +98,9 @@ export function Activity() {
         </div>
 
         {error ? (
-          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">{error}</p>
+          <p role="alert" className="mt-10 text-center text-[13px] font-medium text-alert">
+            {p(error)}
+          </p>
         ) : loading && rows.length === 0 ? (
           <p className="mt-10 text-center text-[13px] text-ink-500">…</p>
         ) : visible.length === 0 ? (
@@ -114,7 +128,11 @@ export function Activity() {
                       }`}
                     >
                       {done ? <ArrowUpRight size={13} className={mirror} /> : <Clock size={13} />}
-                      {live ? row.status.replaceAll('_', ' ') : done ? t('activity.filterSent') : t('activity.filterPending')}
+                      {live
+                        ? p(row.status.replaceAll('_', ' '))
+                        : done
+                          ? t('activity.filterSent')
+                          : t('activity.filterPending')}
                     </p>
                   </div>
                 </li>

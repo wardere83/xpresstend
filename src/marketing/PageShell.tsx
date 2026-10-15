@@ -1,14 +1,14 @@
+import { useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { ArrowUpRight, ChevronDown, Mail, ShieldCheck, Layers3, Globe2 } from 'lucide-react'
 import { brand } from '../config/brand'
 import { Logo } from '../components/Logo'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { useI18n } from '../i18n'
+import { useBrandCopy } from './brandCopy'
+import { readPassage, siteLabels, type SitePage } from './siteContent'
 import { usePageTitle } from './usePageTitle'
-
-const COMPANY_NAV = [
-  { to: '/company', label: 'Company' },
-  { to: '/philanthropy', label: 'Philanthropy' },
-  { to: '/compliance', label: 'Compliance' },
-  { to: '/security', label: 'Security' },
-]
+import './institutional.css'
 
 function scrollToSection(id: string) {
   const target = document.getElementById(id)
@@ -20,7 +20,84 @@ function scrollToSection(id: string) {
     block: 'start',
   })
 }
-
+export function PageHeader() {
+  const copy = useBrandCopy()
+  const { lang, dir } = useI18n()
+  const nav = [
+    { to: '/company', label: copy.trustCompany },
+    { to: '/philanthropy', label: copy.trustPartners },
+    { to: '/compliance', label: copy.trustCompliance },
+    { to: '/security', label: copy.trustSecurity },
+  ]
+  return (
+    <>
+      <a
+        className="institutional-skip"
+        href="#company-content"
+        onClick={(e) => {
+          e.preventDefault()
+          scrollToSection('company-content')
+        }}
+      >
+        {readPassage(siteLabels.skip, lang)}
+      </a>
+      <header className="institutional-header" dir={dir}>
+        <Link to="/" aria-label={brand.name}>
+          <Logo variant="full" height={36} />
+        </Link>
+        <nav aria-label={copy.footerCompany}>
+          {nav.map((item) => (
+            <NavLink key={item.to} to={item.to}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+        <LanguageSwitcher />
+      </header>
+    </>
+  )
+}
+export function PageFooter() {
+  const { lang } = useI18n()
+  const copy = useBrandCopy()
+  return (
+    <footer className="institutional-footer">
+      <div>
+        <p>
+          <strong>{brand.legalName}</strong>
+          <br />
+          <bdi>Seattle, Washington, USA</bdi>
+        </p>
+        <p>
+          <a href={`mailto:${brand.support.email}`}>
+            <bdi>{brand.support.email}</bdi>
+          </a>
+          <br />
+          <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
+            <bdi>{brand.support.phone}</bdi>
+          </a>
+        </p>
+        <nav aria-label={readPassage(siteLabels.resources, lang)}>
+          <Link to="/company">{copy.trustCompany}</Link>
+          <Link to="/philanthropy">{copy.trustPartners}</Link>
+          <Link to="/compliance">{copy.trustCompliance}</Link>
+          <Link to="/security">{copy.trustSecurity}</Link>
+          <Link to="/privacy">{readPassage(siteLabels.privacy, lang)}</Link>
+          <Link to="/support">{readPassage(siteLabels.support, lang)}</Link>
+        </nav>
+      </div>
+      <div className="institutional-disclosure">
+        <p>
+          NMLS ID <bdi>{brand.nmls.id}</bdi>.
+        </p>
+        <p>{readPassage(siteLabels.operating, lang)}</p>
+        <p>
+          © {new Date().getFullYear()} {brand.legalName}. {readPassage(siteLabels.rights, lang)}
+        </p>
+      </div>
+    </footer>
+  )
+}
 export function Shell({
   title,
   intro,
@@ -30,145 +107,139 @@ export function Shell({
   title: string
   intro?: string
   updated?: string
-  children: React.ReactNode
+  children: ReactNode
 }) {
+  const { lang, dir } = useI18n()
   usePageTitle(title)
-
   return (
-    <div lang="en" dir="ltr" className="min-h-dvh bg-white text-ink-900">
+    <div lang={lang} dir={dir} className="institutional-site">
       <PageHeader />
-      <main id="company-content" tabIndex={-1} className="mx-auto max-w-5xl px-5 py-10 focus:outline-none sm:px-8 sm:py-14">
-        <div className="max-w-3xl border-b border-ink-200 pb-8 sm:pb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-700">{brand.legalName}</p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
-          {intro ? <p className="mt-5 text-base leading-relaxed text-ink-600 sm:text-lg">{intro}</p> : null}
-          {updated ? <p className="mt-4 text-sm text-ink-500">Last updated {updated}</p> : null}
-        </div>
-        <div className="mt-8 max-w-3xl space-y-6 text-[15px] leading-7 text-ink-700 sm:mt-10">{children}</div>
+      <main id="company-content" tabIndex={-1}>
+        <section className="institutional-hero">
+          <div>
+            <p className="institutional-eyebrow">{brand.legalName}</p>
+            <h1>{title}</h1>
+            {intro && <p>{intro}</p>}
+            {updated && (
+              <small>
+                {readPassage(siteLabels.updated, lang)} {updated}
+              </small>
+            )}
+          </div>
+          <div className="institutional-orbits" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <Globe2 />
+          </div>
+        </section>
+        <div className="institutional-body">{children}</div>
       </main>
       <PageFooter />
     </div>
   )
 }
-
-/** Skip link and company navigation shared by every institutional page. */
-export function PageHeader() {
+export function Contents({ items }: { items: { id: string; label: string }[] }) {
+  const { lang } = useI18n()
+  const [selected, setSelected] = useState(items[0]?.id)
   return (
-    <>
-    <a
-      className="sr-only z-50 rounded-lg bg-white p-3 text-sm font-semibold focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
-      href="#company-content"
-      onClick={(event) => {
-        event.preventDefault()
-        scrollToSection('company-content')
-      }}
-    >
-      Skip to content
-    </a>
-    <header className="border-b border-ink-200/70 pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex max-w-5xl flex-col gap-5 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <Link className="w-fit rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" to="/" aria-label={`${brand.name} home`}>
-          <Logo variant="full" height={42} />
-        </Link>
-        <nav aria-label="Company" className="flex flex-wrap gap-x-1 gap-y-1 text-sm">
-          {COMPANY_NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `rounded-lg px-3 py-2 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-canvas hover:text-brand-700'}`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+    <nav className="institutional-contents" aria-label={readPassage(siteLabels.contents, lang)}>
+      <p>{readPassage(siteLabels.contents, lang)}</p>
+      <div>
+        {items.map((item) => (
+          <button
+            key={item.id}
+            aria-current={selected === item.id ? 'location' : undefined}
+            onClick={() => {
+              setSelected(item.id)
+              scrollToSection(item.id)
+            }}
+          >
+            {item.label}
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </button>
+        ))}
       </div>
-    </header>
-    </>
+    </nav>
   )
 }
-
-export function PageFooter() {
+export function H({ children, id }: { children: ReactNode; id?: string }) {
   return (
-    <footer className="border-t border-ink-200/70 bg-canvas">
-      <div className="mx-auto max-w-5xl px-5 py-9 text-sm leading-relaxed text-ink-700 sm:px-8">
-        <div className="grid gap-7 sm:grid-cols-2">
-          <div>
-            <p className="font-semibold text-ink-900">{brand.legalName}</p>
-            <p className="mt-2">{brand.hq.city}, {brand.hq.state}, {brand.hq.country}</p>
-            <p className="mt-3">
-              <a className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" href={`mailto:${brand.support.email}`}>
-                {brand.support.email}
-              </a>
-              <br />
-              <a className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
-                {brand.support.phone}
-              </a>
-            </p>
-          </div>
-          <nav aria-label="Company resources" className="grid grid-cols-2 content-start gap-x-4 gap-y-3">
-            {COMPANY_NAV.map((item) => (
-              <Link key={item.to} className="hover:text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" to={item.to}>{item.label}</Link>
-            ))}
-            <Link className="hover:text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" to="/privacy">Privacy policy</Link>
-            <Link className="hover:text-brand-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600" to="/support">Contact and support</Link>
-          </nav>
-        </div>
-        <div className="mt-7 border-t border-ink-200 pt-6 text-xs leading-6 text-ink-700">
-          <p>{brand.legal.licence}</p>
-          <p className="mt-3">{brand.legal.operatingStatus}</p>
-          <p className="mt-4">© {new Date().getFullYear()} {brand.legalName}. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-export function H({ children, id }: { children: React.ReactNode; id?: string }) {
-  return (
-    <h2 id={id} tabIndex={-1} className="scroll-mt-6 pt-3 text-xl font-semibold tracking-tight text-ink-900 focus:outline-none">
+    <h2 id={id} tabIndex={-1}>
       {children}
     </h2>
   )
 }
-
-export function Q({ q, id, children }: { q: string; id?: string; children: React.ReactNode }) {
+export function Q({ q, id, children }: { q: string; id?: string; children: ReactNode }) {
   return (
-    <p id={id} className="scroll-mt-6 focus:outline-none">
-      <strong className="text-ink-900">{q}</strong> {children}
-    </p>
+    <details id={id} className="institutional-details">
+      <summary>
+        {q}
+        <ChevronDown size={16} />
+      </summary>
+      <div>{children}</div>
+    </details>
   )
 }
-
-export function Contents({ items }: { items: { id: string; label: string }[] }) {
+export function Facts({ rows }: { rows: { k: string; v: ReactNode }[] }) {
   return (
-    <nav aria-label="On this page" className="rounded-2xl border border-ink-200 bg-canvas p-5">
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-500">On this page</p>
-      <ul className="mt-3 grid gap-1 sm:grid-cols-2 sm:gap-x-5">
-        {items.map((item) => (
-          <li key={item.id}>
-            <button
-              type="button"
-              className="rounded py-1 text-left text-sm text-ink-700 underline decoration-ink-300 underline-offset-4 hover:text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
-              onClick={() => scrollToSection(item.id)}
-            >
-              {item.label}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
-
-export function Facts({ rows }: { rows: { k: string; v: React.ReactNode }[] }) {
-  return (
-    <dl className="divide-y divide-ink-200/70 overflow-hidden rounded-2xl border border-ink-200">
+    <dl className="institutional-facts">
       {rows.map((row) => (
-        <div key={row.k} className="grid gap-1 px-5 py-4 sm:grid-cols-[180px_1fr] sm:gap-5">
-          <dt className="text-sm font-semibold text-ink-900">{row.k}</dt>
-          <dd className="min-w-0 break-words text-sm text-ink-700">{row.v}</dd>
+        <div key={row.k}>
+          <dt>{row.k}</dt>
+          <dd>{row.v}</dd>
         </div>
       ))}
     </dl>
+  )
+}
+export function ContentSections({ page, extra }: { page: SitePage; extra?: (id: string) => ReactNode }) {
+  const { lang } = useI18n()
+  return (
+    <>
+      <Contents items={page.sections.map((s) => ({ id: s.id, label: readPassage(s.title, lang) }))} />
+      <div className="institutional-sections">
+        {page.sections.map((section, index) => (
+          <section className="institutional-section" key={section.id}>
+            <span className="institutional-number" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <H id={section.id}>{readPassage(section.title, lang)}</H>
+            {section.paragraphs.map((paragraph, i) => (
+              <p key={i}>{readPassage(paragraph, lang)}</p>
+            ))}
+            {extra?.(section.id)}
+          </section>
+        ))}
+      </div>
+    </>
+  )
+}
+export function InstitutionalActions() {
+  const { lang } = useI18n()
+  const copy = useBrandCopy()
+  return (
+    <div className="institutional-actions">
+      <Link to="/demo">
+        <Globe2 />
+        <span>{readPassage(siteLabels.demo, lang)}</span>
+        <ArrowUpRight />
+      </Link>
+      <Link to="/compliance">
+        <ShieldCheck />
+        <span>{copy.trustCompliance}</span>
+        <ArrowUpRight />
+      </Link>
+      <Link to="/security">
+        <Layers3 />
+        <span>{copy.trustSecurity}</span>
+        <ArrowUpRight />
+      </Link>
+      <Link to="/support">
+        <Mail />
+        <span>{readPassage(siteLabels.contact, lang)}</span>
+        <ArrowUpRight />
+      </Link>
+    </div>
   )
 }

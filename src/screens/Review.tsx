@@ -1,3 +1,4 @@
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { api } from '../lib/api'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -5,29 +6,50 @@ import { Lock, ShieldCheck } from 'lucide-react'
 import { PrimaryButton, ScreenHeader, SummaryRow } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { maskedWallet, usd } from '../lib/format'
+import { maskedWallet, useFormats } from '../lib/format'
 import { outcomeFeedback, tapFeedback } from '../native/capabilities'
 import { corridorName } from '../data/product'
-
 export function Review() {
+  const { usd } = useFormats()
+  const p = useInterfaceCopy()
   const { t, lang } = useI18n()
   const navigate = useNavigate()
-  const { recipientId, recipient, corridor, quote, commit, commitError, availableError, quoteReady } = useTransfer()
-
-  const [screening,setScreening]=useState({allowed:false,message:'Checking identity and sanctions…'})
-  useEffect(()=>{
-    if(!quoteReady||availableError)return
-    let active=true
-    const check=async()=>{
-      if(active)setScreening({allowed:false,message:'Checking identity and sanctions…'})
-      try{const result=await api.post<{allowed:boolean}>('/transfers/preflight',{recipientId});if(active)setScreening({allowed:result.allowed,message:result.allowed?'Identity and sanctions checks passed.':'Compliance review is required before sending.'})}
-      catch{if(active)setScreening({allowed:false,message:'Identity verification and current sanctions clearance are required. Open Profile to verify your ID or contact support.'})}
+  const { recipientId, recipient, corridor, quote, commit, commitError, availableError, quoteReady } =
+    useTransfer()
+  const [screening, setScreening] = useState({ allowed: false, message: 'Checking identity and sanctions…' })
+  useEffect(() => {
+    if (!quoteReady || availableError) return
+    let active = true
+    const check = async () => {
+      if (active) setScreening({ allowed: false, message: 'Checking identity and sanctions…' })
+      try {
+        const result = await api.post<{
+          allowed: boolean
+        }>('/transfers/preflight', { recipientId })
+        if (active)
+          setScreening({
+            allowed: result.allowed,
+            message: result.allowed
+              ? 'Identity and sanctions checks passed.'
+              : 'Compliance review is required before sending.',
+          })
+      } catch {
+        if (active)
+          setScreening({
+            allowed: false,
+            message:
+              'Identity verification and current sanctions clearance are required. Open Profile to verify your ID or contact support.',
+          })
+      }
     }
-    void check();const timer=setInterval(()=>void check(),45_000)
-    return()=>{active=false;clearInterval(timer)}
-  },[recipientId,quoteReady,availableError])
+    void check()
+    const timer = setInterval(() => void check(), 45000)
+    return () => {
+      active = false
+      clearInterval(timer)
+    }
+  }, [recipientId, quoteReady, availableError])
   const [stage, setStage] = useState<'idle' | 'verifying' | 'pin'>('idle')
-
   /**
    * Records the transfer, then shows the receipt.
    *
@@ -37,7 +59,6 @@ export function Review() {
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-
   /**
    * Sends the transfer.
    *
@@ -62,41 +83,39 @@ export function Review() {
       setBusy(false)
     }
   }
-
   const start = () => {
     void tapFeedback('medium')
     setStage('pin')
   }
-
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <ScreenHeader title={t('review.title')} onBack={() => navigate(-1)} />
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-6">
-        <p className="mb-3 rounded-xl bg-brand-50 px-4 py-3 text-[13px] text-brand-700">Test transfer only. No bank or card is charged and no money is delivered.</p>
-        {availableError && <p role="alert" className="mb-3 text-[13px] text-alert">{availableError}</p>}
+        <p className="mb-3 rounded-xl bg-brand-50 px-4 py-3 text-[13px] text-brand-700">
+          {p('Test transfer only. No bank or card is charged and no money is delivered.')}
+        </p>
+        {availableError && (
+          <p role="alert" className="mb-3 text-[13px] text-alert">
+            {p(availableError)}
+          </p>
+        )}
         {commitError ? (
           <p
             role="alert"
             className="mb-3 rounded-xl bg-alert-soft px-4 py-3 text-[13px] font-medium text-alert"
           >
-            {commitError}
+            {p(commitError)}
           </p>
         ) : null}
 
         {/* Summary */}
         <section className="card p-4">
-          <h2 className="mb-1 text-[15px] font-bold text-ink-900">
-            {t('field.summary')}
-          </h2>
+          <h2 className="mb-1 text-[15px] font-bold text-ink-900">{t('field.summary')}</h2>
           <SummaryRow label={t('field.youSend')} value={usd(quote.amountUsd)} />
           <SummaryRow label={t('field.fee')} value={quoteReady ? usd(quote.fee) : '—'} />
           <div className="my-1 border-t border-ink-200/70" />
-          <SummaryRow
-            label={t('field.total')}
-            value={quoteReady ? usd(quote.totalUsd) : '—'}
-            strong
-          />
+          <SummaryRow label={t('field.total')} value={quoteReady ? usd(quote.totalUsd) : '—'} strong />
           <div className="my-1 border-t border-ink-200/70" />
           <SummaryRow
             label={t('field.recipientGets')}
@@ -105,24 +124,17 @@ export function Review() {
           />
           <SummaryRow label={t('field.to')} value={recipient.name} />
           <SummaryRow
-            label="Saved payout details"
+            label={p('Saved payout details')}
             value={<bdi>{maskedWallet(recipient.wallet, recipient.last4)}</bdi>}
           />
-          <SummaryRow
-            label={t('field.country')}
-            value={`${corridor.flag} ${corridorName(corridor, lang)}`}
-          />
-          <SummaryRow label={t('field.delivery')} value="Not available in test mode" />
+          <SummaryRow label={t('field.country')} value={`${corridor.flag} ${corridorName(corridor, lang)}`} />
+          <SummaryRow label={t('field.delivery')} value={p('Not available in test mode')} />
         </section>
 
         {/* Important */}
         <section className="mt-5">
-          <h3 className="mb-1.5 text-[14px] font-bold text-ink-900">
-            {t('review.important')}
-          </h3>
-          <p className="text-[12.5px] leading-relaxed text-ink-500">
-            {t('review.importantBody')}
-          </p>
+          <h3 className="mb-1.5 text-[14px] font-bold text-ink-900">{t('review.important')}</h3>
+          <p className="text-[12.5px] leading-relaxed text-ink-500">{t('review.importantBody')}</p>
         </section>
 
         {/* Security */}
@@ -130,28 +142,31 @@ export function Review() {
           <div className="flex items-start gap-2.5">
             <ShieldCheck size={18} className="mt-0.5 shrink-0 text-ink-500" />
             <div>
-              <h3 className="text-[13.5px] font-bold text-brand-700">
-                {t('review.securityCheck')}
-              </h3>
+              <h3 className="text-[13.5px] font-bold text-brand-700">{t('review.securityCheck')}</h3>
               <p className="mt-1 text-[12px] leading-relaxed text-ink-500">
-              Your account password authorizes a test record. Compliance review is required; no funds move.
+                {p(
+                  'Your account password authorizes a test record. Compliance review is required; no funds move.',
+                )}
               </p>
             </div>
           </div>
         </section>
 
-        <p role="status" className="mt-4 rounded-xl bg-canvas p-3 text-sm">{screening.message}</p>
+        <p role="status" className="mt-4 rounded-xl bg-canvas p-3 text-sm">
+          {p(screening.message)}
+        </p>
         {/* Verification choice */}
-        <p className="mt-4 flex items-center gap-2 text-[13px] text-ink-700"><Lock size={16} />Authorize with your account password</p>
+        <p className="mt-4 flex items-center gap-2 text-[13px] text-ink-700">
+          <Lock size={16} />
+          {p('Authorize with your account password')}
+        </p>
 
         <div className="mt-5">
           <PrimaryButton
             onClick={start}
             disabled={busy || stage === 'verifying' || !!availableError || !quoteReady || !screening.allowed}
           >
-            {stage === 'verifying'
-              ? t('review.verifying')
-              : 'Create test transfer'}
+            {stage === 'verifying' ? t('review.verifying') : 'Create test transfer'}
           </PrimaryButton>
         </div>
       </div>
@@ -162,13 +177,9 @@ export function Review() {
           <div className="rounded-t-[26px] bg-white px-5 pb-8 pt-6">
             <div className="mb-4 flex items-center gap-2">
               <Lock size={16} className="text-brand-600" />
-              <h2 className="text-[15px] font-bold text-ink-900">
-                {t('review.authorise')}
-              </h2>
+              <h2 className="text-[15px] font-bold text-ink-900">{t('review.authorise')}</h2>
             </div>
-            <p className="mb-4 text-[13px] leading-relaxed text-ink-500">
-              {t('review.enterPassword')}
-            </p>
+            <p className="mb-4 text-[13px] leading-relaxed text-ink-500">{t('review.enterPassword')}</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -184,18 +195,12 @@ export function Review() {
                 className="w-full rounded-xl bg-canvas px-4 py-3.5 text-[15px] text-ink-900 outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500"
               />
               {authError ? (
-                <p
-                  role="alert"
-                  className="mt-3 text-[13px] font-medium text-alert"
-                >
-                  {authError}
+                <p role="alert" className="mt-3 text-[13px] font-medium text-alert">
+                  {p(authError)}
                 </p>
               ) : null}
               <div className="mt-5 flex gap-2">
-                <PrimaryButton
-                  type="submit"
-                  disabled={busy || password.length === 0}
-                >
+                <PrimaryButton type="submit" disabled={busy || password.length === 0}>
                   {busy ? t('common.sending') : t('review.authorise')}
                 </PrimaryButton>
                 <button

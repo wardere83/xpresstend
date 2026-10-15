@@ -45,10 +45,16 @@ export function RateQuote() {
       .get<{ corridors: Corridor[] }>('/corridors')
       .then(({ corridors }) => {
         if (!corridors?.length) return
-        const merged = corridors.map((c) => {
-          const known = CORRIDORS.find((k) => k.id === c.id)
-          return { ...(known ?? CORRIDORS[0]), ...c, label: known?.label ?? c.receive_country } as LocalCorridor
-        })
+        const merged = corridors
+          .filter((c) => c.receive_country !== 'SO')
+          .map((c) => {
+            const known = CORRIDORS.find((k) => k.id === c.id)
+            return {
+              ...(known ?? CORRIDORS[0]),
+              ...c,
+              label: known?.label ?? c.receive_country,
+            } as LocalCorridor
+          })
         // The API sorts by country code; keep our own display order so the
         // calculator does not reshuffle when the live data arrives.
         const rank = (id: string) => {
@@ -97,7 +103,8 @@ export function RateQuote() {
     return () => clearTimeout(timer)
   }, [corridor, amountMinor, live])
 
-  const belowMin = Number.isFinite(amountMinor) && corridor && amountMinor > 0 && amountMinor < corridor.minSendMinor
+  const belowMin =
+    Number.isFinite(amountMinor) && corridor && amountMinor > 0 && amountMinor < corridor.minSendMinor
 
   /* Round numbers people actually send. Chips remove the need to type at all,
      which is the single biggest thing a rate calculator can do to feel quick. */
@@ -220,7 +227,10 @@ export function RateQuote() {
                 value={`1 ${quote.sendCurrency} = ${(quote.effectiveRateE8 / 1e8).toFixed(4)} ${quote.receiveCurrency}`}
               />
             ) : null}
-            <Row label={t('marketing.totalCharged')} value={money(quote.totalChargedMinor, quote.sendCurrency)} />
+            <Row
+              label={t('marketing.totalCharged')}
+              value={money(quote.totalChargedMinor, quote.sendCurrency)}
+            />
             {/*
               The one figure a visitor is actually here for, so it gets the
               navy and the size. Everything above it is the working; this is the

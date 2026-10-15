@@ -55,8 +55,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     const body = typeof response.data === 'object' && response.data !== null ? response.data : {}
     if (response.status < 200 || response.status >= 300) {
-      throw new ApiError(response.status, typeof body.error === 'string' ? body.error : 'request_failed',
-        typeof body.message === 'string' ? body.message : undefined)
+      throw new ApiError(
+        response.status,
+        typeof body.error === 'string' ? body.error : 'request_failed',
+        typeof body.message === 'string' ? body.message : undefined,
+      )
     }
     return body as T
   }
@@ -137,5 +140,8 @@ export interface Quote {
 
 /** Minor units to a display string. Presentation only — never arithmetic. */
 export function money(minor: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(minor / 100)
+  return new Intl.NumberFormat(
+    typeof document === 'undefined' ? 'en-US' : document.documentElement.lang || 'en-US',
+    { style: 'currency', currency },
+  ).format(minor / 100)
 }

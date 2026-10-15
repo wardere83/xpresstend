@@ -5,7 +5,7 @@
  * boundary) can reference the codes without pulling in the provider.
  */
 
-export type Lang = 'en' | 'so' | 'pt-BR' | 'es' | 'ar'
+export type Lang = 'en' | 'pt-BR' | 'es' | 'ar'
 
 export type LangMeta = {
   code: Lang
@@ -21,7 +21,6 @@ export type LangMeta = {
 
 export const LANGUAGES: LangMeta[] = [
   { code: 'en', label: 'English', nativeLabel: 'English', flag: '🇺🇸', dir: 'ltr', matches: ['en'] },
-  { code: 'so', label: 'Somali', nativeLabel: 'Af-Soomaali', flag: '🇸🇴', dir: 'ltr', matches: ['so'] },
   {
     code: 'pt-BR',
     label: 'Portuguese (Brazil)',

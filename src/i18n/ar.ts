@@ -1,10 +1,6 @@
 import type { en } from './en'
 
-/**
- * العربية. Modern Standard Arabic, so the copy reads the same from Somalia
- * and Djibouti through the Gulf. Rendered right-to-left; see `dirOf` in
- * `./langs` and the `dir` attribute set by the provider.
- */
+/** Interface translations. */
 export const ar: Record<keyof typeof en, string> = {
   // ---- Generic ----
   'common.continue': 'متابعة',
@@ -37,7 +33,7 @@ export const ar: Record<keyof typeof en, string> = {
   'home.greeting': 'مرحبًا، {name}',
   'home.subtitle': 'كيف يمكننا مساعدتك اليوم؟',
   'home.voiceTitle': 'اضغط على الميكروفون للتحدث',
-  'home.voiceSubtitle': 'تحدَّث بالعربية أو الإنجليزية',
+  'home.voiceSubtitle': 'المساعدة باللغة التي اخترتها',
   'home.sendMoney': 'إرسال الأموال',
   'home.sendMoneySub': 'سريع وآمن وموثوق',
   'home.recentTransaction': 'آخر تحويل',
@@ -89,10 +85,8 @@ export const ar: Record<keyof typeof en, string> = {
   'chat.confirmDetails': 'يرجى تأكيد التفاصيل',
   'chat.looksGood': 'كل شيء يبدو صحيحًا. هل تريد المتابعة؟',
   'chat.rateQuestion': 'ما سعر الصرف اليوم؟',
-  'chat.rateAnswer':
-    '1 دولار أمريكي = {rate} شلن صومالي. قد تتغير أسعار الصرف. تحقق من الأسعار المباشرة قبل الإرسال.',
-  'chat.fallback':
-    'يمكنني إرسال الأموال أو إضافة مستفيد أو التحقق من سعر الصرف أو تتبُّع تحويل. أيها تريد؟',
+  'chat.rateAnswer': 'راجع المبلغ والعملة والرسوم قبل تأكيد التحويل.',
+  'chat.fallback': 'يمكنني إرسال الأموال أو إضافة مستفيد أو التحقق من سعر الصرف أو تتبُّع تحويل. أيها تريد؟',
   'chat.suggest.send': 'إرسال الأموال',
   'chat.suggest.rate': 'التحقق من السعر',
   'chat.suggest.track': 'تتبُّع التحويل',
@@ -133,11 +127,9 @@ export const ar: Record<keyof typeof en, string> = {
   // ---- Review ----
   'review.title': 'المراجعة والتأكيد',
   'review.important': 'مهم',
-  'review.importantBody':
-    'يرجى التأكد من صحة جميع التفاصيل. بعد إرسال التحويل لا يمكن إلغاؤه.',
+  'review.importantBody': 'يرجى التأكد من صحة جميع التفاصيل. بعد إرسال التحويل لا يمكن إلغاؤه.',
   'review.securityCheck': 'التحقق الأمني',
-  'review.securityBody':
-    'لأمانك، ستحتاج إلى التحقق باستخدام Face ID أو رمز PIN لإتمام هذا التحويل.',
+  'review.securityBody': 'لأمانك، ستحتاج إلى التحقق باستخدام Face ID أو رمز PIN لإتمام هذا التحويل.',
   'review.faceId': 'Face ID',
   'review.pin': 'رمز PIN',
   'review.send': 'إرسال {amount}',
@@ -191,7 +183,7 @@ export const ar: Record<keyof typeof en, string> = {
 
   // ---- Help ----
   'help.title': 'مركز المساعدة',
-  'help.subtitle': 'إجابات بالعربية والإنجليزية، على مدار الساعة.',
+  'help.subtitle': 'مساعدة بشأن حسابك وتحويلاتك.',
   'help.contact': 'التحدث إلى موظف',
   'help.q1': 'كم يستغرق التحويل؟',
   'help.a1':
@@ -204,7 +196,7 @@ export const ar: Record<keyof typeof en, string> = {
     'يمكنك الإلغاء ما دام التحويل قيد الانتظار. أما بعد استلام الأموال فلا يمكن التراجع عنه، لذا يرجى التحقق من التفاصيل في شاشة المراجعة.',
   'help.q4': 'إلى أي الدول يمكنني الإرسال؟',
   'help.a4':
-    'نرسل من الولايات المتحدة إلى أكثر من 130 دولة، من بينها الصومال وكينيا وإثيوبيا وجيبوتي وأوغندا والمملكة المتحدة.',
+    'تشمل أسواقنا المستهدفة حالياً كينيا وإثيوبيا والبرازيل والمكسيك. يعتمد توفر الخدمة على التراخيص والترتيبات المصرفية وترتيبات الصرف.',
   'help.q5': 'هل أموالي آمنة؟',
   'help.a5':
     '{brand} مسجَّلة في النظام الوطني لترخيص الولايات المتعددة (NMLS)، رقم NMLS {nmls}، ومقرها {city}، {state}. كل تحويل مشفَّر أثناء النقل، ولا تتحرك أي أموال حتى تؤكّدها بكلمة المرور الخاصة بك.',
@@ -219,7 +211,7 @@ export const ar: Record<keyof typeof en, string> = {
 
   // ---- Support ----
   'support.title': 'الدعم المباشر',
-  'support.subtitle': 'أشخاص حقيقيون، بالعربية والإنجليزية.',
+  'support.subtitle': 'تواصل مع فريق الدعم.',
   'support.chat': 'بدء محادثة مباشرة',
   'support.call': 'اتصل بنا',
   'support.email': 'الدعم عبر البريد الإلكتروني',
@@ -234,7 +226,8 @@ export const ar: Record<keyof typeof en, string> = {
   'marketing.getStarted': 'ابدأ الآن',
   'marketing.openApp': 'فتح التطبيق',
   'marketing.heroTitle': 'أقرب مع كل تحويل!',
-  'marketing.heroBody': 'أسعار واضحة. نسبة ثابتة واحدة. نقاط مكافآت تستخدمها لاحقًا. تحدث أو اكتب بلغتك، والتطبيق بأكمله يردّ بها.',
+  'marketing.heroBody':
+    'أسعار واضحة. نسبة ثابتة واحدة. نقاط مكافآت تستخدمها لاحقًا. تحدث أو اكتب بلغتك، والتطبيق بأكمله يردّ بها.',
   'marketing.statLanguages': 'لغات مترجمة بالكامل',
   'marketing.statSupport': 'دعم، كل يوم',
   'marketing.statHidden': 'رسوم خفية',
@@ -253,7 +246,8 @@ export const ar: Record<keyof typeof en, string> = {
   'marketing.f2Title': 'رسوم ثابتة واحدة',
   'marketing.f2Body': 'ترى الرسوم والسعر قبل التأكيد. ما يُعرض عليك هو ما تدفعه.',
   'marketing.f3Title': 'مصمم للتدقيق',
-  'marketing.f3Body': 'كل تحويل مُقيَّد بالقيد المزدوج، وكل إجراء للموظفين مسجَّل باسم شخص محدد، وليس وكيل ذكاء اصطناعي!',
+  'marketing.f3Body':
+    'كل تحويل مُقيَّد بالقيد المزدوج، وكل إجراء للموظفين مسجَّل باسم شخص محدد، وليس وكيل ذكاء اصطناعي!',
   'marketing.ctaTitle': 'هل أنت مستعد للإرسال؟',
   'marketing.ctaBody': 'أنشئ حسابًا في دقيقتين. لا تتحقق من هويتك إلا عند الإرسال لأول مرة.',
   'marketing.disclaimer':
