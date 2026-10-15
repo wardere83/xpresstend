@@ -533,12 +533,13 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
     } finally { if (request === loadRequest.current) setRefreshing(false) }
   }, [filter])
 
+  const invalidateLoad = useCallback(() => { loadRequest.current++ }, [])
   useEffect(() => {
     const refresh = () => { if (!document.hidden) void load().catch(() => setNote('Could not load the queue. Retry with Refresh workspace.')) }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
-    return () => { window.clearInterval(timer); loadRequest.current++ }
-  }, [load])
+    return () => { window.clearInterval(timer); invalidateLoad() }
+  }, [load, invalidateLoad])
 
   async function runWorkflow(key: 'queue' | 'compliance' | 'staff') {
     setNote(null); setTab(key)

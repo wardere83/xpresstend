@@ -194,6 +194,7 @@ for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
+    if (width <= 1100) await page.locator('.brand-mobile-menu summary').click()
     await expect(page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
 
@@ -223,7 +224,8 @@ for (const language of ['so', 'es', 'pt-BR', 'ar']) {
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(corporateHeadline)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
 
-    await page.locator('header a[href="#/philanthropy"]').click()
+    await page.locator('.brand-mobile-menu summary').click()
+    await page.locator('.brand-mobile-menu a[href="#/philanthropy"]').click()
     await expect(page).toHaveURL(/#\/philanthropy$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
     // Company, philanthropy and legal pages are published in English, including when
