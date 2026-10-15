@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, ApiError } from '../lib/api'
 import { Logo } from '../components/Logo'
+import './staff-console.css'
 
 /**
  * Where a staff member chooses a new password from a reset link.
@@ -63,7 +64,7 @@ export function StaffPasswordReset() {
   }
 
   const shell = (children: React.ReactNode) => (
-    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <Logo height={26} />
         <div className="mt-6">{children}</div>

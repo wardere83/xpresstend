@@ -105,13 +105,6 @@
   to { transform: translateY(0); }
 }
 
-.xt-globe-hint {
-  margin-top: 10px;
-  color: #83a6b0;
-  font-size: 11px;
-  text-align: center;
-}
-
 @media (max-width: 760px) {
   .corporate-globe.xt-globe {
     width: min(100%, 340px);

@@ -4,31 +4,26 @@ import { useI18n, type Lang } from '../i18n'
 import land from './globeLand.json'
 import './globe.css'
 
-const UI: Record<Lang, { title: string; instructions: string; hint: string }> = {
+const UI: Record<Lang, { title: string; instructions: string }> = {
   en: {
     title: 'Interactive globe',
     instructions: 'Drag to explore the globe, or use the left and right arrow keys to rotate. Press Space to pause or resume. Connections illustrate cross-border payments, not current service availability.',
-    hint: 'Drag to explore',
   },
   so: {
     title: 'Duni aad dhaqaajin karto',
     instructions: 'Jiid si aad dunida u sahamiso, ama isticmaal fallaaraha bidix iyo midig si aad u rogto. Riix Space si aad u hakiso ama u sii waddo. Xiriirradu waxay tusaale u yihiin lacag-bixinta xuduudaha ka gudubta; ma muujinayaan helitaanka adeegga hadda.',
-    hint: 'Jiid si aad u sahamiso',
   },
   es: {
     title: 'Globo interactivo',
     instructions: 'Arrastre para explorar el globo o use las flechas izquierda y derecha para girarlo. Pulse Espacio para pausar o reanudar. Las conexiones ilustran pagos transfronterizos, no la disponibilidad actual del servicio.',
-    hint: 'Arrastre para explorar',
   },
   'pt-BR': {
     title: 'Globo interativo',
     instructions: 'Arraste para explorar o globo ou use as setas esquerda e direita para girar. Pressione Espaço para pausar ou retomar. As conexões ilustram pagamentos internacionais, não a disponibilidade atual do serviço.',
-    hint: 'Arraste para explorar',
   },
   ar: {
     title: 'كرة أرضية تفاعلية',
     instructions: 'اسحب لاستكشاف الكرة الأرضية، أو استخدم سهمي اليسار واليمين لتدويرها. اضغط مفتاح المسافة للإيقاف المؤقت أو الاستئناف. توضح الروابط فكرة المدفوعات عبر الحدود ولا تشير إلى توفر الخدمة حالياً.',
-    hint: 'اسحب للاستكشاف',
   },
 }
 
@@ -317,7 +312,6 @@ export function InteractiveGlobe() {
           </g>
         </svg>
       </div>
-      <p className="xt-globe-hint">{copy.hint}</p>
       <p className="sr-only" id={ids.instructions}>{copy.instructions}</p>
     </figure>
   )

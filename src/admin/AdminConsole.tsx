@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { api, ApiError, API_BASE, money, type AdminUser } from '../lib/api'
 import { StaffPanel } from './StaffPanel'
+import './staff-console.css'
 
 interface TransferRow {
   id: string; reference: string; status: string
@@ -280,7 +281,7 @@ function AdminSetup({ onCreated }: { onCreated: () => void }) {
   const field = 'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return (
-    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
       <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <h1 className="text-[19px] font-semibold tracking-tight">Create the owner account</h1>
         <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
@@ -441,14 +442,14 @@ function AdminLogin({ onSignedIn }: { onSignedIn: () => void }) {
 
   if (recover) {
     return (
-      <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+      <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
         <AdminRecover mode={recover} onBack={() => setRecover(null)} />
       </div>
     )
   }
 
   return (
-    <div className="grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
       <form onSubmit={submit} className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
         <h1 className="text-[19px] font-semibold tracking-tight">Staff sign in</h1>
         <p className="mt-1.5 text-[12px] text-ink-500">Authorised personnel only. Sessions last 8 hours.</p>
@@ -586,7 +587,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   }
 
   return (
-    <div className="min-h-dvh bg-canvas">
+    <div className="staff-console staff-dashboard min-h-dvh bg-canvas">
       <header className="border-b border-ink-200/70 bg-ink-900 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
           <span className="text-[15px] font-semibold tracking-tight">XpressTend Operations</span>
@@ -604,6 +605,31 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8">
+        <section className="operations-hero" aria-labelledby="operations-title">
+          <div>
+            <p className="operations-eyebrow">XpressTend / Financial operations</p>
+            <h1 id="operations-title">Clarity at every step.</h1>
+            <p className="operations-intro">A connected view of transfers, financial controls and the people who keep money moving.</p>
+          </div>
+          <div className="operations-ledger">
+            <span className="operations-eyebrow">Ledger control</span>
+            <strong>{balance ? balance.balanced ? 'Balanced' : 'Needs attention' : 'Awaiting data'}</strong>
+            <span>{balance ? balance.balanced ? 'Every currency reconciles to zero' : 'Review currency imbalances below' : 'Loading ledger reconciliation'}</span>
+          </div>
+          <nav className="operations-flow" aria-label="Financial operations workflow">
+            {([
+              ['queue', '01', 'Transfer queue', 'Review movement'],
+              ['compliance', '02', 'Financial controls', 'Screen & reconcile'],
+              ['staff', '03', 'Access governance', 'Manage your team'],
+            ] as const).map(([key, number, title, detail]) => (
+              <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'page' : undefined}>
+                <span className="operations-step">{number}</span>
+                <span><strong>{title}</strong><small>{detail}</small></span>
+                <span className="operations-flow-arrow" aria-hidden="true">↗</span>
+              </button>
+            ))}
+          </nav>
+        </section>
         {overview ? (
           <section aria-label="Operations key performance indicators" className="mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -612,7 +638,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
               { label: 'Awaiting review', value: overview.awaitingReview.toLocaleString(), detail: 'Transfers on compliance hold' },
               { label: 'Active staff', value: overview.staff.active.toLocaleString(), detail: `of ${overview.staff.total.toLocaleString()} accounts` },
             ].map((metric) => (
-              <article key={metric.label} className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70">
+              <article key={metric.label} data-operations-metric className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">{metric.label}</p>
                 <p className="mt-2 text-[25px] font-semibold tabular-nums">{metric.value}</p>
                 <p className="mt-1 text-[11px] text-ink-500">{metric.detail}</p>
@@ -635,6 +661,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
             <button
               key={key}
               onClick={() => setTab(key)}
+              aria-current={tab === key ? 'page' : undefined}
               className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-[13px] font-semibold transition ${
                 tab === key
                   ? 'border-brand-600 text-brand-700'
