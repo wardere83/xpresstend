@@ -107,7 +107,12 @@ test('system and saved reduced-motion preferences leave a static sky and usable 
         ),
       )
     }
-    await page.goto('/#/login')
+    await page.goto(`/?motion-preference=${preference}#/login`)
+    if (preference === 'saved')
+      await expect(page.locator('html')).toHaveAttribute(
+        'data-a11y-motion',
+        'reduce',
+      )
     await expect(page.locator('.signin-meteor').first()).toHaveCSS(
       'display',
       'none',
