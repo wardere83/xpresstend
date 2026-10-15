@@ -32,7 +32,7 @@
 }
 .corporate-hero h1 {
   font-size: clamp(42px, 4.65vw, 72px);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.05em;
   margin-block: 25px;
@@ -395,7 +395,7 @@
 }
 .brand-hero h1 {
   font-size: clamp(46px, 6.8vw, 94px);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.06;
   letter-spacing: -0.058em;
   margin: 26px 0 25px;
@@ -456,7 +456,7 @@
 }
 .brand-section-heading h2 {
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.045em;
 }
 .brand-section-heading .brand-eyebrow {
@@ -532,7 +532,7 @@
 }
 .brand-display {
   font-size: clamp(38px, 4.1vw, 58px);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.048em;
   line-height: 1.1;
   white-space: pre-line;

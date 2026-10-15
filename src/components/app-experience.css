@@ -72,7 +72,7 @@
 }
 .product-home-greeting h1 {
   font-size: 26px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1.2;
 }
@@ -111,7 +111,7 @@
 }
 .product-send-card strong {
   font-size: 22px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.03em;
 }
 .product-send-card small {
@@ -254,7 +254,7 @@
   .product-sidebar h2 {
     font-size: 53px;
     letter-spacing: -0.055em;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.07;
     white-space: pre-line;
     margin-top: 22px;

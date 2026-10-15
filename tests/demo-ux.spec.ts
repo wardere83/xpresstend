@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { interfaceMessages } from '../src/i18n/interfaceCopy'
 
 test('the demo keeps a clear, keyboard-friendly journey and consistent sample details', async ({
   page,
@@ -114,5 +115,43 @@ test('demo type stays legible and screen transitions honor reduced motion', asyn
       )
     })
     expect(contrast).toBeGreaterThanOrEqual(4.5)
+  }
+})
+
+test('larger text keeps the translated demo inside a narrow phone with a full-size exit target', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 740 })
+  for (const lang of ['en', 'es', 'pt-BR', 'ar']) {
+    await page.goto('/')
+    await page.evaluate((lang) => {
+      localStorage.setItem('xpresstend.lang', lang)
+      localStorage.setItem(
+        'xpresstend.accessibility',
+        JSON.stringify({ text: 'largest' }),
+      )
+    }, lang)
+    await page.goto('/?large-demo=' + lang + '#/demo')
+    const index = ['es', 'pt-BR', 'ar'].indexOf(lang)
+    const p = (s: string) => (index < 0 ? s : interfaceMessages[s][index])
+    await page.getByRole('button', { name: p('Send'), exact: true }).click()
+    await expect(page.locator('.demo-progress')).toBeVisible()
+    for (const selector of [
+      '.demo-phone',
+      '.demo-content',
+      '.demo-top',
+      '.demo-bottom',
+    ]) {
+      const overflow = await page
+        .locator(selector)
+        .evaluate((el) => el.scrollWidth - el.clientWidth)
+      expect(overflow, selector + ':' + lang).toBeLessThanOrEqual(1)
+    }
+    expect(
+      (await page
+        .getByRole('link', { name: p('Exit demo'), exact: true })
+        .boundingBox())!.width,
+    ).toBeGreaterThanOrEqual(44)
+    await expect(page.locator('.demo-bottom')).toBeInViewport()
   }
 })

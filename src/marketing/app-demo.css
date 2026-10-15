@@ -656,3 +656,26 @@
 .demo-site[dir='rtl'] :is(.demo-back, .demo-top > a) > svg {
   transform: rotate(180deg);
 }
+
+/* Keep long translated labels usable when the reader increases text size. */
+.demo-top > a {
+  flex: none;
+}
+.demo-top > strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.demo-top > span {
+  min-width: 0;
+  max-width: 34%;
+  overflow-wrap: anywhere;
+}
+.demo-progress li strong,
+.demo-bottom button,
+.demo-mini-grid :is(strong, small) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.demo-estimate > span {
+  flex-wrap: wrap;
+}
