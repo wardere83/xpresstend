@@ -71,7 +71,14 @@ test('the desktop sky loops its connections and sends shooting stars across Orio
   const beltStar = await center(
     constellation.locator('[data-star="alnilam"] circle').first(),
   )
-  for (const meteor of await page.locator('.signin-meteor').all()) {
+  for (const [index, meteor] of (
+    await page.locator('.signin-meteor').all()
+  ).entries()) {
+    expect(
+      await meteor.evaluate((el) =>
+        Number(el.getAnimations()[0].effect!.getTiming().duration),
+      ),
+    ).toBe(index === 0 ? 12000 : 16000)
     const head = meteor.locator('.signin-meteor-head')
     await seek(meteor, 0)
     expect((await center(head)).x).toBeLessThan(0)
@@ -140,5 +147,54 @@ test('system and saved reduced-motion preferences leave a static sky and usable 
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(320)
+  }
+})
+
+test('all sign-in constellations align with the email and submit boxes after resize and form reflow', async ({
+  page,
+}) => {
+  const difference = () =>
+    page.locator('.signin-page').evaluate((frame) => {
+      const email = frame.querySelector<HTMLInputElement>(
+        'form input[type="email"]',
+      )!
+      const submit = email.form!.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      )!
+      const stars = [...frame.querySelectorAll('.signin-star-halo')].map(
+        (star) => star.getBoundingClientRect(),
+      )
+      return Math.max(
+        Math.abs(
+          Math.min(...stars.map((star) => star.top)) -
+            email.getBoundingClientRect().top,
+        ),
+        Math.abs(
+          Math.max(...stars.map((star) => star.bottom)) -
+            submit.getBoundingClientRect().bottom,
+        ),
+      )
+    })
+  for (const path of ['login', 'admin', 'institutional-reviewer']) {
+    await page.goto(`/?alignment=${path}#/${path}`)
+    await expect(page.locator('.signin-page h1')).toBeVisible()
+    for (const [width, height] of [
+      [1440, 900],
+      [768, 1024],
+      [320, 844],
+    ]) {
+      await page.setViewportSize({ width, height })
+      await expect.poll(difference).toBeLessThanOrEqual(1)
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width)
+    }
+    await page.locator('.signin-content form').evaluate((form) => {
+      const alert = document.createElement('p')
+      alert.setAttribute('role', 'alert')
+      alert.textContent = 'Please check your sign-in details and try again.'
+      form.querySelector('button[type="submit"]')!.before(alert)
+    })
+    await expect.poll(difference).toBeLessThanOrEqual(1)
   }
 })
