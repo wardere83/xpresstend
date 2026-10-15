@@ -198,3 +198,46 @@ test('all sign-in constellations align with the email and submit boxes after res
     await expect.poll(difference).toBeLessThanOrEqual(1)
   }
 })
+
+test('switching text direction realigns the sky without a form resize', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#/login')
+  const sky = page.locator('.signin-constellation')
+  await expect(sky).toHaveAttribute('style', /left:/)
+  const horizontalCenter = () =>
+    sky.evaluate((element) => {
+      const stars = [...element.querySelectorAll('.signin-star-halo')].map(
+        (star) => star.getBoundingClientRect(),
+      )
+      return (
+        (Math.min(...stars.map((star) => star.left)) +
+          Math.max(...stars.map((star) => star.right))) /
+        2
+      )
+    })
+  const initial = await horizontalCenter()
+  expect(initial).toBeGreaterThan(720)
+  const email = page.locator('form input[type="email"]')
+  const size = await email.evaluate((element) => ({
+    width: element.clientWidth,
+    height: element.clientHeight,
+  }))
+  await page.evaluate(() => {
+    document.documentElement.dir = 'rtl'
+  })
+  await expect.poll(horizontalCenter).toBeLessThan(720)
+  expect(
+    await email.evaluate((element) => ({
+      width: element.clientWidth,
+      height: element.clientHeight,
+    })),
+  ).toEqual(size)
+  await page.evaluate(() => {
+    document.documentElement.dir = 'ltr'
+  })
+  await expect
+    .poll(async () => Math.abs((await horizontalCenter()) - initial))
+    .toBeLessThan(1)
+})

@@ -254,11 +254,17 @@ export function SignInFrame({
     const observer = new ResizeObserver(align)
     observer.observe(host)
     observer.observe(body)
+    const directionObserver = new MutationObserver(align)
+    directionObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir'],
+    })
     window.addEventListener('resize', align)
     void document.fonts.ready.then(align)
     return () => {
       disposed = true
       observer.disconnect()
+      directionObserver.disconnect()
       window.removeEventListener('resize', align)
     }
   }, [wide])
