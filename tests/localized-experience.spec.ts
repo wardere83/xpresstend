@@ -4,13 +4,18 @@ import { LANGUAGES, isLang } from '../src/i18n/langs'
 import { readPassage, sitePages, privacyPage, supportPage } from '../src/marketing/siteContent'
 import { philanthropyPage } from '../src/marketing/philanthropyCopy'
 import { interfaceMessages } from '../src/i18n/interfaceCopy'
-import { corridors } from '../src/data/product'
+import { corridors, getCorridor, corridorName } from '../src/data/product'
 import { CORRIDORS } from '../src/marketing/pricing'
-import { customer, corridor, mockAccount } from './fixtures/account'
+import { customer, corridor, savedRecipient, mockAccount } from './fixtures/account'
 
 test('every offered language has complete core copy and matching substitution variables', () => {
   expect(LANGUAGES.map((l) => l.code).sort()).toEqual(['ar', 'en', 'es', 'pt-BR'])
   expect(isLang('so')).toBe(false)
+  const archived = getCorridor('SO')
+  expect(archived.code).toBe('SO')
+  expect(archived.flag).toBe('🌐')
+  expect(corridorName(archived, 'en')).toBe('Archived destination')
+  expect(corridorName(archived, 'ar')).toBe('وجهة مؤرشفة')
   const vars = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort()
   for (const { code } of LANGUAGES) {
     expect(Object.keys(dictionaries[code]).sort()).toEqual(Object.keys(dictionaries.en).sort())
@@ -150,4 +155,21 @@ test('a non-ready sanctions dataset is reported accurately and recovers on refre
   await expect(panel.getByRole('status')).toContainText('A current official OFAC dataset is loaded')
   await expect(panel.getByRole('status')).not.toContainText('could not be verified')
   expect(checks).toBe(2)
+})
+
+test('historical recipients retain their destination identity without inheriting an active market', async ({
+  page,
+}) => {
+  const requests = await mockAccount(page, { recipients: [{ ...savedRecipient, country: 'SO' }] })
+  await page.goto('/#/send')
+  await page.getByRole('button', { name: /Choose a recipient/ }).click()
+  await page.getByRole('button', { name: /Test Recipient/ }).click()
+  await page.getByLabel('You Send', { exact: true }).fill('100')
+  await expect(page.locator('.product-phone')).toContainText('🌐')
+  await expect(page.locator('.product-phone')).not.toContainText('🇰🇪')
+  await expect(page.getByRole('button', { name: 'Continue', exact: true })).toBeDisabled()
+  await page.goto('/#/review')
+  await expect(page.locator('.product-phone')).toContainText('Archived destination')
+  await expect(page.locator('.product-phone')).not.toContainText('Kenya')
+  expect(requests.filter((request) => request.method === 'POST')).toEqual([])
 })

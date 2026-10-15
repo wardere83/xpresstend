@@ -621,6 +621,56 @@ export const interfaceMessages: Record<string, readonly [string, string, string]
   processing: ['En proceso', 'Em processamento', 'قيد المعالجة'],
   'payout pending': ['Pago al destinatario pendiente', 'Pagamento ao destinatário pendente', 'بانتظار الصرف'],
   paid: ['Pagado', 'Pago', 'مدفوع'],
+  'Loading your recipients…': [
+    'Cargando sus destinatarios…',
+    'Carregando seus destinatários…',
+    'جارٍ تحميل المستلمين…',
+  ],
+  'Add a recipient before creating a test transfer.': [
+    'Añada un destinatario antes de crear una transferencia de prueba.',
+    'Adicione um destinatário antes de criar uma transferência de teste.',
+    'أضف مستلماً قبل إنشاء تحويل تجريبي.',
+  ],
+  'Getting a test quote…': [
+    'Obteniendo una cotización de prueba…',
+    'Obtendo uma cotação de teste…',
+    'جارٍ الحصول على تسعير تجريبي…',
+  ],
+  'Enter a positive amount with up to two decimal places.': [
+    'Introduzca un importe positivo con un máximo de dos decimales.',
+    'Insira um valor positivo com até duas casas decimais.',
+    'أدخل مبلغاً موجباً يتضمن منزلتين عشريتين كحد أقصى.',
+  ],
+  'Sign in to create a test transfer.': [
+    'Inicie sesión para crear una transferencia de prueba.',
+    'Entre para criar uma transferência de teste.',
+    'سجّل الدخول لإنشاء تحويل تجريبي.',
+  ],
+  'Choose one of your saved recipients before continuing.': [
+    'Elija uno de sus destinatarios guardados antes de continuar.',
+    'Escolha um dos seus destinatários salvos antes de continuar.',
+    'اختر أحد المستلمين المحفوظين قبل المتابعة.',
+  ],
+  'Transfers to this recipient’s country are currently unavailable.': [
+    'Las transferencias al país de este destinatario no están disponibles actualmente.',
+    'As transferências para o país deste destinatário estão indisponíveis no momento.',
+    'التحويلات إلى بلد هذا المستلم غير متاحة حالياً.',
+  ],
+  'This account cannot create transfers.': [
+    'Esta cuenta no puede crear transferencias.',
+    'Esta conta não pode criar transferências.',
+    'لا يمكن لهذا الحساب إنشاء تحويلات.',
+  ],
+  'Identity verification is required before a test transfer.': [
+    'Se requiere verificar la identidad antes de una transferencia de prueba.',
+    'É necessário verificar a identidade antes de uma transferência de teste.',
+    'يلزم التحقق من الهوية قبل إجراء تحويل تجريبي.',
+  ],
+  'A current transfer quote is required before continuing.': [
+    'Se requiere una cotización de transferencia vigente antes de continuar.',
+    'É necessária uma cotação atual de transferência antes de continuar.',
+    'يلزم عرض سعر تحويل سارٍ قبل المتابعة.',
+  ],
 }
 export function useInterfaceCopy() {
   const { lang } = useI18n()

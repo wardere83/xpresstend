@@ -45,8 +45,8 @@ export function SendMoney() {
         <div className="px-4 py-6">
           <p role={accountError ? 'alert' : undefined} className="mb-4 text-[14px] text-ink-700">
             {loading
-              ? 'Loading your recipients…'
-              : (accountError ?? 'Add a recipient before creating a test transfer.')}
+              ? p('Loading your recipients…')
+              : p(accountError ?? 'Add a recipient before creating a test transfer.')}
           </p>
           {!loading && !accountError && (
             <PrimaryButton onClick={() => navigate('/recipients')}>{t('recipients.add')}</PrimaryButton>
@@ -66,7 +66,9 @@ export function SendMoney() {
         >
           <Avatar name={recipient.name} hue={recipient.hue} size={42} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-bold text-ink-900">{recipient.name}</span>
+            <span className="block truncate text-[14px] font-bold text-ink-900">
+              {recipient.id ? recipient.name : p('Choose a recipient')}
+            </span>
             <span className="block truncate text-[12px] text-ink-500">
               <bdi>{recipient.phone}</bdi> · <bdi>{recipient.wallet}</bdi>
             </span>
@@ -145,7 +147,7 @@ export function SendMoney() {
 
         {amountError && (
           <p className="mt-3 rounded-xl bg-alert-soft px-4 py-3 text-[12px] font-semibold text-alert">
-            {amountError}
+            {p(amountError)}
           </p>
         )}
 
@@ -156,7 +158,7 @@ export function SendMoney() {
 
         <div className="mt-6">
           <PrimaryButton disabled={!!amountError || !quoteReady} onClick={() => navigate('/review')}>
-            {quoteLoading ? 'Getting a test quote…' : t('common.continue')}
+            {quoteLoading ? p('Getting a test quote…') : t('common.continue')}
           </PrimaryButton>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] font-semibold text-ink-500">
             <Lock size={12} />

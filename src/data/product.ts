@@ -87,8 +87,19 @@ export type Transaction = {
 
 export const TRANSFER_FEE = 4.99
 
-export function getCorridor(code: string) {
-  return corridors.find((corridor) => corridor.code === code) ?? defaultCorridor
+export function getCorridor(code: string): Corridor {
+  return (
+    corridors.find((corridor) => corridor.code === code) ?? {
+      code,
+      currency: '',
+      country: 'Archived destination',
+      countryI18n: { es: 'Destino archivado', 'pt-BR': 'Destino arquivado', ar: 'وجهة مؤرشفة' },
+      flag: '🌐',
+      rate: 0,
+      currencyName: '',
+      wallets: [],
+    }
+  )
 }
 
 /** Country name in the active language, falling back to English. */
