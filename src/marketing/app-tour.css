@@ -524,3 +524,28 @@ html[data-a11y-text]:not([data-a11y-text='default']) .app-tour {
     transform: scale(1);
   }
 }
+
+/* Give financial values a full line so narrow phones never split currency amounts. */
+.tour-summary > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.tour-summary dd {
+  max-width: none;
+  text-align: start;
+}
+.tour-summary > div:not(:first-child) dd {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.app-tour .app-preview-top {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.app-tour .app-preview-top > span {
+  flex: none;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}

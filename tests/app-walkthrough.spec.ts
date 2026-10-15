@@ -158,3 +158,40 @@ test('the accessibility icon never covers demo navigation on short narrow viewpo
     ).toBeLessThanOrEqual(height)
   }
 })
+
+test('narrow translated walkthroughs keep each currency amount and the demo badge on one line', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('xpresstend.lang', 'pt-BR'),
+  )
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 320, height: 844 })
+  await page.goto('/')
+  const tour = page.locator('.app-tour')
+  await tour.scrollIntoViewIfNeeded()
+  for (let step = 0; step < 7; step++)
+    await tour.locator('.tour-controls button').nth(1).click()
+  await expect(tour).toHaveAttribute('data-tour-step', 'review')
+  const values = tour.locator('.tour-summary > div:not(:first-child) dd')
+  await expect(values).toHaveCount(3)
+  for (const value of await values.all()) {
+    expect(
+      await value.evaluate((el) => {
+        const text = document.createRange()
+        text.selectNodeContents(el)
+        return text.getClientRects().length
+      }),
+    ).toBe(1)
+  }
+  await expect(values.last()).toHaveText(
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(126.49),
+  )
+  await expect(tour.locator('.app-preview-top > span')).toHaveCSS(
+    'white-space',
+    'nowrap',
+  )
+})
