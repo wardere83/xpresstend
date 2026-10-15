@@ -71,14 +71,13 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
           <h3>{details[active][0]}</h3>
           <p className="brand-body">{details[active][1]}</p>
         </div>
-        {!tour && (
-          <button
-            className="brand-text-link brand-tour-replay"
-            onClick={() => setTour(true)}
-          >
-            {tourCopy.watch}
-          </button>
-        )}
+        <button
+          className="brand-text-link brand-tour-replay"
+          aria-pressed={tour}
+          onClick={() => setTour((current) => !current)}
+        >
+          {tour ? tourCopy.screen : tourCopy.watch}
+        </button>
         <button className="brand-text-link" onClick={onExplore}>
           {corporate.demoAction} <ArrowUpRight size={17} />
         </button>

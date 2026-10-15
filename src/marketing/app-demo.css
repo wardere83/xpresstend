@@ -305,7 +305,8 @@
 }
 @media (max-width: 700px) {
   .demo-site {
-    padding: 16px 0;
+    padding: max(16px, env(safe-area-inset-top)) 0
+      max(68px, calc(env(safe-area-inset-bottom) + 60px));
     display: grid;
     place-items: center;
     height: 100dvh;
@@ -316,7 +317,13 @@
   }
   .demo-phone {
     width: min(288px, calc(100vw - 24px));
-    height: min(606px, calc(100dvh - 32px));
+    height: min(
+      606px,
+      calc(
+        100dvh - max(16px, env(safe-area-inset-top)) -
+          max(68px, calc(env(safe-area-inset-bottom) + 60px))
+      )
+    );
     min-height: 0;
     border: 6px solid #18313b;
     border-radius: 38px;

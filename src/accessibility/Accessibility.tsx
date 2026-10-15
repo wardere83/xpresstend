@@ -191,6 +191,7 @@ export function Accessibility() {
       <button
         className="a11y-launcher"
         data-product={product}
+        data-demo={pathname === '/demo'}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}

@@ -33,6 +33,8 @@ export function AppTour() {
   const copy = useAppTourCopy()
   const { lang, dir } = useI18n()
   const root = useRef<HTMLDivElement>(null)
+  const focusAfterAction = useRef(false)
+  const [restartVersion, setRestartVersion] = useState(0)
   const [step, setStep] = useState(0)
   const [paused, setPaused] = useState(false)
   const [focused, setFocused] = useState(false)
@@ -73,7 +75,15 @@ export function AppTour() {
       window.clearTimeout(timer)
       window.clearTimeout(scrollTimer)
     }
-  }, [playing, step])
+  }, [playing, step, restartVersion])
+  useEffect(() => {
+    if (focusAfterAction.current) {
+      focusAfterAction.current = false
+      root.current
+        ?.querySelector<HTMLElement>('h3')
+        ?.focus({ preventScroll: true })
+    }
+  }, [step])
   const stage = stages[step]
   const usd = (n: number) =>
     new Intl.NumberFormat(lang, { style: 'currency', currency: 'USD' }).format(
@@ -147,8 +157,8 @@ export function AppTour() {
         <p className="tour-step-name">
           {String(step + 1).padStart(2, '0')} / 09
         </p>
-        <h3>{copy[stage]}</h3>
-        <div className="tour-illustration" aria-hidden="true">
+        <h3 tabIndex={-1}>{copy[stage]}</h3>
+        <div className="tour-illustration">
           {stage === 'signin' && (
             <>
               <p>{copy.signinBody}</p>
@@ -175,14 +185,14 @@ export function AppTour() {
                 </div>
                 <i />
                 <i />
-                <div className="tour-scan" />
+                <div className="tour-scan" aria-hidden="true" />
               </div>
             </>
           )}
           {stage === 'selfie' && (
             <>
               <p>{copy.selfieBody}</p>
-              <div className="tour-face">
+              <div className="tour-face" aria-hidden="true">
                 <UserRound size={96} strokeWidth={1.1} />
                 <ScanFace
                   className="tour-face-frame"
@@ -262,7 +272,13 @@ export function AppTour() {
           )}
         </div>
         {stage !== 'checks' && stage !== 'complete' && (
-          <button className="tour-action" onClick={advance}>
+          <button
+            className="tour-action"
+            onClick={() => {
+              focusAfterAction.current = true
+              advance()
+            }}
+          >
             {action}
             <ArrowRight size={16} />
           </button>
@@ -288,6 +304,7 @@ export function AppTour() {
           onClick={() => {
             setStep(0)
             setPaused(false)
+            setRestartVersion((v) => v + 1)
           }}
           aria-label={copy.restart}
           title={copy.restart}

@@ -14,6 +14,12 @@ const text = {
     'Assistir ao tour',
     'مشاهدة جولة التطبيق',
   ],
+  screen: [
+    'View selected app screen',
+    'Ver la pantalla seleccionada',
+    'Ver a tela selecionada',
+    'عرض شاشة التطبيق المحددة',
+  ],
   pause: [
     'Pause walkthrough',
     'Pausar recorrido',

@@ -507,3 +507,7 @@ html[data-a11y-text]:not([data-a11y-text='default']) .a11y-toggle input {
   grid-template-columns: minmax(0, 1fr);
   gap: 4px;
 }
+
+.a11y-launcher[data-demo='true'] {
+  bottom: max(12px, env(safe-area-inset-bottom));
+}

@@ -96,3 +96,65 @@ test('the phone and accessibility controls stay slender and reduced motion leave
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390)
 })
+
+test('walkthrough mode and manual actions preserve focus and expose review details', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const showcase = page.locator('#experience')
+  await showcase.getByRole('tab', { name: 'Send', exact: true }).click()
+  const switcher = showcase.locator('.brand-tour-replay')
+  await switcher.focus()
+  await page.keyboard.press('Enter')
+  await expect(switcher).toBeFocused()
+  await expect(switcher).toHaveText('View selected app screen')
+  const tour = page.locator('.app-tour')
+  await tour.locator('.tour-action').focus()
+  await page.keyboard.press('Enter')
+  await expect(
+    tour.getByRole('heading', { name: 'Verify your identity', exact: true }),
+  ).toBeFocused()
+  await expect(tour).toHaveAttribute('data-playing', 'false')
+  for (let step = 0; step < 6; step++)
+    await tour
+      .getByRole('button', { name: 'Next walkthrough step', exact: true })
+      .click()
+  await expect(tour).toHaveAttribute('data-tour-step', 'review')
+  await expect(
+    tour.getByRole('definition').filter({ hasText: '$126.49' }),
+  ).toBeVisible()
+})
+
+test('the accessibility icon never covers demo navigation on short narrow viewports', async ({
+  page,
+}) => {
+  for (const [width, height] of [
+    [300, 600],
+    [320, 740],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width, height })
+    await page.goto('/#/demo')
+    const phone = page.locator('.demo-phone')
+    await expect(phone).toBeVisible()
+    const phoneBox = (await phone.boundingBox())!
+    const iconBox = (await page.locator('.a11y-launcher').boundingBox())!
+    expect(iconBox.y).toBeGreaterThanOrEqual(phoneBox.y + phoneBox.height)
+    const activity = page
+      .locator('.demo-bottom')
+      .getByRole('button', { name: 'Activity', exact: true })
+    expect(
+      await activity.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        return el.contains(
+          document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2),
+        )
+      }),
+    ).toBe(true)
+    await activity.click()
+    await expect(page.locator('.demo-content h2')).toHaveText('Your activity')
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+    ).toBeLessThanOrEqual(height)
+  }
+})
