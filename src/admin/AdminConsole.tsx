@@ -1,4 +1,4 @@
-import { CompliancePanel } from './CompliancePanel'
+import { CompliancePanel, type ComplianceSection } from './CompliancePanel'
 /**
  * Staff console.
  *
@@ -507,21 +507,54 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   const [reviewReasons, setReviewReasons] = useState<Record<string, string>>({})
   const [clearingId, setClearingId] = useState<string | null>(null)
   const reviewRequest = useRef(0)
+  const loadRequest = useRef(0)
+  const [refreshing, setRefreshing] = useState(false)
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null)
+  const [inviteRequest, setInviteRequest] = useState(0)
+  const [sectionRequest, setSectionRequest] = useState<{ section: ComplianceSection; request: number }>({ section: 'readiness', request: 0 })
 
   const canDecide = admin.role === 'compliance' || admin.role === 'owner'
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (status = filter) => {
+    const request = ++loadRequest.current
+    setRefreshing(true)
+    try {
     const [t, b, o] = await Promise.all([
-      api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(filter)}`),
+      api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(status)}`),
       api.get<TrialBalance>('/admin/ledger/trial-balance'),
       api.get<OperationsOverview>('/admin/overview'),
     ])
+    if (request !== loadRequest.current) return t.transfers
     setRows(t.transfers)
     setBalance(b)
     setOverview(o)
+    setUpdatedAt(new Date().toLocaleTimeString())
+    return t.transfers
+    } finally { if (request === loadRequest.current) setRefreshing(false) }
   }, [filter])
 
-  useEffect(() => { void load().catch(() => setNote('Could not load the queue.')) }, [load])
+  const invalidateLoad = useCallback(() => { loadRequest.current++ }, [])
+  useEffect(() => {
+    const refresh = () => { if (!document.hidden) void load().catch(() => setNote('Could not load the queue. Retry with Refresh workspace.')) }
+    refresh()
+    const timer = window.setInterval(refresh, 30_000)
+    return () => { window.clearInterval(timer); invalidateLoad() }
+  }, [load, invalidateLoad])
+
+  async function runWorkflow(key: 'queue' | 'compliance' | 'staff') {
+    setNote(null); setTab(key)
+    if (key === 'staff') { if (admin.role === 'owner') setInviteRequest(value => value + 1); return }
+    if (key === 'compliance') { setSectionRequest(value => ({ section: 'readiness', request: value.request + 1 })); return }
+    ++reviewRequest.current; setSelectedTransfer(null); setReview(null); setReviewBusy(false)
+    setReviewReasons({}); setReviewError(null); setReviewMessage(null)
+    try {
+      setFilter('compliance_hold')
+      const next = await load('compliance_hold')
+      if (!next.length) { setNote('Queue refreshed. No transfers are awaiting review.'); return }
+      setSelectedTransfer(next[0]); setReview(null); setReviewReasons({})
+      await refreshReview(next[0].id)
+    } catch { setNote('Could not open the next review. Please refresh and retry.') }
+  }
 
   async function refreshReview(id: string, rescreen = false) {
     const request = ++reviewRequest.current
@@ -608,7 +641,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
         <section className="operations-hero" aria-labelledby="operations-title">
           <div>
             <p className="operations-eyebrow">XpressTend / Financial operations</p>
-            <h1 id="operations-title">Clarity at every step.</h1>
+            <h1 id="operations-title">Your operations. In view.</h1>
             <p className="operations-intro">A connected view of transfers, financial controls and the people who keep money moving.</p>
           </div>
           <div className="operations-ledger">
@@ -618,11 +651,11 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           </div>
           <nav className="operations-flow" aria-label="Financial operations workflow">
             {([
-              ['queue', '01', 'Transfer queue', 'Review movement'],
-              ['compliance', '02', 'Financial controls', 'Screen & reconcile'],
-              ['staff', '03', 'Access governance', 'Manage your team'],
+              ['queue', '01', 'Transfer queue', `${overview?.awaitingReview ?? '—'} awaiting · Review next`],
+              ['compliance', '02', 'Financial controls', 'Check connections & readiness'],
+              ['staff', '03', 'Access governance', admin.role === 'owner' ? 'Invite a teammate' : 'View staff access'],
             ] as const).map(([key, number, title, detail]) => (
-              <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'page' : undefined}>
+              <button key={key} disabled={refreshing || (key === 'compliance' && !canDecide)} onClick={() => void runWorkflow(key)} aria-current={tab === key ? 'page' : undefined}>
                 <span className="operations-step">{number}</span>
                 <span><strong>{title}</strong><small>{detail}</small></span>
                 <span className="operations-flow-arrow" aria-hidden="true">↗</span>
@@ -631,7 +664,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           </nav>
         </section>
         {overview ? (
-          <section aria-label="Operations key performance indicators" className="mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <section aria-label="Operations key performance indicators" className="operations-metrics mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Customers', value: overview.customers.total.toLocaleString(), detail: `${overview.customers.active.toLocaleString()} active` },
               { label: 'KYC verified', value: overview.customers.verified.toLocaleString(), detail: `of ${overview.customers.total.toLocaleString()} customers` },
@@ -644,7 +677,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
                 <p className="mt-1 text-[11px] text-ink-500">{metric.detail}</p>
               </article>
             ))}
-            <div className="sm:col-span-2 lg:col-span-4">
+            <div className="operations-volume sm:col-span-2 lg:col-span-4">
               <div className="rounded-xl bg-white px-4 py-3 ring-1 ring-ink-200/70">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">Transfer volume · paid, completed, sending, or held</p>
                 <p className="mt-1 text-[13px] font-semibold tabular-nums">
@@ -656,7 +689,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
             </div>
           </section>
         ) : null}
-        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-ink-200/70">
+        <div className="operations-tabs mb-6 flex gap-2 overflow-x-auto border-b border-ink-200/70">
           {([['queue', 'Transfers'], ['staff', 'Staff'], ['compliance', 'Compliance & banks']] as const).map(([key, label]) => (
             <button
               key={key}
@@ -673,8 +706,11 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           ))}
         </div>
 
-        {tab === 'staff' ? <StaffPanel me={admin} /> : null}
-        {tab === 'compliance' ? <CompliancePanel admin={admin} /> : null}
+        <div className="operations-toolbar"><span role="status">{refreshing ? 'Refreshing workspace…' : updatedAt ? `Updated ${updatedAt}` : 'Waiting for data'}</span><button disabled={refreshing} onClick={() => { setNote(null); void load().catch(() => setNote('Unable to refresh. Please retry.')) }}>Refresh workspace</button></div>
+        <div className="operations-panel" tabIndex={0} aria-label="Operations workspace">
+        {note ? <p role="alert" className="bank-notice">{note}</p> : null}
+        {tab === 'staff' ? <StaffPanel me={admin} inviteRequest={inviteRequest} /> : null}
+        {tab === 'compliance' ? <CompliancePanel admin={admin} sectionRequest={sectionRequest} /> : null}
 
         {tab === 'queue' ? (
         <>
@@ -697,7 +733,6 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
           ))}
         </div>
 
-        {note ? <p role="alert" className="mb-4 text-[13px] font-medium text-alert">{note}</p> : null}
 
         <div className="overflow-x-auto rounded-[var(--radius-card)] bg-white ring-1 ring-ink-200/70">
           <table className="w-full min-w-[860px] text-left text-[13px]">
@@ -828,6 +863,7 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
         ) : null}
         </>
         ) : null}
+        </div>
       </main>
     </div>
   )

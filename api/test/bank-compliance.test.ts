@@ -505,3 +505,42 @@ test('bank decisions reject whitespace-only audit fields', async (t) => {
   const result = await f.req('/bank/batches/absent/decision',{decision:'approved',manifestHash:'hash',reference:'   ',reason:' '.repeat(30)},key.token)
   assert.equal(result.status,400)
 })
+
+
+test('connection readiness reports real dataset and scoped connection state without credentials', async (t) => {
+  const f = await setup(t)
+  const status = await f.req('/admin/compliance/readiness')
+  assert.equal(status.status, 200)
+  assert.equal(status.body.ofac.ready, true)
+  assert.equal(status.body.bankApi.available, true)
+  assert.equal(status.body.bankApi.mode, 'review-only')
+  assert.equal(status.body.bankApi.activeConnections, 0)
+  assert.equal(status.body.identity.configured, false)
+  assert.equal(status.body.globalSanctions.configured, false)
+  const key = await f.key()
+  const connected = await f.req('/admin/compliance/readiness')
+  assert.equal(connected.body.bankApi.activeConnections, 1)
+  assert.deepEqual(connected.body.bankApi.banks, ['bank-one'])
+  assert.ok(!JSON.stringify(connected.body).includes(key.token))
+  assert.equal((await f.req('/admin/compliance/readiness', undefined, undefined, f.sessions.userCookie)).status, 401)
+  assert.equal((await f.req('/admin/compliance/readiness', undefined, undefined, f.sessions.staffCookies.agent)).status, 403)
+  await f.req(`/admin/compliance/keys/${key.id}/revoke`, {})
+  assert.equal((await f.req('/admin/compliance/readiness')).body.bankApi.activeConnections, 0)
+})
+
+
+test('readiness retains an active bank hidden behind more than 100 revoked credentials', async (t) => {
+  const f = await setup(t)
+  const key = await f.key('older-active-bank')
+  const insert = f.db.sqlite.prepare(`INSERT INTO bank_api_keys
+    (id,bank_id,label,token_hash,expires_at,created_by,created_at,revoked_at)
+    SELECT ?,bank_id,'Revoked history',?,expires_at,created_by,'2099-01-01T00:00:00.000Z','2001-01-01T00:00:00.000Z'
+    FROM bank_api_keys WHERE id=?`)
+  for (let index=0; index<101; index++) insert.run(`revoked-${index}`,String(index+1).padStart(64,'0'),key.id)
+  const history = await f.req('/admin/compliance/overview')
+  assert.equal(history.body.keys.length,100)
+  assert.equal(history.body.keys.some((row: {revoked_at: string | null}) => !row.revoked_at),false)
+  const readiness = await f.req('/admin/compliance/readiness')
+  assert.equal(readiness.body.bankApi.activeConnections,1)
+  assert.deepEqual(readiness.body.bankApi.banks,['older-active-bank'])
+})

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
-import { useT } from '../i18n'
+import { useCorporateCopy } from './corporateCopy'
 import { useBrandCopy } from './brandCopy'
 
 const tabs = ['send', 'people', 'activity'] as const
 export function AppShowcase({ onExplore }: { onExplore: () => void }) {
   const copy = useBrandCopy()
-  const t = useT()
+  const corporate = useCorporateCopy()
   const [active, setActive] = useState<(typeof tabs)[number]>('send')
   const details = {
     send: [copy.sendTitle, copy.sendBody],
@@ -63,7 +63,7 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
           <p className="brand-body">{details[active][1]}</p>
         </div>
         <button className="brand-text-link" onClick={onExplore}>
-          {t('marketing.getStarted')} <ArrowUpRight size={17} />
+          {corporate.demoAction} <ArrowUpRight size={17} />
         </button>
       </div>
       <div className="brand-device-stage" aria-hidden="true">

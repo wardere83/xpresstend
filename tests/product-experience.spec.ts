@@ -132,14 +132,18 @@ test('app feature tabs support keyboard and pointer selection and load the selec
   }, activityImage)).toBe(true)
 })
 
-test('the app call to action requires account creation and sign-in offers three roles', async ({ page }) => {
+test('the public demo is separate from account creation and sign-in offers three roles', async ({ page }) => {
   const writes: string[] = []
   page.on('request', (request) => {
     if (request.method() === 'POST' && /\/api\//.test(request.url()))
       writes.push(request.url())
   })
   await page.goto('/')
-  await page.locator('#experience').getByRole('button', { name: 'Get started', exact: true }).click()
+  await page.locator('#experience').getByRole('button', { name: 'Explore app demo', exact: true }).click()
+  await expect(page).toHaveURL(/#\/demo$/)
+  await expect(page.getByRole('region', { name: 'Interactive app demo' })).toBeVisible()
+  await page.goto('/')
+  await page.locator('.corporate-hero').getByRole('link', { name: 'Get started', exact: true }).click()
   await expect(page).toHaveURL(/#\/register$/)
   await expect(page.getByLabel('First name', { exact: true })).toBeVisible()
   await page.goto('/')
@@ -190,6 +194,7 @@ for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(corporateHeadline)
+    if (width <= 1100) await page.locator('.brand-mobile-menu summary').click()
     await expect(page.locator('header').getByRole('link', { name: 'Philanthropy', exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
 
@@ -219,7 +224,8 @@ for (const language of ['so', 'es', 'pt-BR', 'ar']) {
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(corporateHeadline)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
 
-    await page.locator('header a[href="#/philanthropy"]').click()
+    await page.locator('.brand-mobile-menu summary').click()
+    await page.locator('.brand-mobile-menu a[href="#/philanthropy"]').click()
     await expect(page).toHaveURL(/#\/philanthropy$/)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('XpressTend Financial Literacy')
     // Company, philanthropy and legal pages are published in English, including when

@@ -80,3 +80,19 @@ Compliance staff select 1–100 funded, unassigned transfers in one send currenc
 - https://docs.withpersona.com/api-reference/inquiries/retrieve-an-inquiry
 - https://docs.withpersona.com/api-reference/verifications/selfie-verifications/retrieve-a-selfie-verification
 - https://docs.complyadvantage.com/api-docs/
+
+
+## Operational web workspaces
+
+`/#/admin` is a viewport-height workspace: navigation, summary metrics and refresh controls remain visible while the selected data pane scrolls independently. Transfer workflow actions load the actual held-transfer queue and open its next screening record without buying another provider search. Owners can open the staff invitation form directly. Compliance tabs separate connection readiness, batch assembly, evidence and scoped credentials.
+
+`GET /api/admin/compliance/readiness` is restricted to owners/compliance. It reports the current OFAC dataset status, provider configuration presence and active bank-key count, without returning credentials. “Configured” is not a provider health check or certification. Existing missing-provider and release guards remain unchanged.
+
+`/#/bank-review` is an operational partner-bank portal for the existing bank API. A bank enters its privately issued scoped key; the key stays in tab memory and is cleared on disconnect/401. The portal reads only assigned batches, verifies SHA-256 against the exact canonical manifest and reconciles principal totals before enabling a decision. Approval/rejection requires a bank reference and review reason. The server independently enforces scope, hash, expiry, duplicate-reference and revocation rules. This is review-only and never executes a wire. The bank does not need a customer or staff cookie.
+
+The public `/#/demo` is isolated from transfer/account APIs. It provides local sample recipient, amount, review and activity steps. It never creates an account, submits a transfer or claims delivery.
+
+Open-source identity engines require separate infrastructure, a reviewed document/liveness policy and an authenticated server-side adapter. For example, Idswyft Community (https://github.com/team-idswyft/idswyft-community) uses a Docker/ML/PostgreSQL stack with materially different hosting requirements from this Worker. No unhosted GitHub project is represented as a live verifier. The existing Persona integration remains connection-ready and fails closed until configured and validated.
+
+
+The demo and bank portal mount outside live customer account/transfer providers, including for a signed-in customer. Bank polling preserves pages already expanded by the reviewer. Requests from a disconnected generation cannot change a replacement review. Active bank selectors come from the full active-connection query, independently of the sampled credential history. Cross-origin bearer requests use the existing exact trusted-origin allowlist; untrusted origins are not granted CORS access.

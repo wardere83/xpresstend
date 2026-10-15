@@ -2,6 +2,8 @@ import { useI18n, type Lang } from '../i18n'
 
 const en = {
   navigation: 'Company navigation',
+  demoAction: 'Explore app demo',
+  menu: 'Menu',
   heroEyebrow: 'Cross-border payments',
   heroFirst: 'Connecting people.',
   heroSecond: 'Enabling possibility.',
@@ -47,6 +49,8 @@ type CorporateCopy = { [K in keyof typeof en]: string }
 
 const so: CorporateCopy = {
   navigation: 'Hagaha shirkadda',
+  demoAction: 'Tijaabi abka',
+  menu: 'Liiska',
   heroEyebrow: 'Lacag-bixinta xuduudaha ka gudubta',
   heroFirst: 'Dadka ayaan isku xirnaa.',
   heroSecond: 'Fursado ayaan suuragelinnaa.',
@@ -90,6 +94,8 @@ const so: CorporateCopy = {
 
 const es: CorporateCopy = {
   navigation: 'Navegación de la empresa',
+  demoAction: 'Explorar la demo',
+  menu: 'Menú',
   heroEyebrow: 'Pagos transfronterizos',
   heroFirst: 'Conectamos personas.',
   heroSecond: 'Abrimos posibilidades.',
@@ -133,6 +139,8 @@ const es: CorporateCopy = {
 
 const pt: CorporateCopy = {
   navigation: 'Navegação da empresa',
+  demoAction: 'Explorar demonstração',
+  menu: 'Menu',
   heroEyebrow: 'Pagamentos internacionais',
   heroFirst: 'Conectamos pessoas.',
   heroSecond: 'Criamos possibilidades.',
@@ -176,6 +184,8 @@ const pt: CorporateCopy = {
 
 const ar: CorporateCopy = {
   navigation: 'التنقل في معلومات الشركة',
+  demoAction: 'استكشف التطبيق التجريبي',
+  menu: 'القائمة',
   heroEyebrow: 'المدفوعات عبر الحدود',
   heroFirst: 'نصل بين الناس.',
   heroSecond: 'نفتح آفاقاً جديدة.',

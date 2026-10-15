@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import {
-  ArrowUpRight,
-  CheckCircle2,
-  KeyRound,
-  RefreshCw,
-  ShieldCheck,
-  Landmark,
-} from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { api, money, type AdminUser } from '../lib/api'
 
 type Batch = {
@@ -18,21 +11,7 @@ type Batch = {
   item_count: number
   manifest_hash: string
 }
-type Key = {
-  id: string
-  bank_id: string
-  label: string
-  expires_at: string
-  revoked_at: string | null
-}
-type Screening = {
-  id: string
-  subject_name: string
-  subject_type: string
-  provider_ref: string
-  status: string
-  created_at: string
-}
+type Key = { id: string; bank_id: string; label: string; expires_at: string; revoked_at: string | null }
 type Transfer = {
   id: string
   reference: string
@@ -47,382 +26,509 @@ type Overview = {
   providers: { identity: boolean; sanctions: boolean }
   batches: Batch[]
   keys: Key[]
-  screenings: Screening[]
+  screenings: {
+    id: string
+    subject_name: string
+    subject_type: string
+    provider_ref: string
+    status: string
+    created_at: string
+  }[]
   identity: { status: string; count: number }[]
 }
-const button =
-  'rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40 hover:bg-brand-600'
-const input =
-  'w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm'
-export function CompliancePanel({ admin }: { admin: AdminUser }) {
-  const [data, setData] = useState<Overview | null>(null),
-    [eligible, setEligible] = useState<Transfer[]>([]),
-    [selected, setSelected] = useState<string[]>([])
-  const [bankId, setBankId] = useState(''),
-    [label, setLabel] = useState(''),
-    [token, setToken] = useState(''),
-    [error, setError] = useState(''),
-    [busy, setBusy] = useState(false)
+type Readiness = {
+  checkedAt: string
+  bankApi: { available: boolean; activeConnections: number; banks: string[]; mode: string; basePath: string }
+  identity: { provider: string; configured: boolean }
+  globalSanctions: { provider: string; configured: boolean }
+  ofac: {
+    ready: boolean
+    reason: string | null
+    checkedAt: string | null
+    entityCount: number
+    nameCount: number
+  }
+}
+export type ComplianceSection = 'readiness' | 'review' | 'evidence' | 'connections'
+const button = 'rounded-full bg-ink-900 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-40'
+const input = 'w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm'
+
+export function CompliancePanel({
+  admin,
+  sectionRequest,
+}: {
+  admin: AdminUser
+  sectionRequest?: { section: ComplianceSection; request: number }
+}) {
+  const [section, setSection] = useState<ComplianceSection>('readiness')
+  const [data, setData] = useState<Overview | null>(null)
+  const [readiness, setReadiness] = useState<Readiness | null>(null)
+  const [eligible, setEligible] = useState<Transfer[]>([])
+  const [selected, setSelected] = useState<string[]>([])
+  const [bankId, setBankId] = useState('')
+  const [label, setLabel] = useState('')
+  const [token, setToken] = useState('')
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [busy, setBusy] = useState(false)
+  const allowed = ['owner', 'compliance'].includes(admin.role)
   const refresh = useCallback(async () => {
-    try {
-      const [overview, list] = await Promise.all([
-        api.get<Overview>('/admin/compliance/overview'),
-        api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible'),
-      ])
-      setData(overview)
-      setEligible(list.transfers)
-      setError('')
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : 'Unable to load compliance operations.',
-      )
-    }
+    const [overview, list, status] = await Promise.all([
+      api.get<Overview>('/admin/compliance/overview'),
+      api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible'),
+      api.get<Readiness>('/admin/compliance/readiness').catch(() => null),
+    ])
+    setData(overview)
+    setEligible(list.transfers)
+    setReadiness(status)
+    setError('')
+    setSelected((previous) => previous.filter((id) => list.transfers.some((transfer) => transfer.id === id)))
   }, [])
   useEffect(() => {
-    void refresh()
-    const timer = setInterval(() => void refresh(), 30_000)
-    return () => clearInterval(timer)
-  }, [refresh])
-  const act = async (fn: () => Promise<void>) => {
+    if (!allowed) return
+    const update = () => {
+      if (!document.hidden)
+        void refresh().catch((error) =>
+          setError(error instanceof Error ? error.message : 'Unable to load compliance.'),
+        )
+    }
+    update()
+    const timer = window.setInterval(update, 30_000)
+    return () => window.clearInterval(timer)
+  }, [allowed, refresh])
+  useEffect(() => {
+    if (sectionRequest) setSection(sectionRequest.section)
+  }, [sectionRequest])
+  async function act(fn: () => Promise<void>, noticeAfterRefresh?: string) {
     setBusy(true)
     setError('')
+    setNotice('')
     try {
       await fn()
       await refresh()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Request failed.')
+      if (noticeAfterRefresh) setNotice(noticeAfterRefresh)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Request failed. Please retry.')
     } finally {
       setBusy(false)
     }
   }
-  if (!['owner', 'compliance'].includes(admin.role))
-    return (
-      <p className="rounded-xl bg-white p-6">
-        Compliance or owner access is required.
-      </p>
-    )
+  if (!allowed) return <p className="rounded-xl bg-white p-6">Compliance or owner access is required.</p>
+  const activeKeys =
+    data?.keys.filter((key) => !key.revoked_at && Date.parse(key.expires_at) > Date.now()) ?? []
+  const banks = readiness?.bankApi.banks ?? []
+  const activeConnectionCount = readiness?.bankApi.activeConnections ?? activeKeys.length
   return (
-    <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-3xl bg-ink-900 p-7 text-white sm:p-9">
-        <p className="text-xs font-semibold uppercase tracking-[.2em] text-white/60">
-          XpressTend • Control center
-        </p>
-        <div className="mt-4 flex flex-wrap items-start justify-between gap-5">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Every transfer. Accounted for.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/65">
-              Identity evidence, sanctions decisions and bank reconciliation in
-              one operational workspace.
-            </p>
-          </div>
-          <ShieldCheck size={42} className="text-emerald-300" />
+    <div className="compliance-workspace">
+      <div className="compliance-heading">
+        <div>
+          <h2>Every transfer. Accounted for.</h2>
+          <p>Identity evidence, sanctions controls and partner-bank review.</p>
         </div>
-        <div className="mt-6 flex flex-wrap gap-3 text-xs">
-          <span className="rounded-full bg-white/10 px-3 py-2">
-            Test payments • No live wire execution
-          </span>
-          <span className="rounded-full bg-white/10 px-3 py-2">
-            Refreshes every 30 seconds
-          </span>
-        </div>
-      </section>
-      {error && (
-        <p
-          role="alert"
-          className="rounded-xl bg-alert-soft p-4 text-sm text-alert"
+        <button
+          className={button}
+          disabled={busy}
+          onClick={() => void act(async () => undefined, 'Environment status refreshed.')}
         >
+          {busy ? 'Checking…' : 'Refresh environment'}
+        </button>
+      </div>
+      <nav className="compliance-tabs" aria-label="Compliance workspace">
+        {(
+          [
+            ['readiness', 'Verification'],
+            ['review', 'Bank review'],
+            ['evidence', 'Evidence'],
+            ['connections', 'Connections & API'],
+          ] as const
+        ).map(([key, title]) => (
+          <button
+            key={key}
+            aria-current={section === key ? 'page' : undefined}
+            onClick={() => setSection(key)}
+          >
+            {title}
+          </button>
+        ))}
+      </nav>
+      {error && (
+        <p role="alert" className="bank-notice">
           {error}
+        </p>
+      )}
+      {notice && (
+        <p role="status" className="bank-notice">
+          {notice}
         </p>
       )}
       {!data ? (
         <p role="status">Loading compliance operations…</p>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: 'Identity & liveness',
-                ready: data.providers.identity,
-                detail: 'Persona • Government ID + live selfie',
-                icon: ShieldCheck,
-              },
-              {
-                title: 'Global sanctions',
-                ready: data.providers.sanctions,
-                detail: 'ComplyAdvantage + existing OFAC controls',
-                icon: CheckCircle2,
-              },
-              {
-                title: 'Bank connectivity',
-                ready: data.keys.some(
-                  (k) => !k.revoked_at && Date.parse(k.expires_at) > Date.now(),
-                ),
-                detail: 'Scoped API access • Immutable manifests',
-                icon: Landmark,
-              },
-            ].map(({ title, ready, detail, icon: Icon }) => (
-              <section
-                key={title}
-                className="rounded-2xl border border-ink-200 bg-white p-5"
-              >
-                <div className="flex items-center justify-between">
-                  <Icon size={21} className="text-brand-700" />
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${ready ? 'bg-ok-soft text-brand-700' : 'bg-wait-soft text-ink-700'}`}
-                  >
-                    {ready ? 'Configured' : 'Setup required'}
-                  </span>
-                </div>
-                <h2 className="mt-5 font-semibold">{title}</h2>
-                <p className="mt-2 text-xs leading-5 text-ink-500">{detail}</p>
-              </section>
-            ))}
-          </div>
-          {(!data.providers.identity || !data.providers.sanctions) && (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-              Transfers remain blocked until provider credentials and
-              verification policies are configured and validated. “Configured”
-              confirms settings, not provider certification.
-            </p>
-          )}
-          <section className="rounded-2xl border border-ink-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">Wire sub-ledger</h2>
-                <p className="mt-1 text-sm text-ink-500">
-                  Every principal contribution reconciles to a single-currency
-                  manifest. Fees remain separate.
-                </p>
-              </div>
-              <button
-                aria-label="Refresh compliance"
-                onClick={() => void refresh()}
-              >
-                <RefreshCw size={18} />
-              </button>
-            </div>
-            <div className="mt-5 overflow-x-auto">
-              <table className="w-full min-w-[600px] text-left text-sm">
-                <thead className="border-b text-xs text-ink-500">
-                  <tr>
-                    {[
-                      'Batch / bank',
-                      'Contributions',
-                      'Principal',
-                      'Bank decision',
-                    ].map((x) => (
-                      <th className="pb-3" key={x}>
-                        {x}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.batches.map((b) => (
-                    <tr key={b.id} className="border-b border-ink-100">
-                      <td className="py-4">
-                        <p className="font-medium">{b.id}</p>
-                        <p className="mt-1 text-xs text-ink-500">{b.bank_id}</p>
-                      </td>
-                      <td>{b.item_count}</td>
-                      <td>{money(b.total_minor, b.currency)}</td>
-                      <td>
-                        <span className="rounded-full bg-canvas px-3 py-1 text-xs">
-                          {b.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {!data.batches.length && (
-                <p className="py-10 text-center text-sm text-ink-500">
-                  No wire manifests yet. Select funded transfers below to
-                  prepare the first bank review.
-                </p>
-              )}
-            </div>
-          </section>
-          <section className="rounded-2xl border border-ink-200 bg-white p-6">
-            <h2 className="text-lg font-semibold">Prepare bank review</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-              <label className="text-xs text-ink-600">
-                Bank identifier
-                <input
-                  className={`${input} mt-2`}
-                  value={bankId}
-                  onChange={(e) => setBankId(e.target.value)}
-                  placeholder="partner-bank"
-                />
-              </label>
-              <button
-                className={`${button} self-end`}
-                disabled={busy || !bankId || !selected.length}
-                onClick={() =>
-                  void act(async () => {
-                    await api.post('/admin/compliance/batches', {
-                      bankId,
-                      transferIds: selected,
-                    })
-                    setSelected([])
-                  })
-                }
-              >
-                Submit {selected.length || ''} for review{' '}
-                <ArrowUpRight className="ml-1 inline" size={16} />
-              </button>
-            </div>
-            <div className="mt-5 space-y-2">
-              {eligible.map((t) => (
-                <label
-                  key={t.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-xl bg-canvas p-3 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(t.id)}
-                    onChange={(e) =>
-                      setSelected((s) =>
-                        e.target.checked
-                          ? [...s, t.id]
-                          : s.filter((id) => id !== t.id),
-                      )
-                    }
-                  />
-                  <span className="flex-1">
-                    {t.first_name} {t.last_name} → {t.recipient_name}
-                    <small className="block text-ink-500">{t.reference}</small>
-                  </span>
-                  <strong>{money(t.send_amount_minor, t.send_currency)}</strong>
-                </label>
-              ))}
-              {!eligible.length && (
-                <p className="text-sm text-ink-500">
-                  No funded, unassigned transfers are available.
-                </p>
-              )}
-            </div>
-          </section>
-          <div className="grid gap-5 lg:grid-cols-2">
-            <section className="rounded-2xl border border-ink-200 bg-white p-6">
-              <h2 className="text-lg font-semibold">
-                Recent screening evidence
-              </h2>
-              <p className="mt-1 text-xs text-ink-500">
-                Potential matches stay blocked. Review provider cases before
-                repeating screening.
-              </p>
-              <div className="mt-5 max-h-80 space-y-3 overflow-auto">
-                {data.screenings.map((s) => (
-                  <div key={s.id} className="rounded-xl bg-canvas p-3">
-                    <div className="flex justify-between gap-3 text-sm">
-                      <strong>{s.subject_name}</strong>
-                      <span>{s.status.replaceAll('_', ' ')}</span>
-                    </div>
-                    <p className="mt-2 text-xs text-ink-500">
-                      {s.subject_type} • Case {s.provider_ref ?? 'unavailable'}{' '}
-                      • {new Date(s.created_at).toLocaleString()}
-                    </p>
-                  </div>
+          {section === 'readiness' && (
+            <>
+              <div className="connection-cards">
+                {[
+                  {
+                    title: 'Identity & liveness',
+                    status: data.providers.identity ? 'Configured' : 'Setup required',
+                    detail: 'Government ID + live selfie; server-verified provider evidence.',
+                    body: 'The Persona adapter is ready. Production verification requires an approved inquiry template and privately configured credentials.',
+                    action: 'View identity setup',
+                    target: 'connections' as const,
+                  },
+                  {
+                    title: 'Global sanctions',
+                    status: data.providers.sanctions ? 'Configured' : 'Setup required',
+                    detail: readiness?.ofac.ready
+                      ? `OFAC live · ${readiness.ofac.entityCount.toLocaleString()} entities`
+                      : 'Official OFAC dataset and global provider controls.',
+                    body: 'OFAC and global screening are separate checks. Missing global-provider settings or unresolved matches continue to block release.',
+                    action: 'View screening evidence',
+                    target: 'evidence' as const,
+                  },
+                  {
+                    title: 'Bank connectivity',
+                    status: activeConnectionCount ? 'Configured' : 'Setup required',
+                    detail: `${activeConnectionCount} active scoped connection${activeConnectionCount === 1 ? '' : 's'}.`,
+                    body: 'The bank review API accepts assigned manifests and hash-bound decisions. A connection does not enable live wire execution.',
+                    action: 'Manage bank connections',
+                    target: 'connections' as const,
+                  },
+                ].map((card) => (
+                  <article key={card.title} className="connection-card">
+                    <span className="connection-status">{card.status}</span>
+                    <h3>{card.title}</h3>
+                    <strong>{card.detail}</strong>
+                    <p>{card.body}</p>
+                    <button onClick={() => setSection(card.target)}>{card.action} ↗</button>
+                  </article>
                 ))}
-                {!data.screenings.length && (
-                  <p className="text-sm text-ink-500">
-                    No provider screening requests recorded.
-                  </p>
-                )}
               </div>
-            </section>
-            <section className="rounded-2xl border border-ink-200 bg-white p-6">
-              <h2 className="text-lg font-semibold">Bank API credentials</h2>
-              <p className="mt-1 text-xs leading-5 text-ink-500">
-                Keys expire after 90 days. A bank can read only its assigned
-                batches and submit its own review decision.
-              </p>
-              {data.keys.map((k) => (
-                <div
-                  key={k.id}
-                  className="mt-4 flex items-center justify-between gap-3 border-b pb-3 text-sm"
-                >
-                  <span>
-                    {k.label}
-                    <small className="block text-ink-500">
-                      {k.bank_id} •{' '}
-                      {k.revoked_at
-                        ? 'Revoked'
-                        : `Expires ${new Date(k.expires_at).toLocaleDateString()}`}
-                    </small>
-                  </span>
-                  {admin.role === 'owner' && !k.revoked_at && (
-                    <button
-                      disabled={busy}
-                      className="text-alert"
-                      onClick={() =>
-                        void act(async () => {
-                          await api.post(
-                            `/admin/compliance/keys/${k.id}/revoke`,
-                          )
-                        })
-                      }
-                    >
-                      Revoke
-                    </button>
+              <div className="connection-summary">
+                <p>
+                  <strong>Review environment.</strong> Test payments • No live wire execution
+                </p>
+                <p>
+                  Configured confirms settings, not a completed provider acceptance test. Last environment
+                  check:{' '}
+                  {readiness
+                    ? new Date(readiness.checkedAt).toLocaleTimeString()
+                    : 'Unavailable — refresh to retry'}
+                  .
+                </p>
+                <button className={button} onClick={() => setSection('review')}>
+                  Prepare a bank review
+                </button>
+                <Link className="connection-link" to="/bank-review">
+                  Open partner bank portal ↗
+                </Link>
+              </div>
+            </>
+          )}
+          {section === 'review' && (
+            <div className="compliance-review-columns">
+              <section className="connection-panel">
+                <div className="bank-section-title">
+                  <h3>Prepare bank review</h3>
+                  <Link to="/bank-review">Bank portal ↗</Link>
+                </div>
+                <p className="bank-help">
+                  Select funded contributions in one currency. Screening and exact reconciliation are checked
+                  on the server.
+                </p>
+                <label className="connection-label">
+                  Bank identifier
+                  <select
+                    aria-label="Review bank identifier"
+                    className={input}
+                    value={bankId}
+                    onChange={(event) => setBankId(event.target.value)}
+                  >
+                    <option value="">Choose an active connection</option>
+                    {banks.map((bank) => (
+                      <option key={bank}>{bank}</option>
+                    ))}
+                  </select>
+                </label>
+                {!banks.length && (
+                  <button className="connection-link" onClick={() => setSection('connections')}>
+                    Set up a scoped connection first
+                  </button>
+                )}
+                <div className="connection-transfer-list">
+                  {eligible.map((transfer) => (
+                    <div key={transfer.id} className="connection-transfer">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(transfer.id)}
+                          onChange={(event) =>
+                            setSelected((previous) =>
+                              event.target.checked
+                                ? [...previous, transfer.id]
+                                : previous.filter((id) => id !== transfer.id),
+                            )
+                          }
+                        />
+                        <span>
+                          {transfer.first_name} {transfer.last_name} → {transfer.recipient_name}
+                          <small>
+                            {transfer.reference} · {money(transfer.send_amount_minor, transfer.send_currency)}
+                          </small>
+                        </span>
+                      </label>
+                      <button
+                        disabled={busy}
+                        onClick={() =>
+                          void act(async () => {
+                            await api.post(`/admin/transfers/${transfer.id}/screen`)
+                            setNotice(`Screening refreshed for ${transfer.reference}.`)
+                          })
+                        }
+                      >
+                        Screen now
+                      </button>
+                    </div>
+                  ))}
+                  {!eligible.length && (
+                    <p className="bank-help">No funded, unassigned transfers are available.</p>
                   )}
                 </div>
-              ))}
-              {admin.role === 'owner' && (
-                <form
-                  className="mt-5 space-y-3"
-                  onSubmit={(e) => {
-                    e.preventDefault()
+                <button
+                  className={button}
+                  disabled={busy || !banks.includes(bankId) || !selected.length}
+                  onClick={() =>
                     void act(async () => {
-                      const r = await api.post<{ token: string }>(
-                        '/admin/compliance/keys',
-                        { bankId, label },
-                      )
-                      setToken(r.token)
+                      const result = await api.post<{ id: string }>('/admin/compliance/batches', {
+                        bankId,
+                        transferIds: selected,
+                      })
+                      setSelected([])
+                      setNotice(`Batch ${result.id} submitted to the assigned bank’s review API.`)
                     })
-                  }}
+                  }
                 >
-                  <label className="block text-xs">
-                    Connection label
-                    <input
-                      className={`${input} mt-2`}
-                      value={label}
-                      onChange={(e) => setLabel(e.target.value)}
-                      required
-                      minLength={3}
-                      placeholder="Bank compliance integration"
-                    />
-                  </label>
-                  <p className="text-xs text-ink-500">
-                    Uses bank identifier: {bankId || 'Enter above'}
-                  </p>
-                  <button disabled={busy || !bankId} className={button}>
-                    <KeyRound size={15} className="mr-2 inline" />
-                    Create scoped key
-                  </button>
-                </form>
-              )}
-              {token && (
-                <div className="mt-4 rounded-xl bg-wait-soft p-4">
-                  <p className="text-xs font-semibold">
-                    Copy to the bank’s secure credential store. Shown once.
-                  </p>
-                  <code className="mt-2 block break-all text-xs">{token}</code>
-                  <button
-                    className="mt-3 text-xs underline"
-                    onClick={() => setToken('')}
-                  >
-                    Dismiss credential
-                  </button>
+                  Submit {selected.length || ''} for review
+                </button>
+              </section>
+              <section className="connection-panel">
+                <h3>Wire sub-ledger</h3>
+                <p className="bank-help">
+                  Principal contributions reconcile to an immutable manifest. Fees remain separate.
+                </p>
+                <div className="bank-table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Batch / bank</th>
+                        <th>Items</th>
+                        <th>Principal</th>
+                        <th>Decision</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.batches.map((batch) => (
+                        <tr key={batch.id}>
+                          <td>
+                            {batch.id}
+                            <small>{batch.bank_id}</small>
+                          </td>
+                          <td>{batch.item_count}</td>
+                          <td>{money(batch.total_minor, batch.currency)}</td>
+                          <td>{batch.status}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              )}
-            </section>
-          </div>
+                {!data.batches.length && <p className="bank-help">No wire manifests yet.</p>}
+              </section>
+            </div>
+          )}
+          {section === 'evidence' && (
+            <div className="compliance-review-columns">
+              <section className="connection-panel">
+                <h3>Official OFAC source</h3>
+                <p className="bank-help">
+                  {readiness?.ofac.ready
+                    ? `${readiness.ofac.entityCount.toLocaleString()} entities and ${readiness.ofac.nameCount.toLocaleString()} names available. Last checked ${readiness.ofac.checkedAt ? new Date(readiness.ofac.checkedAt).toLocaleString() : 'Unavailable'}.`
+                    : `Source readiness: ${readiness?.ofac.reason ?? 'Unavailable; refresh environment to retry'}.`}
+                </p>
+                <h3>Identity outcomes</h3>
+                {data.identity.length ? (
+                  data.identity.map((row) => (
+                    <p key={row.status} className="bank-help">
+                      {row.status} · {row.count}
+                    </p>
+                  ))
+                ) : (
+                  <p className="bank-help">No identity provider sessions recorded.</p>
+                )}
+              </section>
+              <section className="connection-panel">
+                <h3>Recent screening evidence</h3>
+                <p className="bank-help">
+                  Potential matches stay blocked. Refresh individual transfer screening before bank
+                  submission.
+                </p>
+                {data.screenings.map((record) => (
+                  <article key={record.id} className="connection-evidence">
+                    <strong>{record.subject_name}</strong>
+                    <span>{record.status.replaceAll('_', ' ')}</span>
+                    <p>
+                      {record.subject_type} · Case {record.provider_ref ?? 'Unavailable'} ·{' '}
+                      {new Date(record.created_at).toLocaleString()}
+                    </p>
+                  </article>
+                ))}
+                {!data.screenings.length && (
+                  <p className="bank-help">No provider screening requests recorded.</p>
+                )}
+              </section>
+            </div>
+          )}
+          {section === 'connections' && (
+            <div className="compliance-review-columns">
+              <section className="connection-panel">
+                <h3>Verification adapters</h3>
+                <p className="bank-help">
+                  Credentials belong in encrypted Worker settings, never in this form or browser storage.
+                </p>
+                <dl className="connection-settings">
+                  <div>
+                    <dt>Identity & liveness</dt>
+                    <dd>
+                      Persona ·{' '}
+                      {data.providers.identity ? 'Configured' : 'Awaiting credentials and approved template'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Required identity settings</dt>
+                    <dd>
+                      <code>PERSONA_API_KEY</code>, <code>PERSONA_TEMPLATE_ID</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Global screening</dt>
+                    <dd>
+                      ComplyAdvantage · {data.providers.sanctions ? 'Configured' : 'Awaiting credentials'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Required screening setting</dt>
+                    <dd>
+                      <code>COMPLYADVANTAGE_API_KEY</code>
+                    </dd>
+                  </div>
+                </dl>
+                <p className="bank-help">
+                  Government-ID authenticity, matching account names, live selfie and selfie-to-ID comparison
+                  are required. Unavailable providers fail closed.
+                </p>
+                <h3>Bank API contract</h3>
+                <code className="connection-endpoint">
+                  GET /api/bank/v1/batches
+                  <br />
+                  GET /api/bank/v1/batches/:id
+                  <br />
+                  POST /api/bank/v1/batches/:id/decision
+                </code>
+                <p className="bank-help">
+                  Bearer key authentication; bank-scoped manifests; hash-bound decisions; five-minute
+                  approvals. Review-only, with no wire execution.
+                </p>
+                <Link className="connection-link" to="/bank-review">
+                  Open operational bank review portal ↗
+                </Link>
+              </section>
+              <section className="connection-panel">
+                <h3>Bank API credentials</h3>
+                <p className="bank-help">
+                  Keys are shown once, expire after 90 days and only access the assigned bank. Hand them over
+                  privately.
+                </p>
+                {data.keys.map((key) => (
+                  <div key={key.id} className="connection-key">
+                    <span>
+                      <strong>{key.label}</strong>
+                      <small>
+                        {key.bank_id} ·{' '}
+                        {key.revoked_at
+                          ? 'Revoked'
+                          : `Expires ${new Date(key.expires_at).toLocaleDateString()}`}
+                      </small>
+                    </span>
+                    {admin.role === 'owner' && !key.revoked_at && (
+                      <button
+                        disabled={busy}
+                        onClick={() =>
+                          void act(async () => {
+                            await api.post(`/admin/compliance/keys/${key.id}/revoke`)
+                            setNotice('Bank key revoked.')
+                          })
+                        }
+                      >
+                        Revoke
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {admin.role === 'owner' ? (
+                  <form
+                    className="connection-form"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      void act(async () => {
+                        const result = await api.post<{ token: string }>('/admin/compliance/keys', {
+                          bankId,
+                          label,
+                        })
+                        setToken(result.token)
+                        setLabel('')
+                      })
+                    }}
+                  >
+                    <label>
+                      Bank identifier
+                      <input
+                        className={input}
+                        required
+                        pattern="[a-z0-9_-]{3,64}"
+                        value={bankId}
+                        onChange={(event) => setBankId(event.target.value)}
+                        placeholder="partner-bank"
+                      />
+                    </label>
+                    <label>
+                      Connection label
+                      <input
+                        className={input}
+                        required
+                        minLength={3}
+                        maxLength={100}
+                        value={label}
+                        onChange={(event) => setLabel(event.target.value)}
+                        placeholder="Bank compliance integration"
+                      />
+                    </label>
+                    <button className={button} disabled={busy}>
+                      Create scoped key
+                    </button>
+                  </form>
+                ) : (
+                  <p className="bank-help">An owner must issue or revoke bank credentials.</p>
+                )}
+                {token && (
+                  <div className="bank-notice">
+                    <p>Copy this once to the bank’s secure credential store.</p>
+                    <code className="bank-hash">{token}</code>
+                    <button onClick={() => setToken('')}>Dismiss credential</button>
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
         </>
       )}
     </div>
