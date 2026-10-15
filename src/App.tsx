@@ -148,7 +148,6 @@ function LiveApplication() {
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            <Accessibility />
           </Suspense>
         </TransferProvider>
       </AccountDataProvider>

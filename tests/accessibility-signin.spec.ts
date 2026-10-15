@@ -13,6 +13,7 @@ for (const [path, title] of [
     await page.goto(`/#/${path}`)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     if (path !== 'login') await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+    await expect(page.getByRole('button', { name: 'Accessibility', exact: true })).toHaveCount(1)
     const frame = page.locator('.signin-page')
     await expect(frame).toHaveCSS('background-color', 'rgb(255, 255, 255)')
     await expect(frame.locator('[data-star-pattern=orion] [data-star]')).toHaveCount(7)
