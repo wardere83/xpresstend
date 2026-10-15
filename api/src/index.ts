@@ -3,6 +3,7 @@ import type { Env, Vars } from './env'
 import { withSecurityHeaders } from './headers'
 import { adminAuth, auth } from './routes-auth'
 import { admin } from './routes-admin'
+import { reviewer } from './routes-reviewer'
 import { bootstrap } from './routes-bootstrap'
 import { invite } from './routes-invite'
 import { transfers } from './routes-transfers'
@@ -31,6 +32,7 @@ api.route('/auth', auth)
 api.route('/bootstrap', bootstrap)
 api.route('/invite', invite)
 api.route('/admin/auth', adminAuth)
+api.route('/admin/reviewer', reviewer)
 api.route('/admin', admin)
 api.route('/', transfers)
 
@@ -169,6 +171,7 @@ export default {
       '/support': '/#/support',
       '/help': '/#/support',
       '/admin': '/#/admin',
+      '/institutional-reviewer': '/#/institutional-reviewer',
       '/app': '/#/app',
       '/login': '/#/login',
       '/register': '/#/register',

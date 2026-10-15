@@ -204,7 +204,7 @@ export const en = {
 
   // ---- Refer ----
   'refer.title': 'Refer & Earn',
-  'refer.subtitle': 'Give $10, get $10 for every friend who sends their first transfer.',
+  'refer.subtitle': 'Our referral program is not available yet.',
   'refer.yourCode': 'Your code',
   'refer.copy': 'Copy code',
   'refer.invite': 'Invite friends',
@@ -226,7 +226,6 @@ export const en = {
   'marketing.signIn': 'Sign in',
   'marketing.getStarted': 'Get started',
   'marketing.openApp': 'Open app',
-  'marketing.tryDemo': 'Explore the app',
   'marketing.heroTitle': 'Closer with every transfer!',
   'marketing.heroBody': 'Clear rates. One flat rate. Bonus points to spend later. Speak or type in your language, and the whole app answers in it.',
   'marketing.statLanguages': 'Languages, fully translated',
@@ -299,7 +298,6 @@ export const en = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Coming to the App Store',
   'app.iosBetaNote': 'Join the TestFlight beta',
-  'app.demoBadge': 'Demo preview — sample data',
   'nav.downloadApp': 'Download App',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'The Android build is for testing, so your phone will ask you to allow installation from an unknown developer.',

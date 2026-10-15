@@ -6,6 +6,7 @@
  * would add maintenance cost with no reader.
  */
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { Navigate } from 'react-router-dom'
 import { api, ApiError, API_BASE, money, type AdminUser } from '../lib/api'
 import { StaffPanel } from './StaffPanel'
 
@@ -21,6 +22,14 @@ interface TrialBalance {
   balanced: boolean
   imbalances: { currency: string; off: number }[]
   accounts: { currency: string; account_code: string; balance_minor: number; entries: number }[]
+}
+
+interface OperationsOverview {
+  byStatus: { status: string; n: number }[]
+  volume: { currency: string; sent: number; fees: number }[]
+  awaitingReview: number
+  customers: { total: number; active: number; verified: number }
+  staff: { total: number; active: number }
 }
 
 const STATUS_TONE: Record<string, string> = {
@@ -68,6 +77,7 @@ export function AdminConsole() {
   if (checking) {
     return <div className="grid min-h-dvh place-items-center bg-ink-900 text-[13px] text-white/60">Checking session…</div>
   }
+  if (admin?.role === 'reviewer') return <Navigate to="/institutional-reviewer" replace />
   if (!admin) return needsSetup ? <AdminSetup onCreated={refresh} /> : <AdminLogin onSignedIn={refresh} />
   return <Dashboard admin={admin} onSignedOut={() => setAdmin(null)} />
 }
@@ -223,18 +233,21 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
   const [rows, setRows] = useState<TransferRow[]>([])
   const [filter, setFilter] = useState('compliance_hold')
   const [balance, setBalance] = useState<TrialBalance | null>(null)
+  const [overview, setOverview] = useState<OperationsOverview | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
 
   const canDecide = admin.role === 'compliance' || admin.role === 'owner'
 
   const load = useCallback(async () => {
-    const [t, b] = await Promise.all([
+    const [t, b, o] = await Promise.all([
       api.get<{ transfers: TransferRow[] }>(`/admin/transfers?status=${encodeURIComponent(filter)}`),
       api.get<TrialBalance>('/admin/ledger/trial-balance'),
+      api.get<OperationsOverview>('/admin/overview'),
     ])
     setRows(t.transfers)
     setBalance(b)
+    setOverview(o)
   }, [filter])
 
   useEffect(() => { void load().catch(() => setNote('Could not load the queue.')) }, [load])
@@ -272,6 +285,32 @@ function Dashboard({ admin, onSignedOut }: { admin: AdminUser; onSignedOut: () =
       </header>
 
       <main className="mx-auto max-w-6xl px-5 py-8">
+        {overview ? (
+          <section aria-label="Operations key performance indicators" className="mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: 'Customers', value: overview.customers.total.toLocaleString(), detail: `${overview.customers.active.toLocaleString()} active` },
+              { label: 'KYC verified', value: overview.customers.verified.toLocaleString(), detail: `of ${overview.customers.total.toLocaleString()} customers` },
+              { label: 'Awaiting review', value: overview.awaitingReview.toLocaleString(), detail: 'Transfers on compliance hold' },
+              { label: 'Active staff', value: overview.staff.active.toLocaleString(), detail: `of ${overview.staff.total.toLocaleString()} accounts` },
+            ].map((metric) => (
+              <article key={metric.label} className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">{metric.label}</p>
+                <p className="mt-2 text-[25px] font-semibold tabular-nums">{metric.value}</p>
+                <p className="mt-1 text-[11px] text-ink-500">{metric.detail}</p>
+              </article>
+            ))}
+            <div className="sm:col-span-2 lg:col-span-4">
+              <div className="rounded-xl bg-white px-4 py-3 ring-1 ring-ink-200/70">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">Transfer volume · paid, completed, sending, or held</p>
+                <p className="mt-1 text-[13px] font-semibold tabular-nums">
+                  {overview.volume.length
+                    ? overview.volume.map(({ currency, sent }) => money(Number(sent ?? 0), currency)).join(' · ')
+                    : 'No processed volume yet'}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : null}
         <div className="mb-6 flex gap-2 border-b border-ink-200/70">
           {([['queue', 'Transfers'], ['staff', 'Staff']] as const).map(([key, label]) => (
             <button

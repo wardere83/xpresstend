@@ -1,18 +1,10 @@
 import type { ApiRecipient, ApiTransfer } from '../state/AccountData'
-import { getRecipient, type Recipient } from '../data/mock'
 
-/**
- * One shape the screens render, whichever source the data came from.
- *
- * /app is reachable without an account, so the seeded records still have to
- * render for a visitor touring the product. Normalising here means each screen
- * renders a single shape instead of branching on which world it is in, and a
- * real recipient never has to be forced into the mock's fields.
- */
+/** Normalized shapes for account-backed records. */
 export interface RecipientView {
   id: string
   name: string
-  /** Relationship for a seeded record, country for a real one. */
+  /** Relationship or country for a real account recipient. */
   subtitle: string
   /** Phone or account reference, whichever the record carries. */
   detail: string
@@ -55,10 +47,6 @@ export function toRecipientView(r: ApiRecipient): RecipientView {
   }
 }
 
-export function seededRecipientView(r: Recipient, relation: string): RecipientView {
-  return { id: r.id, name: r.name, subtitle: relation, detail: r.phone, hue: r.hue, favourite: r.favourite }
-}
-
 export function toTransferView(t: ApiTransfer): TransferView {
   return {
     id: t.id,
@@ -68,15 +56,5 @@ export function toTransferView(t: ApiTransfer): TransferView {
     amountUsd: t.send_amount_minor / 100,
     date: t.created_at,
     status: t.status === 'completed' ? 'completed' : 'pending',
-  }
-}
-
-export function seededTransferView(tx: {
-  id: string; recipientId: string; amountUsd: number; date: string; status: 'completed' | 'pending'
-}): TransferView {
-  const r = getRecipient(tx.recipientId)
-  return {
-    id: tx.id, name: r.name, subtitle: r.wallet, hue: r.hue,
-    amountUsd: tx.amountUsd, date: tx.date, status: tx.status,
   }
 }

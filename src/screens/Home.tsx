@@ -16,7 +16,8 @@ import { Logo } from '../components/AppLayout'
 import { Avatar, IconTile, SectionTitle } from '../components/ui'
 import { useMirrorClass, useT } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { getRecipient, user } from '../data/mock'
+import { useAccountData } from '../state/AccountData'
+import { hueFor } from '../lib/view'
 import { useAuth } from '../auth/AuthContext'
 import { formatDate, rate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
@@ -52,10 +53,15 @@ export function Home() {
   const t = useT()
   const mirror = useMirrorClass()
   const navigate = useNavigate()
-  const { history, corridor, setDeliveryMethod, setRecipientId } = useTransfer()
-  const latest = history[0]
-  const latestRecipient = latest ? getRecipient(latest.recipientId) : null
-  const favourites = ['r1', 'r2', 'r3'].map(getRecipient)
+  const { corridor, setDeliveryMethod, setRecipientId } = useTransfer()
+  const { recipients, transfers } = useAccountData()
+  const latest = transfers[0]
+  const favourites = recipients.slice(0, 3).map((r) => ({
+    id: r.id,
+    name: r.full_name,
+    phone: r.phone ?? r.bank_name ?? r.country,
+    hue: hueFor(r.full_name),
+  }))
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -77,9 +83,6 @@ export function Home() {
           className="relative grid h-9 w-9 place-items-center rounded-full text-ink-700 transition hover:bg-brand-600/5"
         >
           <Bell size={21} strokeWidth={2.1} />
-          <span className="absolute top-1 end-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-xt-turquoise px-[3px] text-[9px] font-bold text-xt-navy">
-            2
-          </span>
         </button>
       </div>
 
@@ -87,7 +90,7 @@ export function Home() {
         {/* Greeting */}
         <div className="mt-2 mb-4">
           <h1 className="text-[22px] leading-tight font-semibold text-ink-900">
-            {t('home.greeting', { name: account?.firstName ?? user.firstName })} <span aria-hidden="true">👋</span>
+            {t('home.greeting', { name: account?.firstName ?? '' })} <span aria-hidden="true">👋</span>
           </h1>
           <p className="mt-1 text-[13px] text-ink-500">{t('home.subtitle')}</p>
         </div>
@@ -143,22 +146,22 @@ export function Home() {
             action={t('common.viewAll')}
             onAction={() => navigate('/activity')}
           />
-          {latest && latestRecipient ? (
+          {latest ? (
             <button
               type="button"
               onClick={() => navigate('/activity')}
               className="flex w-full items-center gap-3 text-start"
             >
-              <Avatar name={latestRecipient.name} hue={latestRecipient.hue} />
+              <Avatar name={latest.recipient_name} hue={hueFor(latest.recipient_name)} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-bold text-ink-900">
-                  {latestRecipient.name}
+                  {latest.recipient_name}
                 </span>
-                <span className="block text-[12px] text-ink-500">{formatDate(latest.date)}</span>
+                <span className="block text-[12px] text-ink-500">{formatDate(latest.created_at)}</span>
               </span>
               <span className="text-end">
                 <span className="block text-[14px] font-semibold text-ink-900">
-                  <bdi>{usd(latest.amountUsd)}</bdi>
+                  <bdi>{usd(latest.send_amount_minor / 100)}</bdi>
                 </span>
                 <span
                   className={`flex items-center justify-end gap-1.5 text-[12px] font-semibold ${
@@ -188,7 +191,9 @@ export function Home() {
             onAction={() => navigate('/recipients')}
           />
           <ul className="space-y-1">
-            {favourites.map((r) => (
+            {favourites.length === 0 ? (
+              <li className="py-2 text-[13px] text-ink-500">{t('recipients.empty')}</li>
+            ) : favourites.map((r) => (
               <li key={r.id}>
                 <button
                   type="button"
@@ -233,11 +238,11 @@ export function Home() {
           </div>
         </section>
 
-        <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-500">
-          <bdi>
-            1 USD = {rate(corridor.rate)} {corridor.currency}
-          </bdi>
-        </p>
+        {recipients.length > 0 ? (
+          <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-500">
+            <bdi>1 USD = {rate(corridor.rate)} {corridor.currency}</bdi>
+          </p>
+        ) : null}
       </div>
     </div>
   )

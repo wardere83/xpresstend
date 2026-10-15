@@ -6,7 +6,7 @@ import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, usd } from '../lib/format'
 import { outcomeFeedback, tapFeedback } from '../native/capabilities'
-import { corridorName } from '../data/mock'
+import { corridorName } from '../data/product'
 
 type Verification = 'face' | 'pin'
 

@@ -80,7 +80,7 @@ export interface AdminUser {
   id: string
   email: string
   name: string
-  role: 'viewer' | 'agent' | 'compliance' | 'owner'
+  role: 'viewer' | 'agent' | 'compliance' | 'owner' | 'reviewer'
 }
 
 export interface Corridor {

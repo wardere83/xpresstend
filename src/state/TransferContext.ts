@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import { getCorridor, getRecipient, type PaymentMethodId, type Transaction } from '../data/mock'
+import { getCorridor, type PaymentMethodId, type Recipient, type Transaction } from '../data/product'
 
 /**
  * How the fee is applied.
@@ -32,17 +32,11 @@ export type TransferValue = {
   setPaymentMethod: (id: PaymentMethodId) => void
   deliveryMethod: DeliveryMethod
   setDeliveryMethod: (m: DeliveryMethod) => void
-  recipient: ReturnType<typeof getRecipient>
+  recipient: Recipient
   corridor: ReturnType<typeof getCorridor>
   quote: Quote
-  history: Transaction[]
   lastTransaction: Transaction | null
-  /**
-   * Records the transfer. For a signed-in customer this creates it through the
-   * API and captures the (test-mode) payment, so it lands in the compliance
-   * queue; for a visitor touring the app it only appends to local history.
-   */
-  /** Requires the account password: the server authorises payment with it. */
+  /** Creates a transfer through the authenticated API and requires the account password. */
   commit: (password: string) => Promise<Transaction>
   reset: () => void
   /** True when the numbers and the recipient come from the customer's account. */

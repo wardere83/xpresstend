@@ -5,7 +5,7 @@ import { Avatar } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { maskedWallet, rate as fmtRate, usd } from '../lib/format'
-import { corridorName } from '../data/mock'
+import { corridorName } from '../data/product'
 
 type Message = {
   id: number

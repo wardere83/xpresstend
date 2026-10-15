@@ -76,7 +76,7 @@ function useApiMessage() {
 
 export function Login() {
   const t = useT()
-  const { signIn, enterDemo, user, loading } = useAuth()
+  const { signIn, user, loading } = useAuth()
   const navigate = useNavigate()
   const toMessage = useApiMessage()
   const [email, setEmail] = useState('')
@@ -116,20 +116,6 @@ export function Login() {
       <p className="mt-6 text-center text-[13px] text-ink-500">
         {t('auth.noAccount')}{' '}
         <Link to="/register" className="font-semibold text-brand-600">{t('auth.createAccount')}</Link>
-      </p>
-      {/* The walkthrough needs no credentials: it starts a badged demo session
-          on seeded data, so a visitor can hold the product before joining. */}
-      <p className="mt-3 text-center text-[13px] text-ink-500">
-        <button
-          type="button"
-          onClick={() => {
-            enterDemo()
-            navigate('/app', { replace: true })
-          }}
-          className="font-semibold text-brand-600"
-        >
-          {t('marketing.tryDemo')}
-        </button>
       </p>
     </Shell>
   )

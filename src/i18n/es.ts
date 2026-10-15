@@ -211,7 +211,7 @@ export const es: Record<keyof typeof en, string> = {
   // ---- Refer ----
   'refer.title': 'Refiera y gane',
   'refer.subtitle':
-    'Regale 10 USD y gane 10 USD por cada amigo que realice su primera transferencia.',
+    'Nuestro programa de referidos aún no está disponible.',
   'refer.yourCode': 'Su código',
   'refer.copy': 'Copiar código',
   'refer.invite': 'Invitar amigos',
@@ -233,7 +233,6 @@ export const es: Record<keyof typeof en, string> = {
   'marketing.signIn': 'Iniciar sesión',
   'marketing.getStarted': 'Empezar',
   'marketing.openApp': 'Abrir la app',
-  'marketing.tryDemo': 'Explorar la app',
   'marketing.heroTitle': '¡Más cerca con cada envío!',
   'marketing.heroBody': 'Tipos de cambio claros. Una tasa única. Puntos de bonificación para usar después. Hable o escriba en su idioma, y toda la app responde en él.',
   'marketing.statLanguages': 'Idiomas, totalmente traducidos',
@@ -306,7 +305,6 @@ export const es: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Próximamente en la App Store',
   'app.iosBetaNote': 'Únete a la beta en TestFlight',
-  'app.demoBadge': 'Vista de demostración — datos de ejemplo',
   'nav.downloadApp': 'Descargar la app',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'La versión de Android es para pruebas, así que su teléfono le pedirá permitir la instalación de un desarrollador desconocido.',

@@ -206,7 +206,7 @@ export const so: Record<keyof typeof en, string> = {
 
   // ---- Refer ----
   'refer.title': 'Casuun oo Kasbo',
-  'refer.subtitle': 'Sii $10, hel $10 saaxiib kasta oo dira lacagtiisii ugu horreysay.',
+  'refer.subtitle': 'Barnaamijka casuumaaddu weli ma diyaar aha.',
   'refer.yourCode': 'Koodhkaaga',
   'refer.copy': 'Koobi koodhka',
   'refer.invite': 'Casuun saaxiibbo',
@@ -228,7 +228,6 @@ export const so: Record<keyof typeof en, string> = {
   'marketing.signIn': 'Gal',
   'marketing.getStarted': 'Bilow',
   'marketing.openApp': 'Fur abka',
-  'marketing.tryDemo': 'Isku day abka',
   'marketing.heroTitle': 'Dhawaansho dirid kasta!',
   'marketing.heroBody': 'Sicir cad. Hal boqolkiiba go\'an. Dhibco bonus ah oo aad markii dambe isticmaasho. Ku hadal ama ku qor luqaddaada, abkuna wuu kaaga jawaabayaa.',
   'marketing.statLanguages': 'Luqadood, si buuxda loo turjumay',
@@ -301,7 +300,6 @@ export const so: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Waxay imanaysaa App Store',
   'app.iosBetaNote': 'Ku biir tijaabada TestFlight',
-  'app.demoBadge': 'Daawasho tijaabo ah — xog muunad',
   'nav.downloadApp': 'Soo deji Abka',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'Nooca Android waa tijaabo, sidaas darteed telefoonkaagu wuxuu ku weydiin doonaa inaad ogolaato rakibaad ka timid horumariye aan la aqoon.',

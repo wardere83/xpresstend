@@ -21,6 +21,7 @@ const ROLES: { value: AdminUser['role']; label: string; blurb: string }[] = [
   { value: 'viewer', label: 'Viewer', blurb: 'Read only. Sees queues and the ledger.' },
   { value: 'agent', label: 'Agent', blurb: 'Handles customers. Cannot release money.' },
   { value: 'compliance', label: 'Compliance', blurb: 'Releases or rejects transfers, decides KYC.' },
+  { value: 'reviewer', label: 'Institutional reviewer', blurb: 'Read-only consumer, transaction, ledger, and audit access. All access is logged.' },
   { value: 'owner', label: 'Owner', blurb: 'Everything, plus adding and removing staff.' },
 ]
 
@@ -29,6 +30,7 @@ const ROLE_TONE: Record<string, string> = {
   compliance: 'bg-ok-soft text-brand-700',
   agent: 'bg-wait-soft text-brand-700',
   viewer: 'bg-ink-200 text-ink-700',
+  reviewer: 'bg-ink-200 text-ink-700',
 }
 
 export function StaffPanel({ me }: { me: AdminUser }) {
@@ -63,11 +65,11 @@ export function StaffPanel({ me }: { me: AdminUser }) {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <h2 className="text-[15px] font-bold">Staff</h2>
+        <h2 className="text-[15px] font-bold">Staff and reviewer access</h2>
         {isOwner ? (
           <button onClick={() => setAdding((v) => !v)}
             className="rounded-full bg-brand-600 px-3.5 py-1.5 text-[12px] font-semibold text-white">
-            {adding ? 'Cancel' : 'Invite staff'}
+            {adding ? 'Cancel' : 'Invite staff or reviewer'}
           </button>
         ) : (
           <span className="text-[12px] text-ink-500">Only an owner can add or change staff.</span>

@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import { Hono, type Context } from 'hono'
 import { PBKDF2_ITERATIONS, hashPassword, newId, randomHex, verifyPassword } from './crypto'
 import { audit } from './audit'
 import type { Env, Vars } from './env'
@@ -142,7 +142,7 @@ auth.get('/me', requireUser, (c) => c.json({ user: c.get('user') }))
 // ------------------------------------------------------------------ staff
 export const adminAuth = new Hono<{ Bindings: Env; Variables: Vars }>()
 
-adminAuth.post('/login', async (c) => {
+async function adminLogin(c: Context<{ Bindings: Env; Variables: Vars }>, audience: 'staff' | 'reviewer') {
   if (await overLimit(c.env, 'admin_login', callerKey(c.req.raw), LOGIN_IP_LIMIT)) {
     return c.json({ error: 'too_many_requests' }, 429)
   }
@@ -151,7 +151,7 @@ adminAuth.post('/login', async (c) => {
   const password = body.password ?? ''
 
   const row = await c.env.DB.prepare(
-    `SELECT id, password_hash, password_salt, password_iterations, status, failed_login_count, locked_until
+    `SELECT id, password_hash, password_salt, password_iterations, status, role, failed_login_count, locked_until
        FROM admins WHERE lower(email) = ?`,
   ).bind(email).first<Record<string, string | number>>()
 
@@ -180,6 +180,9 @@ adminAuth.post('/login', async (c) => {
     return c.json({ error: 'invalid_credentials' }, 401)
   }
   if (row.status !== 'active') return c.json({ error: 'account_disabled' }, 403)
+  if ((audience === 'reviewer') !== (row.role === 'reviewer')) {
+    return c.json({ error: 'invalid_credentials' }, 401)
+  }
 
   await c.env.DB.prepare(
     `UPDATE admins SET failed_login_count = 0, locked_until = NULL, last_login_at = ? WHERE id = ?`,
@@ -191,7 +194,10 @@ adminAuth.post('/login', async (c) => {
     ip: c.req.header('cf-connecting-ip'), userAgent: c.req.header('user-agent'),
   })
   return c.json({ ok: true })
-})
+}
+
+adminAuth.post('/login', (c) => adminLogin(c, 'staff'))
+adminAuth.post('/reviewer/login', (c) => adminLogin(c, 'reviewer'))
 
 adminAuth.post('/logout', async (c) => {
   await revokeAdminSession(c)
@@ -199,3 +205,8 @@ adminAuth.post('/logout', async (c) => {
 })
 
 adminAuth.get('/me', requireAdmin, (c) => c.json({ admin: c.get('admin') }))
+adminAuth.get('/reviewer/me', requireAdmin, async (c) => {
+  const admin = c.get('admin')
+  if (admin.role !== 'reviewer') return c.json({ error: 'insufficient_role' }, 403)
+  return c.json({ admin })
+})

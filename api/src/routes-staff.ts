@@ -18,7 +18,7 @@ import { sendEmail, staffInviteEmail } from './email'
  *   - the last active owner cannot be demoted or disabled, so the account that
  *     can create staff always exists
  */
-const ROLES: SessionAdmin['role'][] = ['viewer', 'agent', 'compliance', 'owner']
+const ROLES: SessionAdmin['role'][] = ['viewer', 'agent', 'compliance', 'owner', 'reviewer']
 
 /** Staff hold a higher bar than customers: they can move other people's money. */
 const MIN_STAFF_PASSWORD = 16
@@ -121,6 +121,9 @@ staff.post('/', requireRole('owner'), async (c) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return c.json({ error: 'invalid_email' }, 400)
   if (!name) return c.json({ error: 'name_required' }, 400)
   if (!ROLES.includes(role)) return c.json({ error: 'invalid_role' }, 400)
+  if (role === 'reviewer') {
+    return c.json({ error: 'reviewer_requires_invite', message: 'Institutional reviewers must set their own password through an invitation.' }, 400)
+  }
   if (password.length < MIN_STAFF_PASSWORD) {
     return c.json(
       { error: 'weak_password', message: `Staff passwords must be at least ${MIN_STAFF_PASSWORD} characters.` },

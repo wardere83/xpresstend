@@ -32,7 +32,7 @@ export interface SessionAdmin {
   id: string
   email: string
   name: string
-  role: 'viewer' | 'agent' | 'compliance' | 'owner'
+  role: 'viewer' | 'agent' | 'compliance' | 'owner' | 'reviewer'
 }
 
 export type Vars = {

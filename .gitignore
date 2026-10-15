@@ -36,3 +36,7 @@ api/.wrangler
 /icons.svg
 /CNAME
 /media/
+
+# Xcode's per-machine Swift Package Manager state, written on every local
+# build. Package.swift is the source of truth and is checked in.
+ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/

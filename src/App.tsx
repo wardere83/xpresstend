@@ -8,6 +8,7 @@ import { TransferProvider } from './state/TransferProvider'
 import { AuthProvider } from './auth/AuthProvider'
 import { Login, RequireAuth, Register } from './auth/AuthScreens'
 import { AdminConsole } from './admin/AdminConsole'
+import { ReviewerConsole } from './admin/ReviewerConsole'
 import { InviteAccept } from './admin/InviteAccept'
 import { Marketing } from './marketing/Marketing'
 import { Privacy, Support as LegalSupport } from './marketing/Legal'
@@ -43,12 +44,11 @@ export default function App() {
 
               {/* Staff console — its own login, never the customer session. */}
               <Route path="/admin" element={<AdminConsole />} />
+              <Route path="/institutional-reviewer" element={<ReviewerConsole />} />
               <Route path="/invite/:token" element={<InviteAccept />} />
 
               {/* The product. */}
-              {/* Signed out, the product is not reachable at all: a demo that can
-                  mint a convincing "transfer complete" screen is a liability for a
-                  financial product, whatever the marketing page invites. */}
+              {/* Every product screen requires an authenticated customer account. */}
               <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                 <Route path="/app" element={<Home />} />
                 <Route path="voice" element={<Voice />} />

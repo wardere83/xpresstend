@@ -2,10 +2,9 @@ import { useMemo, useState } from 'react'
 import { ArrowUpRight, Clock } from 'lucide-react'
 import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
-import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
-import { getRecipient } from '../data/mock'
 import { formatDate, usd } from '../lib/format'
+import { toTransferView } from '../lib/view'
 
 type Filter = 'all' | 'completed' | 'pending'
 
@@ -19,52 +18,16 @@ type Row = {
   status: 'completed' | 'pending'
 }
 
-/** Stable avatar colour for a real recipient, who has no seeded hue. */
-function hueFor(name: string): number {
-  let h = 0
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360
-  return h
-}
-
 export function Activity() {
   const { t } = useI18n()
   const mirror = useMirrorClass()
-  const { history: demoHistory } = useTransfer()
-  const { live, loading, error, transfers } = useAccountData()
+  const { loading, error, transfers } = useAccountData()
   const [filter, setFilter] = useState<Filter>('all')
 
   /**
-   * One shape for the list, whichever source it came from.
-   *
-   * A signed-in customer sees only their own transfers; the seeded history is
-   * shown solely to a visitor touring the app without an account, so real and
-   * demo figures can never be confused for one another.
+   * The list contains only transfers returned for the signed-in account.
    */
-  const rows: Row[] = useMemo(() => {
-    if (live) {
-      return transfers.map((tr) => ({
-        id: tr.id,
-        name: tr.recipient_name,
-        subtitle: tr.recipient_country,
-        hue: hueFor(tr.recipient_name),
-        amountUsd: tr.send_amount_minor / 100,
-        date: tr.created_at,
-        status: tr.status === 'completed' ? 'completed' : 'pending',
-      }))
-    }
-    return demoHistory.map((tx) => {
-      const r = getRecipient(tx.recipientId)
-      return {
-        id: tx.id,
-        name: r.name,
-        subtitle: r.wallet,
-        hue: r.hue,
-        amountUsd: tx.amountUsd,
-        date: tx.date,
-        status: tx.status,
-      }
-    })
-  }, [live, transfers, demoHistory])
+  const rows: Row[] = useMemo(() => transfers.map(toTransferView), [transfers])
 
   const filters: { id: Filter; label: string }[] = [
     { id: 'all', label: t('activity.filterAll') },

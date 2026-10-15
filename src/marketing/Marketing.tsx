@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Lock, ShieldCheck, Zap } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Lock, ShieldCheck, UserRound, Zap } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
@@ -23,8 +23,7 @@ import { RateQuote } from './RateQuote'
  */
 export function Marketing() {
   const t = useT()
-  const { user, enterDemo } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth()
 
   /* Buttons are defined once. Every call to action on the page is one of these
      two, which is what keeps the hierarchy legible: a visitor should never have
@@ -33,10 +32,6 @@ export function Marketing() {
     'inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 ' +
     'text-[14px] font-semibold text-white transition-colors hover:bg-brand-700 ' +
     'focus-visible:outline-brand-400'
-  const secondaryButton =
-    'inline-flex items-center justify-center gap-2 rounded-lg border border-ink-200 px-6 py-3 ' +
-    'text-[14px] font-semibold text-ink-700 transition-colors hover:border-ink-300 hover:bg-canvas'
-
   return (
     <div className="min-h-dvh bg-white text-ink-900">
       {/* In the native shell the webview draws under the status bar, so the
@@ -75,17 +70,28 @@ export function Marketing() {
             ) : (
               <>
                 <Link
-                  to="/login"
-                  className="hidden rounded-lg px-3.5 py-2 text-[13px] font-medium text-ink-600 transition-colors hover:text-ink-900 sm:block"
-                >
-                  {t('marketing.signIn')}
-                </Link>
-                <Link
                   to="/register"
                   className="whitespace-nowrap rounded-lg bg-brand-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-brand-700 sm:px-4"
                 >
                   {t('marketing.getStarted')}
                 </Link>
+                <details className="group relative">
+                  <summary aria-label="Sign in" className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-2 text-[12px] font-medium text-ink-600 transition-colors hover:text-ink-900 focus-visible:outline-brand-400 sm:px-3.5 sm:text-[13px]">
+                    <UserRound size={16} className="sm:hidden" />
+                    <span className="hidden sm:inline">{t('marketing.signIn')}</span>
+                  </summary>
+                  <nav aria-label="Sign-in options" className="absolute right-0 top-full z-50 mt-2 w-60 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200">
+                    <Link to="/login" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
+                      Customer sign in
+                    </Link>
+                    <Link to="/admin" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
+                      Staff sign in
+                    </Link>
+                    <Link to="/institutional-reviewer" className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas">
+                      Institutional reviewer sign in
+                    </Link>
+                  </nav>
+                </details>
               </>
             )}
           </div>
@@ -111,20 +117,15 @@ export function Marketing() {
               <Link to="/register" className={primaryButton}>
                 {t('marketing.getStarted')} <ArrowRight size={16} />
               </Link>
-              {/* Anyone may walk the product without an account: this starts a
-                  clearly-badged demo session on seeded data. A signed-in
-                  customer just goes to their own app. */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (!user) enterDemo()
-                  navigate('/app')
-                }}
-                className={secondaryButton}
-              >
-                {t('marketing.tryDemo')}
-              </button>
             </div>
+            {!user ? (
+              <p className="mt-4 text-[13px] text-ink-500">
+                {t('auth.haveAccount')}{' '}
+                <Link to="/login" className="font-semibold text-brand-600">
+                  {t('auth.signIn')}
+                </Link>
+              </p>
+            ) : null}
             <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-ink-200 pt-7">
               {(
                 [

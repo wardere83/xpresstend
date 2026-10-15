@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronDown,
-  Copy,
   Gift,
   Headphones,
   Mail,
@@ -10,10 +9,10 @@ import {
   Phone,
   TrendingUp,
 } from 'lucide-react'
-import { PrimaryButton, ScreenHeader, SecondaryButton, Toast } from '../components/ui'
+import { PrimaryButton, ScreenHeader, SecondaryButton } from '../components/ui'
 import { brand } from '../config/brand'
 import { useI18n } from '../i18n'
-import { corridorName, corridors, TRANSFER_FEE, user } from '../data/mock'
+import { corridorName, corridors, TRANSFER_FEE } from '../data/product'
 import { rate as fmtRate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 
@@ -143,17 +142,6 @@ export function Help() {
 export function Refer() {
   const { t } = useI18n()
   const navigate = useNavigate()
-  const [toast, setToast] = useState<string | null>(null)
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(user.referralCode)
-      setToast(t('success.copied'))
-    } catch {
-      setToast(user.referralCode)
-    }
-    window.setTimeout(() => setToast(null), 1600)
-  }
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
@@ -164,32 +152,8 @@ export function Refer() {
             <Gift size={26} />
           </span>
           <p className="mt-4 text-[14px] leading-relaxed text-white/85">{t('refer.subtitle')}</p>
-          <p className="mt-5 text-[11px] font-bold tracking-[0.18em] text-white/60 uppercase">
-            {t('refer.yourCode')}
-          </p>
-          <p className="mt-1 text-[24px] font-semibold tracking-wide">
-            <bdi>{user.referralCode}</bdi>
-          </p>
         </section>
-
-        <div className="card mt-4 flex items-center justify-between px-4 py-3.5">
-          <span className="text-[13px] text-ink-500">{t('refer.earned')}</span>
-          <span className="text-[16px] font-semibold text-brand-700">
-            <bdi>{usd(user.referralEarned)}</bdi>
-          </span>
-        </div>
-
-        <div className="mt-5 space-y-3">
-          <PrimaryButton onClick={copy}>
-            <span className="flex items-center justify-center gap-2">
-              <Copy size={16} />
-              {t('refer.copy')}
-            </span>
-          </PrimaryButton>
-          <SecondaryButton onClick={() => navigate('/recipients')}>{t('refer.invite')}</SecondaryButton>
-        </div>
       </div>
-      {toast && <Toast message={toast} />}
     </div>
   )
 }

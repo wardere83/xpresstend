@@ -4,12 +4,13 @@ import { Apple, ArrowDownUp, Check, ChevronRight, Lock, CreditCard, Landmark } f
 import { ScreenHeader, Avatar, PrimaryButton } from '../components/ui'
 import { useI18n, useMirrorClass } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
-import { paymentMethods, recipients, relationName, user, TRANSFER_FEE } from '../data/mock'
+import { paymentMethods, TRANSFER_FEE } from '../data/product'
+import { useAccountData } from '../state/AccountData'
 import { amount as fmtAmount, rate as fmtRate, usd } from '../lib/format'
 import type { TranslationKey } from '../i18n/en'
 
 export function SendMoney() {
-  const { t, lang } = useI18n()
+  const { t } = useI18n()
   const mirror = useMirrorClass()
   const navigate = useNavigate()
   const {
@@ -22,19 +23,39 @@ export function SendMoney() {
     paymentMethod,
     setPaymentMethod,
   } = useTransfer()
+  const { recipients: mine } = useAccountData()
 
   const [raw, setRaw] = useState(String(amountUsd))
   const [pickerOpen, setPickerOpen] = useState(false)
 
   const parsed = Number(raw.replace(/[^0-9.]/g, '')) || 0
   const tooLow = parsed <= TRANSFER_FEE
-  const tooHigh = quote.totalUsd > user.balanceUsd
-  const error = tooLow ? t('send.amountTooLow', { fee: usd(TRANSFER_FEE) }) : tooHigh ? t('send.amountTooHigh') : null
+  const error = tooLow ? t('send.amountTooLow', { fee: usd(TRANSFER_FEE) }) : null
 
   const onAmountChange = (value: string) => {
     const cleaned = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
     setRaw(cleaned)
     setAmountUsd(Number(cleaned) || 0)
+  }
+
+  if (mine.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <ScreenHeader title={t('send.title')} onBack={() => navigate(-1)} />
+        <div className="grid flex-1 place-items-center px-6 text-center">
+          <div>
+            <p className="text-[14px] text-ink-500">{t('recipients.empty')}</p>
+            <button
+              type="button"
+              onClick={() => navigate('/recipients')}
+              className="mt-4 rounded-full bg-brand-600 px-6 py-3 text-[14px] font-semibold text-white"
+            >
+              {t('recipients.add')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -80,9 +101,6 @@ export function SendMoney() {
               className="w-full min-w-0 bg-transparent text-[30px] font-semibold tracking-tight text-ink-900 outline-none"
             />
           </div>
-          <p className="mt-1 text-[12px] text-ink-500">
-            {t('field.availableBalance')} · <bdi>{usd(user.balanceUsd)}</bdi>
-          </p>
         </div>
 
         {/* Swap marker */}
@@ -201,7 +219,7 @@ export function SendMoney() {
               <h2 className="text-[15px] font-bold text-ink-900">{t('send.chooseRecipient')}</h2>
             </div>
             <ul>
-              {recipients.map((r) => (
+              {mine.map((r) => (
                 <li key={r.id}>
                   <button
                     type="button"
@@ -211,13 +229,13 @@ export function SendMoney() {
                     }}
                     className="flex w-full items-center gap-3 px-4 py-3 text-start transition hover:bg-brand-50/70"
                   >
-                    <Avatar name={r.name} hue={r.hue} size={40} />
+                    <Avatar name={r.full_name} hue={0} size={40} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[14px] font-semibold text-ink-900">
-                        {r.name}
+                        {r.full_name}
                       </span>
                       <span className="block truncate text-[12px] text-ink-500">
-                        {relationName(r, lang)} · <bdi>{r.phone}</bdi>
+                        {r.relationship ?? r.country} · <bdi>{r.phone ?? r.bank_name ?? ''}</bdi>
                       </span>
                     </span>
                     {r.id === recipient.id && <Check size={16} className="text-brand-600" strokeWidth={3} />}

@@ -5,30 +5,18 @@ import { Avatar, ScreenHeader } from '../components/ui'
 import { useI18n } from '../i18n'
 import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
-import { recipients as seeded, relationName } from '../data/mock'
-import { seededRecipientView, toRecipientView, type RecipientView } from '../lib/view'
+import { toRecipientView, type RecipientView } from '../lib/view'
 import { CORRIDORS } from '../marketing/pricing'
 
-/**
- * A signed-in customer sees their own recipients and can add more. Everyone
- * else sees the seeded set, because /app is reachable without an account and
- * an empty tour would say nothing about the product.
- */
 export function Recipients() {
-  const { t, lang } = useI18n()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { setRecipientId } = useTransfer()
   const { live, loading, error, recipients: mine, addRecipient } = useAccountData()
   const [query, setQuery] = useState('')
   const [adding, setAdding] = useState(false)
 
-  const rows: RecipientView[] = useMemo(
-    () =>
-      live
-        ? mine.map(toRecipientView)
-        : seeded.map((r) => seededRecipientView(r, relationName(r, lang))),
-    [live, mine, lang],
-  )
+  const rows: RecipientView[] = useMemo(() => mine.map(toRecipientView), [mine])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

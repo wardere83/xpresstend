@@ -10,6 +10,10 @@ import { staff } from './routes-staff'
 export const admin = new Hono<{ Bindings: Env; Variables: Vars }>()
 
 admin.use('*', requireAdmin)
+admin.use('*', async (c, next) => {
+  if (c.get('admin').role === 'reviewer') return c.json({ error: 'insufficient_role' }, 403)
+  await next()
+})
 
 // Staff administration. Mounted inside the admin guard, so every route here
 // already has a signed-in staff member.
@@ -17,22 +21,35 @@ admin.route('/staff', staff)
 
 /** Operations dashboard: volumes, holds and today's activity. */
 admin.get('/overview', async (c) => {
-  const [counts, volume, holds] = await c.env.DB.batch<Record<string, number>>([
+  const [counts, volume, holds, customers, staff] = await c.env.DB.batch<Record<string, number>>([
     c.env.DB.prepare(
       `SELECT status, COUNT(*) AS n FROM transfers GROUP BY status`,
     ),
     c.env.DB.prepare(
       `SELECT send_currency AS currency, SUM(send_amount_minor) AS sent, SUM(fee_minor) AS fees
-         FROM transfers WHERE status IN ('completed','sending','compliance_hold') GROUP BY send_currency`,
+         FROM transfers WHERE status IN ('paid','completed','sending','compliance_hold') GROUP BY send_currency`,
     ),
     c.env.DB.prepare(
       `SELECT COUNT(*) AS n FROM transfers WHERE status = 'compliance_hold'`,
+    ),
+    c.env.DB.prepare(
+      `SELECT COUNT(*) AS total,
+              COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0) AS active,
+              COALESCE(SUM(CASE WHEN kyc_status = 'verified' THEN 1 ELSE 0 END), 0) AS verified
+         FROM users`,
+    ),
+    c.env.DB.prepare(
+      `SELECT COUNT(*) AS total,
+              COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0) AS active
+         FROM admins`,
     ),
   ])
   return c.json({
     byStatus: counts.results,
     volume: volume.results,
     awaitingReview: holds.results?.[0]?.n ?? 0,
+    customers: customers.results?.[0] ?? { total: 0, active: 0, verified: 0 },
+    staff: staff.results?.[0] ?? { total: 0, active: 0 },
   })
 })
 

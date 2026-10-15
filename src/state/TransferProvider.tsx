@@ -1,14 +1,12 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import {
   TRANSFER_FEE,
+  defaultCorridor,
   getCorridor,
-  getRecipient,
-  recipients,
-  transactions as seedTransactions,
+  type Recipient,
   type PaymentMethodId,
   type Transaction,
-} from '../data/mock'
-import { makeReference } from '../lib/format'
+} from '../data/product'
 import { api } from '../lib/api'
 import { useAccountData } from './AccountData'
 import { CORRIDORS, quoteLocally } from '../marketing/pricing'
@@ -17,16 +15,13 @@ import { type DeliveryMethod, FEE_MODE, type Quote, TransferContext, type Transf
 
 export function TransferProvider({ children }: { children: ReactNode }) {
   const { live, recipients: mine, refresh } = useAccountData()
-  const [recipientId, setRecipientId] = useState(recipients[0].id)
-  const [amountUsd, setAmountUsd] = useState(500)
+  const [recipientId, setRecipientId] = useState('')
+  const [amountUsd, setAmountUsd] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('bank')
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('mobile')
-  const [history, setHistory] = useState<Transaction[]>(seedTransactions)
   const [lastTransaction, setLastTransaction] = useState<Transaction | null>(null)
   const [commitError, setCommitError] = useState<string | null>(null)
 
-  // A real recipient id never matches a seeded one, so pick whichever source is
-  // in play and fall back rather than throwing on a stale selection.
   const mineSelected = live ? mine.find((r) => r.id === recipientId) ?? mine[0] : undefined
 
   const recipient = useMemo(() => {
@@ -39,10 +34,18 @@ export function TransferProvider({ children }: { children: ReactNode }) {
         last4: (mineSelected.phone ?? mineSelected.id).slice(-4),
         hue: hueFor(mineSelected.full_name),
         corridorCode: mineSelected.country,
-      } as ReturnType<typeof getRecipient>
+      } satisfies Recipient
     }
-    return getRecipient(recipientId)
-  }, [mineSelected, recipientId])
+    return {
+      id: '',
+      name: '',
+      phone: '',
+      corridorCode: defaultCorridor.code,
+      wallet: '',
+      last4: '',
+      hue: 0,
+    } satisfies Recipient
+  }, [mineSelected])
 
   const liveCorridor = mineSelected
     ? CORRIDORS.find((c) => c.receive_country === mineSelected.country)
@@ -92,52 +95,41 @@ export function TransferProvider({ children }: { children: ReactNode }) {
   const commit = useCallback(async (password: string): Promise<Transaction> => {
     setCommitError(null)
 
-    if (live && mineSelected && liveCorridor) {
-      try {
-        const created = await api.post<{ transfer: { id: string; reference: string } }>('/transfers', {
-          corridorId: liveCorridor.id,
-          recipientId: mineSelected.id,
-          sendAmountMinor: Math.round(amountUsd * 100),
-        })
-        // Capture is test mode: it books the ledger and moves the transfer into
-        // the compliance queue without charging anything.
-        await api.post(`/transfers/${created.transfer.id}/pay`, { password })
-        await refresh()
+    if (!live || !mineSelected || !liveCorridor) {
+      const error = new Error('Add a supported recipient before creating a transfer.')
+      setCommitError(error.message)
+      throw error
+    }
 
-        const tx: Transaction = {
-          id: created.transfer.id,
-          recipientId: mineSelected.id,
-          amountUsd,
-          fee: quote.fee,
-          date: new Date().toISOString(),
-          status: 'pending',
-          reference: created.transfer.reference,
-        }
-        setLastTransaction(tx)
-        return tx
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Could not create that transfer.'
-        setCommitError(message)
-        throw err
+    try {
+      const created = await api.post<{ transfer: { id: string; reference: string } }>('/transfers', {
+        corridorId: liveCorridor.id,
+        recipientId: mineSelected.id,
+        sendAmountMinor: Math.round(amountUsd * 100),
+      })
+      await api.post(`/transfers/${created.transfer.id}/pay`, { password })
+      await refresh()
+
+      const tx: Transaction = {
+        id: created.transfer.id,
+        recipientId: mineSelected.id,
+        amountUsd,
+        fee: quote.fee,
+        date: new Date().toISOString(),
+        status: 'pending',
+        reference: created.transfer.reference,
       }
+      setLastTransaction(tx)
+      return tx
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not create that transfer.'
+      setCommitError(message)
+      throw err
     }
-
-    const tx: Transaction = {
-      id: `t-${history.length + 1}-${Date.now()}`,
-      recipientId,
-      amountUsd,
-      fee: TRANSFER_FEE,
-      date: new Date().toISOString(),
-      status: 'completed',
-      reference: makeReference(),
-    }
-    setHistory((prev) => [tx, ...prev])
-    setLastTransaction(tx)
-    return tx
-  }, [live, mineSelected, liveCorridor, amountUsd, quote.fee, refresh, history.length, recipientId])
+  }, [live, mineSelected, liveCorridor, amountUsd, quote.fee, refresh])
 
   const reset = useCallback(() => {
-    setAmountUsd(500)
+    setAmountUsd(0)
     setPaymentMethod('bank')
     setDeliveryMethod('mobile')
     setCommitError(null)
@@ -156,7 +148,6 @@ export function TransferProvider({ children }: { children: ReactNode }) {
       recipient,
       corridor,
       quote,
-      history,
       lastTransaction,
       commit,
       reset,
@@ -171,7 +162,6 @@ export function TransferProvider({ children }: { children: ReactNode }) {
       recipient,
       corridor,
       quote,
-      history,
       lastTransaction,
       commit,
       reset,

@@ -47,10 +47,14 @@ separate staff console — the shape WorldRemit and Remitly use.
 
 | Route | What it is | Who gets in |
 | --- | --- | --- |
-| `/` | Marketing site with a live rate calculator | Everyone |
-| `/login`, `/register` | Customer accounts | Everyone |
+| `/` | Public intro with a live rate calculator and account-creation call to action | Everyone |
+| `/register`, `/login` | Create an account first; sign-in is for returning customers | Everyone |
 | `/app` and its screens | The send-money product | Signed-in customers |
 | `/admin` | Operations console | Staff, via a separate login |
+| `/institutional-reviewer` | Read-only consumer, transfer, sub-ledger, reconciliation and audit review | Invited institutional reviewers |
+
+Customer screens never fall back to sample recipients, balances or transfer
+history. A new account starts with its own empty account data.
 
 ### API
 
@@ -70,20 +74,19 @@ npx wrangler secret put STRIPE_SECRET_KEY     # test key for now
 database, so a leaked table cannot be cracked offline. **Changing it invalidates
 every existing password**, so set it before the first account is created.
 
-### The first staff account
+Roles are `viewer`, `agent`, `compliance`, `owner` and `reviewer`. Releasing a
+payout is restricted to `compliance` and `owner`, and is always recorded against
+a named person in the audit log. Institutional reviewers use a distinct
+sign-in route and can read consumer records, transfers, ledger postings,
+reconciliation results and the audit trail; reviewer reads are themselves
+recorded. They cannot manage staff, change KYC, approve transfers or write
+ledger entries. Reviewer access is platform-wide: the current data model does
+not scope reviewers to a separate institution or tenant.
 
-```bash
-cd api
-SESSION_PEPPER='<the same value you set above>' node scripts/create-admin.mjs \
-  you@xpresstend.com "Your Name" owner
-```
-
-It prints an INSERT statement and a one-time password. Run the statement with
-`wrangler d1 execute` and store the password in a password manager.
-
-Roles are `viewer`, `agent`, `compliance` and `owner`. Releasing a payout is
-restricted to `compliance` and `owner`, and is always recorded against a named
-person in the audit log.
+Owners provision staff and reviewers through **Invite staff or reviewer** in
+the staff console. The invitation is single-use and expires after 48 hours;
+invitees choose their own password (minimum 16 characters). Do not set or
+share a password on another person's behalf.
 
 ### How the money is modelled
 
@@ -306,4 +309,3 @@ of what the recipient receives.
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router · lucide-react. No backend —
 transfers are simulated in memory, so the app resets on reload.
-

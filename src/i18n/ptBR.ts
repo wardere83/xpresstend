@@ -207,7 +207,7 @@ export const ptBR: Record<keyof typeof en, string> = {
 
   // ---- Refer ----
   'refer.title': 'Indique e ganhe',
-  'refer.subtitle': 'Dê US$ 10 e ganhe US$ 10 por cada amigo que fizer a primeira transferência.',
+  'refer.subtitle': 'Nosso programa de indicação ainda não está disponível.',
   'refer.yourCode': 'Seu código',
   'refer.copy': 'Copiar código',
   'refer.invite': 'Convidar amigos',
@@ -229,7 +229,6 @@ export const ptBR: Record<keyof typeof en, string> = {
   'marketing.signIn': 'Entrar',
   'marketing.getStarted': 'Começar',
   'marketing.openApp': 'Abrir app',
-  'marketing.tryDemo': 'Explorar o app',
   'marketing.heroTitle': 'Mais perto a cada envio!',
   'marketing.heroBody': 'Taxas claras. Uma taxa única. Pontos de bônus para usar depois. Fale ou digite no seu idioma, e o app inteiro responde nele.',
   'marketing.statLanguages': 'Idiomas, totalmente traduzidos',
@@ -302,7 +301,6 @@ export const ptBR: Record<keyof typeof en, string> = {
   'app.ios': 'iPhone',
   'app.iosNote': 'Em breve na App Store',
   'app.iosBetaNote': 'Participe do beta no TestFlight',
-  'app.demoBadge': 'Prévia de demonstração — dados de exemplo',
   'nav.downloadApp': 'Baixar o app',
   'nav.beta': 'Beta',
   'app.sideloadNote': 'A versão Android é para testes, então seu telefone pedirá permissão para instalar de um desenvolvedor desconhecido.',

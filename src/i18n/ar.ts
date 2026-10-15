@@ -211,7 +211,7 @@ export const ar: Record<keyof typeof en, string> = {
 
   // ---- Refer ----
   'refer.title': 'ادعُ واربح',
-  'refer.subtitle': 'امنح 10 دولارات واربح 10 دولارات عن كل صديق يُجري تحويله الأول.',
+  'refer.subtitle': 'برنامج الإحالة غير متاح حتى الآن.',
   'refer.yourCode': 'رمزك',
   'refer.copy': 'نسخ الرمز',
   'refer.invite': 'دعوة الأصدقاء',
@@ -233,7 +233,6 @@ export const ar: Record<keyof typeof en, string> = {
   'marketing.signIn': 'تسجيل الدخول',
   'marketing.getStarted': 'ابدأ الآن',
   'marketing.openApp': 'فتح التطبيق',
-  'marketing.tryDemo': 'استكشف التطبيق',
   'marketing.heroTitle': 'أقرب مع كل تحويل!',
   'marketing.heroBody': 'أسعار واضحة. نسبة ثابتة واحدة. نقاط مكافآت تستخدمها لاحقًا. تحدث أو اكتب بلغتك، والتطبيق بأكمله يردّ بها.',
   'marketing.statLanguages': 'لغات مترجمة بالكامل',
@@ -306,7 +305,6 @@ export const ar: Record<keyof typeof en, string> = {
   'app.ios': 'آيفون',
   'app.iosNote': 'قريبًا على App Store',
   'app.iosBetaNote': 'انضم إلى النسخة التجريبية عبر TestFlight',
-  'app.demoBadge': 'عرض تجريبي — بيانات نموذجية',
   'nav.downloadApp': 'تحميل التطبيق',
   'nav.beta': 'تجريبي',
   'app.sideloadNote': 'إصدار أندرويد للاختبار، لذا سيطلب هاتفك السماح بالتثبيت من مطوّر غير معروف.',

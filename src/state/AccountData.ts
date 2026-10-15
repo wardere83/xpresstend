@@ -3,12 +3,8 @@ import { createContext, useContext } from 'react'
 /**
  * The signed-in customer's real recipients and transfers.
  *
- * /app is reachable without an account, because the marketing page invites
- * people to explore it. So this deliberately does two things at once: for a
- * signed-in customer it serves their own data from the API, and for everyone
- * else it stays empty and the screens fall back to the seeded demo. That keeps
- * the shopfront tour working without ever showing invented figures to somebody
- * who has actually signed up.
+ * Product routes require an account. These records are always loaded from the
+ * authenticated API and never replaced with sample customer data.
  */
 export interface ApiRecipient {
   id: string
@@ -37,7 +33,7 @@ export interface ApiTransfer {
 }
 
 export interface AccountDataValue {
-  /** True once a signed-in customer's data has been loaded at least once. */
+  /** True for an authenticated account, including while its data is loading. */
   live: boolean
   loading: boolean
   error: string | null
