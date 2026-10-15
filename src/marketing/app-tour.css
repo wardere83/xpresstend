@@ -386,3 +386,64 @@ html[data-a11y-text]:not([data-a11y-text='default']) .app-tour {
   :is(.tour-action > svg, .tour-controls > button:nth-child(2) > svg) {
   transform: scaleX(-1);
 }
+
+/* Keep every illustrated step within the slender handset's visible screen. */
+.tour-progress {
+  margin-bottom: 10px;
+}
+.tour-step-name {
+  margin-bottom: 6px;
+}
+.tour-screen h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+.tour-illustration > p {
+  margin-bottom: 12px;
+}
+.tour-id {
+  padding: 12px;
+  margin-top: 0;
+}
+.tour-id > span {
+  margin-bottom: 10px;
+}
+.tour-action {
+  margin-top: 14px;
+}
+.tour-face {
+  width: 142px;
+  height: 154px;
+  margin: 16px auto;
+}
+.tour-face-frame {
+  width: 132px;
+  height: 146px;
+  inset: 4px 5px;
+}
+.tour-seal {
+  width: 80px;
+  height: 80px;
+  margin: 20px auto;
+}
+.tour-home-card {
+  padding: 16px;
+  gap: 8px;
+  margin: 14px 0;
+}
+.tour-amount {
+  gap: 6px;
+  padding: 14px;
+  margin-top: 16px;
+}
+.tour-summary > div {
+  padding-block: 10px;
+}
+@media (max-width: 600px) {
+  .tour-screen {
+    padding: 12px;
+  }
+  .tour-screen h3 {
+    font-size: 21px;
+  }
+}
