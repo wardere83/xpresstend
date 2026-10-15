@@ -8,6 +8,7 @@ import { useTransfer } from '../state/TransferContext'
 import { useAccountData } from '../state/AccountData'
 import { toRecipientView, type RecipientView } from '../lib/view'
 export function Recipients() {
+  const p = useInterfaceCopy()
   const { t } = useI18n()
   const navigate = useNavigate()
   const { setRecipientId } = useTransfer()
