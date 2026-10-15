@@ -12,13 +12,10 @@
     sans-serif;
 
   /*
-   * The exact document palette. Eight verified colours, taken from the
-   * compliance document (XpressTend_Admin_Compliance_Prototype.pdf) and used
-   * as-is: every token below resolves to one of these hex values. Where the
-   * interface needs a lighter surface, the palette colour is mixed with white
-   * (also a palette colour) by the browser, so the eight source hex values are
-   * the only ones written anywhere in the build. The mixes are opaque, so a
-   * surface reads the same whatever sits behind it.
+   * Core brand palette from the compliance document
+   * (XpressTend_Admin_Compliance_Prototype.pdf). Surface tints mix these
+   * colors with white. Reading tokens below use deeper supporting tones so
+   * secondary labels remain clear at small sizes on light surfaces.
    */
   --color-xt-navy: #0b252f; /* Primary navy: cover background and XT lettering */
   --color-xt-turquoise: #4bd1d3; /* Primary turquoise: tiles, rules, bullets, badges */
@@ -47,12 +44,12 @@
   --color-brand-900: #0b252f;
   --color-brand-950: #0b252f;
 
-  /* Text and borders, straight from the document. */
+  /* Reading colors deepen the supporting brand shades for small text on white. */
   --color-ink-900: #18313b;
   --color-ink-700: #18313b;
-  --color-ink-600: #627780;
-  --color-ink-500: #627780;
-  --color-ink-400: #83a6b0;
+  --color-ink-600: #47616b;
+  --color-ink-500: #47616b;
+  --color-ink-400: #526d77;
   --color-ink-300: #b9d0d6;
   --color-ink-200: #d7e2e6;
   --color-ink-100: color-mix(in srgb, #d7e2e6 50%, #ffffff);
@@ -92,6 +89,12 @@
 
   button {
     font: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-400);
+    opacity: 1;
   }
 
   /* Turquoise rather than navy: on a light ground the navy ring is easy to read
@@ -152,11 +155,11 @@ html.native :is(input, textarea, select):not([inputmode='decimal']) {
   }
 
   .row-label {
-    @apply text-[13px] text-ink-500;
+    @apply text-[14px] text-ink-500;
   }
 
   .row-value {
-    @apply text-[13px] font-semibold text-ink-900;
+    @apply text-[14px] font-semibold text-ink-900;
   }
 
   /* Hide scrollbars inside the phone shell without losing scroll */

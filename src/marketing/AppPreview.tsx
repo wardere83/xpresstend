@@ -2,6 +2,7 @@ import { ArrowUpRight, Check, Send, Users, Clock3 } from 'lucide-react'
 import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { useI18n } from '../i18n'
 import { useBrandCopy } from './brandCopy'
+import { demoPeople } from './demoPeople'
 
 /** Live typeset sample screens: labels follow the selected language, without account APIs. */
 export function AppPreview({ screen }: { screen: 'send' | 'people' | 'activity' }) {
@@ -22,9 +23,10 @@ export function AppPreview({ screen }: { screen: 'send' | 'people' | 'activity' 
           <>
             <label>{p('Recipient')}</label>
             <div className="app-preview-person">
-              <span>GW</span>
+              <span>SE</span>
               <strong>
-                Grace Wanjiku<small>{new Intl.DisplayNames([lang], { type: 'region' }).of('KE')}</small>
+                {demoPeople[0].name}
+                <small>{new Intl.DisplayNames([lang], { type: 'region' }).of(demoPeople[0].country)}</small>
               </strong>
               <ArrowUpRight size={18} />
             </div>
@@ -50,7 +52,7 @@ export function AppPreview({ screen }: { screen: 'send' | 'people' | 'activity' 
           </>
         ) : screen === 'people' ? (
           <>
-            {['Grace Wanjiku', 'Daniel Otieno', 'Peter Kamau'].map((name, index) => (
+            {demoPeople.map(({ name }, index) => (
               <div className="app-preview-person" key={name}>
                 <span>
                   {name
@@ -74,7 +76,7 @@ export function AppPreview({ screen }: { screen: 'send' | 'people' | 'activity' 
             <div className="app-preview-activity">
               <Check size={26} />
               <strong>{p('Demo complete')}</strong>
-              <p>Grace Wanjiku</p>
+              <p>{demoPeople[0].name}</p>
               <b>{usd(125.5)}</b>
               <small>{p('No money sent')}</small>
             </div>

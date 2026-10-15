@@ -43,9 +43,9 @@
 }
 .corporate-intro {
   max-width: 550px;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.85;
-  color: #b9d0d6;
+  color: #d6e7ea;
 }
 .corporate-site .brand-actions {
   justify-content: flex-start;
@@ -103,8 +103,8 @@
   padding-top: 30px;
 }
 .corporate-facts dt {
-  font-size: 11px;
-  color: #627780;
+  font-size: 13px;
+  color: #47616b;
   margin-bottom: 10px;
 }
 .corporate-facts dd {
@@ -146,9 +146,9 @@
   margin-bottom: 14px;
 }
 .corporate-card p {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.8;
-  color: #627780;
+  color: #47616b;
 }
 .corporate-partners {
   display: grid;
@@ -179,7 +179,7 @@
   min-height: 66px;
 }
 .corporate-site .brand-footer-copyright {
-  color: #627780;
+  color: #47616b;
 }
 @media (max-width: 1000px) {
   .corporate-film .brand-film {
@@ -245,7 +245,7 @@
     font-size: clamp(37px, 7.6vw, 54px);
   }
   .corporate-intro {
-    font-size: 14px;
+    font-size: 16px;
   }
   .corporate-globe {
     width: min(75%, 300px);
@@ -377,8 +377,8 @@
 }
 .brand-download-popover small {
   display: block;
-  color: #627780;
-  font-size: 10px;
+  color: #47616b;
+  font-size: 12px;
   margin-top: 3px;
 }
 .brand-eyebrow {
@@ -387,7 +387,7 @@
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #627f8a;
+  color: #47616b;
 }
 .brand-hero {
   text-align: center;
@@ -402,11 +402,11 @@
   text-wrap: balance;
 }
 .brand-hero h1 span {
-  color: #6b939e;
+  color: #446976;
 }
 .brand-hero-intro {
   font-size: 17px;
-  color: #627780;
+  color: #47616b;
   line-height: 1.7;
 }
 .brand-actions {
@@ -460,7 +460,7 @@
   letter-spacing: -0.045em;
 }
 .brand-section-heading .brand-eyebrow {
-  font-size: 9px;
+  font-size: 11px;
 }
 .brand-film,
 .brand-experience,
@@ -540,9 +540,9 @@
   text-wrap: balance;
 }
 .brand-body {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.85;
-  color: #627780;
+  color: #47616b;
   max-width: 390px;
 }
 .brand-experience-copy {
@@ -631,16 +631,16 @@
   margin-top: 38px;
   font-family: Jost, sans-serif;
   font-size: 24px;
-  font-weight: 300;
+  font-weight: 500;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 .brand-device-caption span {
   font-family: Inter, sans-serif;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.12em;
-  color: #78929b;
+  color: #526d77;
   margin-top: 5px;
 }
 .brand-rates {
@@ -751,7 +751,7 @@
   border: 1px dashed #cddce1;
   border-radius: 17px;
   padding: 17px 20px;
-  color: #7c929b;
+  color: #526d77;
   cursor: default;
 }
 .brand-download-popover > span[aria-disabled='true'] {
@@ -782,13 +782,13 @@
 }
 .brand-download-buttons small {
   display: block;
-  font-size: 10px;
-  color: #627780;
+  font-size: 12px;
+  color: #47616b;
   margin-top: 4px;
 }
 .brand-install-help {
-  font-size: 11px;
-  color: #627780;
+  font-size: 13px;
+  color: #47616b;
   margin-top: 20px;
   max-width: 370px;
 }
@@ -813,9 +813,9 @@ summary {
 .brand-footer-brand {
   display: grid;
   gap: 12px;
-  font-size: 12.5px;
+  font-size: 14px;
   line-height: 1.7;
-  color: #627780;
+  color: #47616b;
   max-width: 260px;
 }
 .brand-footer-brand a {
@@ -838,7 +838,7 @@ summary {
 }
 .brand-footer-columns h2 {
   margin: 0 0 2px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -846,8 +846,8 @@ summary {
 }
 .brand-footer-columns a,
 .brand-footer-columns > div > span {
-  font-size: 13px;
-  color: #627780;
+  font-size: 14px;
+  color: #47616b;
   text-decoration: none;
 }
 .brand-footer-columns a:hover {
@@ -864,12 +864,12 @@ summary {
 .brand-footer-legal {
   margin: 0;
   max-width: 78ch;
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.75;
-  color: #627780;
+  color: #47616b;
 }
 .brand-footer-legal a {
-  color: #627780;
+  color: #47616b;
   text-decoration: underline;
 }
 .brand-footer-legal a:hover {
@@ -878,7 +878,7 @@ summary {
 .brand-footer-copyright {
   margin: 0;
   font-size: 11.5px;
-  color: #83a6b0;
+  color: #526d77;
 }
 
 /* The institutional band: the route into the company pages. */
@@ -1066,12 +1066,12 @@ summary {
     margin-block: 22px;
   }
   .brand-hero-intro {
-    font-size: 14px;
+    font-size: 16px;
     max-width: 290px;
     margin: auto;
   }
   .brand-eyebrow {
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.16em;
   }
   .brand-actions {
@@ -1094,7 +1094,7 @@ summary {
     font-size: 26px;
   }
   .brand-section-heading .brand-eyebrow {
-    font-size: 8px;
+    font-size: 10px;
     max-width: 115px;
     text-align: end;
   }
@@ -1123,7 +1123,7 @@ summary {
     margin-block: 17px;
   }
   .brand-body {
-    font-size: 14px;
+    font-size: 16px;
     max-width: 330px;
     margin-inline: auto;
   }
@@ -1331,6 +1331,7 @@ summary {
 }
 .app-preview {
   min-height: 560px;
+  line-height: 1.5;
   width: 100%;
   background: #f5f9fa;
   color: #0b252f;
@@ -1351,15 +1352,15 @@ summary {
   border: 1px solid #afc8ce;
   border-radius: 18px;
   padding: 5px 9px;
-  font-size: 9px;
+  font-size: 11px;
 }
 .app-preview-content {
   padding: 22px 18px;
   flex: 1;
 }
 .app-preview-content > p:first-child {
-  color: #617e87;
-  font-size: 10px;
+  color: #47616b;
+  font-size: 12px;
 }
 .app-preview h3 {
   font-size: 27px;
@@ -1368,8 +1369,9 @@ summary {
 }
 .app-preview label {
   display: block;
-  color: #64818b;
-  font-size: 10px;
+  color: #47616b;
+  font-size: 12px;
+  font-weight: 600;
   margin: 18px 0 9px;
 }
 .app-preview-person {
@@ -1388,19 +1390,20 @@ summary {
   display: grid;
   place-items: center;
   background: #def0ec;
-  font-size: 10px;
+  font-size: 12px;
 }
 .app-preview-person strong {
   flex: 1;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
 }
 .app-preview small {
   display: block;
   margin-top: 5px;
-  font-size: 9px;
-  font-weight: 400;
-  color: #63808a;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #47616b;
 }
 .app-preview-amount {
   display: flex;
@@ -1415,12 +1418,12 @@ summary {
   font-weight: 500;
 }
 .app-preview-amount span {
-  font-size: 10px;
+  font-size: 12px;
   align-self: center;
 }
 .app-preview dl {
   margin-top: 24px;
-  font-size: 10px;
+  font-size: 13px;
 }
 .app-preview dl > div {
   display: flex;
@@ -1428,7 +1431,7 @@ summary {
   margin: 12px 0;
 }
 .app-preview dt {
-  color: #64818b;
+  color: #47616b;
 }
 .app-preview-action {
   display: flex;
@@ -1438,7 +1441,7 @@ summary {
   color: white;
   border-radius: 24px;
   padding: 14px 16px;
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 26px;
 }
 .app-preview-bottom {
@@ -1451,7 +1454,7 @@ summary {
 .app-preview-bottom span {
   padding: 7px 20px;
   border-radius: 18px;
-  color: #6a838b;
+  color: #47616b;
 }
 .app-preview-bottom .active {
   background: #e4f7f5;
@@ -1462,7 +1465,7 @@ summary {
   background: #e9f3f3;
   border-radius: 14px;
   padding: 16px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 .app-preview-activity {
@@ -1485,7 +1488,7 @@ summary {
   font-size: 14px;
 }
 .app-preview-activity p {
-  font-size: 12px;
+  font-size: 14px;
 }
 .app-preview-activity b {
   font-size: 27px;
@@ -1497,4 +1500,25 @@ summary {
 }
 .demo-site[dir='rtl'] .demo-person {
   text-align: right;
+}
+
+/* Keep the translated language name and all header actions within a narrow
+   phone. The full name remains the button's accessible text. */
+@media (max-width: 360px) {
+  .corporate-site .brand-header-inner > .relative > button[aria-haspopup='listbox'] {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+  .corporate-site .brand-header-inner > .relative > button[aria-haspopup='listbox'] > span {
+    max-width: 55px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .corporate-site .brand-header-inner > details:last-child > summary {
+    padding-inline: 8px;
+  }
+  .brand-mobile-menu nav {
+    inset-inline-end: -90px;
+  }
 }

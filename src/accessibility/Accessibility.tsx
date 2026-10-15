@@ -1,6 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Accessibility as AccessibilityIcon, X, RotateCcw } from 'lucide-react'
+import {
+  Accessibility as AccessibilityIcon,
+  ChevronDown,
+  RotateCcw,
+  X,
+} from 'lucide-react'
 import { useI18n } from '../i18n'
 import { readPassage, type Passage } from '../marketing/siteContent'
 import { ACCESSIBILITY_EVENT } from './motion'
@@ -28,7 +33,9 @@ function readSettings(): Settings {
     const s = JSON.parse(localStorage.getItem(key) || 'null')
     return s
       ? {
-          text: ['default', 'large', 'largest'].includes(s.text) ? s.text : 'default',
+          text: ['default', 'large', 'largest'].includes(s.text)
+            ? s.text
+            : 'default',
           contrast: s.contrast === true,
           links: s.links === true,
           spacing: s.spacing === true,
@@ -57,9 +64,24 @@ const copy = {
   text: ['Text size', 'Tamaño del texto', 'Tamanho do texto', 'حجم النص'],
   standard: ['Default', 'Predeterminado', 'Padrão', 'افتراضي'],
   large: ['Larger text', 'Texto más grande', 'Texto maior', 'نص أكبر'],
-  largest: ['Largest text', 'Texto de mayor tamaño', 'Texto ainda maior', 'أكبر حجم للنص'],
-  contrast: ['Increase contrast', 'Aumentar contraste', 'Aumentar contraste', 'زيادة التباين'],
-  links: ['Underline links', 'Subrayar enlaces', 'Sublinhar links', 'تسطير الروابط'],
+  largest: [
+    'Largest text',
+    'Texto de mayor tamaño',
+    'Texto ainda maior',
+    'أكبر حجم للنص',
+  ],
+  contrast: [
+    'Increase contrast',
+    'Aumentar contraste',
+    'Aumentar contraste',
+    'زيادة التباين',
+  ],
+  links: [
+    'Underline links',
+    'Subrayar enlaces',
+    'Sublinhar links',
+    'تسطير الروابط',
+  ],
   spacing: [
     'Roomier text spacing',
     'Mayor espaciado del texto',
@@ -79,7 +101,12 @@ const copy = {
     'Usar ajuste do aparelho',
     'استخدام إعداد الجهاز',
   ],
-  reduce: ['Reduce motion', 'Reducir movimiento', 'Reduzir movimento', 'تقليل الحركة'],
+  reduce: [
+    'Reduce motion',
+    'Reducir movimiento',
+    'Reduzir movimento',
+    'تقليل الحركة',
+  ],
   reset: [
     'Reset preferences',
     'Restablecer preferencias',
@@ -91,6 +118,12 @@ const copy = {
     'Teclado: use Tab para desplazarse, Intro para seleccionar y Escape para cerrar este panel. El zoom y los lectores de pantalla del navegador siguen funcionando.',
     'Teclado: use Tab para navegar, Enter para selecionar e Escape para fechar este painel. O zoom e os leitores de tela do navegador continuam funcionando.',
     'بلوحة المفاتيح: استخدم Tab للتنقل وEnter للاختيار وEscape لإغلاق اللوحة. يظل تكبير المتصفح وقارئات الشاشة متاحين.',
+  ],
+  keyboardTips: [
+    'Keyboard tips',
+    'Consejos de teclado',
+    'Dicas de teclado',
+    'نصائح لوحة المفاتيح',
   ],
   support: [
     'Accessibility help',
@@ -131,7 +164,8 @@ export function Accessibility() {
   useEffect(() => {
     const openPanel = () => setOpen(true)
     window.addEventListener('xpresstend:open-accessibility', openPanel)
-    return () => window.removeEventListener('xpresstend:open-accessibility', openPanel)
+    return () =>
+      window.removeEventListener('xpresstend:open-accessibility', openPanel)
   }, [])
   useEffect(() => {
     const node = dialog.current
@@ -143,9 +177,16 @@ export function Accessibility() {
     setChanged(true)
   }
   const product =
-    /^\/(demo|app|send|review|success|recipients|activity|profile|verify-identity|help|rates)$/.test(pathname)
+    /^\/(demo|app|send|review|success|recipients|activity|profile|verify-identity|help|rates)$/.test(
+      pathname,
+    )
   return (
-    <aside className="a11y-tools" lang={lang} dir={dir} aria-label={readPassage(copy.title, lang)}>
+    <aside
+      className="a11y-tools"
+      lang={lang}
+      dir={dir}
+      aria-label={readPassage(copy.title, lang)}
+    >
       <button
         className="a11y-launcher"
         data-product={product}
@@ -167,7 +208,12 @@ export function Accessibility() {
         onClose={() => setOpen(false)}
       >
         <header>
-          <h2 id={`${id}-title`}>{readPassage(copy.title, lang)}</h2>
+          <div className="a11y-title">
+            <span className="a11y-emblem">
+              <AccessibilityIcon size={21} aria-hidden="true" />
+            </span>
+            <h2 id={`${id}-title`}>{readPassage(copy.title, lang)}</h2>
+          </div>
           <button
             type="button"
             className="a11y-close"
@@ -178,40 +224,66 @@ export function Accessibility() {
           </button>
         </header>
         <p id={`${id}-intro`}>{readPassage(copy.intro, lang)}</p>
-        <div className="a11y-select">
-          <label htmlFor={`${id}-text`}>{readPassage(copy.text, lang)}</label>
-          <select
-            id={`${id}-text`}
-            value={settings.text}
-            onChange={(e) => update({ text: e.target.value as Settings['text'] })}
-          >
-            <option value="default">{readPassage(copy.standard, lang)}</option>
-            <option value="large">{readPassage(copy.large, lang)}</option>
-            <option value="largest">{readPassage(copy.largest, lang)}</option>
-          </select>
+        <div className="a11y-selectors">
+          <div className="a11y-select">
+            <label htmlFor={`${id}-text`}>{readPassage(copy.text, lang)}</label>
+            <select
+              id={`${id}-text`}
+              value={settings.text}
+              onChange={(e) =>
+                update({ text: e.target.value as Settings['text'] })
+              }
+            >
+              <option value="default">
+                {readPassage(copy.standard, lang)}
+              </option>
+              <option value="large">{readPassage(copy.large, lang)}</option>
+              <option value="largest">{readPassage(copy.largest, lang)}</option>
+            </select>
+          </div>
+          <div className="a11y-select">
+            <label htmlFor={`${id}-motion`}>
+              {readPassage(copy.motion, lang)}
+            </label>
+            <select
+              id={`${id}-motion`}
+              value={settings.motion}
+              onChange={(e) =>
+                update({ motion: e.target.value as Settings['motion'] })
+              }
+            >
+              <option value="system">{readPassage(copy.system, lang)}</option>
+              <option value="reduce">{readPassage(copy.reduce, lang)}</option>
+            </select>
+          </div>
         </div>
-        {(['contrast', 'links', 'spacing', 'font'] as const).map((setting) => (
-          <label className="a11y-toggle" key={setting}>
-            <span>{readPassage(copy[setting], lang)}</span>
-            <input
-              type="checkbox"
-              checked={settings[setting]}
-              onChange={(e) => update({ [setting]: e.target.checked })}
-            />
-          </label>
-        ))}
-        <div className="a11y-select">
-          <label htmlFor={`${id}-motion`}>{readPassage(copy.motion, lang)}</label>
-          <select
-            id={`${id}-motion`}
-            value={settings.motion}
-            onChange={(e) => update({ motion: e.target.value as Settings['motion'] })}
-          >
-            <option value="system">{readPassage(copy.system, lang)}</option>
-            <option value="reduce">{readPassage(copy.reduce, lang)}</option>
-          </select>
+        <div className="a11y-toggle-grid">
+          {(['contrast', 'links', 'spacing', 'font'] as const).map(
+            (setting) => (
+              <label
+                className="a11y-toggle"
+                data-active={settings[setting]}
+                key={setting}
+              >
+                <span className="a11y-toggle-label">
+                  {readPassage(copy[setting], lang)}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={settings[setting]}
+                  onChange={(e) => update({ [setting]: e.target.checked })}
+                />
+              </label>
+            ),
+          )}
         </div>
-        <p className="a11y-help">{readPassage(copy.keyboard, lang)}</p>
+        <details className="a11y-guidance">
+          <summary>
+            {readPassage(copy.keyboardTips, lang)}
+            <ChevronDown size={16} aria-hidden="true" />
+          </summary>
+          <p className="a11y-help">{readPassage(copy.keyboard, lang)}</p>
+        </details>
         <p role="status" className="a11y-saved">
           {changed ? readPassage(copy.saved, lang) : ''}
         </p>
@@ -241,7 +313,9 @@ export function AccessibilityLink() {
     <button
       type="button"
       className="accessibility-link"
-      onClick={() => window.dispatchEvent(new Event('xpresstend:open-accessibility'))}
+      onClick={() =>
+        window.dispatchEvent(new Event('xpresstend:open-accessibility'))
+      }
     >
       {readPassage(copy.title, lang)}
     </button>
