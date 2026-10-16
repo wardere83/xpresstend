@@ -101,3 +101,39 @@ test('saved and device motion preferences stop the Dollar Index tape', async ({
     page.getByRole('button', { name: 'Play ticker', exact: true }),
   ).toBeDisabled()
 })
+
+for (const [origin, embedded] of [
+  ['https://xpresstend.shrill-king-ef4e.workers.dev', true],
+  ['https://unlisted-preview.example.invalid', false],
+] as const) {
+  test(`the ticker ${embedded ? 'embeds on the configured Worker preview' : 'offers a usable quote link on an unlisted origin'}`, async ({
+    page,
+    baseURL,
+  }) => {
+    await page.route(`${origin}/**`, async (route) => {
+      const url = new URL(route.request().url())
+      if (url.pathname.startsWith('/api/')) return route.fallback()
+      const response = await page.request.get(
+        new URL(url.pathname + url.search, baseURL).href,
+      )
+      await route.fulfill({ response })
+    })
+    await page.goto(`${origin}/#/`)
+    if (embedded) {
+      // The fixture applies the real frame-ancestors policy to this document.
+      await expect(page.locator('.market-ticker')).toHaveAttribute(
+        'data-ready',
+        'true',
+      )
+      await expect(page.locator('.market-ticker-frame')).toHaveCount(1)
+    } else {
+      await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+      await expect(page.locator('.market-ticker-fallback')).toHaveAttribute(
+        'href',
+        'https://www.tradingview.com/symbols/PEPPERSTONE-USDX/',
+      )
+      await expect(page.locator('.market-ticker-fallback')).toBeVisible()
+      await expect(page.locator('.market-ticker-pause')).toBeDisabled()
+    }
+  })
+}

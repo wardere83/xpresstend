@@ -6,6 +6,15 @@ import { readPassage } from './siteContent'
 import './market-ticker.css'
 
 const QUOTE_ORIGIN = 'https://xpresstend-market.shrill-king-ef4e.workers.dev'
+// Match the market document's exact frame-ancestors policy in api/src/headers.ts.
+const APP_ORIGINS = new Set([
+  'https://xpresstend.com',
+  'https://www.xpresstend.com',
+  'https://xpresstend.shrill-king-ef4e.workers.dev',
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:5179',
+])
 
 export function MarketTicker() {
   const { lang } = useI18n()
@@ -15,7 +24,7 @@ export function MarketTicker() {
   const [ready, setReady] = useState(false)
   const stopped = paused || reduced
   const frameOrigin = QUOTE_ORIGIN
-  const canEmbed = window.location.origin !== frameOrigin
+  const canEmbed = APP_ORIGINS.has(window.location.origin)
   const sendMotion = useCallback(
     () =>
       frame.current?.contentWindow?.postMessage(

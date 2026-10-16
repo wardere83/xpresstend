@@ -14,6 +14,17 @@ The public wrapper is served by a separate static-only Worker at xpresstend-mark
 
 The provider uses its published en, es, br and ar_AE modules for the site's English, Spanish, Portuguese and Arabic selections. The surrounding document retains the corresponding standard language code.
 
+The frame permits these exact parent origins:
+
+- https://xpresstend.com
+- https://www.xpresstend.com
+- https://xpresstend.shrill-king-ef4e.workers.dev (configured Worker preview)
+- http://localhost:5173 (Vite development)
+- http://localhost:4173 (Vite build preview)
+- http://127.0.0.1:5179 (browser-test preview)
+
+Other origins receive a direct quote link instead of a blocked iframe. This includes Capacitor until native embedding and motion controls are verified on a device. Incoming origins are never reflected into the policy. Browser fixtures apply the real frame security headers and stub only the provider module.
+
 The full widget, including its attribution, is scaled uniformly to fit the slim 64px frame. Pause messages validate both source and origin. System and saved reduced-motion preferences stop the tape. A static provider link remains available if the module cannot load. The official ICE feed requires a separately licensed provider and is not enabled by this implementation.
 
 Automated browser checks stub the provider module to verify XpressTend integration without relying on external market availability. A release smoke check must also verify actual provider quotes, motion controls, full attribution and cross-origin isolation against the deployed site.

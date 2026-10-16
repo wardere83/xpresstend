@@ -1,5 +1,9 @@
 import { readFile } from 'node:fs/promises'
 import type { Page } from '@playwright/test'
+import {
+  withMarketDocumentHeaders,
+  withSecurityHeaders,
+} from '../../api/src/headers'
 
 export const MARKET_ORIGIN =
   'https://xpresstend-market.shrill-king-ef4e.workers.dev'
@@ -18,8 +22,14 @@ export async function mockMarket(page: Page) {
     const asset = assets[path]
     if (!asset) return route.abort('failed')
     const [name, contentType] = asset
+    const response = new Response(null, {
+      headers: { 'content-type': contentType },
+    })
+    const secured = name.endsWith('.html')
+      ? withMarketDocumentHeaders(response)
+      : withSecurityHeaders(response)
     await route.fulfill({
-      contentType,
+      headers: Object.fromEntries(secured.headers),
       body: await readFile(
         new URL(`../../public/market/${name}`, import.meta.url),
       ),

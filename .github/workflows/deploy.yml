@@ -132,14 +132,9 @@ jobs:
       # Absence is still not a failure — a fork or an unconfigured checkout
       # should build and test without trying to publish — but it says so,
       # rather than leaving a green tick to mean a deploy that never happened.
-      - name: Deploy the isolated public market frame
+      - name: Deploy the isolated market frame and application
         if: env.CLOUDFLARE_API_TOKEN != ''
-        run: npx wrangler deploy --config wrangler.market.toml
-        working-directory: api
-
-      - name: Deploy the Worker
-        if: env.CLOUDFLARE_API_TOKEN != ''
-        run: npx wrangler deploy
+        run: npm run deploy
         working-directory: api
 
       - name: Check customer recovery email configuration

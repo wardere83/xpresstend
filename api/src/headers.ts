@@ -17,6 +17,17 @@ const CSP = [
 
 // This policy belongs only to the separate, assets-only market Worker. It is
 // never selected by a URL or flag on the application Worker.
+// Keep this explicit: production, the configured Worker preview, Vite's local
+// dev/build preview, and the local browser-test server. See docs/dollar-index-ticker.md.
+const MARKET_ANCESTORS = [
+  'https://xpresstend.com',
+  'https://www.xpresstend.com',
+  'https://xpresstend.shrill-king-ef4e.workers.dev',
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:5179',
+]
+
 const MARKET_DOCUMENT_CSP = [
   "default-src 'self'",
   "script-src 'self' https://widgets.tradingview-widget.com",
@@ -28,7 +39,7 @@ const MARKET_DOCUMENT_CSP = [
   "form-action 'none'",
   "base-uri 'none'",
   "object-src 'none'",
-  'frame-ancestors https://xpresstend.com https://www.xpresstend.com',
+  `frame-ancestors ${MARKET_ANCESTORS.join(' ')}`,
   'upgrade-insecure-requests',
 ].join('; ')
 

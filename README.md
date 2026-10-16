@@ -2,8 +2,8 @@
 
 A working web build of the XpressTend money-transfer app from the product mockups: a
 voice-first remittance experience for a Seattle, WA based money transmitter serving
-customers worldwide. **English is the primary language, with full translations into Somali
-(Af-Soomaali), Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
+customers worldwide. **English is the primary language, with full translations into
+Brazilian Portuguese, Spanish and Arabic** that can be switched at any time —
 the whole app, not just the marketing copy. Arabic renders right-to-left.
 
 ## Running it
@@ -29,8 +29,13 @@ security headers a static host cannot set: CSP, X-Frame-Options,
 X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP and HSTS.
 
 ```bash
-npm run deploy          # builds the site and deploys the Worker
+npm run deploy          # builds, deploys the isolated market frame, then the application
 ```
+
+The shared API deploy script publishes the static-only market Worker before the
+application Worker. The quote frame has no customer APIs, database or secrets;
+see [Dollar Index reference ticker](docs/dollar-index-ticker.md). CI uses this same
+deployment command, so manual and automated releases publish both services.
 
 GitHub Pages and the HostGator FTPS target are retired. Nothing is copied into
 the repository root any more; the Worker serves `dist/` directly.
@@ -324,3 +329,4 @@ of what the recipient receives.
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · React Router · lucide-react. No backend —
 transfers are simulated in memory, so the app resets on reload.
+

@@ -114,7 +114,7 @@ test('both legacy quote document spellings redirect safely to the isolated origi
   assert.equal(assetCalls, 0)
 })
 
-test('only the isolated document policy permits the provider and the two app frame parents', () => {
+test('only the isolated document policy permits the provider and the configured app frame parents', () => {
   const response = withMarketDocumentHeaders(new Response('widget'))
   const policy = response.headers.get('content-security-policy')!
   assert.match(

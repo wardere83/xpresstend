@@ -31,6 +31,52 @@ function fixture() {
   }
 }
 
+test('market embedding permits only production and the documented web preview origins', async () => {
+  const { env } = fixture()
+  const response = await marketWorker.fetch(
+    new Request('https://market.invalid/dollar-index.html'),
+    env,
+  )
+  const policy = response.headers.get('content-security-policy')!
+  const ancestors = policy
+    .split(';')
+    .map((directive) => directive.trim())
+    .find((directive) => directive.startsWith('frame-ancestors '))!
+    .split(/\s+/)
+    .slice(1)
+  assert.deepEqual(ancestors, [
+    'https://xpresstend.com',
+    'https://www.xpresstend.com',
+    'https://xpresstend.shrill-king-ef4e.workers.dev',
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'http://127.0.0.1:5179',
+  ])
+  for (const denied of [
+    'https://unrelated.workers.dev',
+    'https://xpresstend.com.example.org',
+    'http://localhost:9999',
+    'http://127.0.0.1:5173',
+    'https://localhost',
+    'capacitor://localhost',
+  ]) {
+    assert.equal(ancestors.includes(denied), false)
+  }
+  assert.match(
+    policy,
+    /script-src 'self' https:\/\/widgets\.tradingview-widget\.com;/,
+  )
+  assert.equal(response.headers.get('access-control-allow-origin'), null)
+  // An arbitrary request Origin must never be reflected into this allowlist.
+  const untrusted = await marketWorker.fetch(
+    new Request('https://market.invalid/dollar-index.html', {
+      headers: { origin: 'https://unrelated.workers.dev' },
+    }),
+    env,
+  )
+  assert.equal(untrusted.headers.get('content-security-policy'), policy)
+})
+
 for (const path of ['/dollar-index', '/dollar-index.html']) {
   test(`${path} serves the same isolated document with its provider CSP`, async () => {
     const { env, requests } = fixture()
