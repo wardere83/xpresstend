@@ -188,6 +188,39 @@ jobs:
             checkedAt: status.checkedAt }));
           JS
 
+      # This explicit merge-message marker runs the authorized one-time cleanup;
+      # ordinary deployments never repeat account maintenance.
+      - name: Complete authorized legacy staff offboarding
+        if: env.CLOUDFLARE_API_TOKEN != '' && contains(github.event.head_commit.message, 'Run the authorized legacy staff cleanup')
+        run: |
+          node --input-type=module <<'JS'
+          import { spawnSync } from 'node:child_process';
+          import { appendFileSync } from 'node:fs';
+          const selectors = ["15b45b50087a3413b336c5794974bab748f622415fd55124f61f4b78dfe4980f","eb5089361dd5179b2fec05e53dc401a67a205781875002393b770d981ad5d226"];
+          const args = ['scripts/offboard-staff.mjs', '--remote', ...selectors.flatMap(value => ['--email-sha256', value])];
+          const run = extra => {
+            const child = spawnSync(process.execPath, [...args, ...extra], { encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 90_000 });
+            const summaries = (child.stdout || '').split('\n').flatMap(line => {
+              try { const value = JSON.parse(line); return value.event?.startsWith('staff-offboarding-') ? [value] : []; } catch { return []; }
+            });
+            return { status: child.status, summary: summaries.at(-1) };
+          };
+          const preflight = run([]);
+          if (preflight.status !== 0 || !preflight.summary) throw new Error('Read-only staff preflight failed; no cleanup was attempted.');
+          console.log(JSON.stringify(preflight.summary));
+          if (!preflight.summary.ready || preflight.summary.missingSelectors) {
+            const reason = preflight.summary.blockers?.join('; ') || 'A requested account selector was not found; no writes attempted.';
+            console.log(`::warning::Staff cleanup blocked: ${reason}`);
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Staff cleanup blocked: ${reason}\nNo staff access was changed.\n`);
+          } else {
+            const applied = run(['--apply']);
+            if (applied.status !== 0 || applied.summary?.event !== 'staff-offboarding-complete') throw new Error('Guarded staff cleanup did not complete; a read-only preflight is required before retry.');
+            console.log(JSON.stringify(applied.summary));
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Staff cleanup verified: ${applied.summary.disabled} retired accounts disabled; sessions, pending invitations and unused resets revoked. Other active or invited staff beyond the two business accounts: ${applied.summary.otherActiveOrInvited}.\n`);
+          }
+          JS
+        working-directory: api
+
       - name: Say why nothing was published
         if: env.CLOUDFLARE_API_TOKEN == ''
         run: |

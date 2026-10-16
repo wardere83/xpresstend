@@ -155,11 +155,16 @@ test('the slow bird flight has no playback control, waits offscreen and lands af
     )
     const heading = document.getElementById('partners-heading')!
     const text = heading.firstChild as Text
-    const finalLetter = text.data.search(/\p{L}(?=[^\p{L}]*$)/u)
-    const range = document.createRange()
-    range.setStart(text, finalLetter)
-    range.setEnd(text, finalLetter + 1)
-    const glyph = range.getBoundingClientRect()
+    const glyphs = [...text.data.matchAll(/\p{L}\p{M}*/gu)].map((match) => {
+      const range = document.createRange()
+      range.setStart(text, match.index)
+      range.setEnd(text, match.index + match[0].length)
+      return range.getBoundingClientRect()
+    })
+    const firstLineTop = Math.min(...glyphs.map((glyph) => glyph.top))
+    const glyph = glyphs
+      .filter((glyph) => Math.abs(glyph.top - firstLineTop) < 1)
+      .at(-1)!
     return {
       horizontalError: Math.abs(position.x - (glyph.left + glyph.width / 2)),
       heightAboveLineBottom: glyph.bottom - position.y,
@@ -170,6 +175,65 @@ test('the slow bird flight has no playback control, waits offscreen and lands af
   expect(landing.heightAboveLineBottom).toBeGreaterThan(0)
   expect(landing.heightBelowLineTop).toBeGreaterThanOrEqual(0)
 })
+
+for (const [language, firstLine, secondLine, letter] of [
+  ['en', 'First line A', 'Second line Z', 'A'],
+  ['ar', 'السطر الأول ا', 'السطر الثاني ز', 'ا'],
+]) {
+  test(`the dove perches above the first line of a wrapped ${language} heading`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.addInitScript(
+      (language) => localStorage.setItem('xpresstend.lang', language),
+      language,
+    )
+    await page.goto('/#/philanthropy')
+    const bird = await revealBird(page)
+    await expect(bird).toHaveAttribute('data-phase', 'perched')
+    const heading = page.locator('#partners-heading')
+    for (const text of [firstLine, `${firstLine}\n${secondLine}`]) {
+      await heading.evaluate((element, text) => {
+        element.textContent = text
+        element.style.whiteSpace = 'pre-line'
+        element.style.lineHeight = '1.4'
+      }, text)
+      await expect(bird).toHaveAttribute('data-letter', letter)
+      await expect
+        .poll(() =>
+          bird.evaluate((element) => {
+            const heading = document.getElementById('partners-heading')!
+            const text = heading.firstChild as Text
+            const firstEnd = text.data.indexOf('\n')
+            const end = firstEnd < 0 ? text.length : firstEnd
+            const range = document.createRange()
+            range.setStart(text, end - 1)
+            range.setEnd(text, end)
+            const glyph = range.getBoundingClientRect()
+            const traveller =
+              element.querySelector<SVGGElement>('.xt-bird-traveller')!
+            const point = new DOMPoint(0, 0).matrixTransform(
+              traveller.getScreenCTM()!,
+            )
+            const body = element
+              .querySelector('.xt-bird-body')!
+              .getBoundingClientRect()
+            return {
+              onFirstLine: Math.abs(point.y - glyph.top) < glyph.height / 2,
+              atLineEnd:
+                Math.abs(point.x - (glyph.left + glyph.width / 2)) < 0.5,
+              bodyAbovePerch: body.bottom <= point.y - 4,
+            }
+          }),
+        )
+        .toEqual({
+          onFirstLine: true,
+          atLineEnd: true,
+          bodyAbovePerch: true,
+        })
+    }
+  })
+}
 
 test('reduced motion starts with a still perched bird and no flight control', async ({
   page,

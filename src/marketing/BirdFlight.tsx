@@ -12,23 +12,30 @@ type Flight = {
 }
 type Phase = 'waiting' | 'flying' | 'perched'
 
-function lastLetter(
+function perchLetter(
   heading: HTMLElement,
 ): { range: Range; letter: string } | null {
   const walker = document.createTreeWalker(heading, NodeFilter.SHOW_TEXT)
-  const nodes: Text[] = []
-  while (walker.nextNode()) nodes.push(walker.currentNode as Text)
-  for (const node of nodes.reverse()) {
+  const letters: { range: Range; letter: string; top: number }[] = []
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text
     // A letter together with its combining marks, so Arabic tanween stays whole.
-    const matches = [...node.data.matchAll(/\p{L}\p{M}*/gu)]
-    const match = matches.at(-1)
-    if (!match) continue
-    const range = document.createRange()
-    range.setStart(node, match.index)
-    range.setEnd(node, match.index + match[0].length)
-    return { range, letter: match[0] }
+    for (const match of node.data.matchAll(/\p{L}\p{M}*/gu)) {
+      const range = document.createRange()
+      range.setStart(node, match.index)
+      range.setEnd(node, match.index + match[0].length)
+      const box = range.getBoundingClientRect()
+      if (box.width && box.height)
+        letters.push({ range, letter: match[0], top: box.top })
+    }
   }
-  return null
+  // Perching on a later line would put the dove over the words above it.
+  // The final letter of the first visible line is also the final letter of a single-line heading.
+  const firstLine = Math.min(...letters.map((letter) => letter.top))
+  return (
+    letters.filter((letter) => Math.abs(letter.top - firstLine) < 1).at(-1) ??
+    null
+  )
 }
 
 function flightFrames(
@@ -71,7 +78,7 @@ function flightFrames(
   })
 }
 
-/** One decorative flight from the river to the final letter of the nearby heading. */
+/** One decorative flight from the river to the end of the nearby heading's first line. */
 export function BirdFlight({ title }: { title: string }) {
   const ref = useRef<SVGSVGElement>(null)
   const traveller = useRef<SVGGElement>(null)
@@ -92,7 +99,7 @@ export function BirdFlight({ title }: { title: string }) {
     let disposed = false
     const measure = () => {
       if (disposed) return
-      const anchor = lastLetter(heading)
+      const anchor = perchLetter(heading)
       if (!anchor) return
       const box = section.getBoundingClientRect()
       const glyph = anchor.range.getBoundingClientRect()

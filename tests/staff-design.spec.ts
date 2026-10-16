@@ -33,7 +33,7 @@ test('financial workspace preserves metrics, separate document and record scroll
           name: `Staff fixture ${index + 1}`,
           email: `staff-${index + 1}@example.invalid`,
           role: 'viewer',
-          status: 'active',
+          status: index === 29 ? 'disabled' : 'active',
           created_at: '2026-10-15T09:00:00Z',
           last_login_at: null,
         })),
@@ -96,6 +96,17 @@ test('financial workspace preserves metrics, separate document and record scroll
     page.getByRole('button', { name: /Access governance/ }),
   ).toHaveAttribute('aria-current', 'page')
   await expect(page.getByPlaceholder('name@xpresstend.com')).toBeVisible()
+  await expect(
+    page.getByText('staff-30@example.invalid', { exact: true }),
+  ).toHaveCount(0)
+  await page.getByLabel('Include disabled accounts', { exact: true }).check()
+  await expect(
+    page.getByText('staff-30@example.invalid', { exact: true }),
+  ).toBeVisible()
+  await page.getByLabel('Include disabled accounts', { exact: true }).uncheck()
+  await expect(
+    page.getByText('staff-30@example.invalid', { exact: true }),
+  ).toHaveCount(0)
   await page
     .getByPlaceholder('name@xpresstend.com')
     .fill('invited@example.invalid')

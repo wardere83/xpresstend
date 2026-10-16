@@ -38,6 +38,7 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
   const [note, setNote] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  const [includeDisabled, setIncludeDisabled] = useState(false)
   useEffect(() => { if (inviteRequest > 0 && me.role === 'owner') setAdding(true) }, [inviteRequest, me.role])
   const [resetLink, setResetLink] = useState<{
     email: string
@@ -108,6 +109,17 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
         )}
       </div>
 
+      {isOwner && rows.some((row) => row.status === 'disabled') ? (
+        <label className="mb-4 inline-flex items-center gap-2 text-[12px] text-ink-700">
+          <input
+            type="checkbox"
+            checked={includeDisabled}
+            onChange={(event) => setIncludeDisabled(event.target.checked)}
+          />
+          Include disabled accounts
+        </label>
+      ) : null}
+
       {resetLink ? (
         <div className="mb-4 rounded-[var(--radius-card)] bg-white p-5 ring-1 ring-ink-200/70">
           <h3 className="text-[14px] font-bold">Reset link for {resetLink.email}</h3>
@@ -164,7 +176,7 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.filter((r) => includeDisabled || r.status !== 'disabled').map((r) => (
               <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
                 <td className="px-4 py-3">
                   <span className="font-semibold">{r.name}</span>
@@ -240,6 +252,7 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
       </div>
 
       <p className="mt-4 text-[11px] leading-relaxed text-ink-500">
+        Active and invited staff appear by default. Disabled accounts remain available for audit.{' '}
         Every change here is written to the audit log against your name. You cannot change
         your own role or disable yourself, and the last active owner cannot be demoted, so
         the console can never be locked from the inside.
@@ -323,3 +336,4 @@ function AddStaff({ onDone, onError }: { onDone: () => void; onError: (m: string
     </form>
   )
 }
+
