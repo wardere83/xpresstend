@@ -57,7 +57,7 @@
   outline: 2px solid #8bd9cf;
   outline-offset: 4px;
 }
-.compliance-orbit[data-paused='true']
+.compliance-orbit[data-paused="true"]
   :is(.compliance-orbit-ring, .compliance-core-flow) {
   animation-play-state: paused;
 }
@@ -84,11 +84,6 @@
   }
 }
 @media (max-width: 700px) {
-  .institutional-hero:has(.compliance-orbit) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 24px;
-  }
   .compliance-orbit {
     width: min(240px, 76vw);
     margin: 8px auto 0;
@@ -102,11 +97,11 @@
     animation: none;
   }
 }
-html[data-a11y-motion='reduce']
+html[data-a11y-motion="reduce"]
   .compliance-orbit
   :is(.compliance-orbit-ring, .compliance-core-flow) {
   animation: none;
 }
-html[data-a11y-motion='reduce'] .compliance-orbit-toggle {
+html[data-a11y-motion="reduce"] .compliance-orbit-toggle {
   display: none;
 }

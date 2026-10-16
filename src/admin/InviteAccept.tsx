@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, ApiError } from '../lib/api'
-import { Logo } from '../components/Logo'
+import { SignInFrame } from '../auth/SignInFrame'
 import './staff-console.css'
 
 /**
@@ -45,36 +45,44 @@ export function InviteAccept() {
       setError('Staff passwords must be at least 16 characters.')
       return
     }
-    setBusy(true); setError(null)
+    setBusy(true)
+    setError(null)
     try {
       await api.post(`/invite/${token}/accept`, { password })
       setDone(true)
     } catch (err) {
-      setError(err instanceof ApiError ? (err.message || 'That invitation is no longer valid.')
-                                       : 'Something went wrong.')
+      setError(
+        err instanceof ApiError
+          ? err.message || 'That invitation is no longer valid.'
+          : 'Something went wrong.',
+      )
     } finally {
       setBusy(false)
     }
   }
 
   const shell = (children: React.ReactNode) => (
-    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <SignInFrame className="staff-console staff-auth">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <Logo height={26} />
         <div className="mt-6">{children}</div>
       </div>
-    </div>
+    </SignInFrame>
   )
 
-  if (loading) return shell(<p className="text-[13px] text-ink-500">Checking your invitation…</p>)
+  if (loading)
+    return shell(
+      <p className="text-[13px] text-ink-500">Checking your invitation…</p>,
+    )
 
   if (!info) {
     return shell(
       <>
-        <h1 className="text-[19px] font-semibold tracking-tight">Invitation not valid</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          Invitation not valid
+        </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          This link has expired, been used already, or was withdrawn. Ask whoever
-          invited you to send a new one.
+          This link has expired, been used already, or was withdrawn. Ask
+          whoever invited you to send a new one.
         </p>
       </>,
     )
@@ -83,38 +91,68 @@ export function InviteAccept() {
   if (done) {
     return shell(
       <>
-        <h1 className="text-[19px] font-semibold tracking-tight">You are set up</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          You are set up
+        </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          Sign in with <span className="font-semibold text-ink-700">{info.email}</span> and the
-          password you just chose.
+          Sign in with{' '}
+          <span className="font-semibold text-ink-700">{info.email}</span> and
+          the password you just chose.
         </p>
-        <button onClick={() => navigate('/admin', { replace: true })}
-          className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white">
+        <button
+          onClick={() => navigate('/admin', { replace: true })}
+          className="mt-6 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white"
+        >
           Go to sign in
         </button>
       </>,
     )
   }
 
-  const field = 'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
+  const field =
+    'w-full rounded-xl bg-canvas px-4 py-3 text-[14px] outline-none ring-1 ring-ink-200 focus:ring-2 focus:ring-brand-500'
 
   return shell(
     <form onSubmit={submit}>
-      <h1 className="text-[19px] font-semibold tracking-tight">Welcome, {info.name}</h1>
+      <h1 className="text-[19px] font-semibold tracking-tight">
+        Welcome, {info.name}
+      </h1>
       <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
-        You have been given <span className="font-semibold text-ink-700">{info.role}</span> access
-        as <span className="font-semibold text-ink-700">{info.email}</span>. Choose a password to
-        finish.
+        You have been given{' '}
+        <span className="font-semibold text-ink-700">{info.role}</span> access
+        as <span className="font-semibold text-ink-700">{info.email}</span>.
+        Choose a password to finish.
       </p>
       <div className="mt-5 space-y-3">
-        <input required type="password" autoComplete="new-password" placeholder="Password, 16+ characters"
-               value={password} onChange={(e) => setPassword(e.target.value)} className={field} />
-        <input required type="password" autoComplete="new-password" placeholder="Repeat password"
-               value={confirm} onChange={(e) => setConfirm(e.target.value)} className={field} />
+        <input
+          required
+          type="password"
+          autoComplete="new-password"
+          placeholder="Password, 16+ characters"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className={field}
+        />
+        <input
+          required
+          type="password"
+          autoComplete="new-password"
+          placeholder="Repeat password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          className={field}
+        />
       </div>
-      {error ? <p role="alert" className="mt-3 text-[12px] font-medium text-alert">{error}</p> : null}
-      <button type="submit" disabled={busy}
-        className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60">
+      {error ? (
+        <p role="alert" className="mt-3 text-[12px] font-medium text-alert">
+          {error}
+        </p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={busy}
+        className="mt-5 w-full rounded-full bg-ink-900 py-3 text-[14px] font-semibold text-white disabled:opacity-60"
+      >
         {busy ? 'Setting up…' : 'Set password'}
       </button>
     </form>,

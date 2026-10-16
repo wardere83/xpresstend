@@ -98,12 +98,10 @@ test('the philanthropy river stays circular, flows only while visible and respec
   await page.goto('/#/philanthropy')
   const river = page.locator('.philanthropy-habitat .xt-river')
   await river.scrollIntoViewIfNeeded()
-  await expect(river).toHaveAttribute('data-scene', 'river-habitat')
+  await expect(river).toHaveAttribute('data-scene', 'original-waterways')
   await expect(river.locator('clipPath circle')).toHaveCount(1)
-  await expect(river.locator('image')).toHaveAttribute(
-    'href',
-    /river-habitat\.webp$/,
-  )
+  await expect(river.locator('image')).toHaveCount(0)
+  await expect(river.locator('.xt-river-banks path')).toHaveCount(3)
   await expect(river).toHaveAttribute('data-active', 'true')
   const current = river.locator('.xt-river-current').first()
   const offset = await current.evaluate(

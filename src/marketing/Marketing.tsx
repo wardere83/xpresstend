@@ -2,19 +2,11 @@ import { AccessibilityLink } from '../accessibility/Accessibility'
 import { readPassage, siteLabels } from './siteContent'
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {
-  ArrowUpRight,
-  Languages,
-  ScanLine,
-  ShieldCheck,
-  UserRound,
-  Menu,
-} from 'lucide-react'
+import { ArrowUpRight, Languages, ScanLine, ShieldCheck } from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT, useI18n } from '../i18n'
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
-import { SiteBrand } from '../components/SiteBrand'
+import { PublicHeader } from '../components/PublicHeader'
 import { MarketTicker } from './MarketTicker'
 import { useAuth } from '../auth/AuthContext'
 import { useBrandCopy } from './brandCopy'
@@ -56,65 +48,7 @@ export function Marketing() {
       >
         {labels.skip}
       </a>
-      <header className="brand-header">
-        <div className="brand-header-inner brand-width">
-          <SiteBrand className="brand-wordmark" />
-          <nav aria-label={copy.navigation} className="brand-nav corporate-nav">
-            {companyLinks.map((link) => (
-              <Link key={link.to} to={link.to}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <details className="brand-mobile-menu">
-            <summary aria-label={copy.menu}>
-              <Menu size={20} />
-              <span>{copy.menu}</span>
-            </summary>
-            <nav aria-label={copy.navigation}>
-              {companyLinks.map((link) => (
-                <Link key={link.to} to={link.to}>
-                  {link.label}
-                </Link>
-              ))}
-              <Link to="/demo">{copy.demoAction}</Link>
-            </nav>
-          </details>
-          <LanguageSwitcher />
-          <details className="group relative">
-            <summary
-              aria-label="Sign in"
-              className="flex list-none cursor-pointer items-center justify-center whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium text-ink-700 hover:bg-white/60"
-            >
-              <UserRound size={17} className="sm:hidden" />
-              <span className="hidden sm:inline">{t('marketing.signIn')}</span>
-            </summary>
-            <nav
-              aria-label="Sign-in options"
-              className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl bg-white p-2 shadow-xl ring-1 ring-ink-200"
-            >
-              <Link
-                to="/login"
-                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
-              >
-                Customer sign in
-              </Link>
-              <Link
-                to="/admin"
-                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
-              >
-                Staff sign in
-              </Link>
-              <Link
-                to="/institutional-reviewer"
-                className="block rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink-700 hover:bg-canvas"
-              >
-                Institutional reviewer sign in
-              </Link>
-            </nav>
-          </details>
-        </div>
-      </header>
+      <PublicHeader />
       <main id="main" tabIndex={-1}>
         <section className="corporate-hero">
           <div className="corporate-hero-inner brand-width">

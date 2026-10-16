@@ -307,11 +307,23 @@ for (const width of [320, 390, 768, 1440]) {
       ['Company', 'company'],
       ['Philanthropy', 'philanthropy'],
     ]) {
+      if (width <= 1100) {
+        const menu = page.locator('.brand-mobile-menu')
+        if ((await menu.getAttribute('open')) === null)
+          await menu.locator('summary').click()
+      }
       await page
         .locator('header')
         .getByRole('link', { name, exact: true })
         .click()
       await expect(page).toHaveURL(new RegExp(`#/${path}$`))
+      await expect(page.locator('.institutional-hero h1')).toHaveText(
+        path === 'company'
+          ? 'About XpressTend'
+          : 'XpressTend Financial Literacy',
+      )
+      if (width <= 1100)
+        await page.locator('.brand-mobile-menu summary').click()
       await expect(
         page.locator('header').getByRole('link', { name, exact: true }),
       ).toHaveAttribute('aria-current', 'page')

@@ -1,6 +1,8 @@
 import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
-import { SiteBrand } from '../components/SiteBrand'
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { Link } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
+import { PublicHeader } from '../components/PublicHeader'
+import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import './sign-in.css'
 
 // Orion's principal stars, mapped from right ascension (hours) and declination (degrees).
@@ -198,6 +200,7 @@ export function SignInFrame({
   className?: string
   wide?: boolean
 }) {
+  const p = useInterfaceCopy()
   const frame = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -273,10 +276,11 @@ export function SignInFrame({
       <div className="signin-sky">
         <Constellation />
       </div>
-      <header className="signin-header">
-        <SiteBrand />
-        <LanguageSwitcher />
-      </header>
+      <PublicHeader className="signin-header" />
+      <Link to="/" className="signin-back">
+        <ArrowLeft size={16} aria-hidden="true" />
+        {p('Back to website')}
+      </Link>
       <div
         ref={content}
         className={`signin-content${wide ? ' signin-content-wide' : ''}`}

@@ -8,18 +8,18 @@
   align-items: center;
   flex: none;
   min-height: 44px;
-  color: #0b252f;
+  color: #061b24;
 }
 /* A logotype is an image in the accessibility tree. Keep both lines in its
    established proportions when text-size preferences enlarge page copy. */
 .site-header-brand > [role='img'] {
-  height: 36px !important;
+  height: 38px !important;
 }
 .site-header-brand > [role='img'] > span:first-child {
-  font-size: 20.88px !important;
+  font-size: 22.04px !important;
 }
 .site-header-brand > [role='img'] > span:last-child {
-  font-size: 12.24px !important;
+  font-size: 12.92px !important;
 }
 .site-header-brand:focus-visible {
   outline: 2px solid #267d70;

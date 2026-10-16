@@ -37,16 +37,34 @@
 .signin-content-wide {
   max-width: 1080px;
 }
-.signin-header {
+.signin-page > .public-header.signin-header {
   position: absolute;
-  inset-block-start: env(safe-area-inset-top, 0px);
-  inset-inline: var(--site-header-gutter);
-  min-height: var(--site-header-height);
-  display: flex;
+  inset-block-start: 0;
+  inset-inline: 0;
+}
+.signin-back {
+  position: absolute;
+  inset-inline-start: var(--site-header-gutter);
+  top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 4px);
+  z-index: 4;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  z-index: 5;
+  gap: 8px;
+  min-height: 32px;
+  color: #0b252f;
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.signin-back:hover {
+  text-decoration: underline;
+}
+.signin-back:focus-visible {
+  outline: 2px solid #267d70;
+  outline-offset: 4px;
+}
+[dir='rtl'] .signin-back svg {
+  transform: scaleX(-1);
 }
 .signin-content :is(h1, h2) {
   font-size: 28px;
@@ -218,10 +236,6 @@
 }
 .signin-content {
   min-width: 0;
-}
-.signin-header {
-  flex-wrap: wrap;
-  row-gap: 14px;
 }
 .signin-content button[type='submit'] {
   background: #0b252f;

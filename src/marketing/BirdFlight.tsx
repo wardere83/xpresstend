@@ -300,42 +300,45 @@ export function BirdFlight({ title }: { title: string }) {
           className="xt-bird-traveller"
           style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         >
-          <g className="xt-bird-art" style={{ scale: `${facing} 1` }}>
+          <g className="xt-bird-art" style={{ scale: `${facing * 0.76} 0.76` }}>
             <path
               className="xt-bird-far-wing"
-              d="M3-24 C4-37 12-49 24-56 C25-50 21-42 17-36 C24-41 30-43 33-40 C29-31 17-24 7-20 Z"
+              d="M-3-24 C-7-34-2-46 9-57 Q12-59 13-55 L9-44 L19-53 Q23-54 22-50 L17-39 L26-45 Q30-45 27-40 C20-29 10-22-3-24 Z"
             />
             <path
               className="xt-bird-tail"
-              d="M14-18 C23-20 30-17 36-12 L31-9 L34-6 C24-5 17-8 11-12 Z"
+              d="M12-19 C21-18 31-15 38-11 Q35-8 30-8 L23-11 L30-6 Q19-6 10-13 Z"
+            />
+            <path
+              className="xt-bird-tail-feathers"
+              d="M17-15 L31-11 M17-13 L26-9"
             />
             <path
               className="xt-bird-feet"
-              d="M-3-10 L-4-1 M-8 0 H0 M5-10 L5-1 M2 0 H9"
+              d="M-2-9 L-3-2 L-6 0 M-3-2 L0 0 M5-9 L5-2 L2 0 M5-2 L8 0"
             />
             <path
               className="xt-bird-body"
-              d="M-18-28 C-10-32-5-29 0-26 C10-30 21-25 22-18 C23-11 15-7 6-7 C-4-6-12-10-17-15 C-21-20-22-24-18-28 Z"
+              d="M-24-29 C-24-34-18-37-14-34 C-10-32-11-28-7-26 C1-22 9-23 15-18 C20-15 20-10 14-8 C7-5-2-7-8-11 C-13-15-14-20-16-23 C-20-22-24-24-24-29 Z"
             />
-            <circle className="xt-bird-head" cx="-18" cy="-28" r="8" />
-            <path className="xt-bird-beak" d="M-25-30 L-33-26 L-25-24 Z" />
-            <circle className="xt-bird-eye" cx="-21" cy="-29" r="1.3" />
-            <circle cx="-21.35" cy="-29.4" r=".36" fill="#fff" />
+            <path className="xt-bird-beak" d="M-24-30 L-31-27 L-24-26 Z" />
+            <circle className="xt-bird-eye" cx="-20.5" cy="-30.5" r="1" />
+            <circle cx="-20.75" cy="-30.8" r=".25" fill="#fff" />
             <path
               className="xt-bird-folded-wing"
-              d="M-5-23 C3-27 15-24 17-18 C14-12 4-10-5-23 Z"
+              d="M-6-24 C1-26 11-22 16-17 Q18-14 14-12 C7-10-2-15-6-24 Z"
             />
             <path
               className="xt-bird-folded-feathers"
-              d="M1-21 Q8-17 14-17 M-1-18 Q5-14 10-14"
+              d="M-2-22 Q4-17 13-15 M-1-19 Q5-14 12-13"
             />
             <path
               className="xt-bird-flight-wing"
-              d="M1-23 C9-34 12-49 18-58 C23-55 24-48 21-41 C26-46 30-47 32-43 C32-38 26-30 20-25 C14-20 7-19 1-23 Z"
+              d="M-2-23 C-6-33-2-43 8-55 Q14-62 17-60 Q18-56 12-46 L24-58 Q28-60 27-54 L20-41 L31-51 Q35-53 34-48 L26-36 L35-42 Q39-43 36-38 C26-26 15-18 4-21 Z"
             />
             <path
               className="xt-bird-flight-feathers"
-              d="M6-25 Q17-35 19-47 M10-24 Q23-32 27-41"
+              d="M2-25 Q6-36 13-47 M5-24 Q13-34 21-43 M8-23 Q20-30 28-37"
             />
           </g>
         </g>

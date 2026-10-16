@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Pause, Play } from 'lucide-react'
 import { reducedMotionQuery } from '../accessibility/motion'
 import { useI18n } from '../i18n'
 import { readPassage } from './siteContent'
@@ -19,20 +18,21 @@ const APP_ORIGINS = new Set([
 export function MarketTicker() {
   const { lang } = useI18n()
   const frame = useRef<HTMLIFrameElement>(null)
-  const [paused, setPaused] = useState(false)
   const [reduced, setReduced] = useState(() => reducedMotionQuery().matches)
   const [ready, setReady] = useState(false)
-  const stopped = paused || reduced
   const frameOrigin = QUOTE_ORIGIN
   const canEmbed = APP_ORIGINS.has(window.location.origin)
   const sendMotion = useCallback(
     () =>
       frame.current?.contentWindow?.postMessage(
-        { type: 'xpresstend:market-motion', paused: stopped },
+        { type: 'xpresstend:market-motion', paused: reduced },
         frameOrigin,
       ),
-    [frameOrigin, stopped],
+    [frameOrigin, reduced],
   )
+  useEffect(() => {
+    if (reduced) setReady(false)
+  }, [reduced])
   useEffect(() => {
     const query = reducedMotionQuery()
     const changed = () => setReduced(query.matches)
@@ -72,29 +72,18 @@ export function MarketTicker() {
     ],
     lang,
   )
-  const action = readPassage(
-    stopped
-      ? [
-          'Play ticker',
-          'Reproducir cotizaciones',
-          'Reproduzir cotações',
-          'تشغيل الشريط',
-        ]
-      : [
-          'Pause ticker',
-          'Pausar cotizaciones',
-          'Pausar cotações',
-          'إيقاف الشريط مؤقتًا',
-        ],
-    lang,
-  )
   return (
-    <section className="market-ticker" aria-label={name} data-ready={ready}>
+    <section
+      className="market-ticker"
+      aria-label={name}
+      data-ready={ready}
+      data-paused={reduced}
+    >
       <div className="market-ticker-label">
         <strong>{name}</strong>
         <span>{reference}</span>
       </div>
-      {canEmbed ? (
+      {canEmbed && !reduced ? (
         <iframe
           ref={frame}
           title={`${name} — TradingView`}
@@ -114,20 +103,6 @@ export function MarketTicker() {
           USDX · TradingView
         </a>
       )}
-      <button
-        type="button"
-        className="market-ticker-pause"
-        aria-label={action}
-        aria-pressed={stopped}
-        disabled={reduced || !canEmbed}
-        onClick={() => setPaused(!paused)}
-      >
-        {stopped ? (
-          <Play size={14} aria-hidden="true" />
-        ) : (
-          <Pause size={14} aria-hidden="true" />
-        )}
-      </button>
     </section>
   )
 }
