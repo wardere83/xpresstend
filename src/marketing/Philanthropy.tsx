@@ -21,8 +21,8 @@ const FILM_SRC = `${media}community-literacy.mp4`
 const FILM_POSTER = `${media}community-literacy-poster.webp`
 const enquiry = `mailto:${brand.support.email}?subject=Financial%20Literacy%20enquiry`
 // Holds at least 80% navy across the column the words occupy, then clears.
-const FILM_SCRIM =
-  'linear-gradient(to right, rgb(11 37 47 / 0.95) 0%, rgb(11 37 47 / 0.88) 45%, rgb(11 37 47 / 0.8) 62%, rgb(11 37 47 / 0.12) 90%)'
+const FILM_SCRIM_STOPS =
+  'rgb(11 37 47 / 0.95) 0%, rgb(11 37 47 / 0.88) 45%, rgb(11 37 47 / 0.8) 62%, rgb(11 37 47 / 0.12) 90%'
 
 /**
  * The banner film.
@@ -56,7 +56,7 @@ function useBannerFilm() {
 }
 
 function Banner() {
-  const { lang } = useI18n()
+  const { lang, dir } = useI18n()
   const available = useBannerFilm()
   const video = useRef<HTMLVideoElement>(null)
   const [failed, setFailed] = useState(false)
@@ -136,8 +136,10 @@ function Banner() {
       {hasFilm ? (
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10"
-          style={{ backgroundImage: FILM_SCRIM }}
+          className="philanthropy-film-scrim absolute inset-0 -z-10"
+          style={{
+            backgroundImage: `linear-gradient(to ${dir === 'rtl' ? 'left' : 'right'}, ${FILM_SCRIM_STOPS})`,
+          }}
         />
       ) : (
         <div

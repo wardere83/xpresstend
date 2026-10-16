@@ -1591,7 +1591,8 @@ summary {
     height: 100%;
   }
 }
-html[data-a11y-text='large'] .corporate-hero-inner {
+html:is([data-a11y-text='large'], [data-a11y-text='largest'])
+  .corporate-hero-inner {
   height: auto;
   min-height: calc(var(--landing-banner-height) - 65px);
 }

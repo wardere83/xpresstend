@@ -8,7 +8,7 @@ page shows a still banner.
 Requirements:
 
 - **H.264 MP4, landscape 16:9**, 1920×1080. It fills the shared banner on
-  desktop and phones: roughly the left 60% sits under a dark scrim so the
+  desktop and phones: roughly the 60% on the copy side sits under a dark scrim so the
   words stay legible, and `object-cover` trims the frame edges to fit. Keep
   essential action in the center and faces clear of the frame edges, text,
   and orbit graphic. Check the crop at narrow phone widths before publishing.

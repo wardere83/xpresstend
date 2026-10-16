@@ -87,7 +87,7 @@
 .philanthropy-banner-media {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: -20;
 }
 .philanthropy-banner-film {
   width: 100%;
@@ -475,7 +475,8 @@
     height: 120px;
   }
 }
-html[data-a11y-text='large'] .institutional-hero {
+html:is([data-a11y-text='large'], [data-a11y-text='largest'])
+  .institutional-hero {
   height: auto;
   min-height: 324px;
 }

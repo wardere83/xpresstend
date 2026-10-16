@@ -472,10 +472,12 @@ test('footer company, support and privacy links reach their intended pages', asy
     ['Privacy', 'Privacy Policy'],
   ]) {
     await page.goto('/')
-    await page
-      .locator('footer')
-      .getByRole('link', { name, exact: true })
-      .click()
+    const link = page.locator('footer').getByRole('link', { name, exact: true })
+    // Scroll before click's stability checks so Chromium updates the isolated
+    // ticker frame's hit region before dispatching input at the footer.
+    await link.scrollIntoViewIfNeeded()
+    await expect(link).toBeInViewport()
+    await link.click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
   }
 })
