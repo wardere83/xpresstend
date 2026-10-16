@@ -1,31 +1,11 @@
 import { expect, test } from '@playwright/test'
+import { MARKET_ORIGIN, mockMarket } from './fixtures/market'
 
-test.beforeEach(async ({ page, baseURL }) => {
+test.beforeEach(async ({ page }) => {
   await page.route('**/api/**', (route) =>
     route.fulfill({ status: 401, json: { error: 'unauthorized' } }),
   )
-  await page.route(
-    'https://xpresstend.shrill-king-ef4e.workers.dev/market/**',
-    async (route) => {
-      const url = new URL(route.request().url())
-      const response = await page.request.get(
-        new URL(url.pathname + url.search, baseURL).href,
-      )
-      await route.fulfill({ response })
-    },
-  )
-  // CI verifies our integration deterministically. Production smoke checks the real provider.
-  await page.route(
-    'https://widgets.tradingview-widget.com/w/**/tv-ticker-tape.js',
-    (route) =>
-      route.fulfill({
-        contentType: 'application/javascript',
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: `customElements.define('tv-ticker-tape', class extends HTMLElement {
-      connectedCallback() { this.textContent = 'USDX test fixture · TradingView'; }
-    });`,
-      }),
-  )
+  await mockMarket(page)
 })
 
 test('the Dollar Index tape stays at the hero bottom and pause controls reach its isolated frame', async ({
@@ -44,6 +24,11 @@ test('the Dollar Index tape stays at the hero bottom and pause controls reach it
     'sandbox',
     'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
   )
+  expect(
+    new URL((await page.locator('.market-ticker-frame').getAttribute('src'))!)
+      .origin,
+  ).toBe(MARKET_ORIGIN)
+  expect(new URL(page.url()).origin).not.toBe(MARKET_ORIGIN)
   await page.getByRole('button', { name: 'Pause ticker', exact: true }).click()
   await expect(widget).toHaveAttribute('disable-scroll', '')
   await page.getByRole('button', { name: 'Play ticker', exact: true }).click()
@@ -62,6 +47,34 @@ test('the Dollar Index tape stays at the hero bottom and pause controls reach it
     expect(geometry.pageWidth).toBeLessThanOrEqual(geometry.viewport)
   }
 })
+
+for (const [language, documentLanguage, providerLanguage] of [
+  ['en', 'en', 'en'],
+  ['es', 'es', 'es'],
+  ['pt-BR', 'pt', 'br'],
+  ['ar', 'ar', 'ar_AE'],
+]) {
+  test(`the Dollar Index frame uses a supported provider locale for ${language}`, async ({
+    page,
+  }) => {
+    await page.addInitScript(
+      (language) => localStorage.setItem('xpresstend.lang', language),
+      language,
+    )
+    const provider = page.waitForRequest(
+      `https://widgets.tradingview-widget.com/w/${providerLanguage}/tv-ticker-tape.js`,
+    )
+    await page.goto('/#/')
+    await provider
+    await expect(page.locator('.market-ticker')).toHaveAttribute(
+      'data-ready',
+      'true',
+    )
+    await expect(
+      page.frameLocator('.market-ticker-frame').locator('html'),
+    ).toHaveAttribute('lang', documentLanguage)
+  })
+}
 
 test('saved and device motion preferences stop the Dollar Index tape', async ({
   page,

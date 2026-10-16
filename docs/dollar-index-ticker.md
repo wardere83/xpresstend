@@ -10,7 +10,9 @@ Primary provider references:
 
 Only USDX is requested. Repeated copies create the continuous tape; they are not additional instruments. Quotes, directional colors and attribution come directly from the provider. No market values are fabricated, hard-coded, scraped or cached by XpressTend. Provider market closures and outages can affect availability.
 
-The public wrapper is served by the same Worker at its existing workers.dev origin. The main xpresstend.com and www.xpresstend.com pages embed it across origins, preventing the widget code from reading the parent app DOM or sessions. Its CSP alone permits the provider module, datafeed frame and sockets. Main pages retain first-party scripts and connections. The alternate workers.dev homepage displays a quote link rather than embedding a same-origin widget.
+The public wrapper is served by a separate static-only Worker at xpresstend-market.shrill-king-ef4e.workers.dev. It has no application APIs, databases, authentication bindings or secrets. The main xpresstend.com and www.xpresstend.com pages embed it across origins, preventing the widget code from reading the parent app DOM or sessions. Its CSP alone permits the provider module, datafeed frame and sockets. Main pages retain first-party scripts and connections. Both /dollar-index and /dollar-index.html resolve explicitly without automatic HTML redirects.
+
+The provider uses its published en, es, br and ar_AE modules for the site's English, Spanish, Portuguese and Arabic selections. The surrounding document retains the corresponding standard language code.
 
 The full widget, including its attribution, is scaled uniformly to fit the slim 64px frame. Pause messages validate both source and origin. System and saved reduced-motion preferences stop the tape. A static provider link remains available if the module cannot load. The official ICE feed requires a separately licensed provider and is not enabled by this implementation.
 

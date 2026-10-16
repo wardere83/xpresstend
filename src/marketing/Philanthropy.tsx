@@ -160,7 +160,7 @@ function Banner() {
           </p>
           <h1
             id="philanthropy-title"
-            className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+            className="public-page-title mt-5 max-w-3xl"
           >
             XpressTend Financial Literacy
           </h1>

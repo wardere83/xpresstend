@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
 import { customer, mockAccount } from './fixtures/account'
+import { mockMarket } from './fixtures/market'
 
 // Deterministic, offline API fixtures: these checks never touch customer data.
 test.beforeEach(async ({ page }) => {
+  await mockMarket(page)
   await page.route('**/api/**', (route) =>
     route.fulfill({
       status: 401,
@@ -38,18 +40,14 @@ test('the public homepage leads to company information and a working philanthrop
   }
 
   await expect(
-    page
-      .locator('.corporate-hero')
-      .getByRole('button', {
-        name: /Explore the app|Download the app|Watch the film/i,
-      }),
+    page.locator('.corporate-hero').getByRole('button', {
+      name: /Explore the app|Download the app|Watch the film/i,
+    }),
   ).toHaveCount(0)
   await expect(
-    page
-      .locator('.corporate-hero')
-      .getByRole('link', {
-        name: /Explore the app|Download the app|Watch the film/i,
-      }),
+    page.locator('.corporate-hero').getByRole('link', {
+      name: /Explore the app|Download the app|Watch the film/i,
+    }),
   ).toHaveCount(0)
   await expect(
     page.getByText(

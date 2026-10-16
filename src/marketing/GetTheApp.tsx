@@ -17,7 +17,6 @@ export function GetTheApp({ onExplore }: { onExplore: () => void }) {
         <span />
       </div>
       <div className="brand-download-content">
-        <p className="brand-eyebrow">XpressTend</p>
         <h2 className="brand-display" id="download-title">
           {copy.downloadTitle}
         </h2>

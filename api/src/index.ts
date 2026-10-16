@@ -197,6 +197,30 @@ export default {
       )
     }
 
+    // Retire the old same-origin quote document without ever relaxing the
+    // application's policy, including its extensionless canonical spelling.
+    if (
+      pathname === '/market/dollar-index' ||
+      pathname === '/market/dollar-index.html'
+    ) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        return withSecurityHeaders(
+          new Response('Method not allowed', {
+            status: 405,
+            headers: { allow: 'GET, HEAD' },
+          }),
+        )
+      }
+      return withSecurityHeaders(
+        new Response(null, {
+          status: 302,
+          headers: {
+            location: `https://xpresstend-market.shrill-king-ef4e.workers.dev/dollar-index${url.search}`,
+          },
+        }),
+      )
+    }
+
     /*
      * Clean URLs for the pages Apple and Google need to reach.
      *
@@ -229,12 +253,10 @@ export default {
       )
     }
 
-    // Everything else is the site. The assets binding falls back to index.html
-    // for unknown paths, which is what a client-routed app needs on a cold URL.
-    return withSecurityHeaders(
-      await env.ASSETS.fetch(request),
-      pathname === '/market/dollar-index.html',
-    )
+    // Everything else is the site. Even HTML reached through a platform
+    // canonical URL keeps the strict application policy; third-party quote
+    // code is served only by the separate, assets-only market Worker.
+    return withSecurityHeaders(await env.ASSETS.fetch(request))
   },
 
   /*

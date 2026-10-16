@@ -5,7 +5,7 @@ import { useI18n } from '../i18n'
 import { readPassage } from './siteContent'
 import './market-ticker.css'
 
-const QUOTE_ORIGIN = 'https://xpresstend.shrill-king-ef4e.workers.dev'
+const QUOTE_ORIGIN = 'https://xpresstend-market.shrill-king-ef4e.workers.dev'
 
 export function MarketTicker() {
   const { lang } = useI18n()
@@ -14,10 +14,8 @@ export function MarketTicker() {
   const [reduced, setReduced] = useState(() => reducedMotionQuery().matches)
   const [ready, setReady] = useState(false)
   const stopped = paused || reduced
-  const frameOrigin = import.meta.env.DEV
-    ? window.location.origin
-    : QUOTE_ORIGIN
-  const canEmbed = import.meta.env.DEV || window.location.origin !== frameOrigin
+  const frameOrigin = QUOTE_ORIGIN
+  const canEmbed = window.location.origin !== frameOrigin
   const sendMotion = useCallback(
     () =>
       frame.current?.contentWindow?.postMessage(
@@ -91,7 +89,7 @@ export function MarketTicker() {
         <iframe
           ref={frame}
           title={`${name} — TradingView`}
-          src={`${frameOrigin}/market/dollar-index.html?lang=${lang === 'pt-BR' ? 'pt' : lang}`}
+          src={`${frameOrigin}/dollar-index.html?lang=${lang === 'pt-BR' ? 'pt' : lang}`}
           className="market-ticker-frame"
           onLoad={sendMotion}
           referrerPolicy="strict-origin"

@@ -26,6 +26,12 @@
   outline-offset: 4px;
   border-radius: 4px;
 }
+.public-page-title {
+  font-size: var(--public-page-heading);
+  font-weight: 500;
+  line-height: 1.17;
+  letter-spacing: -0.03em;
+}
 @media (max-width: 600px) {
   :root {
     --site-header-gutter: 20px;

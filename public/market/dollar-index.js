@@ -2,6 +2,7 @@
 const locales = new Set(['en', 'es', 'pt', 'ar'])
 const requested = new URL(location.href).searchParams.get('lang') || 'en'
 const locale = locales.has(requested) ? requested : 'en'
+const providerLocale = { en: 'en', es: 'es', pt: 'br', ar: 'ar_AE' }[locale]
 document.documentElement.lang = locale
 const fallbackCopy = {
   en: 'USDX · View current reference quote on TradingView',
@@ -40,7 +41,7 @@ window.addEventListener('message', (event) => {
 applyPause()
 const script = document.createElement('script')
 script.type = 'module'
-script.src = `https://widgets.tradingview-widget.com/w/${locale}/tv-ticker-tape.js`
+script.src = `https://widgets.tradingview-widget.com/w/${providerLocale}/tv-ticker-tape.js`
 script.addEventListener('load', async () => {
   await customElements.whenDefined('tv-ticker-tape')
   host.replaceChildren(widget)

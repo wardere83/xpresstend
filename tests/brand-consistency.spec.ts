@@ -78,7 +78,7 @@ test('public headings follow the homepage reading hierarchy and the logo follows
     }))
   for (const route of ['company', 'philanthropy', 'compliance', 'security']) {
     await page.goto(`/#/${route}`)
-    const heading = page.locator('.institutional-hero h1')
+    const heading = page.getByRole('heading', { level: 1 })
     await expect(heading).toHaveCSS('font-family', reading.font)
     await expect(heading).toHaveCSS('font-weight', reading.weight)
     expect(
