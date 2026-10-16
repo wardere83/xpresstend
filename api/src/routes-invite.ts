@@ -1,6 +1,11 @@
 import { Hono } from 'hono'
-import { PBKDF2_ITERATIONS, hashPassword, hashToken, randomHex } from './crypto'
-import { audit } from './audit'
+import {
+  PBKDF2_ITERATIONS,
+  hashPassword,
+  hashToken,
+  newId,
+  randomHex,
+} from './crypto'
 import type { Env, Vars } from './env'
 
 /**
@@ -29,6 +34,7 @@ async function findInvite(db: D1Database, token: string) {
 
 function usable(row: Record<string, string> | null): boolean {
   if (!row) return false
+  if (row.status !== 'active' && row.status !== 'invited') return false
   if (row.accepted_at || row.revoked_at) return false
   return row.expires_at > new Date().toISOString()
 }
@@ -37,17 +43,25 @@ function usable(row: Record<string, string> | null): boolean {
 invite.get('/:token', async (c) => {
   const row = await findInvite(c.env.DB, c.req.param('token') ?? '')
   if (!usable(row)) return c.json({ error: 'invalid_invite' }, 404)
-  return c.json({ ok: true, email: row!.email, name: row!.name, role: row!.role })
+  return c.json({
+    ok: true,
+    email: row!.email,
+    name: row!.name,
+    role: row!.role,
+  })
 })
 
 invite.post('/:token/accept', async (c) => {
   const token = c.req.param('token') ?? ''
-  const b = ((await c.req.json().catch(() => ({}))) as { password?: string })
+  const b = (await c.req.json().catch(() => ({}))) as { password?: string }
   const password = b.password ?? ''
 
   if (password.length < MIN_STAFF_PASSWORD) {
     return c.json(
-      { error: 'weak_password', message: `Staff passwords must be at least ${MIN_STAFF_PASSWORD} characters.` },
+      {
+        error: 'weak_password',
+        message: `Staff passwords must be at least ${MIN_STAFF_PASSWORD} characters.`,
+      },
       400,
     )
   }
@@ -56,23 +70,73 @@ invite.post('/:token/accept', async (c) => {
   if (!usable(row)) return c.json({ error: 'invalid_invite' }, 404)
 
   const salt = randomHex(16)
-  const hash = await hashPassword(password, salt, PBKDF2_ITERATIONS, c.env.SESSION_PEPPER ?? '')
+  const hash = await hashPassword(
+    password,
+    salt,
+    PBKDF2_ITERATIONS,
+    c.env.SESSION_PEPPER ?? '',
+  )
   const now = new Date().toISOString()
+  const tokenHash = await hashToken(token)
 
-  await c.env.DB.batch([
+  const results = await c.env.DB.batch([
+    // Revalidate after password hashing, inside the same transaction that
+    // consumes the invitation. Offboarding, revocation, expiry and another
+    // acceptance may all have occurred since findInvite().
     c.env.DB.prepare(
       `UPDATE admins SET password_hash = ?, password_salt = ?, password_iterations = ?,
-                         status = 'active', updated_at = ? WHERE id = ?`,
-    ).bind(hash, salt, PBKDF2_ITERATIONS, now, row!.admin_id),
-    // Single use: burn it here rather than relying on the expiry.
-    c.env.DB.prepare(`UPDATE staff_invites SET accepted_at = ? WHERE id = ?`).bind(now, row!.id),
+                         status = 'active', updated_at = ?
+        WHERE id = ? AND status IN ('active','invited')
+          AND EXISTS (SELECT 1 FROM staff_invites i WHERE i.id = ? AND i.admin_id = admins.id
+            AND i.token_hash = ? AND i.accepted_at IS NULL AND i.revoked_at IS NULL AND i.expires_at > ?)`,
+    ).bind(
+      hash,
+      salt,
+      PBKDF2_ITERATIONS,
+      now,
+      row!.admin_id,
+      row!.id,
+      tokenHash,
+      now,
+    ),
+    // The fresh random salt and resulting hash identify this transaction's
+    // successful credential write, without a reusable claim or new schema.
+    c.env.DB.prepare(
+      `UPDATE staff_invites SET accepted_at = ?
+        WHERE id = ? AND admin_id = ? AND token_hash = ?
+          AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at > ?
+          AND EXISTS (SELECT 1 FROM admins a WHERE a.id = staff_invites.admin_id
+            AND a.status = 'active' AND a.password_salt = ? AND a.password_hash = ?)`,
+    ).bind(now, row!.id, row!.admin_id, tokenHash, now, salt, hash),
+    c.env.DB.prepare(
+      `INSERT INTO audit_log (id,actor_type,actor_id,action,entity_type,entity_id,metadata,ip,user_agent,created_at)
+       SELECT ?,'admin',?,'staff.invite_accepted','admin',?,?,?,?,?
+        WHERE EXISTS (SELECT 1 FROM staff_invites i JOIN admins a ON a.id = i.admin_id
+          WHERE i.id = ? AND i.admin_id = ? AND i.token_hash = ? AND i.accepted_at = ?
+            AND i.revoked_at IS NULL AND a.status = 'active'
+            AND a.password_salt = ? AND a.password_hash = ?)`,
+    ).bind(
+      newId('aud'),
+      row!.admin_id,
+      row!.admin_id,
+      JSON.stringify({ email: row!.email }),
+      c.req.header('cf-connecting-ip') ?? null,
+      c.req.header('user-agent') ?? null,
+      now,
+      row!.id,
+      row!.admin_id,
+      tokenHash,
+      now,
+      salt,
+      hash,
+    ),
   ])
-
-  await audit(c.env.DB, {
-    actorType: 'admin', actorId: row!.admin_id, action: 'staff.invite_accepted',
-    entityType: 'admin', entityId: row!.admin_id, metadata: { email: row!.email },
-    ip: c.req.header('cf-connecting-ip'), userAgent: c.req.header('user-agent'),
-  })
+  if (
+    results[0]?.meta.changes !== 1 ||
+    results[1]?.meta.changes !== 1 ||
+    results[2]?.meta.changes !== 1
+  )
+    return c.json({ error: 'invalid_invite' }, 404)
 
   return c.json({ ok: true, email: row!.email })
 })
