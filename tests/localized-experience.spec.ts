@@ -216,10 +216,13 @@ test('support routes enquiries to the selected team and learning topics expand',
     'href',
     /river-habitat.webp$/,
   )
-  await expect(page.locator('.xt-bird-folded-wing image')).toHaveAttribute(
-    'href',
-    /wagtail-poses.webp$/,
+  const bird = page.locator('.xt-bird')
+  await expect(bird).toHaveAttribute('data-artwork', 'white-dove')
+  await expect(bird.locator('.xt-bird-body')).toHaveCSS(
+    'fill',
+    'rgb(255, 254, 250)',
   )
+  await expect(bird.locator('.xt-bird-flight-wing')).toHaveCount(1)
 })
 
 test('a non-ready sanctions dataset is reported accurately and recovers on refresh', async ({

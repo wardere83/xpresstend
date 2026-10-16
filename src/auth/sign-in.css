@@ -30,16 +30,23 @@
 .signin-content {
   width: 100%;
   max-width: 440px;
+  /* Preserve the form's vertical placement after moving its former header
+     into the shared page edge. Constellation alignment remains form-relative. */
+  padding-top: 80px;
 }
 .signin-content-wide {
   max-width: 1080px;
 }
 .signin-header {
+  position: absolute;
+  inset-block-start: env(safe-area-inset-top, 0px);
+  inset-inline: var(--site-header-gutter);
+  min-height: var(--site-header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 40px;
+  z-index: 5;
 }
 .signin-content :is(h1, h2) {
   font-size: 28px;
@@ -162,8 +169,8 @@
   .signin-page {
     padding: 32px 24px 100px;
   }
-  .signin-header {
-    margin-bottom: 34px;
+  .signin-content {
+    padding-top: 74px;
   }
   .signin-constellation {
     width: 320px;

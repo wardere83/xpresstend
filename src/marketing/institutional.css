@@ -4,16 +4,28 @@
   color: #0b252f;
 }
 .institutional-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: var(--site-header-height);
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 18px max(24px, calc((100vw - 1180px) / 2));
+  column-gap: 20px;
+  padding: env(safe-area-inset-top, 0px) var(--site-header-gutter) 0;
   background: white;
   border-bottom: 1px solid #d6e4e8;
 }
+.institutional-header > .site-header-brand {
+  grid-column: 1;
+  grid-row: 1;
+}
+.institutional-header > .relative {
+  grid-column: -2;
+  grid-row: 1;
+}
 .institutional-header nav {
   display: flex;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
   gap: 4px;
   flex-wrap: wrap;
 }
@@ -59,10 +71,10 @@
   max-width: 760px;
 }
 .institutional-hero h1 {
-  font-size: clamp(32px, 5vw, 62px);
+  font-size: var(--public-page-heading);
   font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  letter-spacing: -0.048em;
+  line-height: 1.17;
   margin: 20px 0;
 }
 .institutional-hero p:not(.institutional-eyebrow) {
@@ -357,12 +369,14 @@
 }
 @media (max-width: 850px) {
   .institutional-header {
-    flex-wrap: wrap;
-    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: var(--site-header-height) auto;
   }
   .institutional-header nav {
-    order: 3;
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
+    margin-bottom: 16px;
   }
   .institutional-orbits {
     width: 110px;
@@ -379,9 +393,6 @@
   }
 }
 @media (max-width: 600px) {
-  .institutional-header {
-    padding: 16px 20px;
-  }
   .institutional-header nav a {
     padding: 8px 10px;
     font-size: 13px;

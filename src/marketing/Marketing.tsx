@@ -2,11 +2,20 @@ import { AccessibilityLink } from '../accessibility/Accessibility'
 import { readPassage, siteLabels } from './siteContent'
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowUpRight, Languages, ScanLine, ShieldCheck, UserRound, Menu } from 'lucide-react'
+import {
+  ArrowUpRight,
+  Languages,
+  ScanLine,
+  ShieldCheck,
+  UserRound,
+  Menu,
+} from 'lucide-react'
 import { brand } from '../config/brand'
 import { useT, useI18n } from '../i18n'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import { Logo } from '../components/Logo'
+import { SiteBrand } from '../components/SiteBrand'
+import { MarketTicker } from './MarketTicker'
 import { useAuth } from '../auth/AuthContext'
 import { useBrandCopy } from './brandCopy'
 import { useCorporateCopy } from './corporateCopy'
@@ -49,9 +58,7 @@ export function Marketing() {
       </a>
       <header className="brand-header">
         <div className="brand-header-inner brand-width">
-          <Link to="/" aria-label={brand.name} className="brand-wordmark">
-            <Logo variant="full" height={42} />
-          </Link>
+          <SiteBrand className="brand-wordmark" />
           <nav aria-label={copy.navigation} className="brand-nav corporate-nav">
             {companyLinks.map((link) => (
               <Link key={link.to} to={link.to}>
@@ -120,22 +127,30 @@ export function Marketing() {
               </h1>
               <p className="corporate-intro">{copy.heroIntro}</p>
               <div className="corporate-hero-actions">
-                <Link className="brand-primary" to={user ? '/app' : '/register'}>
+                <Link
+                  className="brand-primary"
+                  to={user ? '/app' : '/register'}
+                >
                   {user ? t('marketing.openApp') : t('marketing.getStarted')}{' '}
                   <ArrowUpRight size={17} aria-hidden="true" />
                 </Link>
                 <Link className="brand-text-link" to="/demo">
-                  {copy.demoAction} <ArrowUpRight size={17} aria-hidden="true" />
+                  {copy.demoAction}{' '}
+                  <ArrowUpRight size={17} aria-hidden="true" />
                 </Link>
               </div>
             </div>
             <InteractiveGlobe />
           </div>
+          <MarketTicker />
         </section>
 
         <AppShowcase onExplore={explore} />
 
-        <section className="corporate-company brand-width" aria-labelledby="company-heading">
+        <section
+          className="corporate-company brand-width"
+          aria-labelledby="company-heading"
+        >
           <div className="corporate-company-intro">
             <div>
               <p className="brand-eyebrow">{copy.companyEyebrow}</p>
@@ -168,7 +183,10 @@ export function Marketing() {
           </dl>
         </section>
 
-        <section className="corporate-principles" aria-labelledby="approach-heading">
+        <section
+          className="corporate-principles"
+          aria-labelledby="approach-heading"
+        >
           <div className="brand-width">
             <p className="brand-eyebrow">{copy.principlesEyebrow}</p>
             <h2 className="brand-display" id="approach-heading">
@@ -176,9 +194,21 @@ export function Marketing() {
             </h2>
             <div className="corporate-cards">
               {[
-                { Icon: ScanLine, title: copy.clarityTitle, body: copy.clarityBody },
-                { Icon: Languages, title: copy.accessTitle, body: copy.accessBody },
-                { Icon: ShieldCheck, title: copy.accountabilityTitle, body: copy.accountabilityBody },
+                {
+                  Icon: ScanLine,
+                  title: copy.clarityTitle,
+                  body: copy.clarityBody,
+                },
+                {
+                  Icon: Languages,
+                  title: copy.accessTitle,
+                  body: copy.accessBody,
+                },
+                {
+                  Icon: ShieldCheck,
+                  title: copy.accountabilityTitle,
+                  body: copy.accountabilityBody,
+                },
               ].map(({ Icon, title, body }) => (
                 <article key={title} className="corporate-card">
                   <Icon size={27} strokeWidth={1.4} aria-hidden="true" />
@@ -190,7 +220,10 @@ export function Marketing() {
           </div>
         </section>
 
-        <section className="corporate-partners brand-width" aria-labelledby="partners-heading">
+        <section
+          className="corporate-partners brand-width"
+          aria-labelledby="partners-heading"
+        >
           <div>
             <p className="brand-eyebrow">{copy.partnerEyebrow}</p>
             <h2 className="brand-display" id="partners-heading">
@@ -202,7 +235,8 @@ export function Marketing() {
                 className="brand-primary"
                 href={`mailto:${brand.support.email}?subject=${encodeURIComponent(copy.inquirySubject)}`}
               >
-                {copy.inquiryAction} <ArrowUpRight size={17} aria-hidden="true" />
+                {copy.inquiryAction}{' '}
+                <ArrowUpRight size={17} aria-hidden="true" />
               </a>
               <Link className="brand-text-link" to="/philanthropy">
                 {copy.partnerLink} <ArrowUpRight size={17} aria-hidden="true" />
@@ -246,12 +280,19 @@ export function Marketing() {
               {brand.hq.city}, {brand.hq.state}, {brand.hq.country}
             </p>
             <p>
-              <a href={`mailto:${brand.support.email}`}>{brand.support.email}</a>
+              <a href={`mailto:${brand.support.email}`}>
+                {brand.support.email}
+              </a>
               <br />
-              <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>{brand.support.phone}</a>
+              <a href={`tel:${brand.support.phone.replace(/[^+\d]/g, '')}`}>
+                {brand.support.phone}
+              </a>
             </p>
           </div>
-          <nav className="brand-footer-columns" aria-label={labels.footerCompany}>
+          <nav
+            className="brand-footer-columns"
+            aria-label={labels.footerCompany}
+          >
             <div>
               <h2>{labels.footerCompany}</h2>
               {companyLinks.map((link) => (
@@ -274,9 +315,12 @@ export function Marketing() {
         </div>
         <div className="brand-footer-bottom">
           <p className="brand-footer-legal">{brand.legal.licence}</p>
-          <p className="brand-footer-legal">{readPassage(siteLabels.operating, lang)}</p>
+          <p className="brand-footer-legal">
+            {readPassage(siteLabels.operating, lang)}
+          </p>
           <p className="brand-footer-copyright">
-            © {new Date().getFullYear()} {brand.legalName}. {readPassage(siteLabels.rights, lang)}
+            © {new Date().getFullYear()} {brand.legalName}.{' '}
+            {readPassage(siteLabels.rights, lang)}
           </p>
         </div>
       </footer>

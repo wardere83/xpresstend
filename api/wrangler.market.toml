@@ -1,0 +1,15 @@
+# The public quote frame is intentionally separate from the application origin.
+# This service has no D1, auth, service bindings, secrets or application routes.
+name = "xpresstend-market"
+main = "src/market-worker.ts"
+compatibility_date = "2026-08-26"
+workers_dev = true
+
+[assets]
+directory = "../dist/market"
+binding = "ASSETS"
+run_worker_first = true
+# The Worker maps both document URLs explicitly; platform redirects must not
+# bypass its CSP, and an unknown path must never become an application shell.
+html_handling = "none"
+not_found_handling = "none"

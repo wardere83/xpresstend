@@ -1,6 +1,5 @@
 import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
-import { Logo } from '../components/Logo'
+import { SiteBrand } from '../components/SiteBrand'
 import { LanguageSwitcher } from '../components/LanguageSwitcher'
 import './sign-in.css'
 
@@ -274,16 +273,14 @@ export function SignInFrame({
       <div className="signin-sky">
         <Constellation />
       </div>
+      <header className="signin-header">
+        <SiteBrand />
+        <LanguageSwitcher />
+      </header>
       <div
         ref={content}
         className={`signin-content${wide ? ' signin-content-wide' : ''}`}
       >
-        <header className="signin-header">
-          <Link to="/" aria-label="XpressTend">
-            <Logo height={40} />
-          </Link>
-          <LanguageSwitcher />
-        </header>
         {children}
       </div>
     </div>

@@ -54,7 +54,13 @@ jobs:
       - run: npm run typecheck --prefix api
       - run: npm test --prefix api
       - run: npm run build
-      - run: npx playwright install --with-deps chrome
+      - run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+            echo "CHROME_PATH=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            npx playwright install --with-deps chrome
+          fi
       - run: npm run test:e2e
       - name: Keep failed release browser diagnostics
         if: failure()

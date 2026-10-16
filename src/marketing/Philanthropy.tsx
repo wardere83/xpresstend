@@ -5,7 +5,12 @@ import { brand } from '../config/brand'
 import { ContentSections, PageFooter, PageHeader, Q } from './PageShell'
 import { useI18n } from '../i18n'
 import { readPassage } from './siteContent'
-import { philanthropyLabels, philanthropyThemes, philanthropyPage, learningTopics } from './philanthropyCopy'
+import {
+  philanthropyLabels,
+  philanthropyThemes,
+  philanthropyPage,
+  learningTopics,
+} from './philanthropyCopy'
 import { RiverFlow } from './RiverFlow'
 import { BirdFlight } from './BirdFlight'
 import { usePageTitle } from './usePageTitle'
@@ -35,7 +40,8 @@ function useBannerFilm() {
     fetch(FILM_SRC, { method: 'HEAD' })
       .then((res) => {
         const type = res.headers.get('content-type') ?? ''
-        if (!cancelled && res.ok && type.startsWith('video/')) setAvailable(true)
+        if (!cancelled && res.ok && type.startsWith('video/'))
+          setAvailable(true)
       })
       .catch(() => {
         /* No film published yet; the still banner stands in. */
@@ -96,7 +102,11 @@ function Banner() {
             onPause={() => setPlaying(false)}
             onError={() => setFailed(true)}
           >
-            <source src={FILM_SRC} type="video/mp4" onError={() => setFailed(true)} />
+            <source
+              src={FILM_SRC}
+              type="video/mp4"
+              onError={() => setFailed(true)}
+            />
           </video>
           <button
             type="button"
@@ -105,7 +115,10 @@ function Banner() {
               if (playing) video.current?.pause()
               else void video.current?.play().catch(() => {})
             }}
-            aria-label={readPassage(playing ? philanthropyLabels.pause : philanthropyLabels.play, lang)}
+            aria-label={readPassage(
+              playing ? philanthropyLabels.pause : philanthropyLabels.play,
+              lang,
+            )}
           >
             {playing ? (
               <Pause size={18} fill="currentColor" aria-hidden="true" />
@@ -147,7 +160,7 @@ function Banner() {
           </p>
           <h1
             id="philanthropy-title"
-            className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+            className="public-page-title mt-5 max-w-3xl"
           >
             XpressTend Financial Literacy
           </h1>
@@ -167,7 +180,11 @@ function Banner() {
               </li>
             ))}
           </ul>
-          {hasFilm ? <p className="sr-only">{readPassage(philanthropyLabels.film, lang)}</p> : null}
+          {hasFilm ? (
+            <p className="sr-only">
+              {readPassage(philanthropyLabels.film, lang)}
+            </p>
+          ) : null}
         </div>
       </div>
     </section>
@@ -183,20 +200,30 @@ export function Philanthropy() {
       <PageHeader />
       <main id="company-content" tabIndex={-1}>
         <Banner />
-        <section className="philanthropy-nature corporate-partners" aria-labelledby="partners-heading">
+        <section
+          className="philanthropy-nature corporate-partners"
+          aria-labelledby="partners-heading"
+        >
           <div>
-            <p className="institutional-eyebrow">{readPassage(philanthropyLabels.title, lang)}</p>
+            <p className="institutional-eyebrow">
+              {readPassage(philanthropyLabels.title, lang)}
+            </p>
             <h2 id="partners-heading">{title}</h2>
             {philanthropyPage.sections[0].paragraphs.map((paragraph, i) => (
               <p key={i}>{readPassage(paragraph, lang)}</p>
             ))}
           </div>
-          <RiverFlow />
+          <div className="philanthropy-habitat">
+            <RiverFlow />
+          </div>
           <BirdFlight title={title} />
         </section>
         <div className="institutional-body">
           <ContentSections
-            page={{ ...philanthropyPage, sections: philanthropyPage.sections.slice(1) }}
+            page={{
+              ...philanthropyPage,
+              sections: philanthropyPage.sections.slice(1),
+            }}
             extra={(id) =>
               id === 'skills-heading' ? (
                 <div className="learning-topics">

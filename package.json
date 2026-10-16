@@ -53,5 +53,5 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   },
-  "description": "XpressTend — voice-first money remittance app (English, Somali, Portuguese, Spanish, Arabic)"
+  "description": "XpressTend — voice-first money remittance app (English, Portuguese, Spanish, Arabic)"
 }
