@@ -91,6 +91,112 @@ test('an available banner film plays silently and stops when reduced motion is e
   ).toBeVisible()
 })
 
+for (const language of ['en', 'ar']) {
+  test(`the film keeps ${language} copy readable over bright footage`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.addInitScript(
+      (language) => localStorage.setItem('xpresstend.lang', language),
+      language,
+    )
+    await page.route('**/media/community-literacy.mp4', (route) =>
+      route.request().method() === 'HEAD'
+        ? route.fulfill({ status: 200, contentType: 'video/mp4', body: '' })
+        : route.fulfill({
+            contentType: 'video/mp4',
+            path: 'public/media/closer.mp4',
+          }),
+    )
+    await page.goto('/#/philanthropy')
+    const film = page.locator('.philanthropy-banner-film')
+    await expect
+      .poll(() =>
+        film.evaluate((element: HTMLVideoElement) => element.currentTime),
+      )
+      .toBeGreaterThan(0)
+    // A pure white video frame exercises the worst-case footage brightness.
+    await film.evaluate(async (element: HTMLVideoElement) => {
+      const canvas = document.createElement('canvas')
+      canvas.width = 64
+      canvas.height = 64
+      const context = canvas.getContext('2d')!
+      context.fillStyle = '#fff'
+      context.fillRect(0, 0, 64, 64)
+      const stream = canvas.captureStream(0)
+      element.srcObject = stream
+      const frame = new Promise<void>((resolve) =>
+        element.requestVideoFrameCallback(() => resolve()),
+      )
+      const playback = element.play()
+      const track = stream.getVideoTracks()[0] as CanvasCaptureMediaStreamTrack
+      track.requestFrame()
+      await playback
+      await frame
+    })
+    const media = page.locator('.philanthropy-banner-media')
+    const scrim = page.locator('.philanthropy-film-scrim')
+    const mediaLayer = await media.evaluate((element) =>
+      Number(getComputedStyle(element).zIndex),
+    )
+    const scrimLayer = await scrim.evaluate((element) =>
+      Number(getComputedStyle(element).zIndex),
+    )
+    expect(mediaLayer).toBeLessThan(scrimLayer)
+    const intro = page.locator(
+      '.philanthropy-hero .institutional-hero-copy > p:not(.institutional-eyebrow):not(.sr-only)',
+    )
+    const bounds = (await intro.boundingBox())!
+    const text = await intro.evaluate(
+      (element) => getComputedStyle(element).color,
+    )
+    const screenshot = (await page.screenshot()).toString('base64')
+    const contrast = await page.evaluate(
+      async ({ screenshot, bounds, text }) => {
+        const image = new Image()
+        image.src = `data:image/png;base64,${screenshot}`
+        await image.decode()
+        const canvas = document.createElement('canvas')
+        canvas.width = image.width
+        canvas.height = image.height
+        const context = canvas.getContext('2d')!
+        context.drawImage(image, 0, 0)
+        const luminance = (channels: number[]) => {
+          const linear = channels.map((channel) => {
+            const value = channel / 255
+            return value <= 0.04045
+              ? value / 12.92
+              : ((value + 0.055) / 1.055) ** 2.4
+          })
+          return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722
+        }
+        const samples: number[] = []
+        for (let y = bounds.y + 2; y < bounds.y + bounds.height - 2; y += 4) {
+          for (let x = bounds.x + 2; x < bounds.x + bounds.width - 2; x += 4) {
+            samples.push(
+              luminance(
+                Array.from(context.getImageData(x, y, 1, 1).data).slice(0, 3),
+              ),
+            )
+          }
+        }
+        samples.sort((a, b) => a - b)
+        // Median sampling excludes the small number of pixels occupied by glyphs.
+        const backdrop = samples[Math.floor(samples.length / 2)]
+        const foreground = luminance(
+          text
+            .match(/[\d.]+/g)!
+            .slice(0, 3)
+            .map(Number),
+        )
+        return (foreground + 0.05) / (backdrop + 0.05)
+      },
+      { screenshot, bounds, text },
+    )
+    expect(contrast).toBeGreaterThanOrEqual(4.5)
+  })
+}
+
 test('the philanthropy river stays circular, flows only while visible and respects reduced motion', async ({
   page,
 }) => {
@@ -98,12 +204,10 @@ test('the philanthropy river stays circular, flows only while visible and respec
   await page.goto('/#/philanthropy')
   const river = page.locator('.philanthropy-habitat .xt-river')
   await river.scrollIntoViewIfNeeded()
-  await expect(river).toHaveAttribute('data-scene', 'river-habitat')
+  await expect(river).toHaveAttribute('data-scene', 'original-waterways')
   await expect(river.locator('clipPath circle')).toHaveCount(1)
-  await expect(river.locator('image')).toHaveAttribute(
-    'href',
-    /river-habitat\.webp$/,
-  )
+  await expect(river.locator('image')).toHaveCount(0)
+  await expect(river.locator('.xt-river-banks path')).toHaveCount(3)
   await expect(river).toHaveAttribute('data-active', 'true')
   const current = river.locator('.xt-river-current').first()
   const offset = await current.evaluate(

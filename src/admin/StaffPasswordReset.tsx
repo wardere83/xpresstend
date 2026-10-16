@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, ApiError } from '../lib/api'
-import { Logo } from '../components/Logo'
+import { SignInFrame } from '../auth/SignInFrame'
 import './staff-console.css'
 
 /**
@@ -64,15 +64,17 @@ export function StaffPasswordReset() {
   }
 
   const shell = (children: React.ReactNode) => (
-    <div className="staff-console staff-auth grid min-h-dvh place-items-center bg-ink-900 px-5 py-10">
+    <SignInFrame className="staff-console staff-auth">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] bg-white p-7">
-        <Logo height={26} />
         <div className="mt-6">{children}</div>
       </div>
-    </div>
+    </SignInFrame>
   )
 
-  if (loading) return shell(<p className="text-[13px] text-ink-500">Checking your link…</p>)
+  if (loading)
+    return shell(
+      <p className="text-[13px] text-ink-500">Checking your link…</p>,
+    )
 
   /*
    * One message for every reason a link fails, because the server gives one
@@ -82,10 +84,12 @@ export function StaffPasswordReset() {
   if (!info) {
     return shell(
       <>
-        <h1 className="text-[19px] font-semibold tracking-tight">Link not valid</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          Link not valid
+        </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          Reset links last one hour and work once. This one has expired, been used, or
-          was replaced by a newer request.
+          Reset links last one hour and work once. This one has expired, been
+          used, or was replaced by a newer request.
         </p>
         <button
           onClick={() => navigate('/admin', { replace: true })}
@@ -100,17 +104,20 @@ export function StaffPasswordReset() {
   if (done) {
     return shell(
       <>
-        <h1 className="text-[19px] font-semibold tracking-tight">Password changed</h1>
+        <h1 className="text-[19px] font-semibold tracking-tight">
+          Password changed
+        </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-500">
-          Sign in with <span className="font-semibold text-ink-700">{info.email}</span> and the
-          password you just chose.
+          Sign in with{' '}
+          <span className="font-semibold text-ink-700">{info.email}</span> and
+          the password you just chose.
         </p>
         {/* Worth saying plainly: a reset ends every session, which is what
             makes it useful after a suspected compromise, and would otherwise
             look like a second fault when another device signs itself out. */}
         <p className="mt-3 text-[12px] leading-relaxed text-ink-500">
-          Any other device signed in to this account has been signed out, and the account
-          is no longer locked.
+          Any other device signed in to this account has been signed out, and
+          the account is no longer locked.
         </p>
         <button
           onClick={() => navigate('/admin', { replace: true })}
@@ -127,10 +134,12 @@ export function StaffPasswordReset() {
 
   return shell(
     <form onSubmit={submit}>
-      <h1 className="text-[19px] font-semibold tracking-tight">Choose a new password</h1>
+      <h1 className="text-[19px] font-semibold tracking-tight">
+        Choose a new password
+      </h1>
       <p className="mt-1.5 text-[12px] leading-relaxed text-ink-500">
-        For <span className="font-semibold text-ink-700">{info.email}</span>. Staff passwords
-        are at least 16 characters.
+        For <span className="font-semibold text-ink-700">{info.email}</span>.
+        Staff passwords are at least 16 characters.
       </p>
       <div className="mt-5 space-y-3">
         <input

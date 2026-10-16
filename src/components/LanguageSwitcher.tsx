@@ -63,15 +63,17 @@ export function LanguageSwitcher({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-bold transition ${
-          dark
-            ? 'bg-white/15 text-white hover:bg-white/25'
-            : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+        className={`language-trigger flex min-h-11 items-center gap-1.5 rounded-full bg-transparent px-3 py-1.5 text-[12px] font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 ${
+          dark ? 'text-white hover:underline' : 'text-brand-700 hover:underline'
         }`}
       >
         <Globe size={14} strokeWidth={2.4} />
         <span>{current.nativeLabel}</span>
-        <ChevronDown size={13} strokeWidth={2.6} className={open ? 'rotate-180 transition' : 'transition'} />
+        <ChevronDown
+          size={13}
+          strokeWidth={2.6}
+          className={open ? 'rotate-180 transition' : 'transition'}
+        />
       </button>
 
       {open && (
@@ -107,14 +109,21 @@ export function LanguageSwitcher({
                 >
                   <span aria-hidden="true">{l.flag}</span>
                   <span className="flex-1">{l.nativeLabel}</span>
-                  {l.code === lang && <Check size={15} className="text-brand-600" strokeWidth={3} />}
+                  {l.code === lang && (
+                    <Check
+                      size={15}
+                      className="text-brand-600"
+                      strokeWidth={3}
+                    />
+                  )}
                 </button>
               </li>
             ))}
 
-
             {matches.length === 0 && (
-              <li className="px-3 py-4 text-center text-[12px] text-ink-500">{t('lang.noMatch')}</li>
+              <li className="px-3 py-4 text-center text-[12px] text-ink-500">
+                {t('lang.noMatch')}
+              </li>
             )}
           </ul>
         </div>

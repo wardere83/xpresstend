@@ -13,6 +13,7 @@ import {
 } from './philanthropyCopy'
 import { RiverFlow } from './RiverFlow'
 import { BirdFlight } from './BirdFlight'
+import { ComplianceOrbit } from './ComplianceOrbit'
 import { usePageTitle } from './usePageTitle'
 
 const media = `${import.meta.env.BASE_URL}media/`
@@ -20,8 +21,8 @@ const FILM_SRC = `${media}community-literacy.mp4`
 const FILM_POSTER = `${media}community-literacy-poster.webp`
 const enquiry = `mailto:${brand.support.email}?subject=Financial%20Literacy%20enquiry`
 // Holds at least 80% navy across the column the words occupy, then clears.
-const FILM_SCRIM =
-  'linear-gradient(to right, rgb(11 37 47 / 0.95) 0%, rgb(11 37 47 / 0.88) 45%, rgb(11 37 47 / 0.8) 62%, rgb(11 37 47 / 0.12) 90%)'
+const FILM_SCRIM_STOPS =
+  'rgb(11 37 47 / 0.95) 0%, rgb(11 37 47 / 0.88) 45%, rgb(11 37 47 / 0.8) 62%, rgb(11 37 47 / 0.12) 90%'
 
 /**
  * The banner film.
@@ -55,7 +56,7 @@ function useBannerFilm() {
 }
 
 function Banner() {
-  const { lang } = useI18n()
+  const { lang, dir } = useI18n()
   const available = useBannerFilm()
   const video = useRef<HTMLVideoElement>(null)
   const [failed, setFailed] = useState(false)
@@ -79,38 +80,36 @@ function Banner() {
 
   return (
     <section
-      className="relative isolate overflow-hidden bg-xt-navy text-white"
+      className="institutional-hero philanthropy-hero"
       aria-labelledby="philanthropy-title"
     >
       {hasFilm ? (
-        /*
-         * On phones the film sits above the words, whole and uncovered. From
-         * large screens up it fills the banner behind them.
-         */
-        <div className="relative lg:static">
-          <video
-            ref={video}
-            className="block aspect-video w-full object-cover lg:absolute lg:inset-0 lg:-z-20 lg:aspect-auto lg:h-full"
-            poster={FILM_POSTER}
-            autoPlay={!reduceMotion}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-            onPlay={() => setPlaying(true)}
-            onPause={() => setPlaying(false)}
-            onError={() => setFailed(true)}
-          >
-            <source
-              src={FILM_SRC}
-              type="video/mp4"
+        <>
+          <div className="philanthropy-banner-media">
+            <video
+              ref={video}
+              className="philanthropy-banner-film"
+              poster={FILM_POSTER}
+              autoPlay={!reduceMotion}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
               onError={() => setFailed(true)}
-            />
-          </video>
+            >
+              <source
+                src={FILM_SRC}
+                type="video/mp4"
+                onError={() => setFailed(true)}
+              />
+            </video>
+          </div>
           <button
             type="button"
-            className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full border border-white/40 bg-xt-navy text-white hover:bg-brand-700 focus-visible:shadow-[0_0_0_6px_#0b252f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-xt-turquoise lg:bottom-5 lg:right-5"
+            className="philanthropy-film-toggle"
             onClick={() => {
               if (playing) video.current?.pause()
               else void video.current?.play().catch(() => {})
@@ -126,7 +125,7 @@ function Banner() {
               <Play size={18} fill="currentColor" aria-hidden="true" />
             )}
           </button>
-        </div>
+        </>
       ) : (
         <div
           aria-hidden="true"
@@ -137,8 +136,10 @@ function Banner() {
       {hasFilm ? (
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 hidden lg:block"
-          style={{ backgroundImage: FILM_SCRIM }}
+          className="philanthropy-film-scrim absolute inset-0 -z-10"
+          style={{
+            backgroundImage: `linear-gradient(to ${dir === 'rtl' ? 'left' : 'right'}, ${FILM_SCRIM_STOPS})`,
+          }}
         />
       ) : (
         <div
@@ -147,46 +148,21 @@ function Banner() {
         />
       )}
 
-      <div
-        className={`mx-auto max-w-5xl px-5 sm:px-8 ${
-          hasFilm
-            ? 'py-12 sm:py-14 lg:flex lg:min-h-[40rem] lg:flex-col lg:justify-center lg:py-24'
-            : 'py-20 sm:py-28 lg:py-36'
-        }`}
-      >
-        <div className={hasFilm ? 'lg:max-w-xl' : undefined}>
-          <p className="text-xs font-semibold uppercase tracking-widest text-xt-turquoise">
-            {readPassage(philanthropyLabels.title, lang)}
+      <div className="institutional-hero-copy">
+        <p className="institutional-eyebrow">
+          {readPassage(philanthropyLabels.title, lang)}
+        </p>
+        <h1 id="philanthropy-title" className="public-page-title">
+          XpressTend Financial Literacy
+        </h1>
+        <p>{readPassage(philanthropyLabels.intro, lang)}</p>
+        {hasFilm ? (
+          <p className="sr-only">
+            {readPassage(philanthropyLabels.film, lang)}
           </p>
-          <h1
-            id="philanthropy-title"
-            className="public-page-title mt-5 max-w-3xl"
-          >
-            XpressTend Financial Literacy
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">
-            {readPassage(philanthropyLabels.intro, lang)}
-          </p>
-          <ul
-            className="mt-9 flex max-w-3xl flex-wrap gap-2.5"
-            aria-label={readPassage(philanthropyLabels.themes, lang)}
-          >
-            {philanthropyThemes.map((theme) => (
-              <li
-                key={theme[0]}
-                className="rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur-sm"
-              >
-                {readPassage(theme, lang)}
-              </li>
-            ))}
-          </ul>
-          {hasFilm ? (
-            <p className="sr-only">
-              {readPassage(philanthropyLabels.film, lang)}
-            </p>
-          ) : null}
-        </div>
+        ) : null}
       </div>
+      <ComplianceOrbit />
     </section>
   )
 }
@@ -200,6 +176,14 @@ export function Philanthropy() {
       <PageHeader />
       <main id="company-content" tabIndex={-1}>
         <Banner />
+        <ul
+          className="philanthropy-themes"
+          aria-label={readPassage(philanthropyLabels.themes, lang)}
+        >
+          {philanthropyThemes.map((theme) => (
+            <li key={theme[0]}>{readPassage(theme, lang)}</li>
+          ))}
+        </ul>
         <section
           className="philanthropy-nature corporate-partners"
           aria-labelledby="partners-heading"

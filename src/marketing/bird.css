@@ -17,20 +17,16 @@
 .xt-bird[data-phase='waiting'] .xt-bird-traveller {
   opacity: 0;
 }
-.xt-bird-body,
-.xt-bird-head {
+.xt-bird-body {
   fill: #fffefa;
   stroke: #8caaa8;
-  stroke-width: 0.65;
-}
-.xt-bird-head {
-  stroke-width: 0.45;
+  stroke-width: 0.55;
 }
 .xt-bird-tail,
 .xt-bird-folded-wing {
-  fill: #edf3ed;
+  fill: #f5f7f2;
   stroke: #8caaa8;
-  stroke-width: 0.65;
+  stroke-width: 0.55;
   stroke-linejoin: round;
 }
 .xt-bird-beak {
@@ -40,43 +36,45 @@
 }
 .xt-bird-feet {
   fill: none;
-  stroke: #d4ac76;
-  stroke-width: 1.2;
+  stroke: #ba9b84;
+  stroke-width: 1;
   stroke-linecap: round;
 }
 .xt-bird-eye {
   fill: #17343b;
 }
 .xt-bird-folded-feathers,
-.xt-bird-flight-feathers {
+.xt-bird-flight-feathers,
+.xt-bird-tail-feathers {
   fill: none;
-  stroke: #a5bdb7;
-  stroke-width: 0.65;
+  stroke: #bdccc5;
+  stroke-width: 0.55;
   stroke-linecap: round;
 }
 .xt-bird-flight-wing,
 .xt-bird-flight-feathers,
 .xt-bird-far-wing {
   display: none;
-  transform-origin: 2px -23px;
+  transform-origin: -1px -23px;
 }
 .xt-bird-flight-wing {
   fill: #fffefa;
   stroke: #8caaa8;
-  stroke-width: 0.65;
+  stroke-width: 0.55;
 }
 .xt-bird-far-wing {
-  fill: #dceae5;
+  fill: #e5ede7;
   stroke: #8caaa8;
-  stroke-width: 0.65;
+  stroke-width: 0.55;
 }
 .xt-bird[data-phase='flying']
   :is(.xt-bird-flight-wing, .xt-bird-flight-feathers, .xt-bird-far-wing) {
   display: block;
-  animation: xt-bird-wing 0.76s ease-in-out infinite;
+  animation: xt-bird-wing 0.84s cubic-bezier(0.4, 0, 0.5, 1) infinite;
 }
 .xt-bird[data-phase='flying'] .xt-bird-far-wing {
-  animation-delay: -0.08s;
+  animation-name: xt-bird-far-wing;
+  animation-delay: -0.06s;
 }
 .xt-bird[data-phase='flying']
   :is(.xt-bird-folded-wing, .xt-bird-folded-feathers) {
@@ -86,26 +84,50 @@
   transform: translate(3px, -5px) rotate(-12deg);
   opacity: 0.55;
 }
-.xt-bird[data-phase='flying'] .xt-bird-tail {
+.xt-bird[data-phase='flying'] :is(.xt-bird-tail, .xt-bird-tail-feathers) {
   transform-origin: 13px -14px;
-  animation: xt-bird-tail 0.76s ease-in-out infinite;
+  animation: xt-bird-tail 0.84s ease-in-out infinite;
 }
 .xt-bird[data-active='false']
   :is(
     .xt-bird-flight-wing,
     .xt-bird-flight-feathers,
     .xt-bird-far-wing,
-    .xt-bird-tail
+    .xt-bird-tail,
+    .xt-bird-tail-feathers
   ) {
   animation-play-state: paused;
 }
+/* A swept upstroke and a broader downstroke at the shoulder. The small
+   phase offset reveals two wings instead of rotating a single rigid paddle. */
 @keyframes xt-bird-wing {
   0%,
   100% {
     transform: rotate(-8deg) scaleY(1);
   }
-  46% {
-    transform: rotate(104deg) scaleY(0.82);
+  22% {
+    transform: rotate(-2deg) scaleY(0.58);
+  }
+  53% {
+    transform: rotate(14deg) scaleY(-0.78);
+  }
+  75% {
+    transform: rotate(1deg) scaleY(0.1);
+  }
+}
+@keyframes xt-bird-far-wing {
+  0%,
+  100% {
+    transform: rotate(-20deg) scaleY(0.86);
+  }
+  22% {
+    transform: rotate(-10deg) scaleY(0.5);
+  }
+  53% {
+    transform: rotate(8deg) scaleY(-0.65);
+  }
+  75% {
+    transform: rotate(-10deg) scaleY(0.12);
   }
 }
 @keyframes xt-bird-tail {
@@ -118,12 +140,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .xt-bird
+  .xt-bird[data-phase]
     :is(
       .xt-bird-flight-wing,
       .xt-bird-flight-feathers,
       .xt-bird-far-wing,
-      .xt-bird-tail
+      .xt-bird-tail,
+      .xt-bird-tail-feathers
     ) {
     animation: none;
   }
@@ -134,7 +157,8 @@ html[data-a11y-motion='reduce']
     .xt-bird-flight-wing,
     .xt-bird-flight-feathers,
     .xt-bird-far-wing,
-    .xt-bird-tail
+    .xt-bird-tail,
+    .xt-bird-tail-feathers
   ) {
   animation: none;
 }

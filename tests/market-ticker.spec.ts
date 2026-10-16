@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
   await mockMarket(page)
 })
 
-test('the Dollar Index tape stays at the hero bottom and pause controls reach its isolated frame', async ({
+test('the Dollar Index tape stays at the hero bottom and shared accessibility controls pause its isolated frame', async ({
   page,
 }) => {
   await page.goto('/#/')
@@ -29,10 +29,46 @@ test('the Dollar Index tape stays at the hero bottom and pause controls reach it
       .origin,
   ).toBe(MARKET_ORIGIN)
   expect(new URL(page.url()).origin).not.toBe(MARKET_ORIGIN)
-  await page.getByRole('button', { name: 'Pause ticker', exact: true }).click()
-  await expect(widget).toHaveAttribute('disable-scroll', '')
-  await page.getByRole('button', { name: 'Play ticker', exact: true }).click()
-  await expect(widget).not.toHaveAttribute('disable-scroll')
+  await expect(ticker.getByRole('button')).toHaveCount(0)
+  await frame
+    .locator('html')
+    .evaluate(() =>
+      window.postMessage(
+        { type: 'xpresstend:market-motion', paused: true },
+        '*',
+      ),
+    )
+  await expect(frame.locator('#ticker')).toHaveAttribute('data-paused', 'false')
+  await expect(widget).toHaveCount(1)
+  await page.locator('.a11y-launcher').click()
+  const accessibility = page.getByRole('dialog', {
+    name: 'Accessibility',
+    exact: true,
+  })
+  await accessibility
+    .getByLabel('Motion', { exact: true })
+    .selectOption('reduce')
+  await expect(ticker).toHaveAttribute('data-paused', 'true')
+  await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+  await expect(ticker.getByRole('link')).toHaveAttribute(
+    'href',
+    'https://www.tradingview.com/symbols/PEPPERSTONE-USDX/',
+  )
+  await expect(ticker.getByRole('link')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(accessibility).not.toBeVisible()
+  // The preference keeps the tape stopped after focus returns to the page.
+  await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+  await page.reload()
+  await expect(ticker).toHaveAttribute('data-paused', 'true')
+  await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+  await page.locator('.a11y-launcher').click()
+  await accessibility
+    .getByLabel('Motion', { exact: true })
+    .selectOption('system')
+  await expect(widget).toHaveCount(1)
+  await expect(frame.locator('#ticker')).toHaveAttribute('data-paused', 'false')
+  await page.keyboard.press('Escape')
   for (const width of [1440, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 900 })
     const geometry = await ticker.evaluate((el) => ({
@@ -81,13 +117,11 @@ test('saved and device motion preferences stop the Dollar Index tape', async ({
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#/')
-  const widget = page
-    .frameLocator('.market-ticker-frame')
-    .locator('tv-ticker-tape')
-  await expect(widget).toHaveAttribute('disable-scroll', '')
-  await expect(
-    page.getByRole('button', { name: 'Play ticker', exact: true }),
-  ).toBeDisabled()
+  const ticker = page.locator('.market-ticker')
+  await expect(ticker).toHaveAttribute('data-paused', 'true')
+  await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+  await expect(ticker.getByRole('link')).toBeVisible()
+  await expect(ticker.getByRole('button')).toHaveCount(0)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.addInitScript(() =>
     localStorage.setItem(
@@ -96,10 +130,10 @@ test('saved and device motion preferences stop the Dollar Index tape', async ({
     ),
   )
   await page.reload()
-  await expect(widget).toHaveAttribute('disable-scroll', '')
-  await expect(
-    page.getByRole('button', { name: 'Play ticker', exact: true }),
-  ).toBeDisabled()
+  await expect(ticker).toHaveAttribute('data-paused', 'true')
+  await expect(page.locator('.market-ticker-frame')).toHaveCount(0)
+  await expect(ticker.getByRole('link')).toBeVisible()
+  await expect(ticker.getByRole('button')).toHaveCount(0)
 })
 
 for (const [origin, embedded] of [
@@ -133,7 +167,9 @@ for (const [origin, embedded] of [
         'https://www.tradingview.com/symbols/PEPPERSTONE-USDX/',
       )
       await expect(page.locator('.market-ticker-fallback')).toBeVisible()
-      await expect(page.locator('.market-ticker-pause')).toBeDisabled()
+      await expect(
+        page.locator('.market-ticker').getByRole('button'),
+      ).toHaveCount(0)
     }
   })
 }

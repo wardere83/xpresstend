@@ -1,7 +1,7 @@
 import { AccessibilityLink } from '../accessibility/Accessibility'
 import { reducedMotionQuery } from '../accessibility/motion'
 import { useState, type ReactNode } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
   ArrowUpRight,
   ChevronDown,
@@ -11,8 +11,7 @@ import {
   Globe2,
 } from 'lucide-react'
 import { brand } from '../config/brand'
-import { SiteBrand } from '../components/SiteBrand'
-import { LanguageSwitcher } from '../components/LanguageSwitcher'
+import { PublicHeader } from '../components/PublicHeader'
 import { useI18n } from '../i18n'
 import { useBrandCopy } from './brandCopy'
 import { readPassage, siteLabels, type SitePage } from './siteContent'
@@ -30,14 +29,7 @@ function scrollToSection(id: string) {
   })
 }
 export function PageHeader() {
-  const copy = useBrandCopy()
-  const { lang, dir } = useI18n()
-  const nav = [
-    { to: '/company', label: copy.trustCompany },
-    { to: '/philanthropy', label: copy.trustPartners },
-    { to: '/compliance', label: copy.trustCompliance },
-    { to: '/security', label: copy.trustSecurity },
-  ]
+  const { lang } = useI18n()
   return (
     <>
       <a
@@ -50,17 +42,7 @@ export function PageHeader() {
       >
         {readPassage(siteLabels.skip, lang)}
       </a>
-      <header className="institutional-header" dir={dir}>
-        <SiteBrand />
-        <nav aria-label={copy.footerCompany}>
-          {nav.map((item) => (
-            <NavLink key={item.to} to={item.to}>
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-        <LanguageSwitcher />
-      </header>
+      <PublicHeader />
     </>
   )
 }
@@ -127,7 +109,7 @@ export function Shell({
       <PageHeader />
       <main id="company-content" tabIndex={-1}>
         <section className="institutional-hero">
-          <div>
+          <div className="institutional-hero-copy">
             <p className="institutional-eyebrow">{brand.legalName}</p>
             <h1>{title}</h1>
             {intro && <p>{intro}</p>}

@@ -245,6 +245,10 @@ test('reduced motion starts with a still perched bird and no flight control', as
   await expect(
     page.getByRole('button', { name: /bird animation/i }),
   ).toHaveCount(0)
+  const silhouette = await bird.locator('.xt-bird-art').boundingBox()
+  // A small dove stays clear of the heading rather than dominating it.
+  expect(silhouette!.width).toBeLessThan(55)
+  expect(silhouette!.width).toBeGreaterThan(30)
   const initial = await renderedBird(bird)
   await animationFrames(page)
   expect(await renderedBird(bird)).toEqual(initial)

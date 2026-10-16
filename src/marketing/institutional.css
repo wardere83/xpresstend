@@ -65,17 +65,66 @@
   justify-content: space-between;
   align-items: center;
   gap: 40px;
-  padding: 72px max(24px, calc((100vw - 1100px) / 2));
+  height: 324px;
+  padding: 40px max(24px, calc((100vw - 1100px) / 2));
 }
-.institutional-hero > div:first-child {
+.institutional-hero-copy {
   max-width: 760px;
+  min-width: 0;
 }
 .institutional-hero h1 {
   font-size: var(--public-page-heading);
   font-weight: 500;
   letter-spacing: -0.048em;
   line-height: 1.17;
-  margin: 20px 0;
+  margin: 16px 0;
+}
+.institutional-hero .compliance-orbit {
+  width: 220px;
+  height: 220px;
+  margin: 0;
+}
+.philanthropy-banner-media {
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+}
+.philanthropy-banner-film {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.philanthropy-film-toggle {
+  position: absolute;
+  inset-inline-start: 24px;
+  bottom: 12px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: white;
+  border: 1px solid #8ba7ac;
+  border-radius: 50%;
+  background: #0b252f;
+  cursor: pointer;
+}
+.philanthropy-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 1148px;
+  margin: auto;
+  padding: 24px;
+  list-style: none;
+}
+.philanthropy-themes li {
+  padding: 8px 14px;
+  border: 1px solid #b7ccce;
+  border-radius: 24px;
+  color: #173b43;
+  font-size: 14px;
+  background: #eef6f5;
 }
 .institutional-hero p:not(.institutional-eyebrow) {
   color: #c9dcdf;
@@ -389,8 +438,47 @@
     padding: 24px;
   }
   .institutional-hero {
-    padding-block: 48px;
+    padding-block: 32px;
   }
+  .institutional-hero .compliance-orbit {
+    width: 180px;
+    height: 180px;
+  }
+}
+@media (max-width: 700px) {
+  .institutional-hero,
+  .institutional-hero:has(.compliance-orbit) {
+    height: 480px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 14px;
+    padding: 24px;
+  }
+  .institutional-hero h1 {
+    margin-block: 12px;
+  }
+  .institutional-hero p:not(.institutional-eyebrow) {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  .institutional-hero .compliance-orbit {
+    align-self: center;
+    width: 144px;
+    height: 144px;
+    margin: 0;
+  }
+}
+@media (max-width: 360px) {
+  .institutional-hero .compliance-orbit {
+    width: 120px;
+    height: 120px;
+  }
+}
+html:is([data-a11y-text='large'], [data-a11y-text='largest'])
+  .institutional-hero {
+  height: auto;
+  min-height: 324px;
 }
 @media (max-width: 600px) {
   .institutional-header nav a {

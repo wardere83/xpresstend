@@ -10,8 +10,8 @@ import { brand } from '../config/brand'
  * baked ground as a visible rectangle, and the whole set had to be re-exported
  * to change one thing.
  *
- * As text it has no background at all, takes its colour from whatever it sits
- * on through `currentColor`, and stays sharp at any size on any screen. Placing
+ * As text it has no background at all, uses a deep navy on light surfaces
+ * and a white variant on dark surfaces, and stays sharp at any size on any screen. Placing
  * it on navy, on white, or on a photograph all work without a separate file,
  * which is what "does not clash with the background" actually requires.
  *
@@ -27,8 +27,7 @@ export function Logo({
 }: {
   /**
    * Retained so existing callers keep working. `dark` forces white, `light`
-   * forces navy, and omitting it inherits the surrounding text colour, which
-   * is what most placements should do.
+   * forces navy, and omitting it also uses the darker navy.
    */
   tone?: 'light' | 'dark'
   height?: number
@@ -41,22 +40,23 @@ export function Logo({
   className?: string
 }) {
   const full = variant === 'full'
+  // A restrained six-percent increase applies to every existing lockup.
+  const lockupHeight = height * (38 / 36)
 
   /*
    * The wordmark fills the height on its own. In the stacked lockup the two
    * lines and the gap between them share it, in roughly the 0.58 / 0.34 ratio
    * the artwork uses, so both variants read as the same mark at the same size.
    */
-  const primarySize = full ? height * 0.58 : height * 0.82
-  const secondarySize = height * 0.34
+  const primarySize = full ? lockupHeight * 0.58 : lockupHeight * 0.82
+  const secondarySize = lockupHeight * 0.34
 
-  const colour =
-    tone === 'dark' ? '#FFFFFF' : tone === 'light' ? 'var(--color-brand-600)' : 'currentColor'
+  const colour = tone === 'dark' ? '#FFFFFF' : '#061b24'
 
   return (
     <span
       className={`inline-flex select-none flex-col justify-center leading-none ${className}`}
-      style={{ height, color: colour }}
+      style={{ height: lockupHeight, color: colour }}
       /* One accessible name for the whole lockup, so a screen reader announces
          the company rather than spelling out two stacked lines. */
       role="img"
@@ -65,7 +65,8 @@ export function Logo({
       <span
         aria-hidden="true"
         style={{
-          fontFamily: "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
+          fontFamily:
+            "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
           fontSize: primarySize,
           fontWeight: 300,
           letterSpacing: '-0.005em',
@@ -79,7 +80,8 @@ export function Logo({
         <span
           aria-hidden="true"
           style={{
-            fontFamily: "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
+            fontFamily:
+              "'Jost', 'Century Gothic', 'Avenir Next', ui-sans-serif, system-ui, sans-serif",
             fontSize: secondarySize,
             fontWeight: 300,
             /* The artwork sets the second line slightly open, which is what

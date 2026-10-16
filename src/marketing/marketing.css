@@ -12,6 +12,12 @@
   color: #476771;
 }
 .corporate-hero {
+  --landing-banner-height: min(
+    474px,
+    calc(
+      100svh - var(--site-header-height) - 1px - env(safe-area-inset-top, 0px)
+    )
+  );
   overflow: hidden;
   background: #0b252f;
   color: #fff;
@@ -21,18 +27,19 @@
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 32px;
   align-items: center;
-  min-height: 610px;
-  padding-block: 80px;
+  height: calc(var(--landing-banner-height) - 65px);
+  min-height: min-content;
+  padding-block: 32px;
 }
 .corporate-hero .brand-eyebrow {
   color: #4bd1d3;
 }
 .corporate-hero h1 {
-  font-size: clamp(42px, 4.65vw, 72px);
+  font-size: clamp(32px, 3.4vw, 48px);
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.05em;
-  margin-block: 25px;
+  margin-block: 16px;
   text-wrap: balance;
 }
 .corporate-hero h1 span {
@@ -40,8 +47,8 @@
 }
 .corporate-intro {
   max-width: 550px;
-  font-size: 17px;
-  line-height: 1.85;
+  font-size: 16px;
+  line-height: 1.6;
   color: #d6e7ea;
 }
 .corporate-site .brand-actions {
@@ -1507,4 +1514,85 @@ summary {
   .brand-mobile-menu nav {
     inset-inline-end: -90px;
   }
+}
+
+/* The complete globe banner includes its quote strip in the initial viewport. */
+.corporate-hero .corporate-globe {
+  width: min(100%, 336px);
+  max-height: 100%;
+  margin: 0;
+}
+.corporate-hero .corporate-hero-actions {
+  margin-top: 20px;
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  .corporate-hero h1 {
+    font-size: clamp(32px, 3.4vw, 48px);
+  }
+  .corporate-hero-inner {
+    height: calc(var(--landing-banner-height) - 65px);
+    min-height: min-content;
+    padding-block: 24px;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .corporate-hero {
+    --landing-banner-height: min(
+      525px,
+      calc(
+        100svh - var(--site-header-height) - 1px - env(safe-area-inset-top, 0px)
+      )
+    );
+  }
+  .corporate-hero-inner {
+    width: calc(100% - 40px);
+    height: calc(var(--landing-banner-height) - 65px);
+    min-height: min-content;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(78px, 1fr);
+    gap: 8px;
+    padding-block: 16px;
+  }
+  .corporate-hero h1 {
+    font-size: clamp(28px, 7.8vw, 32px);
+    margin-block: 10px;
+    line-height: 1.1;
+  }
+  .corporate-hero .corporate-intro {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .corporate-hero .corporate-hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .corporate-hero-actions :is(.brand-primary, .brand-text-link) {
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .corporate-hero-actions svg {
+    flex-shrink: 0;
+  }
+  .corporate-hero .corporate-globe {
+    width: min(38vw, 144px);
+    height: min(38vw, 144px);
+    max-height: 100%;
+    align-self: center;
+    justify-self: center;
+  }
+  .corporate-hero .corporate-globe svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+html:is([data-a11y-text='large'], [data-a11y-text='largest'])
+  .corporate-hero-inner {
+  height: auto;
+  min-height: calc(var(--landing-banner-height) - 65px);
 }

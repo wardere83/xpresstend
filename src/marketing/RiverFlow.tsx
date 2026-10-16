@@ -2,7 +2,15 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { reducedMotionQuery } from '../accessibility/motion'
 import './river.css'
 
-/** A circular river habitat photograph, with a subtle visible current overlay. */
+// Restore the original Earth-icon waterways from PR #28, rather than a
+// photographic medallion. Current traces follow those same three contours.
+const channels = [
+  'M215.4 150 H170 A20 20 0 0 0 150 170 V215.4',
+  'M70 33.4 V50 A30 30 0 0 0 100 80 A20 20 0 0 1 120 100 C120 111 129 120 140 120 A20 20 0 0 0 160 100 C160 89 169 80 180 80 H211.7',
+  'M110 219.5 V180 A20 20 0 0 0 90 160 A20 20 0 0 1 70 140 V130 A20 20 0 0 0 50 110 H20.5',
+]
+
+/** The original circular river artwork, with an unhurried current. */
 export function RiverFlow() {
   const id = useId().replace(/:/g, '')
   const ref = useRef<SVGSVGElement>(null)
@@ -37,48 +45,56 @@ export function RiverFlow() {
       className="xt-river"
       viewBox="0 0 240 240"
       data-active={active}
-      data-scene="river-habitat"
+      data-scene="original-waterways"
       aria-hidden="true"
       focusable="false"
     >
       <defs>
         <clipPath id={`${id}-circle`}>
-          <circle cx="120" cy="120" r="110" />
+          <circle cx="120" cy="120" r="100" />
         </clipPath>
-        <filter id={`${id}-light`}>
-          <feGaussianBlur stdDeviation=".3" />
-        </filter>
+        <radialGradient id={`${id}-land`} cx="48%" cy="40%" r="70%">
+          <stop stopColor="#173d46" />
+          <stop offset="1" stopColor="#0b252f" />
+        </radialGradient>
+        <linearGradient
+          id={`${id}-depth`}
+          x1="20"
+          y1="30"
+          x2="215"
+          y2="220"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#20565f" />
+          <stop offset="0.48" stopColor="#2d7880" />
+          <stop offset="1" stopColor="#164d57" />
+        </linearGradient>
       </defs>
-      <circle className="xt-river-outer-ring" cx="120" cy="120" r="117" />
+      <circle className="xt-river-outer-ring" cx="120" cy="120" r="107" />
       <g clipPath={`url(#${id}-circle)`}>
-        <image
-          className="xt-river-photo"
-          href={`${import.meta.env.BASE_URL}media/river-habitat.webp`}
-          x="10"
-          y="10"
-          width="220"
-          height="220"
-          preserveAspectRatio="xMidYMid slice"
-        />
-        <g className="xt-river-currents" filter={`url(#${id}-light)`}>
-          <path
-            className="xt-river-motion xt-river-current"
-            pathLength="100"
-            d="M56 5 C37 45 78 75 110 104 S155 151 183 183 S205 216 232 238"
-          />
-          <path
-            className="xt-river-motion xt-river-current"
-            pathLength="100"
-            d="M72 5 C49 47 92 79 124 109 S168 151 197 183 S217 213 243 233"
-          />
-          <path
-            className="xt-river-motion xt-river-shimmer"
-            pathLength="100"
-            d="M45 5 C31 44 67 81 101 113 S147 159 171 193 S189 219 214 239"
-          />
+        <circle cx="120" cy="120" r="100" fill={`url(#${id}-land)`} />
+        <g className="xt-river-banks">
+          {channels.map((d, index) => (
+            <path key={index} d={d} />
+          ))}
+        </g>
+        <g className="xt-river-water" stroke={`url(#${id}-depth)`}>
+          {channels.map((d, index) => (
+            <path key={index} d={d} />
+          ))}
+        </g>
+        <g className="xt-river-currents">
+          {channels.map((d, index) => (
+            <path
+              key={index}
+              className="xt-river-motion xt-river-current"
+              pathLength="100"
+              d={d}
+            />
+          ))}
         </g>
       </g>
-      <circle className="xt-river-rim" cx="120" cy="120" r="110" />
+      <circle className="xt-river-rim" cx="120" cy="120" r="100" />
     </svg>
   )
 }

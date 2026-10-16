@@ -80,7 +80,7 @@ function CompanyPage({ name }: { name: keyof typeof sitePages }) {
     <Shell
       title={readPassage(page.title, lang)}
       intro={readPassage(page.intro, lang)}
-      visual={name === 'compliance' ? <ComplianceOrbit /> : undefined}
+      visual={<ComplianceOrbit />}
     >
       <InstitutionalActions />
       <ContentSections

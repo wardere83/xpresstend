@@ -718,3 +718,51 @@
 .demo-phone .demo-summary dd {
   max-width: 55%;
 }
+
+/* Keep the complete website menu while the phone retains its own scroll area. */
+.demo-page {
+  min-height: 100dvh;
+}
+.demo-page .demo-site {
+  min-height: calc(
+    100dvh - var(--site-header-height) - 1px - env(safe-area-inset-top, 0px)
+  );
+}
+.demo-page .demo-phone {
+  height: min(
+    606px,
+    calc(
+      100dvh - var(--site-header-height) - 65px - env(safe-area-inset-top, 0px)
+    )
+  );
+  min-height: min(
+    500px,
+    calc(
+      100dvh - var(--site-header-height) - 65px - env(safe-area-inset-top, 0px)
+    )
+  );
+}
+.demo-page[dir='rtl'] .demo-back svg,
+.demo-page[dir='rtl'] .demo-top > a svg {
+  transform: scaleX(-1);
+}
+@media (max-width: 700px) {
+  .demo-page .demo-site {
+    height: calc(
+      100dvh - var(--site-header-height) - 1px - env(safe-area-inset-top, 0px)
+    );
+    min-height: 0;
+    padding-top: 16px;
+  }
+  .demo-page .demo-phone {
+    height: min(
+      606px,
+      calc(
+        100dvh - var(--site-header-height) - 17px -
+          env(safe-area-inset-top, 0px) -
+          max(68px, calc(env(safe-area-inset-bottom) + 60px))
+      )
+    );
+    min-height: 0;
+  }
+}

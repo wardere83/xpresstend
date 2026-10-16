@@ -212,10 +212,11 @@ test('support routes enquiries to the selected team and learning topics expand',
   await topic.locator('summary').click()
   await expect(topic).toHaveAttribute('open', '')
   await expect(topic).toContainText('Make a plan for each dollar')
-  await expect(page.locator('.xt-river-photo')).toHaveAttribute(
-    'href',
-    /river-habitat.webp$/,
+  await expect(page.locator('.xt-river')).toHaveAttribute(
+    'data-scene',
+    'original-waterways',
   )
+  await expect(page.locator('.xt-river image')).toHaveCount(0)
   const bird = page.locator('.xt-bird')
   await expect(bird).toHaveAttribute('data-artwork', 'white-dove')
   await expect(bird.locator('.xt-bird-body')).toHaveCSS(
