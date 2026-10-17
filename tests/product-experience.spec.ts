@@ -473,10 +473,11 @@ test('footer company, support and privacy links reach their intended pages', asy
   ]) {
     await page.goto('/')
     const link = page.locator('footer').getByRole('link', { name, exact: true })
-    // Scroll before click's stability checks so Chromium updates the isolated
-    // ticker frame's hit region before dispatching input at the footer.
+    // Wait for an actual composited frame after scrolling. A viewport assertion
+    // alone can precede Chromium updating the isolated ticker's hit region.
     await link.scrollIntoViewIfNeeded()
     await expect(link).toBeInViewport()
+    await page.screenshot()
     await link.click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
   }
