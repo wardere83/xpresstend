@@ -38,7 +38,7 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
   const [note, setNote] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
-  const [includeDisabled, setIncludeDisabled] = useState(false)
+  const [showDisabledOnly, setShowDisabledOnly] = useState(false)
   useEffect(() => { if (inviteRequest > 0 && me.role === 'owner') setAdding(true) }, [inviteRequest, me.role])
   const [resetLink, setResetLink] = useState<{
     email: string
@@ -109,19 +109,19 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
         )}
       </div>
 
-      {isOwner && (includeDisabled || rows.some((row) => row.status === 'disabled')) ? (
+      {isOwner && (showDisabledOnly || rows.some((row) => row.status === 'disabled')) ? (
         <div className="mb-4">
           <label className="inline-flex items-center gap-2 text-[12px] text-ink-700">
             <input
               type="checkbox"
-              checked={includeDisabled}
-              onChange={(event) => setIncludeDisabled(event.target.checked)}
+              checked={showDisabledOnly}
+              onChange={(event) => setShowDisabledOnly(event.target.checked)}
               aria-describedby="staff-account-filter-description"
             />
-            Include disabled accounts
+            Show disabled accounts only
           </label>
           <p id="staff-account-filter-description" role="status" className="mt-2 text-[11px] text-ink-500">
-            {includeDisabled
+            {showDisabledOnly
               ? 'Viewing disabled accounts only.'
               : 'Viewing active and invited accounts.'}
           </p>
@@ -184,7 +184,7 @@ export function StaffPanel({ me, inviteRequest = 0 }: { me: AdminUser; inviteReq
             </tr>
           </thead>
           <tbody>
-            {rows.filter((r) => includeDisabled ? r.status === 'disabled' : r.status !== 'disabled').map((r) => (
+            {rows.filter((r) => showDisabledOnly ? r.status === 'disabled' : r.status !== 'disabled').map((r) => (
               <tr key={r.id} className="border-b border-ink-200/50 last:border-0">
                 <td className="px-4 py-3">
                   <span className="font-semibold">{r.name}</span>

@@ -92,7 +92,7 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(
     page.getByText('staff-30@example.invalid', { exact: true }),
   ).toHaveCount(0)
-  const disabledFilter = page.getByLabel('Include disabled accounts', { exact: true })
+  const disabledFilter = page.getByLabel('Show disabled accounts only', { exact: true })
   const staffRows = page.locator('.operations-panel tbody tr')
   for (let toggle = 0; toggle < 2; toggle++) {
     await disabledFilter.check()
@@ -205,7 +205,7 @@ test('zero customers and two active staff remain distinct from the disabled-only
   await expect(staffMetric).toContainText('Accounts with active access')
   await expect(staffMetric).not.toContainText('of 4 accounts')
   await page.getByRole('button', { name: 'Staff', exact: true }).click()
-  const disabledFilter = page.getByLabel('Include disabled accounts', { exact: true })
+  const disabledFilter = page.getByLabel('Show disabled accounts only', { exact: true })
   const tableRows = page.locator('.operations-panel tbody tr')
   for (let toggle = 0; toggle < 3; toggle++) {
     await expect(disabledFilter).not.toBeChecked()
