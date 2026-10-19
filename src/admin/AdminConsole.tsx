@@ -1067,7 +1067,7 @@ function Dashboard({
               {
                 label: 'Active staff',
                 value: overview.staff.active.toLocaleString(),
-                detail: `of ${overview.staff.total.toLocaleString()} accounts`,
+                detail: 'Accounts with active access',
               },
             ].map((metric) => (
               <article

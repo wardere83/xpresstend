@@ -33,7 +33,7 @@ test('financial workspace preserves metrics, separate document and record scroll
           name: `Staff fixture ${index + 1}`,
           email: `staff-${index + 1}@example.invalid`,
           role: 'viewer',
-          status: index === 29 ? 'disabled' : 'active',
+          status: index === 29 ? 'disabled' : index === 0 ? 'invited' : 'active',
           created_at: '2026-10-15T09:00:00Z',
           last_login_at: null,
         })),
@@ -92,14 +92,20 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(
     page.getByText('staff-30@example.invalid', { exact: true }),
   ).toHaveCount(0)
-  await page.getByLabel('Include disabled accounts', { exact: true }).check()
-  await expect(
-    page.getByText('staff-30@example.invalid', { exact: true }),
-  ).toBeVisible()
-  await page.getByLabel('Include disabled accounts', { exact: true }).uncheck()
-  await expect(
-    page.getByText('staff-30@example.invalid', { exact: true }),
-  ).toHaveCount(0)
+  const disabledFilter = page.getByLabel('Include disabled accounts', { exact: true })
+  const staffRows = page.locator('.operations-panel tbody tr')
+  for (let toggle = 0; toggle < 2; toggle++) {
+    await disabledFilter.check()
+    await expect(staffRows).toHaveCount(1)
+    await expect(page.getByText('staff-30@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-1@example.invalid', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('staff-2@example.invalid', { exact: true })).toHaveCount(0)
+    await disabledFilter.uncheck()
+    await expect(staffRows).toHaveCount(29)
+    await expect(page.getByText('staff-1@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-2@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-30@example.invalid', { exact: true })).toHaveCount(0)
+  }
   await page
     .getByPlaceholder('name@xpresstend.com')
     .fill('invited@example.invalid')
@@ -156,6 +162,73 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(
     page.getByRole('button', { name: 'Pause heading motion' }),
   ).toBeHidden()
+})
+
+test('zero customers and two active staff remain distinct from the disabled-only account view', async ({
+  page,
+}) => {
+  const staff = [
+    { id: 'support-owner', email: 'support@xpresstend.com', status: 'active', role: 'owner' },
+    { id: 'abdikarim-staff', email: 'abdikarim@xpresstend.com', status: 'active', role: 'compliance' },
+    { id: 'legacy-owner', email: 'hassan.wardere@gmail.com', status: 'disabled', role: 'owner' },
+    { id: 'legacy-staff', email: 'ibnuballer@gmail.com', status: 'disabled', role: 'agent' },
+  ].map((account, index) => ({
+    ...account,
+    name: `Staff fixture ${index + 1}`,
+    created_at: '2026-10-18T09:00:00Z',
+    last_login_at: null,
+  }))
+  const mutations: string[] = []
+  await page.route('**/api/**', (route) => {
+    const request = route.request()
+    if (request.method() !== 'GET') mutations.push(`${request.method()} ${new URL(request.url()).pathname}`)
+    const responses: Record<string, unknown> = {
+      '/api/admin/auth/me': { admin: staff[0] },
+      '/api/admin/overview': {
+        customers: { total: 0, active: 0, verified: 0 },
+        staff: { total: 4, active: 2 },
+        awaitingReview: 0,
+        byStatus: [],
+        volume: [],
+      },
+      '/api/admin/ledger/trial-balance': { balanced: true, imbalances: [], accounts: [] },
+      '/api/admin/transfers': { transfers: [] },
+      '/api/admin/staff': { staff },
+    }
+    return route.fulfill({ json: responses[new URL(request.url()).pathname] ?? {} })
+  })
+  await page.goto('/#/admin')
+  const customerMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Customers', { exact: true }) })
+  const staffMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Active staff', { exact: true }) })
+  await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
+  await expect(staffMetric).toContainText('Accounts with active access')
+  await expect(staffMetric).not.toContainText('of 4 accounts')
+  await page.getByRole('button', { name: 'Staff', exact: true }).click()
+  const disabledFilter = page.getByLabel('Include disabled accounts', { exact: true })
+  const tableRows = page.locator('.operations-panel tbody tr')
+  for (let toggle = 0; toggle < 3; toggle++) {
+    await expect(disabledFilter).not.toBeChecked()
+    await expect(tableRows).toHaveCount(2)
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'active' ? 1 : 0)
+    }
+    await disabledFilter.check()
+    await expect(tableRows).toHaveCount(2)
+    await expect(page.getByText('Viewing disabled accounts only.', { exact: true })).toBeVisible()
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'disabled' ? 1 : 0)
+    }
+    await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+    await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
+    await disabledFilter.uncheck()
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'active' ? 1 : 0)
+    }
+  }
+  await expect(page.getByText('Viewing active and invited accounts.', { exact: true })).toBeVisible()
+  await expect(tableRows).toHaveCount(2)
+  expect(mutations).toEqual([])
 })
 
 test('entry halos respect reduced motion and the globe has no visible drag caption', async ({
