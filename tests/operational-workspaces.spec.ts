@@ -457,6 +457,88 @@ for (const area of ['environment', 'queue'] as const) test(`a superseding ${area
   expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
 })
 
+for (const held of ['queue', 'environment'] as const) test(`shared refresh rechecks a completed ${held === 'queue' ? 'environment' : 'queue'} branch while ${held} is pending`, async ({ page }) => {
+  await page.clock.install()
+  const requests = await mockOwner(page)
+  const queuePath = '/api/admin/overview'
+  const environmentPath = '/api/admin/compliance/readiness'
+  const heldPath = held === 'queue' ? queuePath : environmentPath
+  const completedPath = held === 'queue' ? environmentPath : queuePath
+  const payload = (path: string) => path === environmentPath ? environmentFixture() : {
+    customers: { total: 12, active: 10, verified: 8 },
+    staff: { total: 3, active: 2 },
+    awaitingReview: 1,
+    byStatus: [], volume: [],
+  }
+  let heldCalls = 0
+  let completedCalls = 0
+  let release: (() => Promise<void>) | undefined
+  await page.route(`**${heldPath}`, route => {
+    heldCalls++
+    if (heldCalls === 2) return new Promise<void>(resolve => {
+      release = async () => {
+        await route.fulfill({ json: payload(heldPath) })
+        resolve()
+      }
+    })
+    return route.fulfill({ json: payload(heldPath) })
+  })
+  await page.route(`**${completedPath}`, route => {
+    completedCalls++
+    return completedCalls === 3
+      ? route.fulfill({ status: 503, json: { error: 'completed_branch_poll_failed' } })
+      : route.fulfill({ json: payload(completedPath) })
+  })
+  await page.goto('/#/admin')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(refresh).toBeEnabled()
+  const completed = page.waitForResponse(response => new URL(response.url()).pathname === completedPath && response.status() === 200)
+  await refresh.click()
+  await (await completed).finished()
+  await expect.poll(() => heldCalls).toBe(2)
+  await expect.poll(() => completedCalls).toBe(2)
+  await page.evaluate(() => Promise.resolve())
+  await page.clock.fastForward(30001)
+  await expect.poll(() => completedCalls).toBe(3)
+  await expect.poll(() => heldCalls).toBe(3)
+  await expect(refresh).toBeDisabled()
+  await release!()
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refresh incomplete. Please retry.')
+  const failed = held === 'queue' ? 'the financial controls environment' : 'the queue and statistics'
+  await expect(page.getByText(`Could not refresh ${failed}. Please retry.`, { exact: true })).toBeVisible()
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+test('a superseded failed workflow transfer read is reported as a failure rather than an empty queue', async ({ page }) => {
+  const requests = await mockOwner(page)
+  await page.goto('/#/admin')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(refresh).toBeEnabled()
+  await page.getByRole('button', { name: 'completed', exact: true }).click()
+  await expect(refresh).toBeEnabled()
+  let holdCalls = 0
+  let release: (() => Promise<void>) | undefined
+  await page.route('**/api/admin/transfers?**', route => {
+    if (new URL(route.request().url()).searchParams.get('status') !== 'compliance_hold') return route.fallback()
+    holdCalls++
+    if (holdCalls === 1) return new Promise<void>(resolve => {
+      release = async () => {
+        await route.fulfill({ status: 503, json: { error: 'workflow_transfer_read_failed' } })
+        resolve()
+      }
+    })
+    return route.fallback()
+  })
+  await page.getByRole('button', { name: /Transfer queue/ }).click()
+  await expect.poll(() => holdCalls).toBe(2)
+  await expect(page.getByText('XPT-REVIEW', { exact: true })).toBeVisible()
+  await release!()
+  await expect(page.getByText('Could not open the next review. Please refresh and retry.', { exact: true })).toBeVisible()
+  await expect(page.getByText('Queue refreshed. No transfers are awaiting review.', { exact: true })).toHaveCount(0)
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
 test('workstation refresh preserves viewer and agent permissions without compliance requests', async ({ page }) => {
   for (const role of ['viewer', 'agent']) {
     const requests = await mockOwner(page)

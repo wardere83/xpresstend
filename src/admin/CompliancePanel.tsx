@@ -50,6 +50,10 @@ type Readiness = {
   }
 }
 export type ComplianceSection = 'readiness' | 'review' | 'evidence' | 'connections'
+export interface ComplianceRefreshHandle {
+  refresh: () => Promise<void>
+  getLatest: () => Promise<void> | null
+}
 const button = 'rounded-full bg-ink-900 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-40'
 const input = 'w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm'
 
@@ -61,7 +65,7 @@ export function CompliancePanel({
 }: {
   admin: AdminUser
   sectionRequest?: { section: ComplianceSection; request: number }
-  onRegisterRefresh?: (refresh: (() => Promise<void>) | null) => void
+  onRegisterRefresh?: (handle: ComplianceRefreshHandle | null) => void
   onRefreshingChange?: (refreshing: boolean) => void
 }) {
   const [section, setSection] = useState<ComplianceSection>('readiness')
@@ -110,20 +114,6 @@ export function CompliancePanel({
     latestRefresh.current = task
     return task
   }, [performRefresh])
-  const refreshLatest = useCallback(async () => {
-    let task = refresh()
-    // A poll or post-mutation read may supersede this request. The shared
-    // workstation action must report the latest outcome, not the stale one.
-    for (;;) {
-      const [result] = await Promise.allSettled([task])
-      if (latestRefresh.current && latestRefresh.current !== task) {
-        task = latestRefresh.current
-        continue
-      }
-      if (result.status === 'rejected') throw result.reason
-      return
-    }
-  }, [refresh])
   const invalidateRefresh = useCallback(() => {
     refreshRequest.current++
   }, [])
@@ -137,9 +127,9 @@ export function CompliancePanel({
   }, [onRefreshingChange, invalidateRefresh])
   useEffect(() => {
     if (!allowed) return
-    onRegisterRefresh?.(refreshLatest)
+    onRegisterRefresh?.({ refresh, getLatest: () => latestRefresh.current })
     return () => onRegisterRefresh?.(null)
-  }, [allowed, refreshLatest, onRegisterRefresh])
+  }, [allowed, refresh, onRegisterRefresh])
   useEffect(() => {
     if (!allowed) return
     const update = () => {

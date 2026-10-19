@@ -1,6 +1,6 @@
 import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { SignInFrame } from '../auth/SignInFrame'
-import { CompliancePanel, type ComplianceSection } from './CompliancePanel'
+import { CompliancePanel, type ComplianceRefreshHandle, type ComplianceSection } from './CompliancePanel'
 /**
  * Staff console.
  *
@@ -764,10 +764,10 @@ function Dashboard({
   const [workstationRefreshState, setWorkstationRefreshState] = useState<
     'idle' | 'refreshing' | 'failed'
   >('idle')
-  const complianceRefresh = useRef<(() => Promise<void>) | null>(null)
+  const complianceRefresh = useRef<ComplianceRefreshHandle | null>(null)
   const registerComplianceRefresh = useCallback(
-    (refresh: (() => Promise<void>) | null) => {
-      complianceRefresh.current = refresh
+    (handle: ComplianceRefreshHandle | null) => {
+      complianceRefresh.current = handle
     },
     [],
   )
@@ -794,9 +794,8 @@ function Dashboard({
           api.get<TrialBalance>('/admin/ledger/trial-balance'),
           api.get<OperationsOverview>('/admin/overview'),
         ])
-        if (request !== loadRequest.current)
-          return t.status === 'fulfilled' ? t.value.transfers : []
         if (t.status === 'rejected') throw t.reason
+        if (request !== loadRequest.current) return t.value.transfers
         if (b.status === 'rejected') throw b.reason
         if (o.status === 'rejected') throw o.reason
         setRows(t.value.transfers)
@@ -815,18 +814,6 @@ function Dashboard({
     latestLoad.current = task
     return task
   }, [performLoad])
-  const loadLatest = useCallback(async () => {
-    let task = load()
-    for (;;) {
-      const [result] = await Promise.allSettled([task])
-      if (latestLoad.current && latestLoad.current !== task) {
-        task = latestLoad.current
-        continue
-      }
-      if (result.status === 'rejected') throw result.reason
-      return
-    }
-  }, [load])
 
   const invalidateLoad = useCallback(() => {
     loadRequest.current++
@@ -849,25 +836,31 @@ function Dashboard({
   async function refreshWorkstation() {
     setNote(null)
     setWorkstationRefreshState('refreshing')
-    const results = await Promise.allSettled([
-      loadLatest(),
-      ...(canDecide
-        ? [complianceRefresh.current
-            ? complianceRefresh.current()
-            : Promise.reject(new Error('Financial controls are not ready.'))]
-        : []),
-    ])
-    const failed = results.flatMap((result, index) =>
-      result.status === 'rejected'
-        ? [index === 0 ? 'the queue and statistics' : 'the financial controls environment']
-        : [],
-    )
-    if (failed.length) {
-      setWorkstationRefreshState('failed')
-      setNote(`Could not refresh ${failed.join(' and ')}. Please retry.`)
-    } else {
-      setWorkstationRefreshState('idle')
-      setUpdatedAt(new Date().toLocaleTimeString())
+    const queueStarted = load()
+    const environment = canDecide ? complianceRefresh.current : null
+    const environmentStarted = canDecide
+      ? environment?.refresh() ?? Promise.reject(new Error('Financial controls are not ready.'))
+      : null
+    for (;;) {
+      const queue = latestLoad.current ?? queueStarted
+      const controls = environment?.getLatest() ?? environmentStarted
+      const results = await Promise.allSettled([queue, ...(controls ? [controls] : [])])
+      // Recheck both branches together: a previously completed branch can be
+      // polled again while the other branch is still pending.
+      if (latestLoad.current !== queue || (environment && environment.getLatest() !== controls)) continue
+      const failed = results.flatMap((result, index) =>
+        result.status === 'rejected'
+          ? [index === 0 ? 'the queue and statistics' : 'the financial controls environment']
+          : [],
+      )
+      if (failed.length) {
+        setWorkstationRefreshState('failed')
+        setNote(`Could not refresh ${failed.join(' and ')}. Please retry.`)
+      } else {
+        setWorkstationRefreshState('idle')
+        setUpdatedAt(new Date().toLocaleTimeString())
+      }
+      return
     }
   }
 
