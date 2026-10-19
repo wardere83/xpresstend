@@ -1061,6 +1061,12 @@ html[data-a11y-motion='reduce'] .operations-ticker {
   .staff-console [data-operations-metric] > p:last-child {
     display: none;
   }
+  .staff-console [data-operations-metric='customers'] > p:last-child {
+    display: block;
+    font-size: 10px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
   .operations-volume > div {
     padding: 6px 10px;
   }

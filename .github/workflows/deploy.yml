@@ -123,6 +123,18 @@ jobs:
         run: npx wrangler d1 execute xpresstend-production --remote --file=migrations/0009_bank_compliance.sql --yes
         working-directory: api
 
+      - name: Prepare internal test account classification
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler d1 execute xpresstend-production --remote --file=migrations/0010_internal_test_accounts.sql --yes
+        working-directory: api
+
+      # This owner-confirmed cohort is frozen to the original four registrations;
+      # ordinary releases never classify newly registered customers.
+      - name: Classify the four owner-confirmed internal test registrations
+        if: env.CLOUDFLARE_API_TOKEN != '' && contains(github.event.head_commit.message, 'Classify the four owner-confirmed internal test registrations')
+        run: node scripts/classify-internal-tests.mjs --remote --apply
+        working-directory: api
+
       - name: Refresh and validate official Treasury sanctions data
         id: sanctions-data
         if: env.CLOUDFLARE_API_TOKEN != ''

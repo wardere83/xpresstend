@@ -225,8 +225,14 @@ test('the philanthropy river stays circular, flows only while visible and respec
     }),
   )
   await expect(river).toHaveAttribute('data-active', 'false')
+  await expect(current).toHaveCSS('animation-play-state', 'paused')
   const paused = await current.evaluate(
-    (element) => getComputedStyle(element).strokeDashoffset,
+    async (element) => {
+      // CSS pause has a pending animation task until the browser commits it.
+      // Sample the frozen position after that task, rather than the DOM flag.
+      await Promise.all(element.getAnimations().map((animation) => animation.ready))
+      return getComputedStyle(element).strokeDashoffset
+    },
   )
   await page.evaluate(async () => {
     for (let frame = 0; frame < 6; frame++)
