@@ -280,3 +280,62 @@ test('entry halos respect reduced motion and the globe has no visible drag capti
   await expect(page.locator('.xt-globe')).toBeVisible()
   await expect(page.locator('.xt-globe-hint')).toHaveCount(0)
 })
+
+test('reviewer summary explains excluded internal tests while retaining the read-only consumer directory', async ({
+  page,
+}) => {
+  const consumers = Array.from({ length: 4 }, (_, index) => ({
+    id: `internal-test-${index + 1}`,
+    email: `internal-test-${index + 1}@example.invalid`,
+    first_name: 'Internal',
+    last_name: `Test ${index + 1}`,
+    country: 'US',
+    status: 'active',
+    kyc_status: 'unverified',
+    kyc_tier: 0,
+    created_at: '2026-10-18T09:00:00Z',
+    last_login_at: null,
+    transfer_count: 0,
+  }))
+  const mutations: string[] = []
+  await page.route('**/api/**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (request.method() !== 'GET') mutations.push(`${request.method()} ${path}`)
+    const responses: Record<string, unknown> = {
+      '/api/admin/auth/reviewer/me': {
+        admin: { id: 'reviewer-fixture', name: 'Reviewer Fixture', email: 'reviewer@example.invalid', role: 'reviewer' },
+      },
+      '/api/admin/reviewer/overview': {
+        customers: { total: 0, active: 0, verified: 0, internalTestAccounts: 4 },
+        transfers: 0,
+        awaitingReview: 0,
+        volume: [],
+        ledger: [],
+      },
+      '/api/admin/reviewer/consumers': { consumers, page: 1, limit: 50, total: 4 },
+    }
+    return path in responses
+      ? route.fulfill({ json: responses[path] })
+      : route.fulfill({ status: 401, json: { error: 'unauthorized' } })
+  })
+  await page.goto('/#/institutional-reviewer')
+  const summary = page.getByRole('region', { name: 'Reviewer summary', exact: true })
+  const consumersMetric = summary.locator('article').filter({ has: page.getByText('Consumers', { exact: true }) })
+  await expect(consumersMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(page.locator('tbody tr')).toHaveCount(4)
+  const note = summary.getByText('4 internal test accounts are excluded from customer totals. The consumer directory retains these records for audit.', { exact: true })
+  for (const width of [1440, 320]) {
+    await page.setViewportSize({ width, height: 844 })
+    await expect(note).toBeVisible()
+    await expect(note).toHaveCSS('white-space', 'normal')
+    expect(await note.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(await note.evaluate(element => element.clientWidth))
+    expect(await note.evaluate(element => element.scrollHeight)).toBeLessThanOrEqual(await note.evaluate(element => element.clientHeight))
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+    await expect(page.locator('tbody tr')).toHaveCount(4)
+    for (const consumer of consumers)
+      await expect(page.getByText(consumer.email, { exact: true })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: /Invite|Approve|Reject|Reset link|Disable|Re-enable/ })).toHaveCount(0)
+  }
+  expect(mutations).toEqual([])
+})
