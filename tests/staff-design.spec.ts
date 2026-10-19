@@ -1,11 +1,28 @@
 import { expect, test } from '@playwright/test'
 
+const complianceResponses = {
+  '/api/admin/compliance/overview': {
+    testMode: true,
+    providers: { identity: false, sanctions: false },
+    batches: [], keys: [], screenings: [], identity: [],
+  },
+  '/api/admin/compliance/eligible': { transfers: [] },
+  '/api/admin/compliance/readiness': {
+    checkedAt: '2026-10-18T09:00:00Z',
+    bankApi: { available: true, activeConnections: 0, banks: [], mode: 'review-only', basePath: '/api/bank/v1' },
+    identity: { provider: 'persona', configured: false },
+    globalSanctions: { provider: 'complyadvantage', configured: false },
+    ofac: { ready: true, reason: null, checkedAt: '2026-10-18T09:00:00Z', entityCount: 1, nameCount: 1 },
+  },
+}
+
 test('financial workspace preserves metrics, separate document and record scrolling, and narrow layouts', async ({
   page,
 }) => {
   await page.route('**/api/**', (route) => {
     const path = new URL(route.request().url()).pathname
     const responses: Record<string, unknown> = {
+      ...complianceResponses,
       '/api/admin/auth/me': {
         admin: {
           id: 'design-owner',
@@ -42,8 +59,8 @@ test('financial workspace preserves metrics, separate document and record scroll
     return route.fulfill({ json: responses[path] ?? {} })
   })
   await page.goto('/#/admin')
-  const tickerCopy = 'XpressTend Operations | Owner View | Access Approval Hub'
-  await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(tickerCopy)
+  const heading = page.getByRole('heading', { level: 1 })
+  await expect(heading).toHaveText('XpressTend Operations')
   await expect(page.getByText('Your operations. In view.', { exact: true })).toHaveCount(0)
   await expect(page.locator('.operations-ledger')).toContainText('Balanced')
   const customerMetric = page.locator('[data-operations-metric="customers"]')
@@ -60,14 +77,13 @@ test('financial workspace preserves metrics, separate document and record scroll
   await page.evaluate(async () => {
     await document.fonts.ready
   })
-  const ticker = page.locator('.operations-ticker')
-  const track = page.locator('.operations-ticker-track')
-  await expect(track.locator('span').first()).toHaveText(tickerCopy)
-  await expect(ticker.getByRole('button')).toHaveCount(0)
-  await expect(ticker).toHaveCSS('background-color', 'rgb(11, 37, 47)')
-  await expect(ticker).toHaveCSS('border-top-width', '1px')
-  await expect(track).toHaveCSS('animation-duration', '16s')
-  await expect(track).toHaveCSS('animation-iteration-count', 'infinite')
+  await expect(page.locator('.operations-ticker,.operations-ticker-track')).toHaveCount(0)
+  await expect(heading).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(heading).toHaveCSS('border-top-width', '0px')
+  await expect(heading).toHaveCSS('font-weight', '700')
+  await expect(heading).toHaveCSS('animation-name', 'none')
+  await expect(page.getByText('Owner View', { exact: false })).toHaveCount(0)
+  await expect(page.getByText('Access Approval Hub', { exact: false })).toHaveCount(0)
   await expect(page.locator('.staff-role')).toHaveText('owner')
   await expect(page.locator('.staff-role')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await expect(page.locator('.staff-role')).toHaveCSS('border-top-color', 'rgb(255, 255, 255)')
@@ -75,15 +91,6 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(signOut).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
   await expect(signOut).toHaveCSS('border-top-color', 'rgb(255, 255, 255)')
   await expect(page.locator('.staff-session-email')).toHaveCSS('font-weight', await signOut.evaluate(el => getComputedStyle(el).fontWeight))
-  const workflowType = await page.locator('.operations-flow strong').first().evaluate(el => {
-    const style = getComputedStyle(el)
-    return { family: style.fontFamily, size: style.fontSize, weight: style.fontWeight }
-  })
-  await expect(track.locator('span').first()).toHaveCSS('font-family', workflowType.family)
-  await expect(track.locator('span').first()).toHaveCSS('font-size', workflowType.size)
-  await expect(track.locator('span').first()).toHaveCSS('font-weight', workflowType.weight)
-  const initialPosition = await track.evaluate(el => getComputedStyle(el).transform)
-  await expect.poll(() => track.evaluate(el => getComputedStyle(el).transform)).not.toBe(initialPosition)
   await page.screenshot({
     path: 'test-results/staff-workspace-desktop.png',
     fullPage: true,
@@ -120,7 +127,8 @@ test('financial workspace preserves metrics, separate document and record scroll
   )
   for (const width of [1440, 320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 })
-    expect((await ticker.boundingBox())!.width).toBeLessThanOrEqual(300)
+    await expect(heading).toHaveCSS('font-size', await page.locator('.operations-ledger strong').evaluate(el => getComputedStyle(el).fontSize))
+    expect(await heading.evaluate(el => el.scrollWidth)).toBeLessThanOrEqual(await heading.evaluate(el => el.clientWidth))
     await expect(customerMetric.locator('p').last()).toBeVisible()
     expect(await customerMetric.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(await customerMetric.evaluate(element => element.clientWidth))
     expect(
@@ -155,18 +163,15 @@ test('financial workspace preserves metrics, separate document and record scroll
     fullPage: true,
   })
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await expect(track).toHaveCSS('animation-name', 'none')
+  await expect(heading).toHaveCSS('animation-name', 'none')
   await expect(
     page.getByRole('button', { name: 'Pause heading motion' }),
   ).toBeHidden()
-  expect(
-    await ticker.evaluate((element) => element.scrollWidth),
-  ).toBeLessThanOrEqual(await ticker.evaluate((element) => element.clientWidth))
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.locator('html').evaluate((element) => {
     element.dataset.a11yMotion = 'reduce'
   })
-  await expect(track).toHaveCSS('animation-name', 'none')
+  await expect(heading).toHaveCSS('animation-name', 'none')
   await expect(
     page.getByRole('button', { name: 'Pause heading motion' }),
   ).toBeHidden()
@@ -191,6 +196,7 @@ test('internal test registrations stay excluded from customer metrics while disa
     const request = route.request()
     if (request.method() !== 'GET') mutations.push(`${request.method()} ${new URL(request.url()).pathname}`)
     const responses: Record<string, unknown> = {
+      ...complianceResponses,
       '/api/admin/auth/me': { admin: staff[0] },
       '/api/admin/overview': {
         customers: { total: 0, active: 0, verified: 0, internalTestAccounts: 4 },

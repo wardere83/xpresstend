@@ -1,6 +1,6 @@
 import { useInterfaceCopy } from '../i18n/interfaceCopy'
 import { SignInFrame } from '../auth/SignInFrame'
-import { CompliancePanel, type ComplianceSection } from './CompliancePanel'
+import { CompliancePanel, type ComplianceRefreshHandle, type ComplianceSection } from './CompliancePanel'
 /**
  * Staff console.
  *
@@ -757,8 +757,20 @@ function Dashboard({
   const [clearingId, setClearingId] = useState<string | null>(null)
   const reviewRequest = useRef(0)
   const loadRequest = useRef(0)
+  const latestLoad = useRef<Promise<TransferRow[]> | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
+  const [complianceRefreshing, setComplianceRefreshing] = useState(false)
+  const [workstationRefreshState, setWorkstationRefreshState] = useState<
+    'idle' | 'refreshing' | 'failed'
+  >('idle')
+  const complianceRefresh = useRef<ComplianceRefreshHandle | null>(null)
+  const registerComplianceRefresh = useCallback(
+    (handle: ComplianceRefreshHandle | null) => {
+      complianceRefresh.current = handle
+    },
+    [],
+  )
   const [inviteRequest, setInviteRequest] = useState(0)
   const [sectionRequest, setSectionRequest] = useState<{
     section: ComplianceSection
@@ -770,40 +782,52 @@ function Dashboard({
 
   const canDecide = admin.role === 'compliance' || admin.role === 'owner'
 
-  const load = useCallback(
+  const performLoad = useCallback(
     async (status = filter) => {
       const request = ++loadRequest.current
       setRefreshing(true)
       try {
-        const [t, b, o] = await Promise.all([
+        const [t, b, o] = await Promise.allSettled([
           api.get<{ transfers: TransferRow[] }>(
             `/admin/transfers?status=${encodeURIComponent(status)}`,
+            { timeoutMs: 15_000 },
           ),
-          api.get<TrialBalance>('/admin/ledger/trial-balance'),
-          api.get<OperationsOverview>('/admin/overview'),
+          api.get<TrialBalance>('/admin/ledger/trial-balance', { timeoutMs: 15_000 }),
+          api.get<OperationsOverview>('/admin/overview', { timeoutMs: 15_000 }),
         ])
-        if (request !== loadRequest.current) return t.transfers
-        setRows(t.transfers)
-        setBalance(b)
-        setOverview(o)
+        if (t.status === 'rejected') throw t.reason
+        if (request !== loadRequest.current) return t.value.transfers
+        if (b.status === 'rejected') throw b.reason
+        if (o.status === 'rejected') throw o.reason
+        setRows(t.value.transfers)
+        setBalance(b.value)
+        setOverview(o.value)
         setUpdatedAt(new Date().toLocaleTimeString())
-        return t.transfers
+        return t.value.transfers
       } finally {
         if (request === loadRequest.current) setRefreshing(false)
       }
     },
     [filter],
   )
+  const load = useCallback((status?: string) => {
+    const task = performLoad(status)
+    latestLoad.current = task
+    return task
+  }, [performLoad])
 
   const invalidateLoad = useCallback(() => {
     loadRequest.current++
   }, [])
   useEffect(() => {
     const refresh = () => {
-      if (!document.hidden)
-        void load().catch(() =>
-          setNote('Could not load the queue. Retry with Refresh workspace.'),
-        )
+      if (!document.hidden) {
+        const task = load()
+        void task.catch(() => {
+          if (latestLoad.current === task)
+            setNote('Could not load the queue. Retry with Refresh workstation.')
+        })
+      }
     }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
@@ -812,6 +836,37 @@ function Dashboard({
       invalidateLoad()
     }
   }, [load, invalidateLoad])
+
+  async function refreshWorkstation() {
+    setNote(null)
+    setWorkstationRefreshState('refreshing')
+    const queueStarted = load()
+    const environment = canDecide ? complianceRefresh.current : null
+    const environmentStarted = canDecide
+      ? environment?.refresh() ?? Promise.reject(new Error('Financial controls are not ready.'))
+      : null
+    for (;;) {
+      const queue = latestLoad.current ?? queueStarted
+      const controls = environment?.getLatest() ?? environmentStarted
+      const results = await Promise.allSettled([queue, ...(controls ? [controls] : [])])
+      // Recheck both branches together: a previously completed branch can be
+      // polled again while the other branch is still pending.
+      if (latestLoad.current !== queue || (environment && environment.getLatest() !== controls)) continue
+      const failed = results.flatMap((result, index) =>
+        result.status === 'rejected'
+          ? [index === 0 ? 'the queue and statistics' : 'the financial controls environment']
+          : [],
+      )
+      if (failed.length) {
+        setWorkstationRefreshState('failed')
+        setNote(`Could not refresh ${failed.join(' and ')}. Please retry.`)
+      } else {
+        setWorkstationRefreshState('idle')
+        setUpdatedAt(new Date().toLocaleTimeString())
+      }
+      return
+    }
+  }
 
   async function runWorkflow(key: 'queue' | 'compliance' | 'staff') {
     setNote(null)
@@ -966,19 +1021,8 @@ function Dashboard({
       <main className="mx-auto max-w-6xl px-5 py-8">
         <section className="operations-hero" aria-labelledby="operations-title">
           <div className="operations-brand">
-            <h1 id="operations-title" className="operations-ticker">
-              <span className="sr-only">
-                XpressTend Operations | Owner View | Access Approval Hub
-              </span>
-              <span className="operations-ticker-window" aria-hidden="true">
-                <span className="operations-ticker-track">
-                  {[0, 1].map((copy) => (
-                    <span key={copy}>
-                      XpressTend Operations | Owner View | Access Approval Hub
-                    </span>
-                  ))}
-                </span>
-              </span>
+            <h1 id="operations-title" className="operations-title">
+              XpressTend Operations
             </h1>
             <p className="operations-intro">
               A connected view of transfers, financial controls and the people
@@ -1136,22 +1180,19 @@ function Dashboard({
 
         <div className="operations-toolbar">
           <span role="status">
-            {refreshing
-              ? 'Refreshing workspace…'
+            {refreshing || complianceRefreshing || workstationRefreshState === 'refreshing'
+              ? 'Refreshing workstation…'
+              : workstationRefreshState === 'failed'
+                ? 'Refresh incomplete. Please retry.'
               : updatedAt
                 ? `Updated ${updatedAt}`
                 : 'Waiting for data'}
           </span>
           <button
-            disabled={refreshing}
-            onClick={() => {
-              setNote(null)
-              void load().catch(() =>
-                setNote('Unable to refresh. Please retry.'),
-              )
-            }}
+            disabled={workstationRefreshState === 'refreshing'}
+            onClick={() => void refreshWorkstation()}
           >
-            Refresh workspace
+            Refresh workstation
           </button>
         </div>
         <div
@@ -1167,9 +1208,14 @@ function Dashboard({
           {tab === 'staff' ? (
             <StaffPanel me={admin} inviteRequest={inviteRequest} />
           ) : null}
-          {tab === 'compliance' ? (
-            <CompliancePanel admin={admin} sectionRequest={sectionRequest} />
-          ) : null}
+          <div hidden={tab !== 'compliance'}>
+            <CompliancePanel
+              admin={admin}
+              sectionRequest={sectionRequest}
+              onRegisterRefresh={registerComplianceRefresh}
+              onRefreshingChange={setComplianceRefreshing}
+            />
+          </div>
 
           {tab === 'queue' ? (
             <>

@@ -1,6 +1,16 @@
 import { createHash } from 'node:crypto'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page, type Request } from '@playwright/test'
 import { mockAccount } from './fixtures/account'
+
+function environmentFixture(entityCount = 19911) {
+  return {
+    checkedAt: '2026-10-18T09:00:00Z',
+    bankApi: { available: true, activeConnections: 0, banks: [], mode: 'review-only', basePath: '/api/bank/v1' },
+    identity: { provider: 'persona', configured: false },
+    globalSanctions: { provider: 'complyadvantage', configured: false },
+    ofac: { ready: true, checkedAt: '2026-10-18T09:00:00Z', reason: null, entityCount, nameCount: 41205 },
+  }
+}
 
 async function mockOwner(page: Page) {
   const requests: string[] = []
@@ -306,8 +316,8 @@ test('a stale bank decision failure cannot invalidate a reconnected review', asy
   await expect(page.getByRole('alert')).toHaveCount(0)
 })
 
-test('a recovered compliance refresh clears the error and performs one refresh cycle', async ({ page }) => {
-  await mockOwner(page)
+test('the shared workstation refresh recovers compliance and refetches the queue and statistics once', async ({ page }) => {
+  const requests = await mockOwner(page)
   let calls = 0
   await page.route('**/api/admin/compliance/overview', (route) => {
     calls++
@@ -326,10 +336,304 @@ test('a recovered compliance refresh clears the error and performs one refresh c
   await page.goto('/#/admin')
   await page.getByRole('button', { name: /Financial controls/ }).click()
   await expect(page.getByRole('alert')).toBeVisible()
-  await page.getByRole('button', { name: 'Refresh environment', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: 'Environment status refreshed.' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Refresh environment', exact: true })).toHaveCount(0)
+  const previous = [...requests]
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await refresh.click()
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
   await expect(page.getByRole('alert')).toHaveCount(0)
   expect(calls).toBe(2)
+  for (const path of ['/api/admin/transfers', '/api/admin/ledger/trial-balance', '/api/admin/overview', '/api/admin/compliance/eligible', '/api/admin/compliance/readiness']) {
+    expect(requests.filter(request => request === `GET ${path}`).length - previous.filter(request => request === `GET ${path}`).length).toBe(1)
+  }
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+test('shared refresh awaits the environment, preserves connection drafts and works outside Financial controls', async ({ page }) => {
+  const requests = await mockOwner(page)
+  await page.goto('/#/admin')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await page.getByRole('button', { name: /Financial controls/ }).click()
+  await page.getByRole('button', { name: 'Connections & API', exact: true }).click()
+  await page.getByLabel('Bank identifier', { exact: true }).fill('draft-bank')
+  const draft = page.getByLabel('Connection label', { exact: true })
+  await draft.fill('Unsubmitted connection draft')
+  let release: (() => Promise<void>) | undefined
+  let readinessCalls = 0
+  await page.route('**/api/admin/compliance/readiness', route => {
+    readinessCalls++
+    if (readinessCalls === 1) return new Promise<void>(resolve => {
+      release = async () => {
+        await route.fulfill({ json: environmentFixture(29911) })
+        resolve()
+      }
+    })
+    return route.fulfill({ json: environmentFixture(30111) })
+  })
+  const overviewBefore = requests.filter(request => request === 'GET /api/admin/overview').length
+  await refresh.click()
+  await expect.poll(() => readinessCalls).toBe(1)
+  await expect.poll(() => requests.filter(request => request === 'GET /api/admin/overview').length).toBe(overviewBefore + 1)
+  await expect(refresh).toBeDisabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refreshing workstation…')
+  await page.getByRole('button', { name: 'Staff', exact: true }).click()
+  await expect(draft).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Create scoped key', exact: true })).toBeHidden()
+  await page.getByRole('button', { name: 'Compliance & banks', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Connections & API', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(draft).toHaveValue('Unsubmitted connection draft')
+  await release!()
+  await expect(refresh).toBeEnabled()
+  await expect(page.getByLabel('Bank identifier', { exact: true })).toHaveValue('draft-bank')
+  await expect(draft).toHaveValue('Unsubmitted connection draft')
+  await page.getByRole('button', { name: 'Transfers', exact: true }).click()
+  await expect(draft).toBeHidden()
+  await refresh.click()
+  await expect(refresh).toBeEnabled()
+  expect(readinessCalls).toBe(2)
+  await page.getByRole('button', { name: 'Compliance & banks', exact: true }).click()
+  await expect(draft).toHaveValue('Unsubmitted connection draft')
+  await page.getByRole('button', { name: 'Verification', exact: true }).click()
+  await expect(page.getByText('OFAC live · 30,111 entities', { exact: true })).toBeVisible()
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+for (const area of ['environment', 'queue'] as const) test(`a superseding ${area} poll remains part of the shared refresh outcome and can recover`, async ({ page }) => {
+  await page.clock.install()
+  const requests = await mockOwner(page)
+  const releases: Record<number, () => Promise<void>> = {}
+  let calls = 0
+  const payload = (stage: 'initial' | 'stale' | 'recovered') => area === 'environment'
+    ? environmentFixture(stage === 'initial' ? 19911 : stage === 'stale' ? 11111 : 39911)
+    : {
+        customers: { total: stage === 'initial' ? 12 : stage === 'stale' ? 99 : 15, active: 10, verified: 8 },
+        staff: { total: 3, active: 2 },
+        awaitingReview: 1,
+        byStatus: [], volume: [],
+      }
+  await page.route(area === 'environment' ? '**/api/admin/compliance/readiness' : '**/api/admin/overview', route => {
+    const call = ++calls
+    if (call === 2 || call === 3) return new Promise<void>(resolve => {
+      releases[call] = async () => {
+        await route.fulfill(call === 2
+          ? { json: payload('stale') }
+          : { status: 503, json: { error: 'readiness_unavailable' } })
+        resolve()
+      }
+    })
+    return route.fulfill({ json: payload(call === 1 ? 'initial' : 'recovered') })
+  })
+  await page.goto('/#/admin')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await page.clock.fastForward(29000)
+  await refresh.click()
+  await expect.poll(() => calls).toBe(2)
+  await page.clock.fastForward(1001)
+  await expect.poll(() => calls).toBe(3)
+  await releases[2]()
+  await expect(refresh).toBeDisabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refreshing workstation…')
+  await releases[3]()
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refresh incomplete. Please retry.')
+  await expect(page.getByText(`Could not refresh ${area === 'environment' ? 'the financial controls environment' : 'the queue and statistics'}. Please retry.`, { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Compliance & banks', exact: true }).click()
+  if (area === 'environment') {
+    await expect(page.getByText('OFAC live · 19,911 entities', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('OFAC live · 11,111 entities', { exact: true })).toHaveCount(0)
+  } else {
+    await expect(page.locator('[data-operations-metric="customers"] p').nth(1)).toHaveText('12')
+  }
+  await refresh.click()
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  if (area === 'environment')
+    await expect(page.getByText('OFAC live · 39,911 entities', { exact: true })).toBeVisible()
+  else
+    await expect(page.locator('[data-operations-metric="customers"] p').nth(1)).toHaveText('15')
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+for (const held of ['queue', 'environment'] as const) test(`shared refresh rechecks a completed ${held === 'queue' ? 'environment' : 'queue'} branch while ${held} is pending`, async ({ page }) => {
+  await page.clock.install()
+  const requests = await mockOwner(page)
+  const queuePath = '/api/admin/overview'
+  const environmentPath = '/api/admin/compliance/readiness'
+  const heldPath = held === 'queue' ? queuePath : environmentPath
+  const completedPath = held === 'queue' ? environmentPath : queuePath
+  const payload = (path: string) => path === environmentPath ? environmentFixture() : {
+    customers: { total: 12, active: 10, verified: 8 },
+    staff: { total: 3, active: 2 },
+    awaitingReview: 1,
+    byStatus: [], volume: [],
+  }
+  let heldCalls = 0
+  let completedCalls = 0
+  let release: (() => Promise<void>) | undefined
+  await page.route(`**${heldPath}`, route => {
+    heldCalls++
+    if (heldCalls === 2) return new Promise<void>(resolve => {
+      release = async () => {
+        await route.fulfill({ json: payload(heldPath) })
+        resolve()
+      }
+    })
+    return route.fulfill({ json: payload(heldPath) })
+  })
+  await page.route(`**${completedPath}`, route => {
+    completedCalls++
+    return completedCalls === 3
+      ? route.fulfill({ status: 503, json: { error: 'completed_branch_poll_failed' } })
+      : route.fulfill({ json: payload(completedPath) })
+  })
+  await page.goto('/#/admin')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await page.clock.fastForward(29000)
+  const completed = page.waitForResponse(response => new URL(response.url()).pathname === completedPath && response.status() === 200)
+  await refresh.click()
+  await (await completed).finished()
+  await expect.poll(() => heldCalls).toBe(2)
+  await expect.poll(() => completedCalls).toBe(2)
+  await page.evaluate(() => Promise.resolve())
+  await page.clock.fastForward(1001)
+  await expect.poll(() => completedCalls).toBe(3)
+  await expect.poll(() => heldCalls).toBe(3)
+  await expect(refresh).toBeDisabled()
+  await release!()
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refresh incomplete. Please retry.')
+  const failed = held === 'queue' ? 'the financial controls environment' : 'the queue and statistics'
+  await expect(page.getByText(`Could not refresh ${failed}. Please retry.`, { exact: true })).toBeVisible()
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+test('a superseded failed workflow transfer read is reported as a failure rather than an empty queue', async ({ page }) => {
+  const requests = await mockOwner(page)
+  await page.goto('/#/admin')
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await page.getByRole('button', { name: 'completed', exact: true }).click()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  let holdCalls = 0
+  let release: (() => Promise<void>) | undefined
+  await page.route('**/api/admin/transfers?**', route => {
+    if (new URL(route.request().url()).searchParams.get('status') !== 'compliance_hold') return route.fallback()
+    holdCalls++
+    if (holdCalls === 1) return new Promise<void>(resolve => {
+      release = async () => {
+        await route.fulfill({ status: 503, json: { error: 'workflow_transfer_read_failed' } })
+        resolve()
+      }
+    })
+    return route.fallback()
+  })
+  await page.getByRole('button', { name: /Transfer queue/ }).click()
+  await expect.poll(() => holdCalls).toBe(2)
+  await expect(page.getByText('XPT-REVIEW', { exact: true })).toBeVisible()
+  await release!()
+  await expect(page.getByText('Could not open the next review. Please refresh and retry.', { exact: true })).toBeVisible()
+  await expect(page.getByText('Queue refreshed. No transfers are awaiting review.', { exact: true })).toHaveCount(0)
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+for (const area of ['queue', 'environment'] as const) test(`manual refresh can recover a stalled automatic ${area} read and its old timeout stays obsolete`, async ({ page }) => {
+  await page.clock.install()
+  const requests = await mockOwner(page)
+  const path = area === 'queue' ? '/api/admin/transfers' : '/api/admin/compliance/readiness'
+  let calls = 0
+  let aborted = 0
+  page.on('requestfailed', request => {
+    if (new URL(request.url()).pathname === path) aborted++
+  })
+  await page.route(url => url.pathname === path, route => {
+    calls++
+    if (calls === 1) return new Promise<void>(resolve => {
+      const failed = (request: Request) => {
+        if (request === route.request()) {
+          page.off('requestfailed', failed)
+          resolve()
+        }
+      }
+      page.on('requestfailed', failed)
+    })
+    return route.fallback()
+  })
+  await page.goto('/#/admin')
+  await expect.poll(() => calls).toBe(1)
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refreshing workstation…')
+  await expect(page.locator('.compliance-workspace')).toBeHidden()
+  await expect(refresh).toBeEnabled()
+  await refresh.click()
+  await expect.poll(() => calls).toBe(2)
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await expect(refresh).toBeEnabled()
+  await page.clock.fastForward(15001)
+  await expect.poll(() => aborted).toBe(1)
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+test('a manual environment response with a stalled JSON body times out and allows a fresh GET retry', async ({ page }) => {
+  await page.clock.install()
+  await page.addInitScript(() => {
+    const originalFetch = window.fetch.bind(window)
+    let readinessCalls = 0
+    window.fetch = async (input, init) => {
+      const url = new URL(typeof input === 'string' ? input : input instanceof URL ? input.href : input.url, location.href)
+      if (url.pathname === '/api/admin/compliance/readiness' && ++readinessCalls === 2) {
+        const body = new ReadableStream({
+          start(controller) {
+            init?.signal?.addEventListener('abort', () => controller.error(new DOMException('The body read was aborted.', 'AbortError')), { once: true })
+          },
+        })
+        return new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } })
+      }
+      return originalFetch(input, init)
+    }
+  })
+  const requests = await mockOwner(page)
+  await page.goto('/#/admin')
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+  await refresh.click()
+  await expect(refresh).toBeDisabled()
+  await page.clock.fastForward(15001)
+  await expect(refresh).toBeEnabled()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toHaveText('Refresh incomplete. Please retry.')
+  await page.getByRole('button', { name: 'Compliance & banks', exact: true }).click()
+  await expect(page.getByText('OFAC live · 19,911 entities', { exact: true })).toHaveCount(0)
+  await refresh.click()
+  await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+  await expect(refresh).toBeEnabled()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  await expect(page.getByText('OFAC live · 19,911 entities', { exact: true })).toBeVisible()
+  expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+})
+
+test('workstation refresh preserves viewer and agent permissions without compliance requests', async ({ page }) => {
+  for (const role of ['viewer', 'agent']) {
+    const requests = await mockOwner(page)
+    await page.route('**/api/admin/auth/me', route => route.fulfill({
+      json: { admin: { id: role, name: role, email: `${role}@example.invalid`, role } },
+    }))
+    await page.goto('/#/admin')
+    const refresh = page.getByRole('button', { name: 'Refresh workstation', exact: true })
+    await expect(page.locator('.operations-toolbar [role="status"]')).toContainText('Updated')
+    const overviewBefore = requests.filter(request => request === 'GET /api/admin/overview').length
+    await refresh.click()
+    await expect(refresh).toBeEnabled()
+    expect(requests.filter(request => request === 'GET /api/admin/overview').length).toBe(overviewBefore + 1)
+    await page.getByRole('button', { name: 'Compliance & banks', exact: true }).click()
+    await expect(page.getByText('Compliance or owner access is required.', { exact: true })).toBeVisible()
+    expect(requests.filter(request => request.includes('/api/admin/compliance/'))).toEqual([])
+    expect(requests.filter(request => !request.startsWith('GET '))).toEqual([])
+  }
 })
 
 test('bank selection uses complete active connections rather than credential history', async ({ page }) => {

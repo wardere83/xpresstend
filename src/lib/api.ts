@@ -75,7 +75,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(0, 'network_unavailable', 'Cannot reach XpressTend right now.')
   }
 
-  const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  const body = (await res.json().catch((error: unknown) => {
+    if (init?.signal?.aborted) throw error
+    return {}
+  })) as Record<string, unknown>
   if (!res.ok) {
     throw new ApiError(
       res.status,
@@ -86,8 +89,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
+function get<T>(path: string, options?: { timeoutMs?: number }): Promise<T> {
+  if (!options?.timeoutMs) return request<T>(path)
+  const controller = new AbortController()
+  let deadline = 0
+  const timeout = new Promise<never>((_, reject) => {
+    deadline = window.setTimeout(() => {
+      reject(new ApiError(0, 'request_timeout', 'This request timed out. Please retry.'))
+      controller.abort()
+    }, options.timeoutMs)
+  })
+  return Promise.race([request<T>(path, { signal: controller.signal }), timeout])
+    .finally(() => window.clearTimeout(deadline))
+}
+
 export const api = {
-  get: <T>(path: string) => request<T>(path),
+  get,
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }),
   patch: <T>(path: string, body?: unknown) =>

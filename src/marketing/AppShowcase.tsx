@@ -1,7 +1,7 @@
 import { AppPreview } from './AppPreview'
 import { AppTour } from './AppTour'
 import { useAppTourCopy } from './appTourCopy'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useCorporateCopy } from './corporateCopy'
 import { useBrandCopy } from './brandCopy'
@@ -12,6 +12,30 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
   const copy = useBrandCopy()
   const tourCopy = useAppTourCopy()
   const [tour, setTour] = useState(true)
+  const section = useRef<HTMLElement>(null)
+  const [touchEngaged, setTouchEngaged] = useState(false)
+  useEffect(() => {
+    const release = (event: Event) => {
+      if (event.target instanceof Node && !section.current?.contains(event.target))
+        setTouchEngaged(false)
+    }
+    const releaseOnFocus = (event: FocusEvent) => {
+      // A tap on non-focusable copy can focus the nearest focusable ancestor
+      // (main or body). That fallback still belongs to the inside interaction.
+      if (event.target instanceof Node && section.current && event.target.contains(section.current))
+        return
+      release(event)
+    }
+    const useKeyboard = () => setTouchEngaged(false)
+    document.addEventListener('pointerdown', release, true)
+    document.addEventListener('focusin', releaseOnFocus, true)
+    document.addEventListener('keydown', useKeyboard, true)
+    return () => {
+      document.removeEventListener('pointerdown', release, true)
+      document.removeEventListener('focusin', releaseOnFocus, true)
+      document.removeEventListener('keydown', useKeyboard, true)
+    }
+  }, [])
   const corporate = useCorporateCopy()
   const [active, setActive] = useState<(typeof tabs)[number]>('send')
   const details = {
@@ -21,7 +45,13 @@ export function AppShowcase({ onExplore }: { onExplore: () => void }) {
   }
   return (
     <section
+      ref={section}
       className="brand-experience brand-width"
+      data-phone-engaged={touchEngaged}
+      onPointerDownCapture={(event) => {
+        if (event.pointerType === 'touch' || event.pointerType === 'pen')
+          setTouchEngaged(true)
+      }}
       id="experience"
       aria-labelledby="experience-title"
     >

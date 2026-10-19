@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, money, type AdminUser } from '../lib/api'
 
@@ -50,15 +50,23 @@ type Readiness = {
   }
 }
 export type ComplianceSection = 'readiness' | 'review' | 'evidence' | 'connections'
+export interface ComplianceRefreshHandle {
+  refresh: () => Promise<void>
+  getLatest: () => Promise<void> | null
+}
 const button = 'rounded-full bg-ink-900 px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-40'
 const input = 'w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm'
 
 export function CompliancePanel({
   admin,
   sectionRequest,
+  onRegisterRefresh,
+  onRefreshingChange,
 }: {
   admin: AdminUser
   sectionRequest?: { section: ComplianceSection; request: number }
+  onRegisterRefresh?: (handle: ComplianceRefreshHandle | null) => void
+  onRefreshingChange?: (refreshing: boolean) => void
 }) {
   const [section, setSection] = useState<ComplianceSection>('readiness')
   const [data, setData] = useState<Overview | null>(null)
@@ -71,26 +79,62 @@ export function CompliancePanel({
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  const refreshRequest = useRef(0)
+  const latestRefresh = useRef<Promise<void> | null>(null)
+  const mounted = useRef(true)
   const allowed = ['owner', 'compliance'].includes(admin.role)
-  const refresh = useCallback(async () => {
-    const [overview, list, status] = await Promise.all([
-      api.get<Overview>('/admin/compliance/overview'),
-      api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible'),
-      api.get<Readiness>('/admin/compliance/readiness').catch(() => null),
-    ])
-    setData(overview)
-    setEligible(list.transfers)
-    setReadiness(status)
-    setError('')
-    setSelected((previous) => previous.filter((id) => list.transfers.some((transfer) => transfer.id === id)))
+  const performRefresh = useCallback(async () => {
+    const request = ++refreshRequest.current
+    onRefreshingChange?.(true)
+    try {
+      const [overview, list, status] = await Promise.allSettled([
+        api.get<Overview>('/admin/compliance/overview', { timeoutMs: 15_000 }),
+        api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible', { timeoutMs: 15_000 }),
+        api.get<Readiness>('/admin/compliance/readiness', { timeoutMs: 15_000 }),
+      ])
+      if (!mounted.current || request !== refreshRequest.current) return
+      setReadiness(status.status === 'fulfilled' ? status.value : null)
+      if (overview.status === 'rejected') throw overview.reason
+      if (list.status === 'rejected') throw list.reason
+      setData(overview.value)
+      setEligible(list.value.transfers)
+      setSelected((previous) => previous.filter((id) => list.value.transfers.some((transfer) => transfer.id === id)))
+      if (status.status === 'rejected') throw new Error('Could not refresh environment readiness. Please retry.')
+      setError('')
+    } catch (error) {
+      if (mounted.current && request === refreshRequest.current)
+        setError(error instanceof Error ? error.message : 'Unable to load compliance.')
+      throw error
+    } finally {
+      if (mounted.current && request === refreshRequest.current) onRefreshingChange?.(false)
+    }
+  }, [onRefreshingChange])
+  const refresh = useCallback(() => {
+    const task = performRefresh()
+    latestRefresh.current = task
+    return task
+  }, [performRefresh])
+  const invalidateRefresh = useCallback(() => {
+    refreshRequest.current++
   }, [])
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      invalidateRefresh()
+      onRefreshingChange?.(false)
+    }
+  }, [onRefreshingChange, invalidateRefresh])
+  useEffect(() => {
+    if (!allowed) return
+    onRegisterRefresh?.({ refresh, getLatest: () => latestRefresh.current })
+    return () => onRegisterRefresh?.(null)
+  }, [allowed, refresh, onRegisterRefresh])
   useEffect(() => {
     if (!allowed) return
     const update = () => {
       if (!document.hidden)
-        void refresh().catch((error) =>
-          setError(error instanceof Error ? error.message : 'Unable to load compliance.'),
-        )
+        void refresh().catch(() => undefined)
     }
     update()
     const timer = window.setInterval(update, 30_000)
@@ -125,13 +169,6 @@ export function CompliancePanel({
           <h2>Every transfer. Accounted for.</h2>
           <p>Identity evidence, sanctions controls and partner-bank review.</p>
         </div>
-        <button
-          className={button}
-          disabled={busy}
-          onClick={() => void act(async () => undefined, 'Environment status refreshed.')}
-        >
-          {busy ? 'Checking…' : 'Refresh environment'}
-        </button>
       </div>
       <nav className="compliance-tabs" aria-label="Compliance workspace">
         {(
