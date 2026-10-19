@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useCorporateCopy } from './corporateCopy'
 import { useBrandCopy } from './brandCopy'
+import './phone-frame.css'
 
 const tabs = ['send', 'people', 'activity'] as const
 export function AppShowcase({ onExplore }: { onExplore: () => void }) {

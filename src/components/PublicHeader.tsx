@@ -19,11 +19,11 @@ export function PublicHeader({ className = '' }: { className?: string }) {
   const location = useLocation()
   const header = useRef<HTMLElement>(null)
   const links = [
+    { to: '/', label: p('Home') },
     { to: '/company', label: labels.trustCompany },
     { to: '/philanthropy', label: labels.trustPartners },
     { to: '/compliance', label: labels.trustCompliance },
     { to: '/security', label: labels.trustSecurity },
-    { to: '/demo', label: copy.demoAction },
   ]
   const signIns = [
     { to: '/login', label: p('Customer sign in') },
@@ -77,7 +77,7 @@ export function PublicHeader({ className = '' }: { className?: string }) {
     }
   }, [])
   const navigation = links.map(({ to, label }) => (
-    <NavLink key={to} to={to}>
+    <NavLink key={to} to={to} end={to === '/'}>
       {label}
     </NavLink>
   ))

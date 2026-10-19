@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { demoPeople as people } from './demoPeople'
 import './app-demo.css'
+import './phone-frame.css'
 import '../admin/staff-console.css'
 type Tab = 'home' | 'send' | 'people' | 'activity'
 /** An isolated, local-only product tour. It never calls account or transfer APIs. */

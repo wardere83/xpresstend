@@ -735,7 +735,6 @@ function Dashboard({
   onSignedOut: () => void
 }) {
   const [tab, setTab] = useState<'queue' | 'staff' | 'compliance'>('queue')
-  const [tickerPaused, setTickerPaused] = useState(false)
   const [rows, setRows] = useState<TransferRow[]>([])
   const [filter, setFilter] = useState('compliance_hold')
   const [balance, setBalance] = useState<TrialBalance | null>(null)
@@ -944,17 +943,14 @@ function Dashboard({
     <div className="staff-console staff-dashboard min-h-dvh bg-canvas">
       <header className="border-b border-ink-200/70 bg-ink-900 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-5 py-4">
-          <span className="text-[15px] font-semibold tracking-tight">
-            XpressTend Operations
-          </span>
-          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide">
+          <span className="staff-role rounded-full border border-white bg-transparent px-3 py-1.5 text-[12px] font-semibold capitalize">
             {admin.role}
           </span>
           <div className="ml-auto flex items-center gap-3 text-[12px]">
-            <span className="text-white/60">{admin.email}</span>
+            <span className="staff-session-email font-semibold">{admin.email}</span>
             <button
               onClick={() => api.post('/admin/auth/logout').then(onSignedOut)}
-              className="rounded-full bg-white/10 px-3 py-1.5 font-semibold hover:bg-white/20"
+              className="staff-sign-out rounded-full border border-white bg-transparent px-3 py-1.5 font-semibold"
             >
               Sign out
             </button>
@@ -965,40 +961,20 @@ function Dashboard({
       <main className="mx-auto max-w-6xl px-5 py-8">
         <section className="operations-hero" aria-labelledby="operations-title">
           <div className="operations-brand">
-            <div className="operations-ticker" data-paused={tickerPaused}>
-              <p className="sr-only">XpressTend / Financial operations</p>
-              <div className="operations-ticker-window" aria-hidden="true">
-                <div className="operations-ticker-track">
+            <h1 id="operations-title" className="operations-ticker">
+              <span className="sr-only">
+                XpressTend Operations | Owner View | Access Approval Hub
+              </span>
+              <span className="operations-ticker-window" aria-hidden="true">
+                <span className="operations-ticker-track">
                   {[0, 1].map((copy) => (
-                    <span key={copy}>XpressTend / Financial operations</span>
+                    <span key={copy}>
+                      XpressTend Operations | Owner View | Access Approval Hub
+                    </span>
                   ))}
-                </div>
-              </div>
-              <button
-                type="button"
-                className="operations-ticker-toggle"
-                onClick={() => setTickerPaused((paused) => !paused)}
-                aria-label={
-                  tickerPaused
-                    ? 'Resume heading motion'
-                    : 'Pause heading motion'
-                }
-                aria-pressed={tickerPaused}
-              >
-                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                  {tickerPaused ? (
-                    <path d="m5 3 7 5-7 5Z" fill="currentColor" />
-                  ) : (
-                    <path
-                      d="M5 3v10M11 3v10"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  )}
-                </svg>
-              </button>
-            </div>
-            <h1 id="operations-title">Your operations. In view.</h1>
+                </span>
+              </span>
+            </h1>
             <p className="operations-intro">
               A connected view of transfers, financial controls and the people
               who keep money moving.
@@ -1202,7 +1178,7 @@ function Dashboard({
                 </div>
               ) : null}
 
-              <div className="mb-4 flex flex-wrap items-center gap-2">
+              <div className="operations-queue-filters mb-4 flex flex-wrap items-center gap-2">
                 {[
                   'compliance_hold',
                   'awaiting_payment',
@@ -1213,6 +1189,7 @@ function Dashboard({
                   <button
                     key={s}
                     onClick={() => setFilter(s)}
+                    aria-pressed={filter === s}
                     className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition ${
                       filter === s
                         ? 'bg-brand-600 text-white'

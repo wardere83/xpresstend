@@ -30,15 +30,16 @@ for (const width of [320, 1440]) {
     }) => {
       await page.setViewportSize({ width, height: 844 })
       const destinations = [
+        ['Home', '#/'],
         ['Company', '#/company'],
         ['Philanthropy', '#/philanthropy'],
         ['Compliance', '#/compliance'],
         ['Security', '#/security'],
-        ['Explore app demo', '#/demo'],
       ]
       await page.goto(route)
       const header = page.locator('.public-header')
       await expect(header).toBeVisible()
+      await expect(header.getByRole('link', { name: 'Explore app demo', exact: true })).toHaveCount(0)
       expect((await header.boundingBox())!.height).toBeLessThanOrEqual(73)
       if (width === 320)
         await header.locator('.public-mobile-menu summary').click()
@@ -46,6 +47,12 @@ for (const width of [320, 1440]) {
         const link = header.getByRole('link', { name, exact: true })
         await expect(link).toBeVisible()
         await expect(link).toHaveAttribute('href', href)
+      }
+      if (route === '/#/company') {
+        await header.getByRole('link', { name: 'Home', exact: true }).click()
+        await expect(page).toHaveURL(/#\/$/)
+        await expect(page.locator('.public-desktop-nav a[href="#/"]')).toHaveAttribute('aria-current', 'page')
+        if (width === 320) await header.locator('.public-mobile-menu summary').click()
       }
       if (width === 320)
         await header.locator('.public-mobile-menu summary').click()

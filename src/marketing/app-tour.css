@@ -1,5 +1,6 @@
 .app-tour {
-  height: 560px;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   color: #0b252f;
@@ -378,10 +379,6 @@ html[data-a11y-motion='reduce'] .tour-scan {
   animation: none;
   display: none;
 }
-html[data-a11y-text]:not([data-a11y-text='default']) .app-tour {
-  height: 640px;
-}
-
 .app-tour[dir='rtl']
   :is(.tour-action > svg, .tour-controls > button:nth-child(2) > svg) {
   transform: scaleX(-1);

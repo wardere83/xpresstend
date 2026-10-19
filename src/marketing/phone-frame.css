@@ -1,0 +1,30 @@
+/* Both tours share the same handset dimensions, including shorter screens. */
+:root {
+  --app-handset-width: 288px;
+  --app-handset-height: min(
+    606px,
+    calc(
+      100dvh - var(--site-header-height) - 65px - env(safe-area-inset-top, 0px)
+    )
+  );
+  --app-handset-min-height: min(
+    500px,
+    calc(
+      100dvh - var(--site-header-height) - 65px - env(safe-area-inset-top, 0px)
+    )
+  );
+}
+@media (max-width: 700px) {
+  :root {
+    --app-handset-width: min(288px, calc(100vw - 24px));
+    --app-handset-height: min(
+      606px,
+      calc(
+        100dvh - var(--site-header-height) - 17px -
+          env(safe-area-inset-top, 0px) -
+          max(68px, calc(env(safe-area-inset-bottom) + 60px))
+      )
+    );
+    --app-handset-min-height: 0px;
+  }
+}
