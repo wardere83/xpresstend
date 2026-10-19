@@ -46,6 +46,12 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(tickerCopy)
   await expect(page.getByText('Your operations. In view.', { exact: true })).toHaveCount(0)
   await expect(page.locator('.operations-ledger')).toContainText('Balanced')
+  const verifiedMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Verified customers', { exact: true }) })
+  const registeredMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Registered accounts', { exact: true }) })
+  await expect(verifiedMetric.locator('p').nth(1)).toHaveText('8')
+  await expect(verifiedMetric).toContainText('Identity-verified accounts')
+  await expect(registeredMetric.locator('p').nth(1)).toHaveText('12')
+  await expect(registeredMetric).toContainText('10 active accounts')
   await expect(
     page
       .locator('[data-operations-metric]')
@@ -164,7 +170,7 @@ test('financial workspace preserves metrics, separate document and record scroll
   ).toBeHidden()
 })
 
-test('zero customers and two active staff remain distinct from the disabled-only account view', async ({
+test('zero verified customers, four registered accounts and two active staff remain distinct from the disabled-only account view', async ({
   page,
 }) => {
   const staff = [
@@ -185,7 +191,7 @@ test('zero customers and two active staff remain distinct from the disabled-only
     const responses: Record<string, unknown> = {
       '/api/admin/auth/me': { admin: staff[0] },
       '/api/admin/overview': {
-        customers: { total: 0, active: 0, verified: 0 },
+        customers: { total: 4, active: 4, verified: 0 },
         staff: { total: 4, active: 2 },
         awaitingReview: 0,
         byStatus: [],
@@ -198,9 +204,12 @@ test('zero customers and two active staff remain distinct from the disabled-only
     return route.fulfill({ json: responses[new URL(request.url()).pathname] ?? {} })
   })
   await page.goto('/#/admin')
-  const customerMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Customers', { exact: true }) })
+  const verifiedMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Verified customers', { exact: true }) })
+  const registeredMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Registered accounts', { exact: true }) })
   const staffMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Active staff', { exact: true }) })
-  await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(verifiedMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(registeredMetric.locator('p').nth(1)).toHaveText('4')
+  await expect(registeredMetric).toContainText('4 active accounts')
   await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
   await expect(staffMetric).toContainText('Accounts with active access')
   await expect(staffMetric).not.toContainText('of 4 accounts')
@@ -219,7 +228,8 @@ test('zero customers and two active staff remain distinct from the disabled-only
     for (const account of staff) {
       await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'disabled' ? 1 : 0)
     }
-    await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+    await expect(verifiedMetric.locator('p').nth(1)).toHaveText('0')
+    await expect(registeredMetric.locator('p').nth(1)).toHaveText('4')
     await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
     await disabledFilter.uncheck()
     for (const account of staff) {

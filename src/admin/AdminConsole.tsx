@@ -1050,14 +1050,14 @@ function Dashboard({
           >
             {[
               {
-                label: 'Customers',
-                value: overview.customers.total.toLocaleString(),
-                detail: `${overview.customers.active.toLocaleString()} active`,
+                label: 'Verified customers',
+                value: overview.customers.verified.toLocaleString(),
+                detail: 'Identity-verified accounts',
               },
               {
-                label: 'KYC verified',
-                value: overview.customers.verified.toLocaleString(),
-                detail: `of ${overview.customers.total.toLocaleString()} customers`,
+                label: 'Registered accounts',
+                value: overview.customers.total.toLocaleString(),
+                detail: `${overview.customers.active.toLocaleString()} active accounts`,
               },
               {
                 label: 'Awaiting review',
