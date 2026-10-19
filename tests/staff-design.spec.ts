@@ -15,7 +15,7 @@ test('financial workspace preserves metrics, separate document and record scroll
         },
       },
       '/api/admin/overview': {
-        customers: { total: 12, active: 10, verified: 8 },
+        customers: { total: 12, active: 10, verified: 8, internalTestAccounts: 0 },
         staff: { total: 3, active: 2 },
         awaitingReview: 4,
         byStatus: [],
@@ -33,7 +33,7 @@ test('financial workspace preserves metrics, separate document and record scroll
           name: `Staff fixture ${index + 1}`,
           email: `staff-${index + 1}@example.invalid`,
           role: 'viewer',
-          status: index === 29 ? 'disabled' : 'active',
+          status: index === 29 ? 'disabled' : index === 0 ? 'invited' : 'active',
           created_at: '2026-10-15T09:00:00Z',
           last_login_at: null,
         })),
@@ -46,6 +46,12 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(tickerCopy)
   await expect(page.getByText('Your operations. In view.', { exact: true })).toHaveCount(0)
   await expect(page.locator('.operations-ledger')).toContainText('Balanced')
+  const customerMetric = page.locator('[data-operations-metric="customers"]')
+  const verifiedMetric = page.locator('[data-operations-metric="verified"]')
+  await expect(customerMetric.locator('p').nth(1)).toHaveText('12')
+  await expect(customerMetric).toContainText('10 active · 0 internal test accounts excluded')
+  await expect(verifiedMetric.locator('p').nth(1)).toHaveText('8')
+  await expect(verifiedMetric).toContainText('of 12 customers')
   await expect(
     page
       .locator('[data-operations-metric]')
@@ -92,14 +98,20 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(
     page.getByText('staff-30@example.invalid', { exact: true }),
   ).toHaveCount(0)
-  await page.getByLabel('Include disabled accounts', { exact: true }).check()
-  await expect(
-    page.getByText('staff-30@example.invalid', { exact: true }),
-  ).toBeVisible()
-  await page.getByLabel('Include disabled accounts', { exact: true }).uncheck()
-  await expect(
-    page.getByText('staff-30@example.invalid', { exact: true }),
-  ).toHaveCount(0)
+  const disabledFilter = page.getByLabel('Show disabled accounts only', { exact: true })
+  const staffRows = page.locator('.operations-panel tbody tr')
+  for (let toggle = 0; toggle < 2; toggle++) {
+    await disabledFilter.check()
+    await expect(staffRows).toHaveCount(1)
+    await expect(page.getByText('staff-30@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-1@example.invalid', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('staff-2@example.invalid', { exact: true })).toHaveCount(0)
+    await disabledFilter.uncheck()
+    await expect(staffRows).toHaveCount(29)
+    await expect(page.getByText('staff-1@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-2@example.invalid', { exact: true })).toBeVisible()
+    await expect(page.getByText('staff-30@example.invalid', { exact: true })).toHaveCount(0)
+  }
   await page
     .getByPlaceholder('name@xpresstend.com')
     .fill('invited@example.invalid')
@@ -109,6 +121,8 @@ test('financial workspace preserves metrics, separate document and record scroll
   for (const width of [1440, 320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 })
     expect((await ticker.boundingBox())!.width).toBeLessThanOrEqual(300)
+    await expect(customerMetric.locator('p').last()).toBeVisible()
+    expect(await customerMetric.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(await customerMetric.evaluate(element => element.clientWidth))
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width)
@@ -158,6 +172,79 @@ test('financial workspace preserves metrics, separate document and record scroll
   ).toBeHidden()
 })
 
+test('internal test registrations stay excluded from customer metrics while disabled-only staff filtering preserves two active staff', async ({
+  page,
+}) => {
+  const staff = [
+    { id: 'active-owner', email: 'active-owner@example.invalid', status: 'active', role: 'owner' },
+    { id: 'active-colleague', email: 'active-colleague@example.invalid', status: 'active', role: 'compliance' },
+    { id: 'disabled-owner', email: 'disabled-owner@example.invalid', status: 'disabled', role: 'owner' },
+    { id: 'disabled-colleague', email: 'disabled-colleague@example.invalid', status: 'disabled', role: 'agent' },
+  ].map((account, index) => ({
+    ...account,
+    name: `Staff fixture ${index + 1}`,
+    created_at: '2026-10-18T09:00:00Z',
+    last_login_at: null,
+  }))
+  const mutations: string[] = []
+  await page.route('**/api/**', (route) => {
+    const request = route.request()
+    if (request.method() !== 'GET') mutations.push(`${request.method()} ${new URL(request.url()).pathname}`)
+    const responses: Record<string, unknown> = {
+      '/api/admin/auth/me': { admin: staff[0] },
+      '/api/admin/overview': {
+        customers: { total: 0, active: 0, verified: 0, internalTestAccounts: 4 },
+        staff: { total: 4, active: 2 },
+        awaitingReview: 0,
+        byStatus: [],
+        volume: [],
+      },
+      '/api/admin/ledger/trial-balance': { balanced: true, imbalances: [], accounts: [] },
+      '/api/admin/transfers': { transfers: [] },
+      '/api/admin/staff': { staff },
+    }
+    return route.fulfill({ json: responses[new URL(request.url()).pathname] ?? {} })
+  })
+  await page.goto('/#/admin')
+  const customerMetric = page.locator('[data-operations-metric="customers"]')
+  const verifiedMetric = page.locator('[data-operations-metric="verified"]')
+  const staffMetric = page.locator('[data-operations-metric]').filter({ has: page.getByText('Active staff', { exact: true }) })
+  await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(customerMetric).toContainText('0 active · 4 internal test accounts excluded')
+  await expect(verifiedMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(verifiedMetric).toContainText('of 0 customers')
+  await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
+  await expect(staffMetric).toContainText('Accounts with active access')
+  await expect(staffMetric).not.toContainText('of 4 accounts')
+  await page.getByRole('button', { name: 'Staff', exact: true }).click()
+  const disabledFilter = page.getByLabel('Show disabled accounts only', { exact: true })
+  const tableRows = page.locator('.operations-panel tbody tr')
+  for (let toggle = 0; toggle < 3; toggle++) {
+    await expect(disabledFilter).not.toBeChecked()
+    await expect(tableRows).toHaveCount(2)
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'active' ? 1 : 0)
+    }
+    await disabledFilter.check()
+    await expect(tableRows).toHaveCount(2)
+    await expect(page.getByText('Viewing disabled accounts only.', { exact: true })).toBeVisible()
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'disabled' ? 1 : 0)
+    }
+    await expect(customerMetric.locator('p').nth(1)).toHaveText('0')
+    await expect(customerMetric).toContainText('4 internal test accounts excluded')
+    await expect(verifiedMetric.locator('p').nth(1)).toHaveText('0')
+    await expect(staffMetric.locator('p').nth(1)).toHaveText('2')
+    await disabledFilter.uncheck()
+    for (const account of staff) {
+      await expect(page.getByRole('cell', { name: account.email, exact: true })).toHaveCount(account.status === 'active' ? 1 : 0)
+    }
+  }
+  await expect(page.getByText('Viewing active and invited accounts.', { exact: true })).toBeVisible()
+  await expect(tableRows).toHaveCount(2)
+  expect(mutations).toEqual([])
+})
+
 test('entry halos respect reduced motion and the globe has no visible drag caption', async ({
   page,
 }) => {
@@ -192,4 +279,63 @@ test('entry halos respect reduced motion and the globe has no visible drag capti
   await page.goto('/')
   await expect(page.locator('.xt-globe')).toBeVisible()
   await expect(page.locator('.xt-globe-hint')).toHaveCount(0)
+})
+
+test('reviewer summary explains excluded internal tests while retaining the read-only consumer directory', async ({
+  page,
+}) => {
+  const consumers = Array.from({ length: 4 }, (_, index) => ({
+    id: `internal-test-${index + 1}`,
+    email: `internal-test-${index + 1}@example.invalid`,
+    first_name: 'Internal',
+    last_name: `Test ${index + 1}`,
+    country: 'US',
+    status: 'active',
+    kyc_status: 'unverified',
+    kyc_tier: 0,
+    created_at: '2026-10-18T09:00:00Z',
+    last_login_at: null,
+    transfer_count: 0,
+  }))
+  const mutations: string[] = []
+  await page.route('**/api/**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (request.method() !== 'GET') mutations.push(`${request.method()} ${path}`)
+    const responses: Record<string, unknown> = {
+      '/api/admin/auth/reviewer/me': {
+        admin: { id: 'reviewer-fixture', name: 'Reviewer Fixture', email: 'reviewer@example.invalid', role: 'reviewer' },
+      },
+      '/api/admin/reviewer/overview': {
+        customers: { total: 0, active: 0, verified: 0, internalTestAccounts: 4 },
+        transfers: 0,
+        awaitingReview: 0,
+        volume: [],
+        ledger: [],
+      },
+      '/api/admin/reviewer/consumers': { consumers, page: 1, limit: 50, total: 4 },
+    }
+    return path in responses
+      ? route.fulfill({ json: responses[path] })
+      : route.fulfill({ status: 401, json: { error: 'unauthorized' } })
+  })
+  await page.goto('/#/institutional-reviewer')
+  const summary = page.getByRole('region', { name: 'Reviewer summary', exact: true })
+  const consumersMetric = summary.locator('article').filter({ has: page.getByText('Consumers', { exact: true }) })
+  await expect(consumersMetric.locator('p').nth(1)).toHaveText('0')
+  await expect(page.locator('tbody tr')).toHaveCount(4)
+  const note = summary.getByText('4 internal test accounts are excluded from customer totals. The consumer directory retains these records for audit.', { exact: true })
+  for (const width of [1440, 320]) {
+    await page.setViewportSize({ width, height: 844 })
+    await expect(note).toBeVisible()
+    await expect(note).toHaveCSS('white-space', 'normal')
+    expect(await note.evaluate(element => element.scrollWidth)).toBeLessThanOrEqual(await note.evaluate(element => element.clientWidth))
+    expect(await note.evaluate(element => element.scrollHeight)).toBeLessThanOrEqual(await note.evaluate(element => element.clientHeight))
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
+    await expect(page.locator('tbody tr')).toHaveCount(4)
+    for (const consumer of consumers)
+      await expect(page.getByText(consumer.email, { exact: true })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: /Invite|Approve|Reject|Reset link|Disable|Re-enable/ })).toHaveCount(0)
+  }
+  expect(mutations).toEqual([])
 })

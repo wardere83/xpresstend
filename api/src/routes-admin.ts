@@ -48,10 +48,12 @@ admin.get('/overview', async (c) => {
       `SELECT COUNT(*) AS n FROM transfers WHERE status = 'compliance_hold'`,
     ),
     c.env.DB.prepare(
-      `SELECT COUNT(*) AS total,
-              COALESCE(SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END), 0) AS active,
-              COALESCE(SUM(CASE WHEN kyc_status = 'verified' THEN 1 ELSE 0 END), 0) AS verified
-         FROM users`,
+      `SELECT COUNT(CASE WHEN test.user_id IS NULL THEN 1 END) AS total,
+              COALESCE(SUM(CASE WHEN test.user_id IS NULL AND u.status = 'active' THEN 1 ELSE 0 END), 0) AS active,
+              COALESCE(SUM(CASE WHEN test.user_id IS NULL AND u.kyc_status = 'verified' THEN 1 ELSE 0 END), 0) AS verified,
+              COUNT(test.user_id) AS internalTestAccounts
+         FROM users u LEFT JOIN user_account_classifications test
+           ON test.user_id = u.id AND test.kind = 'internal_test'`,
     ),
     c.env.DB.prepare(
       `SELECT COUNT(*) AS total,
@@ -63,7 +65,7 @@ admin.get('/overview', async (c) => {
     byStatus: counts.results,
     volume: volume.results,
     awaitingReview: holds.results?.[0]?.n ?? 0,
-    customers: customers.results?.[0] ?? { total: 0, active: 0, verified: 0 },
+    customers: customers.results?.[0] ?? { total: 0, active: 0, verified: 0, internalTestAccounts: 0 },
     staff: staff.results?.[0] ?? { total: 0, active: 0 },
   })
 })

@@ -6,7 +6,12 @@ import { ApiError, api, money, type AdminUser } from '../lib/api'
 type Section = 'consumers' | 'transfers' | 'ledger' | 'audit'
 
 interface ReviewerOverview {
-  customers: { total: number; active: number; verified: number }
+  customers: {
+    total: number
+    active: number
+    verified: number
+    internalTestAccounts?: number
+  }
   transfers: number
   awaitingReview: number
   volume: { currency: string; sent_minor: number; fees_minor: number }[]
@@ -399,6 +404,11 @@ function ReviewerDashboard({ reviewer, onSignedOut }: { reviewer: AdminUser; onS
                 <p className="mt-1 truncate text-[11px] text-ink-500">{detail}</p>
               </article>
             ))}
+            {(overview.customers.internalTestAccounts ?? 0) > 0 ? (
+              <p className="col-span-full min-w-0 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[12px] leading-relaxed text-ink-600">
+                {(overview.customers.internalTestAccounts ?? 0).toLocaleString()} internal test accounts are excluded from customer totals. The consumer directory retains these records for audit.
+              </p>
+            ) : null}
           </section>
         ) : null}
 

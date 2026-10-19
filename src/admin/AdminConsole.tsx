@@ -47,7 +47,12 @@ interface OperationsOverview {
   byStatus: { status: string; n: number }[]
   volume: { currency: string; sent: number; fees: number }[]
   awaitingReview: number
-  customers: { total: number; active: number; verified: number }
+  customers: {
+    total: number
+    active: number
+    verified: number
+    internalTestAccounts?: number
+  }
   staff: { total: number; active: number }
 }
 
@@ -1050,29 +1055,33 @@ function Dashboard({
           >
             {[
               {
+                id: 'customers',
                 label: 'Customers',
                 value: overview.customers.total.toLocaleString(),
-                detail: `${overview.customers.active.toLocaleString()} active`,
+                detail: `${overview.customers.active.toLocaleString()} active · ${(overview.customers.internalTestAccounts ?? 0).toLocaleString()} internal test accounts excluded`,
               },
               {
+                id: 'verified',
                 label: 'KYC verified',
                 value: overview.customers.verified.toLocaleString(),
                 detail: `of ${overview.customers.total.toLocaleString()} customers`,
               },
               {
+                id: 'awaiting-review',
                 label: 'Awaiting review',
                 value: overview.awaitingReview.toLocaleString(),
                 detail: 'Transfers on compliance hold',
               },
               {
+                id: 'active-staff',
                 label: 'Active staff',
                 value: overview.staff.active.toLocaleString(),
-                detail: `of ${overview.staff.total.toLocaleString()} accounts`,
+                detail: 'Accounts with active access',
               },
             ].map((metric) => (
               <article
-                key={metric.label}
-                data-operations-metric
+                key={metric.id}
+                data-operations-metric={metric.id}
                 className="rounded-xl bg-white p-4 ring-1 ring-ink-200/70"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">
