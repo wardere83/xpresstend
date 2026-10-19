@@ -174,10 +174,10 @@ test('zero verified customers, four registered accounts and two active staff rem
   page,
 }) => {
   const staff = [
-    { id: 'support-owner', email: 'support@xpresstend.com', status: 'active', role: 'owner' },
-    { id: 'abdikarim-staff', email: 'abdikarim@xpresstend.com', status: 'active', role: 'compliance' },
-    { id: 'legacy-owner', email: 'hassan.wardere@gmail.com', status: 'disabled', role: 'owner' },
-    { id: 'legacy-staff', email: 'ibnuballer@gmail.com', status: 'disabled', role: 'agent' },
+    { id: 'active-owner', email: 'active-owner@example.invalid', status: 'active', role: 'owner' },
+    { id: 'active-colleague', email: 'active-colleague@example.invalid', status: 'active', role: 'compliance' },
+    { id: 'disabled-owner', email: 'disabled-owner@example.invalid', status: 'disabled', role: 'owner' },
+    { id: 'disabled-colleague', email: 'disabled-colleague@example.invalid', status: 'disabled', role: 'agent' },
   ].map((account, index) => ({
     ...account,
     name: `Staff fixture ${index + 1}`,
