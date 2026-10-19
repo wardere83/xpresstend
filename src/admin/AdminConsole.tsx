@@ -790,9 +790,10 @@ function Dashboard({
         const [t, b, o] = await Promise.allSettled([
           api.get<{ transfers: TransferRow[] }>(
             `/admin/transfers?status=${encodeURIComponent(status)}`,
+            { timeoutMs: 15_000 },
           ),
-          api.get<TrialBalance>('/admin/ledger/trial-balance'),
-          api.get<OperationsOverview>('/admin/overview'),
+          api.get<TrialBalance>('/admin/ledger/trial-balance', { timeoutMs: 15_000 }),
+          api.get<OperationsOverview>('/admin/overview', { timeoutMs: 15_000 }),
         ])
         if (t.status === 'rejected') throw t.reason
         if (request !== loadRequest.current) return t.value.transfers
@@ -820,10 +821,13 @@ function Dashboard({
   }, [])
   useEffect(() => {
     const refresh = () => {
-      if (!document.hidden)
-        void load().catch(() =>
-          setNote('Could not load the queue. Retry with Refresh workstation.'),
-        )
+      if (!document.hidden) {
+        const task = load()
+        void task.catch(() => {
+          if (latestLoad.current === task)
+            setNote('Could not load the queue. Retry with Refresh workstation.')
+        })
+      }
     }
     refresh()
     const timer = window.setInterval(refresh, 30_000)
@@ -1185,7 +1189,7 @@ function Dashboard({
                 : 'Waiting for data'}
           </span>
           <button
-            disabled={refreshing || complianceRefreshing || workstationRefreshState === 'refreshing'}
+            disabled={workstationRefreshState === 'refreshing'}
             onClick={() => void refreshWorkstation()}
           >
             Refresh workstation

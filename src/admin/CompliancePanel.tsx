@@ -88,9 +88,9 @@ export function CompliancePanel({
     onRefreshingChange?.(true)
     try {
       const [overview, list, status] = await Promise.allSettled([
-        api.get<Overview>('/admin/compliance/overview'),
-        api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible'),
-        api.get<Readiness>('/admin/compliance/readiness'),
+        api.get<Overview>('/admin/compliance/overview', { timeoutMs: 15_000 }),
+        api.get<{ transfers: Transfer[] }>('/admin/compliance/eligible', { timeoutMs: 15_000 }),
+        api.get<Readiness>('/admin/compliance/readiness', { timeoutMs: 15_000 }),
       ])
       if (!mounted.current || request !== refreshRequest.current) return
       setReadiness(status.status === 'fulfilled' ? status.value : null)
