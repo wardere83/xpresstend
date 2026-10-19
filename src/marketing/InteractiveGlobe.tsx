@@ -113,7 +113,12 @@ function routePath(route: (typeof routes)[number], view: View) {
  * https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_land.geojson
  * Coordinates are bundled locally and rounded to three decimal places.
  */
-export function InteractiveGlobe() {
+export function InteractiveGlobe({
+  variant = 'interactive',
+}: {
+  variant?: 'interactive' | 'ambient'
+}) {
+  const interactive = variant === 'interactive'
   const { lang } = useI18n()
   const copy = UI[lang]
   const uniqueId = useId().replace(/:/g, '')
@@ -142,17 +147,18 @@ export function InteractiveGlobe() {
     longitude: number
     latitude: number
   } | null>(null)
-  const canAnimate = !paused && inView && visible && !dragging
+  const animationPaused = interactive ? paused : reducedMotion
+  const canAnimate = !animationPaused && inView && visible && !dragging
 
   useEffect(() => {
     const preference = reducedMotionQuery()
     const onChange = () => {
       setReducedMotion(preference.matches)
-      if (preference.matches) setPaused(true)
+      if (interactive && preference.matches) setPaused(true)
     }
     preference.addEventListener('change', onChange)
     return () => preference.removeEventListener('change', onChange)
-  }, [])
+  }, [interactive])
 
   useEffect(() => {
     const onVisibility = () => setVisible(document.visibilityState !== 'hidden')
@@ -199,13 +205,20 @@ export function InteractiveGlobe() {
       .clipAngle(90)
       .precision(0.6)
     const path = geoPath(projection)
-    return { land: path(land as GeoJSON.MultiPolygon) ?? '', grid: path(graticule) ?? '' }
-  }, [view.longitude, view.latitude])
-  const projectedRoutes = routes.map((route, index) => ({
-    path: routePath(route, view),
-    particle: pointOnRoute(route, (view.phase + index * 0.137) % 1, view),
-  }))
-  const projectedNodes = nodes.map((point) => projectPoint(point, view))
+    return {
+      land: path(land as GeoJSON.MultiPolygon) ?? '',
+      grid: interactive ? path(graticule) ?? '' : '',
+    }
+  }, [interactive, view.longitude, view.latitude])
+  // Corporate banners share the same coastline projection and rotation, but
+  // omit the illustrative payment network and its per-frame calculations.
+  const projectedRoutes = interactive
+    ? routes.map((route, index) => ({
+        path: routePath(route, view),
+        particle: pointOnRoute(route, (view.phase + index * 0.137) % 1, view),
+      }))
+    : []
+  const projectedNodes = interactive ? nodes.map((point) => projectPoint(point, view)) : []
 
   function rotateWithKeyboard(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
@@ -256,7 +269,7 @@ export function InteractiveGlobe() {
     setDragging(false)
   }
 
-  const animationState = paused
+  const animationState = animationPaused
     ? reducedMotion
       ? 'reduced-motion'
       : 'paused'
@@ -271,25 +284,32 @@ export function InteractiveGlobe() {
   return (
     <figure
       ref={root}
-      className="corporate-globe xt-globe"
+      className={`corporate-globe xt-globe${interactive ? '' : ' xt-globe--ambient'}`}
+      aria-hidden={interactive ? undefined : true}
+      data-globe-variant={variant}
       data-longitude={view.longitude.toFixed(2)}
-      data-paused={paused}
+      data-paused={animationPaused}
       data-animation-state={animationState}
     >
       <div
         className="xt-globe-surface"
-        role="group"
-        aria-label={copy.title}
-        aria-describedby={ids.instructions}
-        tabIndex={0}
-        onKeyDown={rotateWithKeyboard}
-        onPointerDown={startDrag}
-        onPointerMove={moveDrag}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onLostPointerCapture={endDrag}
+        role={interactive ? 'group' : undefined}
+        aria-label={interactive ? copy.title : undefined}
+        aria-describedby={interactive ? ids.instructions : undefined}
+        tabIndex={interactive ? 0 : undefined}
+        onKeyDown={interactive ? rotateWithKeyboard : undefined}
+        onPointerDown={interactive ? startDrag : undefined}
+        onPointerMove={interactive ? moveDrag : undefined}
+        onPointerUp={interactive ? endDrag : undefined}
+        onPointerCancel={interactive ? endDrag : undefined}
+        onLostPointerCapture={interactive ? endDrag : undefined}
       >
-        <svg viewBox="0 0 520 520" fill="none" aria-hidden="true" focusable="false">
+        <svg
+          viewBox={interactive ? '0 0 520 520' : '45 45 430 430'}
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
           <defs>
             <radialGradient id={ids.ocean} cx="35%" cy="29%" r="75%">
               <stop stopColor="#1b5865" />
@@ -313,72 +333,78 @@ export function InteractiveGlobe() {
           <circle className="xt-globe-atmosphere" cx={CENTER} cy={CENTER} r={RADIUS + 15} />
           <circle cx={CENTER} cy={CENTER} r={RADIUS + 4} stroke="#64d9dd" strokeOpacity="0.18" />
           <circle cx={CENTER} cy={CENTER} r={RADIUS} fill={`url(#${ids.ocean})`} />
-          <path className="xt-globe-grid" d={geography.grid} />
+          {interactive && <path className="xt-globe-grid" d={geography.grid} />}
           <path className="xt-globe-land" d={geography.land} fill={`url(#${ids.land})`} />
           <circle cx={CENTER} cy={CENTER} r={RADIUS} fill={`url(#${ids.shade})`} />
           <circle cx={CENTER} cy={CENTER} r={RADIUS} stroke="#86e8eb" strokeOpacity="0.37" />
-          <g className="xt-globe-connections">
-            {projectedRoutes.map(({ path }, index) => (
-              <g key={index}>
-                <path d={path} className="xt-globe-arc-glow" filter={`url(#${ids.glow})`} />
-                <path d={path} className="xt-globe-arc" />
-              </g>
-            ))}
-          </g>
-          <g className="xt-globe-nodes">
-            {projectedNodes.map(
-              (point, index) =>
-                point.depth > 0.015 && (
-                  <g key={index} opacity={Math.min(1, point.depth * 5)}>
-                    <circle cx={point.x} cy={point.y} r="6.5" stroke="#91ffff" strokeOpacity="0.4" />
-                    <circle cx={point.x} cy={point.y} r="2.6" fill="#dcffff" />
-                  </g>
-                ),
-            )}
-          </g>
-          <g className="xt-globe-particles">
-            {projectedRoutes.map(
-              ({ particle }, index) =>
-                particle.visible && (
+          {interactive && (
+            <>
+              <g className="xt-globe-connections">
+                {projectedRoutes.map(({ path }, index) => (
                   <g key={index}>
-                    <circle
-                      cx={particle.x}
-                      cy={particle.y}
-                      r="5"
-                      fill="#7cfcff"
-                      opacity="0.4"
-                      filter={`url(#${ids.glow})`}
-                    />
-                    <circle
-                      className="xt-globe-particle"
-                      cx={particle.x}
-                      cy={particle.y}
-                      r="2"
-                      fill="#f0ffff"
-                    />
+                    <path d={path} className="xt-globe-arc-glow" filter={`url(#${ids.glow})`} />
+                    <path d={path} className="xt-globe-arc" />
                   </g>
-                ),
-            )}
-          </g>
-          <g className="xt-globe-intro">
-            <path className="xt-globe-intro-line" d={`M${CENTER},6 V${CENTER - RADIUS}`} pathLength="1" />
-            <g className="xt-globe-intro-tip">
-              <circle
-                cx={CENTER}
-                cy={CENTER - RADIUS}
-                r="12"
-                fill="#69cbd1"
-                opacity="0.1"
-                filter={`url(#${ids.glow})`}
-              />
-              <circle cx={CENTER} cy={CENTER - RADIUS} r="1.7" fill="#9adce0" opacity="0.65" />
-            </g>
-          </g>
+                ))}
+              </g>
+              <g className="xt-globe-nodes">
+                {projectedNodes.map(
+                  (point, index) =>
+                    point.depth > 0.015 && (
+                      <g key={index} opacity={Math.min(1, point.depth * 5)}>
+                        <circle cx={point.x} cy={point.y} r="6.5" stroke="#91ffff" strokeOpacity="0.4" />
+                        <circle cx={point.x} cy={point.y} r="2.6" fill="#dcffff" />
+                      </g>
+                    ),
+                )}
+              </g>
+              <g className="xt-globe-particles">
+                {projectedRoutes.map(
+                  ({ particle }, index) =>
+                    particle.visible && (
+                      <g key={index}>
+                        <circle
+                          cx={particle.x}
+                          cy={particle.y}
+                          r="5"
+                          fill="#7cfcff"
+                          opacity="0.4"
+                          filter={`url(#${ids.glow})`}
+                        />
+                        <circle
+                          className="xt-globe-particle"
+                          cx={particle.x}
+                          cy={particle.y}
+                          r="2"
+                          fill="#f0ffff"
+                        />
+                      </g>
+                    ),
+                )}
+              </g>
+              <g className="xt-globe-intro">
+                <path className="xt-globe-intro-line" d={`M${CENTER},6 V${CENTER - RADIUS}`} pathLength="1" />
+                <g className="xt-globe-intro-tip">
+                  <circle
+                    cx={CENTER}
+                    cy={CENTER - RADIUS}
+                    r="12"
+                    fill="#69cbd1"
+                    opacity="0.1"
+                    filter={`url(#${ids.glow})`}
+                  />
+                  <circle cx={CENTER} cy={CENTER - RADIUS} r="1.7" fill="#9adce0" opacity="0.65" />
+                </g>
+              </g>
+            </>
+          )}
         </svg>
       </div>
-      <p className="sr-only" id={ids.instructions}>
-        {copy.instructions}
-      </p>
+      {interactive && (
+        <p className="sr-only" id={ids.instructions}>
+          {copy.instructions}
+        </p>
+      )}
     </figure>
   )
 }

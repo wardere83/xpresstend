@@ -593,18 +593,17 @@
 }
 .brand-device {
   position: relative;
+  display: flex;
+  flex-direction: column;
   border: 6px solid #243b43;
   border-radius: 46px;
   background: #f5f8f9;
-  width: 288px;
+  width: var(--app-handset-width);
+  height: var(--app-handset-height);
+  min-height: var(--app-handset-min-height);
   padding: 26px 3px 8px;
   box-shadow: 16px 26px 50px -25px #0b252f66;
-  transform: rotate(-4deg);
   overflow: hidden;
-  transition: transform 0.7s;
-}
-.brand-device-stage:hover .brand-device {
-  transform: rotate(0) translateY(-7px);
 }
 .brand-device img {
   display: block;
@@ -1126,7 +1125,6 @@ summary {
     min-height: 560px;
   }
   .brand-device {
-    width: 240px;
     border-radius: 38px;
   }
   .brand-device-caption {
@@ -1177,9 +1175,6 @@ summary {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
-  }
-  .brand-device-stage:hover .brand-device {
-    transform: rotate(-4deg);
   }
 }
 
@@ -1316,7 +1311,8 @@ summary {
   }
 }
 .app-preview {
-  min-height: 560px;
+  height: 100%;
+  min-height: 0;
   line-height: 1.5;
   width: 100%;
   background: #f5f9fa;
@@ -1326,6 +1322,7 @@ summary {
   font-family: Inter, 'Noto Sans Arabic', sans-serif;
 }
 .app-preview-top {
+  flex: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1343,6 +1340,9 @@ summary {
 .app-preview-content {
   padding: 22px 18px;
   flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
 }
 .app-preview-content > p:first-child {
   color: #47616b;
@@ -1431,6 +1431,7 @@ summary {
   margin-top: 26px;
 }
 .app-preview-bottom {
+  flex: none;
   display: flex;
   justify-content: space-around;
   border-top: 1px solid #d5e5e9;

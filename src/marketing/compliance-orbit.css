@@ -4,104 +4,20 @@
   aspect-ratio: 1;
   flex-shrink: 0;
 }
-.compliance-orbit > svg {
-  display: block;
+.compliance-orbit > .xt-globe {
   width: 100%;
   height: 100%;
-  overflow: visible;
+  max-width: none;
+  margin: 0;
 }
-.compliance-orbit-ring {
-  transform-origin: 190px 190px;
-  transform: rotate(var(--orbit-angle, 0deg));
-  animation: compliance-orbit-turn 26s linear infinite;
-}
-.compliance-orbit-ring-2 {
-  --orbit-angle: 58deg;
-  animation-duration: 32s;
-  animation-direction: reverse;
-  animation-delay: -8s;
-}
-.compliance-orbit-ring-3 {
-  --orbit-angle: -42deg;
-  animation-duration: 38s;
-  animation-delay: -14s;
-}
-.compliance-core-flow {
-  opacity: 0.3;
-  stroke-dasharray: 34 12 90 18;
-  animation:
-    compliance-core-current 18s linear infinite,
-    compliance-core-shimmer 7s ease-in-out infinite;
-}
-.compliance-orbit:hover .compliance-orbit-ring {
-  stroke-opacity: 1;
-}
-.compliance-orbit-toggle {
-  position: absolute;
-  inset-inline-end: 0;
-  bottom: 0;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  color: #bce5dc;
-  border: 1px solid #598a8a;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-}
-.compliance-orbit-toggle:hover {
-  background: #18404a;
-}
-.compliance-orbit-toggle:focus-visible {
-  outline: 2px solid #8bd9cf;
-  outline-offset: 4px;
-}
-.compliance-orbit[data-paused="true"]
-  :is(.compliance-orbit-ring, .compliance-core-flow) {
-  animation-play-state: paused;
-}
-@keyframes compliance-orbit-turn {
-  from {
-    transform: rotate(var(--orbit-angle, 0deg));
-  }
-  to {
-    transform: rotate(calc(var(--orbit-angle, 0deg) + 360deg));
-  }
-}
-@keyframes compliance-core-current {
-  to {
-    stroke-dashoffset: -154;
-  }
-}
-@keyframes compliance-core-shimmer {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.compliance-orbit .xt-globe-surface,
+.compliance-orbit .xt-globe-surface svg {
+  width: 100%;
+  height: 100%;
 }
 @media (max-width: 700px) {
   .compliance-orbit {
     width: min(240px, 76vw);
     margin: 8px auto 0;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .compliance-orbit-toggle {
-    display: none;
-  }
-  .compliance-orbit :is(.compliance-orbit-ring, .compliance-core-flow) {
-    animation: none;
-  }
-}
-html[data-a11y-motion="reduce"]
-  .compliance-orbit
-  :is(.compliance-orbit-ring, .compliance-core-flow) {
-  animation: none;
-}
-html[data-a11y-motion="reduce"] .compliance-orbit-toggle {
-  display: none;
 }

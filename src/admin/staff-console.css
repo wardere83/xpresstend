@@ -7,6 +7,8 @@
 .staff-console {
   --staff-line: #d7e2e6;
   --staff-accent: #4bd1d3;
+  --staff-control-bg: #0b252f;
+  --staff-tab-size: 11px;
 }
 .staff-auth {
   background:
@@ -61,13 +63,6 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
 }
-.operations-hero h1 {
-  margin-top: 14px;
-  font-size: clamp(28px, 3vw, 40px);
-  font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: -0.045em;
-}
 .operations-intro {
   max-width: 440px;
   margin-top: 12px;
@@ -115,11 +110,6 @@
 }
 .operations-flow button:hover {
   transform: translateY(-2px);
-  background: #4bd1d312;
-  border-color: #4bd1d380;
-}
-.operations-flow button[aria-current] {
-  background: #4bd1d312;
   border-color: #4bd1d380;
 }
 .operations-step {
@@ -188,6 +178,9 @@
   }
 }
 @media (max-width: 640px) {
+  .staff-console {
+    --staff-tab-size: 10px;
+  }
   .operations-hero {
     padding: 22px;
     grid-template-columns: minmax(0, 1fr);
@@ -253,30 +246,21 @@
   border-radius: 18px;
   grid-template-columns: minmax(0, 1fr) auto;
 }
-.staff-dashboard .operations-hero h1 {
-  font-size: 9.55cqw;
-  font-weight: 400;
-  margin-top: 10px;
-  width: 100%;
-  white-space: nowrap;
-}
 .operations-brand {
-  width: min(100%, 340px);
+  width: min(100%, 300px);
   min-width: 0;
-  container-type: inline-size;
-}
-html[data-a11y-text]:not([data-a11y-text='default']) .operations-brand h1 {
-  white-space: normal;
+  align-self: center;
 }
 .operations-ticker {
   display: flex;
   align-items: center;
   width: 100%;
-  height: 30px;
+  height: 32px;
+  margin: 0;
   border: 1px solid #b9d0d680;
   border-radius: 3px;
-  background: transparent;
-  color: #dcecee;
+  background: var(--staff-control-bg);
+  color: white;
 }
 .operations-ticker-window {
   flex: 1;
@@ -291,31 +275,11 @@ html[data-a11y-text]:not([data-a11y-text='default']) .operations-brand h1 {
 .operations-ticker-track > span {
   flex: none;
   padding-inline: 14px 38px;
-  font-size: 11px;
+  font-size: var(--staff-tab-size);
   line-height: 1;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  letter-spacing: normal;
   white-space: nowrap;
-}
-.operations-ticker-toggle {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  flex: none;
-  border-inline-start: 1px solid #b9d0d640;
-  cursor: pointer;
-}
-.operations-ticker-toggle svg {
-  width: 12px;
-  height: 12px;
-}
-.operations-ticker-toggle:focus-visible {
-  outline: 2px solid #4bd1d3;
-  outline-offset: 3px;
-}
-.operations-ticker[data-paused='true'] .operations-ticker-track {
-  animation-play-state: paused;
 }
 @keyframes operations-ticker {
   to {
@@ -333,13 +297,13 @@ html[data-a11y-text]:not([data-a11y-text='default']) .operations-brand h1 {
     padding-inline: 8px;
     line-height: 1.35;
   }
-  .operations-ticker-track > span + span,
-  .operations-ticker-toggle {
+  .operations-ticker-track > span + span {
     display: none;
   }
   .operations-ticker {
     height: auto;
-    min-height: 30px;
+    min-height: 32px;
+    padding-block: 7px;
   }
 }
 html[data-a11y-motion='reduce'] .operations-ticker-track {
@@ -351,13 +315,13 @@ html[data-a11y-motion='reduce'] .operations-ticker-track > span {
   padding-inline: 8px;
   line-height: 1.35;
 }
-html[data-a11y-motion='reduce'] .operations-ticker-track > span + span,
-html[data-a11y-motion='reduce'] .operations-ticker-toggle {
+html[data-a11y-motion='reduce'] .operations-ticker-track > span + span {
   display: none;
 }
 html[data-a11y-motion='reduce'] .operations-ticker {
   height: auto;
-  min-height: 30px;
+  min-height: 32px;
+  padding-block: 7px;
 }
 .staff-dashboard .operations-intro {
   display: none;
@@ -387,7 +351,7 @@ html[data-a11y-motion='reduce'] .operations-ticker {
   transform: none;
 }
 .staff-dashboard .operations-flow strong {
-  font-size: 11px;
+  font-size: var(--staff-tab-size);
 }
 .staff-dashboard .operations-flow small {
   font-size: 10px;
@@ -435,6 +399,69 @@ html[data-a11y-motion='reduce'] .operations-ticker {
 .staff-dashboard .operations-tabs button {
   padding: 8px 14px;
 }
+/* One financial-control surface, with a visible selected state for every workspace. */
+.staff-dashboard :is(
+  .operations-flow button,
+  .operations-tabs button,
+  .operations-queue-filters button,
+  .operations-toolbar button,
+  .compliance-tabs button,
+  .compliance-heading > button
+) {
+  background-color: var(--staff-control-bg);
+  background-image: none;
+  color: white;
+  border: 1px solid #83a6b080;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.staff-dashboard :is(
+  .operations-flow button,
+  .operations-tabs button,
+  .operations-queue-filters button,
+  .operations-toolbar button,
+  .compliance-tabs button,
+  .compliance-heading > button
+):is([aria-current='page'], [aria-pressed='true']) {
+  background-image: linear-gradient(165deg, #ffffff3d, #ffffff05 48%, #4bd1d31a);
+  border-color: #4bd1d3;
+  box-shadow: inset 0 1px 0 #ffffff66, 0 2px 8px #0b252f1f;
+}
+.staff-dashboard :is(
+  .operations-flow button,
+  .operations-tabs button,
+  .operations-queue-filters button,
+  .operations-toolbar button,
+  .compliance-tabs button,
+  .compliance-heading > button,
+  .staff-sign-out
+):hover:not(:disabled) {
+  background-image: linear-gradient(165deg, #ffffff26, #ffffff05 55%);
+  border-color: #b9d0d6;
+}
+.staff-dashboard :is(
+  .operations-flow button,
+  .operations-tabs button,
+  .operations-queue-filters button,
+  .operations-toolbar button,
+  .compliance-tabs button,
+  .compliance-heading > button,
+  .staff-sign-out
+):focus-visible {
+  outline: 2px solid #279d9f;
+  outline-offset: 3px;
+}
+.staff-dashboard :is(
+  .operations-tabs button,
+  .operations-queue-filters button,
+  .operations-toolbar button,
+  .compliance-tabs button,
+  .compliance-heading > button
+):disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
 .operations-toolbar {
   display: flex;
   align-items: center;
@@ -446,7 +473,6 @@ html[data-a11y-motion='reduce'] .operations-ticker {
 }
 .operations-toolbar button {
   font-size: 11px;
-  color: #0b252f;
   font-weight: 600;
   padding: 4px 8px;
   cursor: pointer;
@@ -533,11 +559,6 @@ html[data-a11y-motion='reduce'] .operations-ticker {
   padding: 8px 14px;
   cursor: pointer;
   font-size: 11px;
-}
-.compliance-tabs button[aria-current] {
-  background: #0b252f;
-  color: white;
-  border-color: #0b252f;
 }
 .connection-cards {
   display: grid;
@@ -1018,9 +1039,6 @@ html[data-a11y-motion='reduce'] .operations-ticker {
   .staff-dashboard .operations-step,
   .staff-dashboard .operations-flow-arrow {
     display: none;
-  }
-  .staff-dashboard .operations-flow strong {
-    font-size: 10px;
   }
   .staff-dashboard .operations-flow small {
     font-size: 9px;

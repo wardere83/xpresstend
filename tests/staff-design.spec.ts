@@ -42,9 +42,9 @@ test('financial workspace preserves metrics, separate document and record scroll
     return route.fulfill({ json: responses[path] ?? {} })
   })
   await page.goto('/#/admin')
-  await expect(
-    page.getByRole('heading', { name: 'Your operations. In view.' }),
-  ).toBeVisible()
+  const tickerCopy = 'XpressTend Operations | Owner View | Access Approval Hub'
+  await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName(tickerCopy)
+  await expect(page.getByText('Your operations. In view.', { exact: true })).toHaveCount(0)
   await expect(page.locator('.operations-ledger')).toContainText('Balanced')
   await expect(
     page
@@ -54,39 +54,30 @@ test('financial workspace preserves metrics, separate document and record scroll
   await page.evaluate(async () => {
     await document.fonts.ready
   })
-  const headingFit = () =>
-    page.locator('.operations-brand').evaluate((brand) => {
-      const heading = brand.querySelector('h1')!
-      const text = document.createRange()
-      text.selectNodeContents(heading)
-      const glyphs = text.getBoundingClientRect()
-      const ticker = brand
-        .querySelector('.operations-ticker')!
-        .getBoundingClientRect()
-      return Math.max(
-        Math.abs(glyphs.left - ticker.left),
-        Math.abs(glyphs.right - ticker.right),
-      )
-    })
-  await expect.poll(headingFit).toBeLessThanOrEqual(2)
   const ticker = page.locator('.operations-ticker')
   const track = page.locator('.operations-ticker-track')
-  await expect(ticker).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(track.locator('span').first()).toHaveText(tickerCopy)
+  await expect(ticker.getByRole('button')).toHaveCount(0)
+  await expect(ticker).toHaveCSS('background-color', 'rgb(11, 37, 47)')
   await expect(ticker).toHaveCSS('border-top-width', '1px')
   await expect(track).toHaveCSS('animation-duration', '16s')
   await expect(track).toHaveCSS('animation-iteration-count', 'infinite')
-  await expect(page.locator('#operations-title')).toHaveCSS(
-    'font-weight',
-    '400',
-  )
-  await expect(page.locator('#operations-title')).toHaveCSS(
-    'animation-name',
-    'none',
-  )
-  await page.getByRole('button', { name: 'Pause heading motion' }).click()
-  await expect(track).toHaveCSS('animation-play-state', 'paused')
-  await page.getByRole('button', { name: 'Resume heading motion' }).click()
-  await expect(track).toHaveCSS('animation-play-state', 'running')
+  await expect(page.locator('.staff-role')).toHaveText('owner')
+  await expect(page.locator('.staff-role')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(page.locator('.staff-role')).toHaveCSS('border-top-color', 'rgb(255, 255, 255)')
+  const signOut = page.getByRole('button', { name: 'Sign out', exact: true })
+  await expect(signOut).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(signOut).toHaveCSS('border-top-color', 'rgb(255, 255, 255)')
+  await expect(page.locator('.staff-session-email')).toHaveCSS('font-weight', await signOut.evaluate(el => getComputedStyle(el).fontWeight))
+  const workflowType = await page.locator('.operations-flow strong').first().evaluate(el => {
+    const style = getComputedStyle(el)
+    return { family: style.fontFamily, size: style.fontSize, weight: style.fontWeight }
+  })
+  await expect(track.locator('span').first()).toHaveCSS('font-family', workflowType.family)
+  await expect(track.locator('span').first()).toHaveCSS('font-size', workflowType.size)
+  await expect(track.locator('span').first()).toHaveCSS('font-weight', workflowType.weight)
+  const initialPosition = await track.evaluate(el => getComputedStyle(el).transform)
+  await expect.poll(() => track.evaluate(el => getComputedStyle(el).transform)).not.toBe(initialPosition)
   await page.screenshot({
     path: 'test-results/staff-workspace-desktop.png',
     fullPage: true,
@@ -95,6 +86,8 @@ test('financial workspace preserves metrics, separate document and record scroll
   await expect(
     page.getByRole('button', { name: /Access governance/ }),
   ).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('button', { name: /Access governance/ })).toHaveCSS('background-color', 'rgb(11, 37, 47)')
+  expect(await page.getByRole('button', { name: /Access governance/ }).evaluate(el => getComputedStyle(el).backgroundImage)).toContain('linear-gradient')
   await expect(page.getByPlaceholder('name@xpresstend.com')).toBeVisible()
   await expect(
     page.getByText('staff-30@example.invalid', { exact: true }),
@@ -115,7 +108,7 @@ test('financial workspace preserves metrics, separate document and record scroll
   )
   for (const width of [1440, 320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 })
-    await expect.poll(headingFit).toBeLessThanOrEqual(2)
+    expect((await ticker.boundingBox())!.width).toBeLessThanOrEqual(300)
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width)

@@ -177,14 +177,13 @@ for (const language of ['en', 'es', 'pt-BR', 'ar']) {
         expect(geometry.orbitBottom).toBeLessThanOrEqual(geometry.bottom - 4)
         if (width <= 700)
           expect(geometry.copyBottom).toBeLessThanOrEqual(geometry.orbitTop - 4)
-        const rings = hero.locator('.compliance-orbit-ring')
-        await expect(rings).toHaveCount(3)
-        for (const ring of await rings.all())
-          await expect(ring).toHaveCSS('animation-iteration-count', 'infinite')
-        await expect(hero.locator('.compliance-orbit-core')).toHaveCSS(
-          'transform',
-          'none',
-        )
+        const globe = hero.locator('.xt-globe')
+        await expect(globe).toHaveAttribute('data-globe-variant', 'ambient')
+        await expect(globe.locator('.xt-globe-land')).toHaveAttribute('d', /^M/)
+        await expect(globe.locator(
+          '.xt-globe-grid,.xt-globe-connections,.xt-globe-nodes,.xt-globe-particles,button,[tabindex]',
+        )).toHaveCount(0)
+        await expect(globe).toHaveAttribute('data-animation-state', 'playing')
       }
     }
   })

@@ -69,6 +69,7 @@ test('the phone and accessibility controls stay slender and reduced motion leave
   const mainWidth = await page
     .locator('.brand-device')
     .evaluate((el) => el.offsetWidth)
+  const mainHeight = await page.locator('.brand-device').evaluate(el => el.offsetHeight)
   await tour
     .getByRole('button', { name: 'Next walkthrough step', exact: true })
     .click()
@@ -78,6 +79,15 @@ test('the phone and accessibility controls stay slender and reduced motion leave
   const phone = page.locator('.demo-phone')
   await expect(phone).toBeVisible()
   expect(await phone.evaluate((el) => el.offsetWidth)).toBe(mainWidth)
+  expect(await phone.evaluate((el) => el.offsetHeight)).toBe(mainHeight)
+  for (const [width, height] of [[390, 844], [320, 740]]) {
+    await page.setViewportSize({ width, height })
+    await page.goto('/')
+    const homeFrame = await page.locator('.brand-device').evaluate(el => [el.offsetWidth, el.offsetHeight])
+    await page.goto('/#/demo')
+    await expect(phone).toBeVisible()
+    expect(await phone.evaluate(el => [el.offsetWidth, el.offsetHeight])).toEqual(homeFrame)
+  }
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await phone.evaluate((el) => el.offsetWidth)).toBeLessThanOrEqual(288)
   const launcher = page.locator('.a11y-launcher')
