@@ -757,8 +757,20 @@ function Dashboard({
   const [clearingId, setClearingId] = useState<string | null>(null)
   const reviewRequest = useRef(0)
   const loadRequest = useRef(0)
+  const latestLoad = useRef<Promise<TransferRow[]> | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
+  const [complianceRefreshing, setComplianceRefreshing] = useState(false)
+  const [workstationRefreshState, setWorkstationRefreshState] = useState<
+    'idle' | 'refreshing' | 'failed'
+  >('idle')
+  const complianceRefresh = useRef<(() => Promise<void>) | null>(null)
+  const registerComplianceRefresh = useCallback(
+    (refresh: (() => Promise<void>) | null) => {
+      complianceRefresh.current = refresh
+    },
+    [],
+  )
   const [inviteRequest, setInviteRequest] = useState(0)
   const [sectionRequest, setSectionRequest] = useState<{
     section: ComplianceSection
@@ -770,30 +782,51 @@ function Dashboard({
 
   const canDecide = admin.role === 'compliance' || admin.role === 'owner'
 
-  const load = useCallback(
+  const performLoad = useCallback(
     async (status = filter) => {
       const request = ++loadRequest.current
       setRefreshing(true)
       try {
-        const [t, b, o] = await Promise.all([
+        const [t, b, o] = await Promise.allSettled([
           api.get<{ transfers: TransferRow[] }>(
             `/admin/transfers?status=${encodeURIComponent(status)}`,
           ),
           api.get<TrialBalance>('/admin/ledger/trial-balance'),
           api.get<OperationsOverview>('/admin/overview'),
         ])
-        if (request !== loadRequest.current) return t.transfers
-        setRows(t.transfers)
-        setBalance(b)
-        setOverview(o)
+        if (request !== loadRequest.current)
+          return t.status === 'fulfilled' ? t.value.transfers : []
+        if (t.status === 'rejected') throw t.reason
+        if (b.status === 'rejected') throw b.reason
+        if (o.status === 'rejected') throw o.reason
+        setRows(t.value.transfers)
+        setBalance(b.value)
+        setOverview(o.value)
         setUpdatedAt(new Date().toLocaleTimeString())
-        return t.transfers
+        return t.value.transfers
       } finally {
         if (request === loadRequest.current) setRefreshing(false)
       }
     },
     [filter],
   )
+  const load = useCallback((status?: string) => {
+    const task = performLoad(status)
+    latestLoad.current = task
+    return task
+  }, [performLoad])
+  const loadLatest = useCallback(async () => {
+    let task = load()
+    for (;;) {
+      const [result] = await Promise.allSettled([task])
+      if (latestLoad.current && latestLoad.current !== task) {
+        task = latestLoad.current
+        continue
+      }
+      if (result.status === 'rejected') throw result.reason
+      return
+    }
+  }, [load])
 
   const invalidateLoad = useCallback(() => {
     loadRequest.current++
@@ -802,7 +835,7 @@ function Dashboard({
     const refresh = () => {
       if (!document.hidden)
         void load().catch(() =>
-          setNote('Could not load the queue. Retry with Refresh workspace.'),
+          setNote('Could not load the queue. Retry with Refresh workstation.'),
         )
     }
     refresh()
@@ -812,6 +845,31 @@ function Dashboard({
       invalidateLoad()
     }
   }, [load, invalidateLoad])
+
+  async function refreshWorkstation() {
+    setNote(null)
+    setWorkstationRefreshState('refreshing')
+    const results = await Promise.allSettled([
+      loadLatest(),
+      ...(canDecide
+        ? [complianceRefresh.current
+            ? complianceRefresh.current()
+            : Promise.reject(new Error('Financial controls are not ready.'))]
+        : []),
+    ])
+    const failed = results.flatMap((result, index) =>
+      result.status === 'rejected'
+        ? [index === 0 ? 'the queue and statistics' : 'the financial controls environment']
+        : [],
+    )
+    if (failed.length) {
+      setWorkstationRefreshState('failed')
+      setNote(`Could not refresh ${failed.join(' and ')}. Please retry.`)
+    } else {
+      setWorkstationRefreshState('idle')
+      setUpdatedAt(new Date().toLocaleTimeString())
+    }
+  }
 
   async function runWorkflow(key: 'queue' | 'compliance' | 'staff') {
     setNote(null)
@@ -966,19 +1024,8 @@ function Dashboard({
       <main className="mx-auto max-w-6xl px-5 py-8">
         <section className="operations-hero" aria-labelledby="operations-title">
           <div className="operations-brand">
-            <h1 id="operations-title" className="operations-ticker">
-              <span className="sr-only">
-                XpressTend Operations | Owner View | Access Approval Hub
-              </span>
-              <span className="operations-ticker-window" aria-hidden="true">
-                <span className="operations-ticker-track">
-                  {[0, 1].map((copy) => (
-                    <span key={copy}>
-                      XpressTend Operations | Owner View | Access Approval Hub
-                    </span>
-                  ))}
-                </span>
-              </span>
+            <h1 id="operations-title" className="operations-title">
+              XpressTend Operations
             </h1>
             <p className="operations-intro">
               A connected view of transfers, financial controls and the people
@@ -1136,22 +1183,19 @@ function Dashboard({
 
         <div className="operations-toolbar">
           <span role="status">
-            {refreshing
-              ? 'Refreshing workspace…'
+            {refreshing || complianceRefreshing || workstationRefreshState === 'refreshing'
+              ? 'Refreshing workstation…'
+              : workstationRefreshState === 'failed'
+                ? 'Refresh incomplete. Please retry.'
               : updatedAt
                 ? `Updated ${updatedAt}`
                 : 'Waiting for data'}
           </span>
           <button
-            disabled={refreshing}
-            onClick={() => {
-              setNote(null)
-              void load().catch(() =>
-                setNote('Unable to refresh. Please retry.'),
-              )
-            }}
+            disabled={refreshing || complianceRefreshing || workstationRefreshState === 'refreshing'}
+            onClick={() => void refreshWorkstation()}
           >
-            Refresh workspace
+            Refresh workstation
           </button>
         </div>
         <div
@@ -1167,9 +1211,14 @@ function Dashboard({
           {tab === 'staff' ? (
             <StaffPanel me={admin} inviteRequest={inviteRequest} />
           ) : null}
-          {tab === 'compliance' ? (
-            <CompliancePanel admin={admin} sectionRequest={sectionRequest} />
-          ) : null}
+          <div hidden={tab !== 'compliance'}>
+            <CompliancePanel
+              admin={admin}
+              sectionRequest={sectionRequest}
+              onRegisterRefresh={registerComplianceRefresh}
+              onRefreshingChange={setComplianceRefreshing}
+            />
+          </div>
 
           {tab === 'queue' ? (
             <>
