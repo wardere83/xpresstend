@@ -11,6 +11,51 @@ test('a visitor can create an account before entering the customer app', async (
   await expect(page.getByLabel('Password', { exact: true })).toBeVisible()
 })
 
+test('a stale initial session check cannot undo a successful sign-in', async ({ page }) => {
+  let releaseInitialCheck!: () => void
+  let initialCheckStarted!: () => void
+  const initialCheck = new Promise<void>((resolve) => {
+    releaseInitialCheck = resolve
+  })
+  const initialRequest = new Promise<void>((resolve) => {
+    initialCheckStarted = resolve
+  })
+  let sessionChecks = 0
+
+  await page.route('**/api/**', (route) => {
+    const path = new URL(route.request().url()).pathname
+    const response =
+      path === '/api/recipients'
+        ? { recipients: [] }
+        : path === '/api/transfers'
+          ? { transfers: [] }
+          : path === '/api/corridors'
+            ? { corridors: [] }
+            : {}
+    return route.fulfill({ status: 200, json: response })
+  })
+  await page.route('**/api/auth/login', (route) => route.fulfill({ status: 200, json: {} }))
+  await page.route('**/api/auth/me', async (route) => {
+    sessionChecks += 1
+    if (sessionChecks === 1) {
+      initialCheckStarted()
+      await initialCheck
+      return route.fulfill({ status: 401, json: { error: 'unauthorized' } })
+    }
+    return route.fulfill({ status: 200, json: { user: customer } })
+  })
+
+  await page.goto('/#/login')
+  await initialRequest
+  await page.getByLabel('Email', { exact: true }).fill(customer.email)
+  await page.getByLabel('Password', { exact: true }).fill('FixturePassword123!')
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await expect(page).toHaveURL(/#\/app$/)
+  releaseInitialCheck()
+  await expect(page.locator('.product-home-greeting')).toContainText('Taylor')
+  await expect(page).toHaveURL(/#\/app$/)
+})
+
 test('a pending real account profile reports its actual verification state and membership', async ({
   page,
 }) => {
